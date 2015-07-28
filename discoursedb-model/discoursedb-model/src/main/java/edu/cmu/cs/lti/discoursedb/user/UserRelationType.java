@@ -2,10 +2,29 @@ package edu.cmu.cs.lti.discoursedb.user;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SelectBeforeUpdate;
+
+@Entity
+@SelectBeforeUpdate 
+@DynamicUpdate
+@DynamicInsert
+@Table(name="user_relation_type")
 public class UserRelationType implements Serializable {
 
 	private static final long serialVersionUID = 3266414066287662012L;
 
+	@Id
+	@Column(name="id_user_relation_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String type;
