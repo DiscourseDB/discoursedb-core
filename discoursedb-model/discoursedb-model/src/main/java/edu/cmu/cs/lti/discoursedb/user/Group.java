@@ -13,23 +13,23 @@ public class Group implements Serializable {
 
 	private long id;
 
-	private Group_Type type;
+	private GroupType type;
 
 	private String name;
 	
-	private Timestamp start_time;
+	private Timestamp startTime;
 	
-	private Timestamp end_time;
+	private Timestamp endTime;
 	
 	private Set<Annotation> annotations = new HashSet<Annotation>();
 	
 	public Group(){}
 
-	public Group_Type getType() {
+	public GroupType getType() {
 		return type;
 	}
 
-	public void setType(Group_Type type) {
+	public void setType(GroupType type) {
 		this.type = type;
 	}
 
@@ -41,20 +41,20 @@ public class Group implements Serializable {
 		this.name = name;
 	}
 
-	public Timestamp getStart_time() {
-		return start_time;
+	public Timestamp getStartTime() {
+		return startTime;
 	}
 
-	public void setStart_time(Timestamp start_time) {
-		this.start_time = start_time;
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
 	}
 
-	public Timestamp getEnd_time() {
-		return end_time;
+	public Timestamp getEndTime() {
+		return endTime;
 	}
 
-	public void setEnd_time(Timestamp end_time) {
-		this.end_time = end_time;
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
 	}
 
 	public Set<Annotation> getAnnotations() {

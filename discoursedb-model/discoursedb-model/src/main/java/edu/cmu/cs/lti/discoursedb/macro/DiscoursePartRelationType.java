@@ -1,14 +1,16 @@
-package edu.cmu.cs.lti.discoursedb.user;
+package edu.cmu.cs.lti.discoursedb.macro;
 
 import java.io.Serializable;
 
-public class Audience_Type implements Serializable {
+public class DiscoursePartRelationType implements Serializable {
 
-	private static final long serialVersionUID = 2596255302608073060L;
+	private static final long serialVersionUID = -3867055194845454430L;
 
 	private long id;
 	
 	private String type;
+	
+	public DiscoursePartRelationType(){}
 
 	public long getId() {
 		return id;
@@ -25,6 +27,5 @@ public class Audience_Type implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
-
-	public Audience_Type(){}
+	
 }

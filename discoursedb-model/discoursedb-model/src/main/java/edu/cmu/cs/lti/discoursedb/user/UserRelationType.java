@@ -2,15 +2,15 @@ package edu.cmu.cs.lti.discoursedb.user;
 
 import java.io.Serializable;
 
-public class Group_Type implements Serializable{
+public class UserRelationType implements Serializable {
 
-	private static final long serialVersionUID = -8085963752024237480L;
+	private static final long serialVersionUID = 3266414066287662012L;
 
 	private long id;
 	
 	private String type;
 
-	public Group_Type(){}
+	public UserRelationType(){}
 
 	public long getId() {
 		return id;
@@ -27,4 +27,5 @@ public class Group_Type implements Serializable{
 	public void setType(String type) {
 		this.type = type;
 	}
+
 }

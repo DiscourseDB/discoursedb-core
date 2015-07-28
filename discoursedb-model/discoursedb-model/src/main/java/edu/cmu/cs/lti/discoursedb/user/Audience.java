@@ -12,7 +12,7 @@ public class Audience implements Serializable {
 
 	private long id;
 	
-	private Audience_Type type;
+	private AudienceType type;
 	
 	private Set<Annotation> annotations = new HashSet<Annotation>();
 	
@@ -26,11 +26,11 @@ public class Audience implements Serializable {
 		this.id = id;
 	}
 
-	public Audience_Type getType() {
+	public AudienceType getType() {
 		return type;
 	}
 
-	public void setType(Audience_Type type) {
+	public void setType(AudienceType type) {
 		this.type = type;
 	}
 

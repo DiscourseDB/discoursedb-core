@@ -8,7 +8,7 @@ import java.util.Set;
 import edu.cmu.cs.lti.discoursedb.annotation.Annotation;
 import edu.cmu.cs.lti.discoursedb.macro.Content;
 
-public class Content_Interaction implements Serializable{
+public class ContentInteraction implements Serializable{
 
 	private static final long serialVersionUID = 3846201435729013318L;
 
@@ -18,15 +18,15 @@ public class Content_Interaction implements Serializable{
 	
 	private Content content;
 	
-	private Timestamp start_time;
+	private Timestamp startTime;
 	
-	private Timestamp end_time;
+	private Timestamp endTime;
 	
-	private Content_Interaction_Type type;
+	private ContentInteractionType type;
 	
 	private Set<Annotation> annotations = new HashSet<Annotation>();
 	
-	public Content_Interaction(){}
+	public ContentInteraction(){}
 
 	public long getId() {
 		return id;
@@ -52,27 +52,27 @@ public class Content_Interaction implements Serializable{
 		this.content = content;
 	}
 
-	public Timestamp getStart_time() {
-		return start_time;
+	public Timestamp getStartTime() {
+		return startTime;
 	}
 
-	public void setStart_time(Timestamp start_time) {
-		this.start_time = start_time;
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
 	}
 
-	public Timestamp getEnd_time() {
-		return end_time;
+	public Timestamp getEndTime() {
+		return endTime;
 	}
 
-	public void setEnd_time(Timestamp end_time) {
-		this.end_time = end_time;
+	public void setEnd_time(Timestamp endTime) {
+		this.endTime = endTime;
 	}
 
-	public Content_Interaction_Type getType() {
+	public ContentInteractionType getType() {
 		return type;
 	}
 
-	public void setType(Content_Interaction_Type type) {
+	public void setType(ContentInteractionType type) {
 		this.type = type;
 	}
 

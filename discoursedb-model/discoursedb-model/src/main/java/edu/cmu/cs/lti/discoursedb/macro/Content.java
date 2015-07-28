@@ -14,11 +14,11 @@ public class Content implements Serializable {
 
 	private long id;
 	
-	private Content previous_revision;
+	private Content previousRevision;
 	
-	private Content next_revision;
+	private Content nextRevision;
 	
-	private Timestamp creation_time;
+	private Timestamp creationTime;
 	
 	private String text;
 	
@@ -36,28 +36,28 @@ public class Content implements Serializable {
 		this.id = id;
 	}
 
-	public Content getPrevious_revision() {
-		return previous_revision;
+	public Content getPreviousRevision() {
+		return previousRevision;
 	}
 
-	public void setPrevious_revision(Content previous_revision) {
-		this.previous_revision = previous_revision;
+	public void setPreviousRevision(Content previousRevision) {
+		this.previousRevision = previousRevision;
 	}
 
-	public Content getNext_revision() {
-		return next_revision;
+	public Content getNextRevision() {
+		return nextRevision;
 	}
 
-	public void setNext_revision(Content next_revision) {
-		this.next_revision = next_revision;
+	public void setNextRevision(Content nextRevision) {
+		this.nextRevision = nextRevision;
 	}
 
-	public Timestamp getCreation_time() {
-		return creation_time;
+	public Timestamp getCreationTime() {
+		return creationTime;
 	}
 
-	public void setCreation_time(Timestamp creation_time) {
-		this.creation_time = creation_time;
+	public void setCreationTime(Timestamp creationTime) {
+		this.creationTime = creationTime;
 	}
 
 	public String getText() {

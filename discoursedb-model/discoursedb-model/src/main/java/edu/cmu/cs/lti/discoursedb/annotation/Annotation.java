@@ -13,17 +13,17 @@ public class Annotation implements Serializable{
 	
 	private long id;
 	
-	private int begin_offset;
+	private int beginOffset;
 	
-	private int end_offset;
+	private int endOffset;
 	
-	private String covered_text;
+	private String coveredText;
 	
-	private Timestamp start_time;
+	private Timestamp startTime;
 	
-	private Timestamp end_time;	
+	private Timestamp endTime;	
 	
-	private Annotation_Type type;	
+	private AnnotationType type;	
 	
 	private DiscourseDB discoursedb;
 	
@@ -39,51 +39,51 @@ public class Annotation implements Serializable{
 		this.id = id;
 	}
 
-	public int getBegin_offset() {
-		return begin_offset;
+	public int getBeginOffset() {
+		return beginOffset;
 	}
 
-	public void setBegin_offset(int begin_offset) {
-		this.begin_offset = begin_offset;
+	public void setBeginOffset(int beginOffset) {
+		this.beginOffset = beginOffset;
 	}
 
-	public int getEnd_offset() {
-		return end_offset;
+	public int getEndOffset() {
+		return endOffset;
 	}
 
-	public void setEnd_offset(int end_offset) {
-		this.end_offset = end_offset;
+	public void setEndOffset(int endOffset) {
+		this.endOffset = endOffset;
 	}
 
-	public String getCovered_text() {
-		return covered_text;
+	public String getCoveredText() {
+		return coveredText;
 	}
 
-	public void setCovered_text(String covered_text) {
-		this.covered_text = covered_text;
+	public void setCoveredText(String coveredText) {
+		this.coveredText = coveredText;
 	}
 
-	public Timestamp getStart_time() {
-		return start_time;
+	public Timestamp getStartTime() {
+		return startTime;
 	}
 
-	public void setStart_time(Timestamp start_time) {
-		this.start_time = start_time;
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
 	}
 
-	public Timestamp getEnd_time() {
-		return end_time;
+	public Timestamp getEndTime() {
+		return endTime;
 	}
 
-	public void setEnd_time(Timestamp end_time) {
-		this.end_time = end_time;
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
 	}
 
-	public Annotation_Type getType() {
+	public AnnotationType getType() {
 		return type;
 	}
 
-	public void setType(Annotation_Type type) {
+	public void setType(AnnotationType type) {
 		this.type = type;
 	}
 

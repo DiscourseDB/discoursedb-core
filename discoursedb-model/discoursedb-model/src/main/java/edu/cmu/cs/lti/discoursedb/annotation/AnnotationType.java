@@ -2,7 +2,7 @@ package edu.cmu.cs.lti.discoursedb.annotation;
 
 import java.io.Serializable;
 
-public class Annotation_Type implements Serializable{
+public class AnnotationType implements Serializable{
 
 	private static final long serialVersionUID = 9194247332380412321L;
 
@@ -14,7 +14,7 @@ public class Annotation_Type implements Serializable{
 	
 	private boolean isEntityAnnotation;
 	
-	public Annotation_Type(){}
+	public AnnotationType(){}
 
 	public long getId() {
 		return id;

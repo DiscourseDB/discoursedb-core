@@ -2,7 +2,7 @@ package edu.cmu.cs.lti.discoursedb.annotation;
 
 import java.io.Serializable;
 
-public class Feature_Type implements Serializable{
+public class FeatureType implements Serializable{
 
 	private static final long serialVersionUID = -3343145417294760437L;
 
@@ -14,7 +14,7 @@ public class Feature_Type implements Serializable{
 	
 	private String description;
 	
-	public Feature_Type(){}
+	public FeatureType(){}
 
 	public long getId() {
 		return id;

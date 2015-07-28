@@ -2,16 +2,16 @@ package edu.cmu.cs.lti.discoursedb.macro;
 
 import java.io.Serializable;
 
-public class Discourse_Part_Relation_Type implements Serializable {
+public class DiscourseRelationType implements Serializable {
 
-	private static final long serialVersionUID = -3867055194845454430L;
+	private static final long serialVersionUID = -6905270877949246079L;
 
 	private long id;
 	
 	private String type;
-	
-	public Discourse_Part_Relation_Type(){}
 
+	public DiscourseRelationType(){}
+	
 	public long getId() {
 		return id;
 	}
@@ -27,5 +27,5 @@ public class Discourse_Part_Relation_Type implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 }

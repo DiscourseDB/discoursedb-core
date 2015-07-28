@@ -10,7 +10,7 @@ public class Feature implements Serializable{
 	
 	private String text;
 	
-	private Feature_Type type;
+	private FeatureType type;
 	
 	public Feature(){}
 
@@ -30,11 +30,11 @@ public class Feature implements Serializable{
 		this.text = text;
 	}
 
-	public Feature_Type getType() {
+	public FeatureType getType() {
 		return type;
 	}
 
-	public void setType(Feature_Type type) {
+	public void setType(FeatureType type) {
 		this.type = type;
 	}
 	

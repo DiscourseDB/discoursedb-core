@@ -2,7 +2,7 @@ package edu.cmu.cs.lti.discoursedb.macro;
 
 import java.io.Serializable;
 
-public class Context_Type implements Serializable {
+public class ContextType implements Serializable {
 
 	private static final long serialVersionUID = 9191265196419948023L;
 
@@ -10,7 +10,7 @@ public class Context_Type implements Serializable {
 	
 	private String type;
 	
-	public Context_Type(){}
+	public ContextType(){}
 
 	public long getId() {
 		return id;

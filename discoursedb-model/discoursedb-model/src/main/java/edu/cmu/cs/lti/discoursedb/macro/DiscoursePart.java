@@ -7,7 +7,7 @@ import java.util.Set;
 
 import edu.cmu.cs.lti.discoursedb.annotation.Annotation;
 
-public class Discourse_Part implements Serializable{
+public class DiscoursePart implements Serializable{
 
 	private static final long serialVersionUID = -7341483666466458901L;
 
@@ -15,15 +15,15 @@ public class Discourse_Part implements Serializable{
 	
 	private String name;
 	
-	private Timestamp start_time;
+	private Timestamp startTime;
 
-	private Timestamp end_time;
+	private Timestamp endTime;
 	
 	private Set<Annotation> annotations = new HashSet<Annotation>();
 	
-	private Discourse_Part_Type type;
+	private DiscoursePartType type;
 	
-	public Discourse_Part(){}
+	public DiscoursePart(){}
 
 	public long getId() {
 		return id;
@@ -41,20 +41,20 @@ public class Discourse_Part implements Serializable{
 		this.name = name;
 	}
 
-	public Timestamp getStart_time() {
-		return start_time;
+	public Timestamp getStartTime() {
+		return startTime;
 	}
 
-	public void setStart_time(Timestamp start_time) {
-		this.start_time = start_time;
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
 	}
 
-	public Timestamp getEnd_time() {
-		return end_time;
+	public Timestamp getEndTime() {
+		return endTime;
 	}
 
-	public void setEnd_time(Timestamp end_time) {
-		this.end_time = end_time;
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
 	}
 
 	public Set<Annotation> getAnnotations() {
@@ -65,11 +65,11 @@ public class Discourse_Part implements Serializable{
 		this.annotations = annotations;
 	}
 
-	public Discourse_Part_Type getType() {
+	public DiscoursePartType getType() {
 		return type;
 	}
 
-	public void setType(Discourse_Part_Type type) {
+	public void setType(DiscoursePartType type) {
 		this.type = type;
 	}
 }

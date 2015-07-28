@@ -9,11 +9,11 @@ public class DiscourseDB implements Serializable{
 
 	private long id;
 	
-	private String schema_version;
+	private String schemaVersion;
 	
-	private Timestamp start_time;
+	private Timestamp startTime;
 	
-	private Timestamp end_time;
+	private Timestamp endTime;
 	
 	public DiscourseDB(){}
 	
@@ -23,23 +23,23 @@ public class DiscourseDB implements Serializable{
 	public void setId(long id) {
 		this.id = id;
 	}
-	public String getSchema_version() {
-		return schema_version;
+	public String getSchemaVersion() {
+		return schemaVersion;
 	}
-	public void setSchema_version(String schema_version) {
-		this.schema_version = schema_version;
+	public void setSchemaVersion(String schemaVersion) {
+		this.schemaVersion = schemaVersion;
 	}
-	public Timestamp getStart_time() {
-		return start_time;
+	public Timestamp getStartTime() {
+		return startTime;
 	}
-	public void setStart_time(Timestamp start_time) {
-		this.start_time = start_time;
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
 	}
-	public Timestamp getEnd_time() {
-		return end_time;
+	public Timestamp getEndTime() {
+		return endTime;
 	}
-	public void setEnd_time(Timestamp end_time) {
-		this.end_time = end_time;
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
 	}
 	
 }

@@ -7,17 +7,17 @@ import java.util.Set;
 
 import edu.cmu.cs.lti.discoursedb.annotation.Annotation;
 
-public class User_Relation implements Serializable {
+public class UserRelation implements Serializable {
 
 	private static final long serialVersionUID = -5267036520925282560L;
 
 	private long id;
 	
-	private User_Relation_Type type;
+	private UserRelationType type;
 	
-	private Timestamp start_time;
+	private Timestamp startTime;
 	
-	private Timestamp end_time;
+	private Timestamp endTime;
 	
 	private User source;
 	
@@ -25,7 +25,7 @@ public class User_Relation implements Serializable {
 	
 	private Set<Annotation> annotations = new HashSet<Annotation>();
 	
-	public User_Relation(){}
+	public UserRelation(){}
 
 	public long getId() {
 		return id;
@@ -35,28 +35,28 @@ public class User_Relation implements Serializable {
 		this.id = id;
 	}
 
-	public User_Relation_Type getType() {
+	public UserRelationType getType() {
 		return type;
 	}
 
-	public void setType(User_Relation_Type type) {
+	public void setType(UserRelationType type) {
 		this.type = type;
 	}
 
-	public Timestamp getStart_time() {
-		return start_time;
+	public Timestamp getStartTime() {
+		return startTime;
 	}
 
-	public void setStart_time(Timestamp start_time) {
-		this.start_time = start_time;
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
 	}
 
 	public Timestamp getEnd_time() {
-		return end_time;
+		return endTime;
 	}
 
-	public void setEnd_time(Timestamp end_time) {
-		this.end_time = end_time;
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
 	}
 
 	public User getSource() {

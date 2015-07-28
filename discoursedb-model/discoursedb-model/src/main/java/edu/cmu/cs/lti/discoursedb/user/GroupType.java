@@ -1,14 +1,16 @@
-package edu.cmu.cs.lti.discoursedb.macro;
+package edu.cmu.cs.lti.discoursedb.user;
 
 import java.io.Serializable;
 
-public class Contribution_Type implements Serializable {
+public class GroupType implements Serializable{
 
-	private static final long serialVersionUID = -4187467243916373251L;
+	private static final long serialVersionUID = -8085963752024237480L;
 
 	private long id;
 	
 	private String type;
+
+	public GroupType(){}
 
 	public long getId() {
 		return id;

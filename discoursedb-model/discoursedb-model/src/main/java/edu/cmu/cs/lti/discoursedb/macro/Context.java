@@ -13,15 +13,15 @@ public class Context implements Serializable {
 
 	private long id;
 	
-	private Content first_revision;
+	private Content firstRevision;
 	
-	private Content current_revision;
+	private Content currentRevision;
 	
-	private Timestamp start_time;
+	private Timestamp startTime;
 	
-	private Timestamp end_time;
+	private Timestamp endTime;
 
-	private Context_Type type;
+	private ContextType type;
 	
 	private Set<Annotation> annotations = new HashSet<Annotation>();
 
@@ -35,43 +35,43 @@ public class Context implements Serializable {
 		this.id = id;
 	}
 
-	public Content getFirst_revision() {
-		return first_revision;
+	public Content getFirstRevision() {
+		return firstRevision;
 	}
 
-	public void setFirst_revision(Content first_revision) {
-		this.first_revision = first_revision;
+	public void setFirstRevision(Content firstRevision) {
+		this.firstRevision = firstRevision;
 	}
 
-	public Content getCurrent_revision() {
-		return current_revision;
+	public Content getCurrentRevision() {
+		return currentRevision;
 	}
 
-	public void setCurrent_revision(Content current_revision) {
-		this.current_revision = current_revision;
+	public void setCurrentRevision(Content currentRevision) {
+		this.currentRevision = currentRevision;
 	}
 
-	public Timestamp getStart_time() {
-		return start_time;
+	public Timestamp getStartTime() {
+		return startTime;
 	}
 
-	public void setStart_time(Timestamp start_time) {
-		this.start_time = start_time;
+	public void setStartTime(Timestamp startTime) {
+		this.startTime = startTime;
 	}
 
-	public Timestamp getEnd_time() {
-		return end_time;
+	public Timestamp getEndTime() {
+		return endTime;
 	}
 
-	public void setEnd_time(Timestamp end_time) {
-		this.end_time = end_time;
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
 	}
 
-	public Context_Type getType() {
+	public ContextType getType() {
 		return type;
 	}
 
-	public void setType(Context_Type type) {
+	public void setType(ContextType type) {
 		this.type = type;
 	}
 

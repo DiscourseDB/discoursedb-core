@@ -7,25 +7,25 @@ import java.util.Set;
 
 import edu.cmu.cs.lti.discoursedb.annotation.Annotation;
 
-public class Contribution implements Serializable {
+public class DiscoursePartRelation implements Serializable {
 
-	private static final long serialVersionUID = -2489956863731652149L;
+	private static final long serialVersionUID = 1914547709687781470L;
 
 	private long id;
 	
-	private Content firstRevision;
+	private DiscoursePart source;
 	
-	private Content currentRevision;
+	private DiscoursePart target;
 	
 	private Timestamp startTime;
 	
 	private Timestamp endTime;
-
-	private ContributionType type;
 	
 	private Set<Annotation> annotations = new HashSet<Annotation>();
-
-	public Contribution(){}
+	
+	private DiscoursePartRelationType type;
+	
+	public DiscoursePartRelation(){}
 
 	public long getId() {
 		return id;
@@ -35,20 +35,20 @@ public class Contribution implements Serializable {
 		this.id = id;
 	}
 
-	public Content getFirstRevision() {
-		return firstRevision;
+	public DiscoursePart getSource() {
+		return source;
 	}
 
-	public void setFirstRevision(Content firstRevision) {
-		this.firstRevision = firstRevision;
+	public void setSource(DiscoursePart source) {
+		this.source = source;
 	}
 
-	public Content getCurrentRevision() {
-		return currentRevision;
+	public DiscoursePart getTarget() {
+		return target;
 	}
 
-	public void setCurrentRevision(Content currentRevision) {
-		this.currentRevision = currentRevision;
+	public void setTarget(DiscoursePart target) {
+		this.target = target;
 	}
 
 	public Timestamp getStartTime() {
@@ -67,14 +67,6 @@ public class Contribution implements Serializable {
 		this.endTime = endTime;
 	}
 
-	public ContributionType getType() {
-		return type;
-	}
-
-	public void setType(ContributionType type) {
-		this.type = type;
-	}
-
 	public Set<Annotation> getAnnotations() {
 		return annotations;
 	}
@@ -82,4 +74,13 @@ public class Contribution implements Serializable {
 	public void setAnnotations(Set<Annotation> annotations) {
 		this.annotations = annotations;
 	}
+
+	public DiscoursePartRelationType getType() {
+		return type;
+	}
+
+	public void setType(DiscoursePartRelationType type) {
+		this.type = type;
+	}
+	
 }
