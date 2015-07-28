@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -39,26 +41,39 @@ public class DiscourseDB implements Serializable{
 	public long getId() {
 		return id;
 	}
+	
 	public void setId(long id) {
 		this.id = id;
 	}
+
+	@Column(name="schema_version")
 	public String getSchemaVersion() {
 		return schemaVersion;
 	}
+	
 	public void setSchemaVersion(String schemaVersion) {
 		this.schemaVersion = schemaVersion;
 	}
+	
+	@Column(name = "start_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getStartTime() {
 		return startTime;
 	}
+
 	public void setStartTime(Timestamp startTime) {
 		this.startTime = startTime;
 	}
+
+	@Column(name = "end_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getEndTime() {
 		return endTime;
 	}
+
 	public void setEndTime(Timestamp endTime) {
 		this.endTime = endTime;
 	}
+
 	
 }

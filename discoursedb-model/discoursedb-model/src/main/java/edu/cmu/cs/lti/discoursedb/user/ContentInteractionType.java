@@ -1,12 +1,17 @@
 package edu.cmu.cs.lti.discoursedb.user;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -25,6 +30,8 @@ public class ContentInteractionType implements Serializable{
 	private long id;
 	
 	private String type;
+	
+	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
 
 	@Id
 	@Column(name="id_content_interaction_type", nullable=false)
@@ -46,4 +53,13 @@ public class ContentInteractionType implements Serializable{
 	}
 	
 	public ContentInteractionType(){}
+
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	public Set<ContentInteraction> getContentInteractions() {
+		return contentInteractions;
+	}
+
+	public void setContentInteractions(Set<ContentInteraction> contentInteractions) {
+		this.contentInteractions = contentInteractions;
+	}
 }

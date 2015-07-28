@@ -1,12 +1,15 @@
 package edu.cmu.cs.lti.discoursedb.macro;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -27,6 +30,8 @@ public class Discourse implements Serializable{
 	private String name;
 	
 	private String source;
+	
+	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 	
 	public Discourse(){}
 
@@ -55,6 +60,15 @@ public class Discourse implements Serializable{
 
 	public void setSource(String source) {
 		this.source = source;
+	}
+
+    @OneToMany(mappedBy = "discourse")
+	public Set<DiscourseToDiscoursePart> getDiscourseToDiscourseParts() {
+		return discourseToDiscourseParts;
+	}
+
+    public void setDiscourseToDiscourseParts(Set<DiscourseToDiscoursePart> discourseToDiscourseParts) {
+		this.discourseToDiscourseParts = discourseToDiscourseParts;
 	}
 	
 	

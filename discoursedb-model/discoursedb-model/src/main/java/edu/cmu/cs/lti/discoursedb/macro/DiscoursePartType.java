@@ -1,12 +1,17 @@
 package edu.cmu.cs.lti.discoursedb.macro;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -25,6 +30,8 @@ public class DiscoursePartType implements Serializable {
 	private long id;
 	
 	private String type;
+	
+    private Set<DiscoursePart> discourseParts=new HashSet<DiscoursePart>();
 	
 	public DiscoursePartType(){}
 
@@ -45,5 +52,14 @@ public class DiscoursePartType implements Serializable {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	public Set<DiscoursePart> getDiscourseParts() {
+		return discourseParts;
+	}
+
+	public void setDiscourseParts(Set<DiscoursePart> discourseParts) {
+		this.discourseParts = discourseParts;
 	}
 }

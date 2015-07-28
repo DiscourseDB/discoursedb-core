@@ -1,12 +1,17 @@
 package edu.cmu.cs.lti.discoursedb.annotation;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -29,6 +34,8 @@ public class FeatureType implements Serializable{
 	private String datatype;
 	
 	private String description;
+	
+	private Set<Feature> features = new HashSet<Feature>();
 	
 	public FeatureType(){}
 
@@ -65,6 +72,15 @@ public class FeatureType implements Serializable{
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	public Set<Feature> getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(Set<Feature> features) {
+		this.features = features;
 	}
 	
 }

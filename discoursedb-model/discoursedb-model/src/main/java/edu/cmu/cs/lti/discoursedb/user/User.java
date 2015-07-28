@@ -1,8 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.user;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,7 +13,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.annotation.Annotations;
 
 @Entity

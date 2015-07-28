@@ -5,14 +5,19 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -45,12 +50,14 @@ public class AnnotationInstance implements Serializable{
 	
 	private DiscourseDB discoursedb;
 	
+	private Annotations annotationAggregate;
+	
 	private Set<Feature> features = new HashSet<Feature>();
 	
 	public AnnotationInstance(){}
 
 	@Id
-	@Column(name="id_annotation_intance", nullable=false)
+	@Column(name="id_annotation_instance", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
@@ -60,6 +67,7 @@ public class AnnotationInstance implements Serializable{
 		this.id = id;
 	}
 
+	@Column(name="begin_offset")
 	public int getBeginOffset() {
 		return beginOffset;
 	}
@@ -68,6 +76,7 @@ public class AnnotationInstance implements Serializable{
 		this.beginOffset = beginOffset;
 	}
 
+	@Column(name="end_offset")
 	public int getEndOffset() {
 		return endOffset;
 	}
@@ -76,6 +85,7 @@ public class AnnotationInstance implements Serializable{
 		this.endOffset = endOffset;
 	}
 
+	@Column(name="covered_text")
 	public String getCoveredText() {
 		return coveredText;
 	}
@@ -84,6 +94,8 @@ public class AnnotationInstance implements Serializable{
 		this.coveredText = coveredText;
 	}
 
+	@Column(name = "start_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getStartTime() {
 		return startTime;
 	}
@@ -92,6 +104,8 @@ public class AnnotationInstance implements Serializable{
 		this.startTime = startTime;
 	}
 
+	@Column(name = "end_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getEndTime() {
 		return endTime;
 	}
@@ -100,6 +114,8 @@ public class AnnotationInstance implements Serializable{
 		this.endTime = endTime;
 	}
 
+	@ManyToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name = "id_annotation_type")
 	public AnnotationType getType() {
 		return type;
 	}
@@ -108,6 +124,8 @@ public class AnnotationInstance implements Serializable{
 		this.type = type;
 	}
 
+	@ManyToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name = "id_discoursedb")
 	public DiscourseDB getDiscoursedb() {
 		return discoursedb;
 	}
@@ -116,14 +134,23 @@ public class AnnotationInstance implements Serializable{
 		this.discoursedb = discoursedb;
 	}
 
-	@OneToMany
-	@JoinColumn(name="id_feature")
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="id_feature")
 	public Set<Feature> getFeatures() {
 		return features;
 	}
 
 	public void setFeatures(Set<Feature> features) {
 		this.features = features;
+	}
+
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_annotation")
+	public Annotations getAnnotationAggregate() {
+		return annotationAggregate;
+	}
+
+	public void setAnnotationAggregate(Annotations annotationAggregate) {
+		this.annotationAggregate = annotationAggregate;
 	}
 	
 	

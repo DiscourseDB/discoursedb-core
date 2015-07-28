@@ -25,56 +25,25 @@ import edu.cmu.cs.lti.discoursedb.annotation.Annotations;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="context")
-public class Context implements Serializable {
+@Table(name="discourse_has_discourse_part")
+public class DiscourseToDiscoursePart implements Serializable{
 
-	private static final long serialVersionUID = 6013322457584994562L;
-
+	private static final long serialVersionUID = 6916868753034800946L;
+	
 	private long id;
 	
-	private Content firstRevision;
+    private Discourse discourse;
+    
+    private DiscoursePart discoursePart;
+    
+    private Timestamp startTime;
+    
+    private Timestamp endTime;
 	
-	private Content currentRevision;
-	
-	private Timestamp startTime;
-	
-	private Timestamp endTime;
-
-	private ContextType type;
-	
-	private Annotations annotations;
-
-	public Context(){}
-
-	@Id
-	@Column(name="id_context", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	@Column(name="first_revision")
-	public Content getFirstRevision() {
-		return firstRevision;
-	}
-
-	public void setFirstRevision(Content firstRevision) {
-		this.firstRevision = firstRevision;
-	}
-
-	@Column(name="current_revision")
-	public Content getCurrentRevision() {
-		return currentRevision;
-	}
-
-	public void setCurrentRevision(Content currentRevision) {
-		this.currentRevision = currentRevision;
-	}
-
+    private Annotations annotations;
+    
+	public DiscourseToDiscoursePart() {}
+    
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getStartTime() {
@@ -95,15 +64,36 @@ public class Context implements Serializable {
 		this.endTime = endTime;
 	}
 
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_context_type")
-	public ContextType getType() {
-		return type;
+	@Id
+	@Column(name="id_annotation", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)	
+	public long getId() {
+		return id;
 	}
 
-	public void setType(ContextType type) {
-		this.type = type;
+	public void setId(long id) {
+		this.id = id;
+	}
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_discourse")  
+    public Discourse getDiscourse() {
+		return discourse;
+	}
+
+	public void setDiscourse(Discourse discourse) {
+		this.discourse = discourse;
+	}
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_discourse_part")
+    @Column(name="discourse_part")
+	public DiscoursePart getDiscoursePart() {
+		return discoursePart;
+	}
+
+	public void setDiscoursePart(DiscoursePart discoursePart) {
+		this.discoursePart = discoursePart;
 	}
 
 	public Annotations getAnnotations() {
@@ -113,5 +103,6 @@ public class Context implements Serializable {
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
 	}
-
+    
+	
 }

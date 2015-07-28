@@ -1,12 +1,17 @@
 package edu.cmu.cs.lti.discoursedb.annotation;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -29,6 +34,8 @@ public class AnnotationType implements Serializable{
 	private String description;
 	
 	private boolean isEntityAnnotation;
+	
+    private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
 	
 	public AnnotationType(){}
 
@@ -59,12 +66,22 @@ public class AnnotationType implements Serializable{
 		this.description = description;
 	}
 
+	@Column(name="is_entity_annotation")
 	public boolean isEntityAnnotation() {
 		return isEntityAnnotation;
 	}
 
 	public void setEntityAnnotation(boolean isEntityAnnotation) {
 		this.isEntityAnnotation = isEntityAnnotation;
+	}
+
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	public Set<AnnotationInstance> getAnnotations() {
+		return annotations;
+	}
+
+	public void setAnnotations(Set<AnnotationInstance> annotations) {
+		this.annotations = annotations;
 	}
 	
 }

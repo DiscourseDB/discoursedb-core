@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -41,8 +42,7 @@ public class Annotations implements Serializable{
 		this.id = id;
 	}
 
-	@OneToMany
-	@JoinColumn(name="id_annotation_instance")
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="id_annotation_instance")
 	public Set<AnnotationInstance> getAnnotations() {
 		return annotations;
 	}

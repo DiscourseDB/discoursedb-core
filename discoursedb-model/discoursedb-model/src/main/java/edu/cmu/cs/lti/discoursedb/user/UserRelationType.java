@@ -1,12 +1,17 @@
 package edu.cmu.cs.lti.discoursedb.user;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -25,6 +30,8 @@ public class UserRelationType implements Serializable {
 	private long id;
 	
 	private String type;
+	
+	private Set<UserRelation> userRelations = new HashSet<UserRelation>();
 
 	public UserRelationType(){}
 
@@ -45,6 +52,15 @@ public class UserRelationType implements Serializable {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	public Set<UserRelation> getUserRelations() {
+		return userRelations;
+	}
+
+	public void setUserRelations(Set<UserRelation> userRelations) {
+		this.userRelations = userRelations;
 	}
 
 }

@@ -1,12 +1,17 @@
 package edu.cmu.cs.lti.discoursedb.user;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -25,6 +30,8 @@ public class AudienceType implements Serializable {
 	private long id;
 	
 	private String type;
+	
+	private Set<Audience> audiences = new HashSet<Audience>();
 
 	@Id
 	@Column(name="id_audience_type", nullable=false)
@@ -46,4 +53,13 @@ public class AudienceType implements Serializable {
 	}
 
 	public AudienceType(){}
+
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	public Set<Audience> getAudiences() {
+		return audiences;
+	}
+
+	public void setAudiences(Set<Audience> audiences) {
+		this.audiences = audiences;
+	}
 }

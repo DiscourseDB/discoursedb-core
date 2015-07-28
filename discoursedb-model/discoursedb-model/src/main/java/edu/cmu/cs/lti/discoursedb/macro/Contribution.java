@@ -2,21 +2,23 @@ package edu.cmu.cs.lti.discoursedb.macro;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.annotation.Annotations;
 
 @Entity
@@ -55,6 +57,7 @@ public class Contribution implements Serializable {
 		this.id = id;
 	}
 
+	@Column(name="first_revision")
 	public Content getFirstRevision() {
 		return firstRevision;
 	}
@@ -63,6 +66,7 @@ public class Contribution implements Serializable {
 		this.firstRevision = firstRevision;
 	}
 
+	@Column(name="current_revision")
 	public Content getCurrentRevision() {
 		return currentRevision;
 	}
@@ -71,6 +75,8 @@ public class Contribution implements Serializable {
 		this.currentRevision = currentRevision;
 	}
 
+	@Column(name = "start_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getStartTime() {
 		return startTime;
 	}
@@ -79,6 +85,8 @@ public class Contribution implements Serializable {
 		this.startTime = startTime;
 	}
 
+	@Column(name = "end_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getEndTime() {
 		return endTime;
 	}
@@ -87,6 +95,8 @@ public class Contribution implements Serializable {
 		this.endTime = endTime;
 	}
 
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_contribution_type")
 	public ContributionType getType() {
 		return type;
 	}

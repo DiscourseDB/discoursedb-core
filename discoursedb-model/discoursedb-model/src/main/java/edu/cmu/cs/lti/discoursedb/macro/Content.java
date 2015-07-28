@@ -3,22 +3,20 @@ package edu.cmu.cs.lti.discoursedb.macro;
 import java.io.Serializable;
 import java.sql.Blob;
 import java.sql.Timestamp;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.annotation.Annotations;
 
 @Entity
@@ -57,6 +55,7 @@ public class Content implements Serializable {
 		this.id = id;
 	}
 
+	@Column(name="previous_revision")
 	public Content getPreviousRevision() {
 		return previousRevision;
 	}
@@ -65,6 +64,7 @@ public class Content implements Serializable {
 		this.previousRevision = previousRevision;
 	}
 
+	@Column(name="next_revision")
 	public Content getNextRevision() {
 		return nextRevision;
 	}
@@ -73,6 +73,8 @@ public class Content implements Serializable {
 		this.nextRevision = nextRevision;
 	}
 
+	@Column(name="creation_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getCreationTime() {
 		return creationTime;
 	}
