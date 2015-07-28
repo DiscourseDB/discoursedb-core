@@ -49,6 +49,10 @@ public class DiscoursePart implements Serializable{
 
 	private Set<DiscoursePartContribution> discoursePartContributions = new HashSet<DiscoursePartContribution>();
 	
+	private Set<DiscoursePartRelation> sourceOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
+
+	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
+	
 	public DiscoursePart(){}
 
 	@Id
@@ -127,5 +131,23 @@ public class DiscoursePart implements Serializable{
 
 	public void setDiscoursePartContributions(Set<DiscoursePartContribution> discoursePartContributions) {
 		this.discoursePartContributions = discoursePartContributions;
+	}
+
+    @OneToMany(mappedBy="source")
+	public Set<DiscoursePartRelation> getSourceOfDiscoursePartRelations() {
+		return sourceOfDiscoursePartRelations;
+	}
+
+	public void setSourceOfDiscoursePartRelations(Set<DiscoursePartRelation> sourceOfDiscoursePartRelations) {
+		this.sourceOfDiscoursePartRelations = sourceOfDiscoursePartRelations;
+	}
+
+    @OneToMany(mappedBy="target")
+	public Set<DiscoursePartRelation> getTargetOfDiscoursePartRelations() {
+		return targetOfDiscoursePartRelations;
+	}
+
+	public void setTargetOfDiscoursePartRelations(Set<DiscoursePartRelation> targetOfDiscoursePartRelations) {
+		this.targetOfDiscoursePartRelations = targetOfDiscoursePartRelations;
 	}
 }

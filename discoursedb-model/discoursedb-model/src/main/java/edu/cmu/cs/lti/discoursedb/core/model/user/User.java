@@ -52,6 +52,10 @@ public class User implements Serializable {
 	
 	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
 	
+	private Set<UserRelation> sourceOfUserRelations = new HashSet<UserRelation>();
+
+	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
+	
 	public User(){}
 
 	@Id
@@ -148,6 +152,24 @@ public class User implements Serializable {
 
 	public void setUserGroups(Set<GroupUser> userGroups) {
 		this.userGroups = userGroups;
+	}
+
+    @OneToMany(mappedBy="source")
+	public Set<UserRelation> getSourceOfUserRelations() {
+		return sourceOfUserRelations;
+	}
+
+	public void setSourceOfUserRelations(Set<UserRelation> sourceOfUserRelations) {
+		this.sourceOfUserRelations = sourceOfUserRelations;
+	}
+
+    @OneToMany(mappedBy="target")
+	public Set<UserRelation> getTargetOfUserRelations() {
+		return targetOfUserRelations;
+	}
+
+	public void setTargetOfUserRelations(Set<UserRelation> targetOfUserRelations) {
+		this.targetOfUserRelations = targetOfUserRelations;
 	}
 
 }

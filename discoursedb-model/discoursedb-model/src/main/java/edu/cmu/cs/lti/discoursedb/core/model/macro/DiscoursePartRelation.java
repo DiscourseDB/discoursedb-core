@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -57,6 +58,8 @@ public class DiscoursePartRelation implements Serializable {
 		this.id = id;
 	}
 
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_source",insertable=false,updatable=false, nullable=false)
 	public DiscoursePart getSource() {
 		return source;
 	}
@@ -65,6 +68,8 @@ public class DiscoursePartRelation implements Serializable {
 		this.source = source;
 	}
 
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_target",insertable=false,updatable=false, nullable=false)
 	public DiscoursePart getTarget() {
 		return target;
 	}
