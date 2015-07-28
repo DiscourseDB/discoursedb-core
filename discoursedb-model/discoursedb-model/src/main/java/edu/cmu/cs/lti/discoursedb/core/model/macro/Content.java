@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -40,7 +41,7 @@ public class Content implements Serializable {
 	private Content previousRevision;
 	
 	private Content nextRevision;
-	
+
 	private Timestamp creationTime;
 	
 	private String text;
@@ -64,7 +65,8 @@ public class Content implements Serializable {
 		this.id = id;
 	}
 
-	@Column(name="previous_revision")
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_previous_revision",insertable=false,updatable=false)
 	public Content getPreviousRevision() {
 		return previousRevision;
 	}
@@ -73,7 +75,8 @@ public class Content implements Serializable {
 		this.previousRevision = previousRevision;
 	}
 
-	@Column(name="next_revision")
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_next_revision",insertable=false,updatable=false)
 	public Content getNextRevision() {
 		return nextRevision;
 	}

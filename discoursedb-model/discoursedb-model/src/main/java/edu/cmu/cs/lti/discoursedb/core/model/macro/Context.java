@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -62,7 +63,8 @@ public class Context implements Serializable {
 		this.id = id;
 	}
 
-	@Column(name="first_revision")
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_first_revision",insertable=false,updatable=false)
 	public Content getFirstRevision() {
 		return firstRevision;
 	}
@@ -71,7 +73,8 @@ public class Context implements Serializable {
 		this.firstRevision = firstRevision;
 	}
 
-	@Column(name="current_revision")
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_current_revision",insertable=false,updatable=false)
 	public Content getCurrentRevision() {
 		return currentRevision;
 	}

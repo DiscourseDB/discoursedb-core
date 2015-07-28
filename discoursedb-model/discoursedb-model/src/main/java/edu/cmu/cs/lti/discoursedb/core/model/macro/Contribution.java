@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -53,6 +54,10 @@ public class Contribution implements Serializable {
 	
 	private Set<ContributionContext> contributionContexts = new HashSet<ContributionContext>();
 	
+	private Set<DiscourseRelation> sourceOfDiscourseRelations = new HashSet<DiscourseRelation>();
+
+	private Set<DiscourseRelation> targetOfDiscourseRelations = new HashSet<DiscourseRelation>();
+
 	public Contribution(){}
 
 	@Id
@@ -66,7 +71,8 @@ public class Contribution implements Serializable {
 		this.id = id;
 	}
 
-	@Column(name="first_revision")
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_first_revision",insertable=false,updatable=false)
 	public Content getFirstRevision() {
 		return firstRevision;
 	}
@@ -75,7 +81,8 @@ public class Contribution implements Serializable {
 		this.firstRevision = firstRevision;
 	}
 
-	@Column(name="current_revision")
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_current_revision",insertable=false,updatable=false)
 	public Content getCurrentRevision() {
 		return currentRevision;
 	}
@@ -149,6 +156,24 @@ public class Contribution implements Serializable {
 
 	public void setContributionContexts(Set<ContributionContext> contributionContexts) {
 		this.contributionContexts = contributionContexts;
+	}
+
+    @OneToMany(mappedBy="source")
+	public Set<DiscourseRelation> getSourceOfDiscourseRelations() {
+		return sourceOfDiscourseRelations;
+	}
+
+	public void setSourceOfDiscourseRelations(Set<DiscourseRelation> sourceOfDiscourseRelations) {
+		this.sourceOfDiscourseRelations = sourceOfDiscourseRelations;
+	}
+
+    @OneToMany(mappedBy="target")
+	public Set<DiscourseRelation> getTargetOfDiscourseRelations() {
+		return targetOfDiscourseRelations;
+	}
+
+	public void setTargetOfDiscourseRelations(Set<DiscourseRelation> targetOfDiscourseRelations) {
+		this.targetOfDiscourseRelations = targetOfDiscourseRelations;
 	}
 
 

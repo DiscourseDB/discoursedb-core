@@ -20,13 +20,12 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
-import edu.cmu.cs.lti.discoursedb.core.model.user.Audience;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="contribution_has_audience")
+@Table(name="contribution_has_context")
 public class ContributionContext implements Serializable{
 	
 	private static final long serialVersionUID = -1542771414387707049L;
