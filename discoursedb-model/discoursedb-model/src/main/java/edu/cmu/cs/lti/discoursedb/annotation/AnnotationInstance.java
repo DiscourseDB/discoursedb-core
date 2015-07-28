@@ -22,13 +22,13 @@ import edu.cmu.cs.lti.discoursedb.system.DiscourseDB;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="annotation")
-public class Annotation implements Serializable{
+@Table(name="annotation_instance")
+public class AnnotationInstance implements Serializable{
 
 	private static final long serialVersionUID = 6699029374236146557L;
     
 	@Id
-	@Column(name="id_annotation", nullable=false)
+	@Column(name="id_annotation_intance", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 	
@@ -48,7 +48,7 @@ public class Annotation implements Serializable{
 	
 	private Set<Feature> features = new HashSet<Feature>();
 	
-	public Annotation(){}
+	public AnnotationInstance(){}
 
 	public long getId() {
 		return id;

@@ -16,7 +16,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.annotation.Annotation;
+import edu.cmu.cs.lti.discoursedb.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.annotation.Annotations;
 
 @Entity
 @SelectBeforeUpdate 
@@ -38,7 +39,7 @@ public class DiscoursePart implements Serializable{
 
 	private Timestamp endTime;
 	
-	private Set<Annotation> annotations = new HashSet<Annotation>();
+	private Annotations annotations;
 	
 	private DiscoursePartType type;
 	
@@ -76,19 +77,19 @@ public class DiscoursePart implements Serializable{
 		this.endTime = endTime;
 	}
 
-	public Set<Annotation> getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Set<Annotation> annotations) {
-		this.annotations = annotations;
-	}
-
 	public DiscoursePartType getType() {
 		return type;
 	}
 
 	public void setType(DiscoursePartType type) {
 		this.type = type;
+	}
+
+	public Annotations getAnnotations() {
+		return annotations;
+	}
+
+	public void setAnnotations(Annotations annotations) {
+		this.annotations = annotations;
 	}
 }

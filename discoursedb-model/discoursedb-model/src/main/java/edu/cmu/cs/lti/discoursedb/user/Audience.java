@@ -15,7 +15,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.annotation.Annotation;
+import edu.cmu.cs.lti.discoursedb.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.annotation.Annotations;
 
 @Entity
 @SelectBeforeUpdate 
@@ -33,7 +34,7 @@ public class Audience implements Serializable {
 	
 	private AudienceType type;
 	
-	private Set<Annotation> annotations = new HashSet<Annotation>();
+	private Annotations annotations;
 	
 	public Audience(){}
 
@@ -53,11 +54,12 @@ public class Audience implements Serializable {
 		this.type = type;
 	}
 
-	public Set<Annotation> getAnnotations() {
+	public Annotations getAnnotations() {
 		return annotations;
 	}
 
-	public void setAnnotations(Set<Annotation> annotations) {
+	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
 	}
+
 }
