@@ -7,8 +7,11 @@ public class Annotation_Type implements Serializable{
 	private static final long serialVersionUID = 9194247332380412321L;
 
 	private long id;
+	
 	private String name;
+	
 	private String description;
+	
 	private boolean isEntityAnnotation;
 	
 	public Annotation_Type(){}

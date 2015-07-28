@@ -7,8 +7,11 @@ public class Feature_Type implements Serializable{
 	private static final long serialVersionUID = -3343145417294760437L;
 
 	private long id;
+	
 	private String name;
+	
 	private String datatype;
+	
 	private String description;
 	
 	public Feature_Type(){}

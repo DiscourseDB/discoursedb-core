@@ -7,7 +7,9 @@ public class Discourse implements Serializable{
 	private static final long serialVersionUID = -3736157436274230022L;
 
 	private long id;
+	
 	private String name;
+	
 	private String source;
 	
 	public Discourse(){}

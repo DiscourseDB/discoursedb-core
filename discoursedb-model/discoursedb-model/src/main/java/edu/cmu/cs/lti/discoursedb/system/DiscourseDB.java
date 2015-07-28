@@ -8,8 +8,11 @@ public class DiscourseDB implements Serializable{
 	private static final long serialVersionUID = 3740314651476462251L;
 
 	private long id;
+	
 	private String schema_version;
+	
 	private Timestamp start_time;
+	
 	private Timestamp end_time;
 	
 	public DiscourseDB(){}
