@@ -20,64 +20,30 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="content_interaction")
-public class ContentInteraction implements Serializable{
-
-	private static final long serialVersionUID = 3846201435729013318L;
+@Table(name="audience_has_group")
+public class AudienceGroup implements Serializable{
+	
+	private static final long serialVersionUID = 5232683398940704768L;
 
 	private long id;
 	
-	private User user;
+    private Group group;
+    
+    private Audience audience;
+    
+    private Timestamp startTime;
+    
+    private Timestamp endTime;
 	
-	private Content content;
-	
-	private Timestamp startTime;
-	
-	private Timestamp endTime;
-	
-	private ContentInteractionType type;
-	
-	private Annotations annotations;
-	
-	public ContentInteraction(){}
-
-	@Id
-	@Column(name="id_content_interaction", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	 @ManyToOne(cascade = CascadeType.ALL)
-	 @JoinColumn(name = "id_user")
-	 public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_content")
-	public Content getContent() {
-		return content;
-	}
-
-	public void setContent(Content content) {
-		this.content = content;
-	}
-
+    private Annotations annotations;
+    
+	public AudienceGroup() {}
+    
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getStartTime() {
@@ -98,15 +64,15 @@ public class ContentInteraction implements Serializable{
 		this.endTime = endTime;
 	}
 
-
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_content_interaction_type")
-	public ContentInteractionType getType() {
-		return type;
+	@Id
+	@Column(name="id_annotation", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)	
+	public long getId() {
+		return id;
 	}
 
-	public void setType(ContentInteractionType type) {
-		this.type = type;
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
@@ -119,4 +85,25 @@ public class ContentInteraction implements Serializable{
 		this.annotations = annotations;
 	}
 
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "id_audience")
+	public Audience getAudience() {
+		return audience;
+	}
+
+	public void setAudience(Audience audience) {
+		this.audience = audience;
+	}
+
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "id_group")
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+    
+	
 }

@@ -1,6 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -42,6 +45,12 @@ public class User implements Serializable {
 	private String location;
 
 	private Annotations annotations;
+
+	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
+
+	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
+	
+	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
 	
 	public User(){}
 
@@ -112,6 +121,33 @@ public class User implements Serializable {
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
+	}
+
+    @OneToMany(mappedBy = "user")
+	public Set<ContentInteraction> getContentInteractions() {
+		return contentInteractions;
+	}
+
+	public void setContentInteractions(Set<ContentInteraction> contentInteractions) {
+		this.contentInteractions = contentInteractions;
+	}
+
+    @OneToMany(mappedBy = "user")
+	public Set<AudienceUser> getUserAudiences() {
+		return userAudiences;
+	}
+
+	public void setUserAudiences(Set<AudienceUser> userAudiences) {
+		this.userAudiences = userAudiences;
+	}
+
+    @OneToMany(mappedBy = "user")
+	public Set<GroupUser> getUserGroups() {
+		return userGroups;
+	}
+
+	public void setUserGroups(Set<GroupUser> userGroups) {
+		this.userGroups = userGroups;
 	}
 
 }

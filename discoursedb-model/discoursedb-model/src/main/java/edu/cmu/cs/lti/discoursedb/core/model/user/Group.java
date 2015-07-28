@@ -2,6 +2,8 @@ package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -41,7 +44,11 @@ public class Group implements Serializable {
 	private Timestamp endTime;
 	
 	private Annotations annotations;
+	
+	private Set<AudienceGroup> groupAudiences = new HashSet<AudienceGroup>();
 
+	private Set<GroupUser> groupMembers = new HashSet<GroupUser>();
+	
 	public Group(){}
 
 	@ManyToOne(cascade=CascadeType.ALL)
@@ -101,5 +108,23 @@ public class Group implements Serializable {
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
+	}
+
+    @OneToMany(mappedBy = "group")
+	public Set<AudienceGroup> getGroupAudiences() {
+		return groupAudiences;
+	}
+
+	public void setGroupAudiences(Set<AudienceGroup> groupAudiences) {
+		this.groupAudiences = groupAudiences;
+	}
+
+    @OneToMany(mappedBy = "group")
+	public Set<GroupUser> getGroupMembers() {
+		return groupMembers;
+	}
+
+	public void setGroupMembers(Set<GroupUser> groupMembers) {
+		this.groupMembers = groupMembers;
 	}
 }

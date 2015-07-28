@@ -2,6 +2,8 @@ package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -43,7 +46,13 @@ public class Contribution implements Serializable {
 	private ContributionType type;
 	
 	private Annotations annotations;
+	
+	private Set<DiscoursePartContribution> contributionPartOfDiscourseParts = new HashSet<DiscoursePartContribution>();
 
+	private Set<ContributionAudience> contributionAudiences = new HashSet<ContributionAudience>();
+	
+	private Set<ContributionContext> contributionContexts = new HashSet<ContributionContext>();
+	
 	public Contribution(){}
 
 	@Id
@@ -111,9 +120,35 @@ public class Contribution implements Serializable {
 		return annotations;
 	}
 
-
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
+	}
+
+    @OneToMany(mappedBy = "contribution")
+	public Set<DiscoursePartContribution> getContributionPartOfDiscourseParts() {
+		return contributionPartOfDiscourseParts;
+	}
+
+	public void setContributionPartOfDiscourseParts(Set<DiscoursePartContribution> contributionPartOfDiscourseParts) {
+		this.contributionPartOfDiscourseParts = contributionPartOfDiscourseParts;
+	}
+
+    @OneToMany(mappedBy = "contribution")
+	public Set<ContributionAudience> getContributionAudiences() {
+		return contributionAudiences;
+	}
+
+	public void setContributionAudiences(Set<ContributionAudience> contributionAudiences) {
+		this.contributionAudiences = contributionAudiences;
+	}
+
+    @OneToMany(mappedBy = "contribution")
+	public Set<ContributionContext> getContributionContexts() {
+		return contributionContexts;
+	}
+
+	public void setContributionContexts(Set<ContributionContext> contributionContexts) {
+		this.contributionContexts = contributionContexts;
 	}
 
 

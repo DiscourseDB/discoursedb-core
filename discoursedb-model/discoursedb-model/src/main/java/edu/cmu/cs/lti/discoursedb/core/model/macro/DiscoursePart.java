@@ -46,6 +46,8 @@ public class DiscoursePart implements Serializable{
 	private DiscoursePartType type;
 	
 	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
+
+	private Set<DiscoursePartContribution> discoursePartContributions = new HashSet<DiscoursePartContribution>();
 	
 	public DiscoursePart(){}
 
@@ -116,5 +118,14 @@ public class DiscoursePart implements Serializable{
 
     public void setDiscourseToDiscourseParts(Set<DiscourseToDiscoursePart> discourseToDiscourseParts) {
 		this.discourseToDiscourseParts = discourseToDiscourseParts;
+	}
+
+    @OneToMany(mappedBy = "discourse_part")
+	public Set<DiscoursePartContribution> getDiscoursePartContributions() {
+		return discoursePartContributions;
+	}
+
+	public void setDiscoursePartContributions(Set<DiscoursePartContribution> discoursePartContributions) {
+		this.discoursePartContributions = discoursePartContributions;
 	}
 }

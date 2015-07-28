@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.core.model.user;
+package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -20,64 +20,30 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="content_interaction")
-public class ContentInteraction implements Serializable{
-
-	private static final long serialVersionUID = 3846201435729013318L;
+@Table(name="contribution_partof_discourse_part")
+public class DiscoursePartContribution implements Serializable{
+	
+	private static final long serialVersionUID = -7712508816782412933L;
 
 	private long id;
 	
-	private User user;
+    private Contribution contribution;
+    
+    private DiscoursePart discoursePart;
+    
+    private Timestamp startTime;
+    
+    private Timestamp endTime;
 	
-	private Content content;
-	
-	private Timestamp startTime;
-	
-	private Timestamp endTime;
-	
-	private ContentInteractionType type;
-	
-	private Annotations annotations;
-	
-	public ContentInteraction(){}
-
-	@Id
-	@Column(name="id_content_interaction", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	 @ManyToOne(cascade = CascadeType.ALL)
-	 @JoinColumn(name = "id_user")
-	 public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_content")
-	public Content getContent() {
-		return content;
-	}
-
-	public void setContent(Content content) {
-		this.content = content;
-	}
-
+    private Annotations annotations;
+    
+	public DiscoursePartContribution() {}
+    
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Timestamp getStartTime() {
@@ -98,15 +64,26 @@ public class ContentInteraction implements Serializable{
 		this.endTime = endTime;
 	}
 
-
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_content_interaction_type")
-	public ContentInteractionType getType() {
-		return type;
+	@Id
+	@Column(name="id_annotation", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)	
+	public long getId() {
+		return id;
 	}
 
-	public void setType(ContentInteractionType type) {
-		this.type = type;
+	public void setId(long id) {
+		this.id = id;
+	}
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_discourse_part")
+    @Column(name="discourse_part")
+	public DiscoursePart getDiscoursePart() {
+		return discoursePart;
+	}
+
+	public void setDiscoursePart(DiscoursePart discoursePart) {
+		this.discoursePart = discoursePart;
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
@@ -115,8 +92,20 @@ public class ContentInteraction implements Serializable{
 		return annotations;
 	}
 
+
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
 	}
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_contribution")
+	public Contribution getContribution() {
+		return contribution;
+	}
+
+	public void setContribution(Contribution contribution) {
+		this.contribution = contribution;
+	}
+    
+	
 }

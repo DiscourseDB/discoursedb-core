@@ -2,6 +2,8 @@ package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -43,6 +46,8 @@ public class Context implements Serializable {
 	private ContextType type;
 	
 	private Annotations annotations;
+	
+	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
 
 	public Context(){}
 
@@ -115,6 +120,15 @@ public class Context implements Serializable {
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
+	}
+
+    @OneToMany(mappedBy = "context")
+	public Set<ContributionContext> getContextContributions() {
+		return contextContributions;
+	}
+
+	public void setContextContributions(Set<ContributionContext> contextContributions) {
+		this.contextContributions = contextContributions;
 	}
 
 }

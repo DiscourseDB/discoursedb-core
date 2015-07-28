@@ -3,6 +3,8 @@ package edu.cmu.cs.lti.discoursedb.core.model.macro;
 import java.io.Serializable;
 import java.sql.Blob;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -21,6 +24,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.user.ContentInteraction;
 
 @Entity
 @SelectBeforeUpdate 
@@ -44,6 +48,8 @@ public class Content implements Serializable {
 	private Blob data;
 	
 	private Annotations annotations;
+
+	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
 	
 	public Content(){}
 
@@ -110,6 +116,15 @@ public class Content implements Serializable {
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
+	}
+
+    @OneToMany(mappedBy = "content")
+	public Set<ContentInteraction> getContentInteractions() {
+		return contentInteractions;
+	}
+
+	public void setContentInteractions(Set<ContentInteraction> contentInteractions) {
+		this.contentInteractions = contentInteractions;
 	}
 	
 }

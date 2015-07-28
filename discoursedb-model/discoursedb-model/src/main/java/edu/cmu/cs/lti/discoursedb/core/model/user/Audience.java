@@ -1,6 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -17,6 +20,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionAudience;
 
 @Entity
 @SelectBeforeUpdate 
@@ -32,6 +36,12 @@ public class Audience implements Serializable {
 	private AudienceType type;
 	
 	private Annotations annotations;
+	
+	private Set<ContributionAudience> audienceContributions = new HashSet<ContributionAudience>();
+	
+	private Set<AudienceUser> audienceUsers = new HashSet<AudienceUser>();
+
+	private Set<AudienceGroup> audienceGroups = new HashSet<AudienceGroup>();
 	
 	public Audience(){}
 
@@ -65,6 +75,33 @@ public class Audience implements Serializable {
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
+	}
+
+    @OneToMany(mappedBy = "audience")
+	public Set<ContributionAudience> getAudienceContributions() {
+		return audienceContributions;
+	}
+
+	public void setAudienceContributions(Set<ContributionAudience> audienceContributions) {
+		this.audienceContributions = audienceContributions;
+	}
+
+    @OneToMany(mappedBy = "audience")
+	public Set<AudienceUser> getAudienceUsers() {
+		return audienceUsers;
+	}
+
+	public void setAudienceUsers(Set<AudienceUser> audienceUsers) {
+		this.audienceUsers = audienceUsers;
+	}
+
+    @OneToMany(mappedBy = "audience")
+	public Set<AudienceGroup> getAudienceGroups() {
+		return audienceGroups;
+	}
+
+	public void setAudienceGroups(Set<AudienceGroup> audienceGroups) {
+		this.audienceGroups = audienceGroups;
 	}
 
 }
