@@ -22,13 +22,13 @@ public class AudienceType implements Serializable {
 
 	private static final long serialVersionUID = 2596255302608073060L;
 
-	@Id
-	@Column(name="id_audience_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String type;
 
+	@Id
+	@Column(name="id_audience_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

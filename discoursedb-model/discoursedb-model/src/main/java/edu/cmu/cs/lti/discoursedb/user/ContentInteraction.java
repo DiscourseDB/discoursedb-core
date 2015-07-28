@@ -29,9 +29,6 @@ public class ContentInteraction implements Serializable{
 
 	private static final long serialVersionUID = 3846201435729013318L;
 
-	@Id
-	@Column(name="id_content_interaction", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private User user;
@@ -48,6 +45,9 @@ public class ContentInteraction implements Serializable{
 	
 	public ContentInteraction(){}
 
+	@Id
+	@Column(name="id_content_interaction", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

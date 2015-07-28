@@ -22,15 +22,15 @@ public class GroupType implements Serializable{
 
 	private static final long serialVersionUID = -8085963752024237480L;
 
-	@Id
-	@Column(name="id_group_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String type;
 
 	public GroupType(){}
 
+	@Id
+	@Column(name="id_group_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

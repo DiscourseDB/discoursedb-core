@@ -22,9 +22,6 @@ public class AnnotationType implements Serializable{
 
 	private static final long serialVersionUID = 9194247332380412321L;
 
-	@Id
-	@Column(name="id_annotation_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String name;
@@ -35,6 +32,9 @@ public class AnnotationType implements Serializable{
 	
 	public AnnotationType(){}
 
+	@Id
+	@Column(name="id_annotation_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

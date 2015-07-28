@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -27,9 +29,6 @@ public class AnnotationInstance implements Serializable{
 
 	private static final long serialVersionUID = 6699029374236146557L;
     
-	@Id
-	@Column(name="id_annotation_intance", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 	
 	private int beginOffset;
@@ -50,6 +49,9 @@ public class AnnotationInstance implements Serializable{
 	
 	public AnnotationInstance(){}
 
+	@Id
+	@Column(name="id_annotation_intance", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}
@@ -114,6 +116,8 @@ public class AnnotationInstance implements Serializable{
 		this.discoursedb = discoursedb;
 	}
 
+	@OneToMany
+	@JoinColumn(name="id_feature")
 	public Set<Feature> getFeatures() {
 		return features;
 	}

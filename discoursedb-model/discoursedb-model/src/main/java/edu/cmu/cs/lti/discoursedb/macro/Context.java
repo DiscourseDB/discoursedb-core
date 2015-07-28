@@ -28,9 +28,6 @@ public class Context implements Serializable {
 
 	private static final long serialVersionUID = 6013322457584994562L;
 
-	@Id
-	@Column(name="id_context", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private Content firstRevision;
@@ -47,6 +44,9 @@ public class Context implements Serializable {
 
 	public Context(){}
 
+	@Id
+	@Column(name="id_context", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

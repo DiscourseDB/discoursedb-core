@@ -23,9 +23,6 @@ public class DiscourseDB implements Serializable{
 
 	private static final long serialVersionUID = 3740314651476462251L;
 
-	@Id
-	@Column(name="id_discoursedb", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String schemaVersion;
@@ -36,6 +33,9 @@ public class DiscourseDB implements Serializable{
 	
 	public DiscourseDB(){}
 	
+	@Id
+	@Column(name="id_discoursedb", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

@@ -22,9 +22,6 @@ public class FeatureType implements Serializable{
 
 	private static final long serialVersionUID = -3343145417294760437L;
 
-	@Id
-	@Column(name="id_feature_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String name;
@@ -35,6 +32,9 @@ public class FeatureType implements Serializable{
 	
 	public FeatureType(){}
 
+	@Id
+	@Column(name="id_feature_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

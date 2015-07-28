@@ -30,9 +30,6 @@ public class Content implements Serializable {
 
 	private static final long serialVersionUID = -7686736688076492828L;
 
-	@Id
-	@Column(name="id_content", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private Content previousRevision;
@@ -49,6 +46,9 @@ public class Content implements Serializable {
 	
 	public Content(){}
 
+	@Id
+	@Column(name="id_content", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

@@ -28,9 +28,6 @@ public class Contribution implements Serializable {
 
 	private static final long serialVersionUID = -2489956863731652149L;
 
-	@Id
-	@Column(name="id_contribution", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private Content firstRevision;
@@ -47,6 +44,9 @@ public class Contribution implements Serializable {
 
 	public Contribution(){}
 
+	@Id
+	@Column(name="id_contribution", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

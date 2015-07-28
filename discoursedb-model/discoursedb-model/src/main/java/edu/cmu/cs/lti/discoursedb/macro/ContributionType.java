@@ -22,13 +22,13 @@ public class ContributionType implements Serializable {
 
 	private static final long serialVersionUID = -4187467243916373251L;
 
-	@Id
-	@Column(name="id_contribution_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String type;
 
+	@Id
+	@Column(name="id_contribution_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

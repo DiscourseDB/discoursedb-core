@@ -22,15 +22,15 @@ public class DiscourseRelationType implements Serializable {
 
 	private static final long serialVersionUID = -6905270877949246079L;
 
-	@Id
-	@Column(name="id_discourse_relation_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String type;
 
 	public DiscourseRelationType(){}
 	
+	@Id
+	@Column(name="id_discourse_relation_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

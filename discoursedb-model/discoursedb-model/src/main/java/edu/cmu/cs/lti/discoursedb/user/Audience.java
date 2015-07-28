@@ -27,9 +27,6 @@ public class Audience implements Serializable {
 
 	private static final long serialVersionUID = -8464122652580037597L;
 
-	@Id
-	@Column(name="id_audience", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private AudienceType type;
@@ -38,6 +35,9 @@ public class Audience implements Serializable {
 	
 	public Audience(){}
 
+	@Id
+	@Column(name="id_audience", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

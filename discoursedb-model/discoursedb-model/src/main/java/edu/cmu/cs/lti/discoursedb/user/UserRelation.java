@@ -28,9 +28,6 @@ public class UserRelation implements Serializable {
 
 	private static final long serialVersionUID = -5267036520925282560L;
 
-	@Id
-	@Column(name="id_user_relation", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private UserRelationType type;
@@ -47,6 +44,9 @@ public class UserRelation implements Serializable {
 	
 	public UserRelation(){}
 
+	@Id
+	@Column(name="id_user_relation", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

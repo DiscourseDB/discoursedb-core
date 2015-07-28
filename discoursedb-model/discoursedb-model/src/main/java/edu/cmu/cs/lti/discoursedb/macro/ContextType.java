@@ -22,15 +22,15 @@ public class ContextType implements Serializable {
 
 	private static final long serialVersionUID = 9191265196419948023L;
 
-	@Id
-	@Column(name="id_content_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String type;
 	
 	public ContextType(){}
 
+	@Id
+	@Column(name="id_content_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

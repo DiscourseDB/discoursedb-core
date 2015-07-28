@@ -22,15 +22,15 @@ public class UserRelationType implements Serializable {
 
 	private static final long serialVersionUID = 3266414066287662012L;
 
-	@Id
-	@Column(name="id_user_relation_type", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String type;
 
 	public UserRelationType(){}
 
+	@Id
+	@Column(name="id_user_relation_type", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}
