@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,9 +37,9 @@ public class DiscoursePart implements Serializable{
 	
 	private String name;
 	
-	private Timestamp startTime;
+	private Date startTime;
 
-	private Timestamp endTime;
+	private Date endTime;
 	
 	private Annotations annotations;
 	
@@ -74,25 +74,6 @@ public class DiscoursePart implements Serializable{
 		this.name = name;
 	}
 
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Timestamp startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Timestamp endTime) {
-		this.endTime = endTime;
-	}
 
 	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "id_discourse_part_type")
@@ -124,7 +105,7 @@ public class DiscoursePart implements Serializable{
 		this.discourseToDiscourseParts = discourseToDiscourseParts;
 	}
 
-    @OneToMany(mappedBy = "discourse_part")
+    @OneToMany(mappedBy = "id")
 	public Set<DiscoursePartContribution> getDiscoursePartContributions() {
 		return discoursePartContributions;
 	}
@@ -150,4 +131,25 @@ public class DiscoursePart implements Serializable{
 	public void setTargetOfDiscoursePartRelations(Set<DiscoursePartRelation> targetOfDiscoursePartRelations) {
 		this.targetOfDiscoursePartRelations = targetOfDiscoursePartRelations;
 	}
+
+	@Column(name = "start_time")
+	@Temporal(TemporalType.DATE)
+	public Date getStartTime() {
+		return startTime;
+	}
+	
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+	
+	@Column(name = "end_time")
+	@Temporal(TemporalType.DATE)
+	public Date getEndTime() {
+		return endTime;
+	}
+	
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+	
 }

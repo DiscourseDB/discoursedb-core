@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -36,36 +36,36 @@ public class DiscoursePartContribution implements Serializable{
     
     private DiscoursePart discoursePart;
     
-    private Timestamp startTime;
+    private Date startTime;
     
-    private Timestamp endTime;
+    private Date endTime;
 	
     private Annotations annotations;
     
 	public DiscoursePartContribution() {}
     
 	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getStartTime() {
+	@Temporal(TemporalType.DATE)
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Timestamp startTime) {
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
 	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getEndTime() {
+	@Temporal(TemporalType.DATE)
+	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Timestamp endTime) {
+	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
 
 	@Id
-	@Column(name="id_annotation", nullable=false)
+	@Column(name="id_discourse_part_contribution", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	
 	public long getId() {
 		return id;
@@ -77,7 +77,6 @@ public class DiscoursePartContribution implements Serializable{
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_discourse_part")
-    @Column(name="discourse_part")
 	public DiscoursePart getDiscoursePart() {
 		return discoursePart;
 	}

@@ -42,7 +42,7 @@ public class Annotations implements Serializable{
 		this.id = id;
 	}
 
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="id_annotation_instance")
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="id")
 	public Set<AnnotationInstance> getAnnotations() {
 		return annotations;
 	}

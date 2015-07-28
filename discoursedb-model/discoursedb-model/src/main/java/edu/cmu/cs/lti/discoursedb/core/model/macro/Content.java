@@ -2,7 +2,7 @@ package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
 import java.sql.Blob;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -42,7 +43,7 @@ public class Content implements Serializable {
 	
 	private Content nextRevision;
 
-	private Timestamp creationTime;
+	private Date creationTime;
 	
 	private String text;
 	
@@ -86,12 +87,12 @@ public class Content implements Serializable {
 	}
 
 	@Column(name="creation_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getCreationTime() {
+	@Temporal(TemporalType.DATE)
+	public Date getCreationTime() {
 		return creationTime;
 	}
 
-	public void setCreationTime(Timestamp creationTime) {
+	public void setCreationTime(Date creationTime) {
 		this.creationTime = creationTime;
 	}
 
@@ -103,6 +104,7 @@ public class Content implements Serializable {
 		this.text = text;
 	}
 
+	@Lob
 	public Blob getData() {
 		return data;
 	}

@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,9 +35,9 @@ public class UserRelation implements Serializable {
 	
 	private UserRelationType type;
 	
-	private Timestamp startTime;
+	private Date startTime;
 	
-	private Timestamp endTime;
+	private Date endTime;
 	
 	private User source;
 	
@@ -69,22 +69,22 @@ public class UserRelation implements Serializable {
 	}
 
 	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getStartTime() {
+	@Temporal(TemporalType.DATE)
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Timestamp startTime) {
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
 	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getEndTime() {
+	@Temporal(TemporalType.DATE)
+	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Timestamp endTime) {
+	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
 

@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.system;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -29,9 +30,9 @@ public class DiscourseDB implements Serializable{
 	
 	private String schemaVersion;
 	
-	private Timestamp startTime;
+	private Date startTime;
 	
-	private Timestamp endTime;
+	private Date endTime;
 	
 	public DiscourseDB(){}
 	
@@ -56,24 +57,23 @@ public class DiscourseDB implements Serializable{
 	}
 	
 	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getStartTime() {
+	@Temporal(TemporalType.DATE)
+	public Date getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Timestamp startTime) {
+	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
 	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Timestamp getEndTime() {
+	@Temporal(TemporalType.DATE)
+	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Timestamp endTime) {
+	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
-
 	
 }
