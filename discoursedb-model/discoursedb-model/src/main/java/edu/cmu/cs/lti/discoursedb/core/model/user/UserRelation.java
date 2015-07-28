@@ -102,10 +102,13 @@ public class UserRelation implements Serializable {
 	public void setTarget(User target) {
 		this.target = target;
 	}
-
+	
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}
+
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;

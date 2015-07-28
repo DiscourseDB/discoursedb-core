@@ -93,6 +93,8 @@ public class Group implements Serializable {
 		this.id = id;
 	}
 
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

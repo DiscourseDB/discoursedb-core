@@ -103,9 +103,12 @@ public class DiscoursePartRelation implements Serializable {
 		this.type = type;
 	}
 
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}
+
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;

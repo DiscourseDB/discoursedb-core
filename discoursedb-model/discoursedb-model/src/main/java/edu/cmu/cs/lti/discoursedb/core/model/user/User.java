@@ -2,11 +2,14 @@ package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -101,6 +104,8 @@ public class User implements Serializable {
 		this.location = location;
 	}
 
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

@@ -96,9 +96,12 @@ public class DiscourseToDiscoursePart implements Serializable{
 		this.discoursePart = discoursePart;
 	}
 
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "id_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}
+
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
