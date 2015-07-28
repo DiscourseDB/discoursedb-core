@@ -23,6 +23,7 @@ public class TestHibernateAccess {
                 "FROM User u ORDER BY u.realname ASC").list();
  
         session.getTransaction().commit();
+        session.close();
         return users;
 	}
 }
