@@ -72,7 +72,7 @@ public class Contribution implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_first_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_first_revision",insertable=false,updatable=false)
 	public Content getFirstRevision() {
 		return firstRevision;
 	}
@@ -82,7 +82,7 @@ public class Contribution implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_current_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_current_revision",insertable=false,updatable=false)
 	public Content getCurrentRevision() {
 		return currentRevision;
 	}
@@ -112,7 +112,7 @@ public class Contribution implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_contribution_type")
+	@JoinColumn(name = "fk_contribution_type")
 	public ContributionType getType() {
 		return type;
 	}
@@ -122,7 +122,7 @@ public class Contribution implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

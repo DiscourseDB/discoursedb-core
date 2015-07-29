@@ -118,7 +118,7 @@ public class User implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

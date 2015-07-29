@@ -59,7 +59,7 @@ public class UserRelation implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_user_relation_type")
+	@JoinColumn(name = "fk_user_relation_type")
 	public UserRelationType getType() {
 		return type;
 	}
@@ -89,7 +89,7 @@ public class UserRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_source",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_source",insertable=false,updatable=false, nullable=false)
 	public User getSource() {
 		return source;
 	}
@@ -99,7 +99,7 @@ public class UserRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_target",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_target",insertable=false,updatable=false, nullable=false)
 	public User getTarget() {
 		return target;
 	}
@@ -109,7 +109,7 @@ public class UserRelation implements Serializable {
 	}
 	
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

@@ -59,7 +59,7 @@ public class ContentInteraction implements Serializable{
 	}
 
 	 @ManyToOne(cascade = CascadeType.ALL)
-	 @JoinColumn(name = "id_user")
+	 @JoinColumn(name = "fk_user")
 	 public User getUser() {
 		return user;
 	}
@@ -69,7 +69,7 @@ public class ContentInteraction implements Serializable{
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_content")
+	@JoinColumn(name = "fk_content")
 	public Content getContent() {
 		return content;
 	}
@@ -100,7 +100,7 @@ public class ContentInteraction implements Serializable{
 
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_content_interaction_type")
+	@JoinColumn(name = "fk_content_interaction_type")
 	public ContentInteractionType getType() {
 		return type;
 	}
@@ -110,7 +110,7 @@ public class ContentInteraction implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

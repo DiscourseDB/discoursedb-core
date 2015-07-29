@@ -76,7 +76,7 @@ public class GroupUser implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}
@@ -86,7 +86,7 @@ public class GroupUser implements Serializable{
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_group")
+	@JoinColumn(name = "fk_group")
 	public Group getGroup() {
 		return group;
 	}
@@ -96,7 +96,7 @@ public class GroupUser implements Serializable{
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_user")
+	@JoinColumn(name = "fk_user")
 	public User getUser() {
 		return user;
 	}

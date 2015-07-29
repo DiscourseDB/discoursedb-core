@@ -76,7 +76,7 @@ public class DiscoursePart implements Serializable{
 
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_discourse_part_type")
+	@JoinColumn(name = "fk_discourse_part_type")
 	public DiscoursePartType getType() {
 		return type;
 	}
@@ -86,7 +86,7 @@ public class DiscoursePart implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

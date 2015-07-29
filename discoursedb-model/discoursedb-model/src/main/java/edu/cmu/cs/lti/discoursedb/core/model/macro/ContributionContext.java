@@ -76,7 +76,7 @@ public class ContributionContext implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}
@@ -87,7 +87,7 @@ public class ContributionContext implements Serializable{
 	}
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_contribution")
+    @JoinColumn(name = "fk_contribution")
 	public Contribution getContribution() {
 		return contribution;
 	}
@@ -97,7 +97,7 @@ public class ContributionContext implements Serializable{
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_context")
+	@JoinColumn(name = "fk_context")
 	public Context getContext() {
 		return context;
 	}

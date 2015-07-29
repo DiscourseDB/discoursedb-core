@@ -76,7 +76,7 @@ public class DiscourseToDiscoursePart implements Serializable{
 	}
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_discourse")  
+    @JoinColumn(name = "fk_discourse")  
     public Discourse getDiscourse() {
 		return discourse;
 	}
@@ -86,7 +86,7 @@ public class DiscourseToDiscoursePart implements Serializable{
 	}
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_discourse_part")
+    @JoinColumn(name = "fk_discourse_part")
 	public DiscoursePart getDiscoursePart() {
 		return discoursePart;
 	}
@@ -96,7 +96,7 @@ public class DiscourseToDiscoursePart implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

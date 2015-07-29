@@ -28,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="group")
+@Table(name="\"group\"")
 public class Group implements Serializable {
 
 	private static final long serialVersionUID = -8400689664755883198L;
@@ -51,8 +51,19 @@ public class Group implements Serializable {
 	
 	public Group(){}
 
+	@Id
+	@Column(name="id_group", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_group_type")
+	@JoinColumn(name = "fk_group_type")
 	public GroupType getType() {
 		return type;
 	}
@@ -89,19 +100,8 @@ public class Group implements Serializable {
 		this.endTime = endTime;
 	}
 
-	@Id
-	@Column(name="id_group", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

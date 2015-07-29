@@ -67,7 +67,7 @@ public class Content implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_previous_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_previous_revision",insertable=false,updatable=false)
 	public Content getPreviousRevision() {
 		return previousRevision;
 	}
@@ -77,7 +77,7 @@ public class Content implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_next_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_next_revision",insertable=false,updatable=false)
 	public Content getNextRevision() {
 		return nextRevision;
 	}
@@ -114,7 +114,7 @@ public class Content implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

@@ -77,7 +77,7 @@ public class ContributionAudience implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}
@@ -88,7 +88,7 @@ public class ContributionAudience implements Serializable{
 	}
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_contribution")
+    @JoinColumn(name = "fk_contribution")
 	public Contribution getContribution() {
 		return contribution;
 	}
@@ -98,7 +98,7 @@ public class ContributionAudience implements Serializable{
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_audience")
+	@JoinColumn(name = "fk_audience")
 	public Audience getAudience() {
 		return audience;
 	}

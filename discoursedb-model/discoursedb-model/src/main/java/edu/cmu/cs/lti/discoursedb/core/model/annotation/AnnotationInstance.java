@@ -115,7 +115,7 @@ public class AnnotationInstance implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_annotation_type")
+	@JoinColumn(name = "fk_annotation_type")
 	public AnnotationType getType() {
 		return type;
 	}
@@ -125,7 +125,7 @@ public class AnnotationInstance implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_discoursedb")
+	@JoinColumn(name = "fk_discoursedb")
 	public DiscourseDB getDiscoursedb() {
 		return discoursedb;
 	}
@@ -134,7 +134,7 @@ public class AnnotationInstance implements Serializable{
 		this.discoursedb = discoursedb;
 	}
 
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="id")
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="annotation")
 	public Set<Feature> getFeatures() {
 		return features;
 	}
@@ -144,7 +144,7 @@ public class AnnotationInstance implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotationAggregate() {
 		return annotationAggregate;
 	}

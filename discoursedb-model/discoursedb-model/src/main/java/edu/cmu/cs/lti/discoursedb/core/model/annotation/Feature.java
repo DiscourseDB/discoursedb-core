@@ -55,7 +55,7 @@ public class Feature implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_feature_type")
+	@JoinColumn(name = "fk_feature_type")
 	public FeatureType getType() {
 		return type;
 	}
@@ -65,7 +65,7 @@ public class Feature implements Serializable{
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation_instance")
+	@JoinColumn(name = "fk_annotation_instance")
 	public AnnotationInstance getAnnotation() {
 		return annotation;
 	}

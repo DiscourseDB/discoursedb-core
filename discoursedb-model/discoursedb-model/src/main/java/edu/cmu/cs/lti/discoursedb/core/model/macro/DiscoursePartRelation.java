@@ -59,7 +59,7 @@ public class DiscoursePartRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_source",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_source",insertable=false,updatable=false, nullable=false)
 	public DiscoursePart getSource() {
 		return source;
 	}
@@ -69,7 +69,7 @@ public class DiscoursePartRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_target",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_target",insertable=false,updatable=false, nullable=false)
 	public DiscoursePart getTarget() {
 		return target;
 	}
@@ -99,7 +99,7 @@ public class DiscoursePartRelation implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_discourse_part_relation_type")
+	@JoinColumn(name = "fk_discourse_part_relation_type")
 	public DiscoursePartRelationType getType() {
 		return type;
 	}
@@ -109,7 +109,7 @@ public class DiscoursePartRelation implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}

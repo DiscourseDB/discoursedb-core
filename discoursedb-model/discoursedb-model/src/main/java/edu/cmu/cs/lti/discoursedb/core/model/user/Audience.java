@@ -57,7 +57,7 @@ public class Audience implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "id_audience_type")
+	@JoinColumn(name = "fk_audience_type")
 	public AudienceType getType() {
 		return type;
 	}
@@ -67,7 +67,7 @@ public class Audience implements Serializable {
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "id_annotation")
+	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
 	}
