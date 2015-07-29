@@ -1,13 +1,13 @@
 package edu.cmu.cs.lti.discoursedb.core.repository.user;
 
-import java.util.List;
-
-import org.springframework.data.repository.CrudRepository;
+import java.util.Optional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
-public interface UserRepository extends CrudRepository<User,Long>{
-
-	List<User> findByRealname(String realname);
-	
+public interface UserRepository extends BaseRepository<User,Long>{
+    
+	public Optional<User> findById(Long id);    
+    public long countByRealname(String realname);
+    
 }
