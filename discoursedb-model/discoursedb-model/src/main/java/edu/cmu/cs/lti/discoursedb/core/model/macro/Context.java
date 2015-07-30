@@ -18,6 +18,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -49,6 +50,15 @@ public class Context implements Serializable {
 	private Annotations annotations;
 	
 	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
+
+	private Date version;
+	@Version
+	public Date getVersion() {
+		return version;
+	}
+	public void setVersion(Date version) {
+		this.version = version;
+	}
 
 	public Context(){}
 

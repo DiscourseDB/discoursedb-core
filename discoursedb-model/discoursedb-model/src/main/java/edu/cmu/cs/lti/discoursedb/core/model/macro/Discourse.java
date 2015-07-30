@@ -1,6 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -35,6 +37,15 @@ public class Discourse implements Serializable{
 	
 	public Discourse(){}
 
+	private Date version;
+	@Version
+	public Date getVersion() {
+		return version;
+	}
+	public void setVersion(Date version) {
+		this.version = version;
+	}
+	
 	@Id
 	@Column(name="id_discourse", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)

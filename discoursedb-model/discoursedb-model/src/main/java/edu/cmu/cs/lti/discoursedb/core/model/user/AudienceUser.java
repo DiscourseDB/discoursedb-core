@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -44,6 +45,15 @@ public class AudienceUser implements Serializable{
     
 	public AudienceUser() {}
     
+	private Date version;
+	@Version
+	public Date getVersion() {
+		return version;
+	}
+	public void setVersion(Date version) {
+		this.version = version;
+	}
+	
 	@Column(name = "start_time")
 	@Temporal(TemporalType.DATE)
 	public Date getStartTime() {

@@ -18,12 +18,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
-
-import edu.cmu.cs.lti.discoursedb.core.model.system.DiscourseDB;
 
 @Entity
 @SelectBeforeUpdate 
@@ -48,11 +47,18 @@ public class AnnotationInstance implements Serializable{
 	
 	private AnnotationType type;	
 	
-	private DiscourseDB discoursedb;
-	
 	private Annotations annotationAggregate;
 	
 	private Set<Feature> features = new HashSet<Feature>();
+	
+	private Date version;
+	@Version
+	public Date getVersion() {
+		return version;
+	}
+	public void setVersion(Date version) {
+		this.version = version;
+	}
 	
 	public AnnotationInstance(){}
 
@@ -124,16 +130,6 @@ public class AnnotationInstance implements Serializable{
 		this.type = type;
 	}
 
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_discoursedb")
-	public DiscourseDB getDiscoursedb() {
-		return discoursedb;
-	}
-
-	public void setDiscoursedb(DiscourseDB discoursedb) {
-		this.discoursedb = discoursedb;
-	}
-
 	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="annotation")
 	public Set<Feature> getFeatures() {
 		return features;
@@ -152,6 +148,7 @@ public class AnnotationInstance implements Serializable{
 	public void setAnnotationAggregate(Annotations annotationAggregate) {
 		this.annotationAggregate = annotationAggregate;
 	}
+
 	
 	
 	

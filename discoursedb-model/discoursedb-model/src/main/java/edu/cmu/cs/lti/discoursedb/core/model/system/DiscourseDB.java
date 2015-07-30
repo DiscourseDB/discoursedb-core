@@ -36,6 +36,15 @@ public class DiscourseDB implements Serializable{
 	
 	public DiscourseDB(){}
 	
+	private Date version;
+	@Version
+	public Date getVersion() {
+		return version;
+	}
+	public void setVersion(Date version) {
+		this.version = version;
+	}
+	
 	@Id
 	@Column(name="id_discoursedb", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)

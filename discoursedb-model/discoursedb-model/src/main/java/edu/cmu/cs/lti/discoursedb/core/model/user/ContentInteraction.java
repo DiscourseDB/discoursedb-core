@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -47,6 +48,15 @@ public class ContentInteraction implements Serializable{
 	
 	public ContentInteraction(){}
 
+	private Date version;
+	@Version
+	public Date getVersion() {
+		return version;
+	}
+	public void setVersion(Date version) {
+		this.version = version;
+	}
+	
 	@Id
 	@Column(name="id_content_interaction", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)

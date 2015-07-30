@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -51,6 +52,15 @@ public class Group implements Serializable {
 	
 	public Group(){}
 
+	private Date version;
+	@Version
+	public Date getVersion() {
+		return version;
+	}
+	public void setVersion(Date version) {
+		this.version = version;
+	}
+	
 	@Id
 	@Column(name="id_group", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
