@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.core.model;
+package edu.cmu.cs.lti.discoursedb.sandbox;
 
 import javax.transaction.Transactional;
 
@@ -11,12 +11,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 
 /**
- * @author oliverf
+ * 1. We need a ComponentScan in order to discover the configuration
  * 
- * 1. We need a componentscan in order to discover the configuration
  * 2. We need to wrap everything in a transaction in order to allow lazy loading to work.
  * 		If we didn't do that, than we would have a single transaction for each interaction with a data repository.
  * 		However, the transaction does not extend to the proxy objects retrieved in lazy loading
+ * 
+ * @author Oliver Ferschke
  *
  */
 @Transactional 
