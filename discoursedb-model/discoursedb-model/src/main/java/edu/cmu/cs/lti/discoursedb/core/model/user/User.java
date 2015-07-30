@@ -8,10 +8,13 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -22,56 +25,68 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 
+/**
+ * TODO: We should have an insert trigger that assures that a User is associated with a discourse
+ * 
+ * @author Oliver Ferschke
+ *
+ */
 @Entity
-@SelectBeforeUpdate 
+@SelectBeforeUpdate
 @DynamicUpdate
 @DynamicInsert
-@Table(name="user")
+@Table(name = "user")
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 8065834868365920898L;
 
 	private long id;
-	
+
 	private String realname;
-	
+
 	private String username;
-	
+
 	private String email;
-	
+
 	private String ip;
-	
+
 	private String language;
-	
+
 	private String location;
+
+	private Set<Discourse> discourses;
 
 	private Annotations annotations;
 
 	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
 
 	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
-	
+
 	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
-	
+
 	private Set<UserRelation> sourceOfUserRelations = new HashSet<UserRelation>();
 
 	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
-	
-	public User(){}
+
+	public User() {
+	}
 
 	private Date version;
+
 	@Version
 	public Date getVersion() {
 		return version;
 	}
+
 	public void setVersion(Date version) {
 		this.version = version;
 	}
-	
+
 	@Id
-	@Column(name="id_user", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id_user", nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}
@@ -128,7 +143,7 @@ public class User implements Serializable {
 		this.location = location;
 	}
 
-	@ManyToOne(cascade=CascadeType.ALL) 
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
 		return annotations;
@@ -138,7 +153,7 @@ public class User implements Serializable {
 		this.annotations = annotations;
 	}
 
-    @OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user")
 	public Set<ContentInteraction> getContentInteractions() {
 		return contentInteractions;
 	}
@@ -147,7 +162,7 @@ public class User implements Serializable {
 		this.contentInteractions = contentInteractions;
 	}
 
-    @OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user")
 	public Set<AudienceUser> getUserAudiences() {
 		return userAudiences;
 	}
@@ -156,7 +171,7 @@ public class User implements Serializable {
 		this.userAudiences = userAudiences;
 	}
 
-    @OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user")
 	public Set<GroupUser> getUserGroups() {
 		return userGroups;
 	}
@@ -165,7 +180,7 @@ public class User implements Serializable {
 		this.userGroups = userGroups;
 	}
 
-    @OneToMany(mappedBy="source")
+	@OneToMany(mappedBy = "source")
 	public Set<UserRelation> getSourceOfUserRelations() {
 		return sourceOfUserRelations;
 	}
@@ -174,13 +189,25 @@ public class User implements Serializable {
 		this.sourceOfUserRelations = sourceOfUserRelations;
 	}
 
-    @OneToMany(mappedBy="target")
+	@OneToMany(mappedBy = "target")
 	public Set<UserRelation> getTargetOfUserRelations() {
 		return targetOfUserRelations;
 	}
 
 	public void setTargetOfUserRelations(Set<UserRelation> targetOfUserRelations) {
 		this.targetOfUserRelations = targetOfUserRelations;
+	}
+
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "discourse_has_user", joinColumns = {
+		@JoinColumn(name = "id_user", nullable = false, updatable = false) }, inverseJoinColumns = {
+					@JoinColumn(name = "id_discourse", nullable = false, updatable = false) })
+	public Set<Discourse> getDiscourses() {
+		return discourses;
+	}
+
+	public void setDiscourses(Set<Discourse> discourses) {
+		this.discourses = discourses;
 	}
 
 }
