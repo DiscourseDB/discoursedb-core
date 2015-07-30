@@ -46,6 +46,7 @@ public class ContextType implements Serializable {
 		this.id = id;
 	}
 
+	@Column(unique=true)
 	public String getType() {
 		return type;
 	}

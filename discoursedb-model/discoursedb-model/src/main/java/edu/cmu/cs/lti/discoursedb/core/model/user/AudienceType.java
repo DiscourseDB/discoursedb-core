@@ -44,6 +44,7 @@ public class AudienceType implements Serializable {
 		this.id = id;
 	}
 
+	@Column(unique=true)
 	public String getType() {
 		return type;
 	}

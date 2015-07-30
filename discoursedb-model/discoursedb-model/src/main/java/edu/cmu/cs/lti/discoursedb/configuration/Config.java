@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" })
 @PropertySource(value = { "classpath:discoursedb.properties" })
-public class HibernateConfiguration {
+public class Config {
 
 	@Autowired
 	private Environment environment;
@@ -39,11 +39,14 @@ public class HibernateConfiguration {
 	}
 
 	@Bean
-	LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, Environment env) {
-		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-		entityManagerFactoryBean.setDataSource(dataSource);
-		entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-		entityManagerFactoryBean.setPackagesToScan("edu.cmu.cs.lti.discoursedb");
+	EntityManagerFactory entityManagerFactory(DataSource dataSource, Environment env) {
+		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+	    vendorAdapter.setGenerateDdl(true);
+		    
+		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+		factory.setDataSource(dataSource);
+	    factory.setJpaVendorAdapter(vendorAdapter);
+		factory.setPackagesToScan("edu.cmu.cs.lti.discoursedb");
 
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
@@ -52,9 +55,10 @@ public class HibernateConfiguration {
 		jpaProperties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
 		jpaProperties.put("hibernate.format_sql", env.getRequiredProperty("hibernate.format_sql"));
 
-		entityManagerFactoryBean.setJpaProperties(jpaProperties);
+		factory.setJpaProperties(jpaProperties);
+		factory.afterPropertiesSet();
 
-		return entityManagerFactoryBean;
+		return factory.getObject();
 	}
 
 	@Bean
