@@ -48,6 +48,11 @@ public class Discourse implements Serializable {
 
 	public Discourse() {}
 
+	public Discourse(String name, String descriptor){
+		this.setName(name);
+		this.setDescriptor(descriptor);
+	}
+	
 	private Date version;
 
 	@Version

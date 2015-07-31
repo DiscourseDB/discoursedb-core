@@ -56,7 +56,7 @@ public class User implements Serializable {
 
 	private String location;
 
-	private Set<Discourse> discourses;
+	private Set<Discourse> discourses = new HashSet<Discourse>();
 
 	private Annotations annotations;
 
@@ -70,8 +70,7 @@ public class User implements Serializable {
 
 	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
 
-	public User() {
-	}
+	public User() {}
 
 	private Date version;
 
@@ -210,4 +209,9 @@ public class User implements Serializable {
 		this.discourses = discourses;
 	}
 
+	public void addDiscourses(Discourse discourse) {
+		this.discourses.add(discourse);
+	}
+
+	
 }
