@@ -38,8 +38,8 @@ public class TestSpringDataJPA implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		Discourse discourse = new Discourse("Test","Phase5");
-		discourseRepo.save(discourse);
+		Discourse discourse = new Discourse("Test","Phase6");
+	//	discourseRepo.save(discourse);
 				
 		User user = new User();
 		user.setRealname("John Doe");
