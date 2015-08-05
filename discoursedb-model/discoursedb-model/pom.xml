@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-model</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.4-SNAPSHOT</version>
 	<name>DiscourseDB ORM</name>
 	<description>Object Relational Mapping for DiscourseDB</description>
 	<properties>
