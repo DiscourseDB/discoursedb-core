@@ -32,6 +32,16 @@
 				<artifactId>mysql-connector-java</artifactId>
 				<version>5.1.36</version>
 			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-edx</artifactId>
+				<version>0.4-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-model</artifactId>
+				<version>0.4-SNAPSHOT</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
   
@@ -486,4 +496,8 @@
                 </profile>
         </profiles>
         <packaging>pom</packaging>
+        <modules>
+        	<module>discoursedb-io-edx</module>
+        	<module>discoursedb-model</module>
+        </modules>
 </project>
