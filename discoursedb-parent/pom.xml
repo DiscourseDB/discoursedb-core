@@ -7,7 +7,7 @@
   </parent>
   <groupId>edu.cmu.cs.lti</groupId>
   <artifactId>discoursedb-parent</artifactId>
-  <version>1-SNAPSHOT</version>
+  <version>0.4-SNAPSHOT</version>
   <name>DiscourseDB parent</name>
   <description>Parent POM for DiscourseDB projects</description>
           <properties>
