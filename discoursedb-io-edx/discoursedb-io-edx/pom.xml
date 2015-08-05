@@ -9,4 +9,10 @@
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.4-SNAPSHOT</version>
 	</parent>
+	<dependencies>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+	</dependencies>
 </project>
