@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
-public class EdxForumConverter {
+public class EdxForumConverterTest {
 	
 	
 	public static void main(String[] args) throws Exception{

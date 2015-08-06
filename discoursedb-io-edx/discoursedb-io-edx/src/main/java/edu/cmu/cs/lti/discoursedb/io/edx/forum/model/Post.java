@@ -199,12 +199,14 @@ public class Post {
 	 * Contains time for the date and time that this response to a post was
 	 * endorsed.
 	 */
+	@JsonIgnore
 	private Date endorsementTime;
 
 	/**
 	 * Contains the numeric user ID (from auth_user.id) of the person who
 	 * endorsed it.
 	 */
+	@JsonIgnore
 	private String endorsementUserId;
 
 	/**
@@ -469,11 +471,16 @@ public class Post {
 
 	@JsonProperty("endorsement")
 	public void setEndorsements(Map<String, Object> endorsements) {
-		this.endorsementUserId = (String) endorsements.get("user_id");
+		if(endorsements!=null){
+			String userId = (String) endorsements.get("user_id");
+			this.endorsementUserId = userId;
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis((Long)((Map<String, Object>)endorsements.get("time")).get("$date"));
-		this.endorsementTime = calendar.getTime();
+			Calendar calendar = Calendar.getInstance();
+			Map<String, Object> timeEntry =  (Map<String, Object>)endorsements.get("time");
+			Long timeInMillis = (Long)timeEntry.get("$date");
+			calendar.setTimeInMillis(timeInMillis);
+			this.endorsementTime = calendar.getTime();			
+		}
 	}
 
 	/**
@@ -511,6 +518,14 @@ public class Post {
 		tString.append("Course ID: ");
 		tString.append(getCourseId());
 		tString.append(nl);		
+		if(isEndorsed()){
+			tString.append("Endorsed by: ");
+			tString.append(getEndorsementUserId());
+			tString.append(nl);		
+			tString.append("Endorsed at: ");
+			tString.append(getEndorsementTime());
+			tString.append(nl);					
+		}
 		return tString.toString();
 	}
 	
