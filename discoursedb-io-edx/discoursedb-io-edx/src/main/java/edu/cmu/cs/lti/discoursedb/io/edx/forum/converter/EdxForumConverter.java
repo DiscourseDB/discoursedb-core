@@ -6,9 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
+import javax.transaction.Transactional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -23,10 +28,11 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
-public class EdxForumConverter {
+@Transactional
+@ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" })
+public class EdxForumConverter  implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(EdxForumConverter.class);
-
 	private static int postcount = 1;
 
 	/*
@@ -48,8 +54,12 @@ public class EdxForumConverter {
 	@Autowired
 	private DiscoursePartRepository discoursePartRepo;
 
-	public static void main(String[] args) throws Exception {
-		EdxForumConverter converter = new EdxForumConverter();
+	public static void main(String[] args) {
+		SpringApplication.run(EdxForumConverter.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
 		if (args.length != 1) {
 			logger.error("Missing input file. Must provide input file as launch parameter.");
 			System.exit(1);
@@ -61,7 +71,9 @@ public class EdxForumConverter {
 			logger.error("Input file does not exist or is not readable.");
 			System.exit(1);
 		}
+
 		logger.trace("Starting forum conversion");
+		EdxForumConverter converter = new EdxForumConverter();
 		converter.convert(inFileName);
 	}
 
@@ -79,8 +91,7 @@ public class EdxForumConverter {
 	public void convert(String inFile) throws JsonParseException, JsonProcessingException, IOException {
 		final InputStream in = new FileInputStream(inFile);
 		try {
-			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it
-					.hasNext();) {
+			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it.hasNext();) {
 				logger.debug("Retrieving post number " + postcount++);
 				Post curPost = it.next();
 				map(curPost);

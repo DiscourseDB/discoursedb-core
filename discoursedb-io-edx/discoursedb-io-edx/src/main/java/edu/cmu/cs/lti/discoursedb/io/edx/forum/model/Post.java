@@ -1,5 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.io.edx.forum.model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -232,8 +233,7 @@ public class Post {
 	 * nested more than one layer deep, it will only ever have at most one
 	 * element in it. If a Comment has no parent, it is an empty list.
 	 */
-	@JsonIgnore // TODO need to map the $oids to the list
-	private List<String> parent_ids;
+	private List<String> parentIds;
 
 	/**
 	 * A randomly generated number that drives a sorted index to improve online
@@ -342,6 +342,20 @@ public class Post {
 	@JsonProperty("parent_id")
 	public void setParentId(Map<String, Object> parent_id) {
 		this.parentId = (String) parent_id.get("$oid");
+	}
+
+	public List<String> getParentIds() {
+		return parentIds;
+	}
+
+	@JsonProperty("parent_ids")
+	public void setParentIds(List<Map<String, Object>> parentIds) {
+		List<String> result = new ArrayList();
+		for(Object curIdEntity:parentIds){
+			String curId = (String)((Map<String, Object>)curIdEntity).get("$oid");
+			result.add(curId);
+		}
+		this.parentIds = result;
 	}
 
 	public String getSk() {
@@ -517,6 +531,9 @@ public class Post {
 		tString.append(nl);
 		tString.append("Course ID: ");
 		tString.append(getCourseId());
+		tString.append(nl);		
+		tString.append("Parent IDs: ");
+		tString.append(getParentIds());
 		tString.append(nl);		
 		if(isEndorsed()){
 			tString.append("Endorsed by: ");
