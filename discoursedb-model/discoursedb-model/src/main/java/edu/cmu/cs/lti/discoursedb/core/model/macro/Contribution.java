@@ -45,6 +45,10 @@ public class Contribution implements Serializable {
 	
 	private Date endTime;
 
+	private int upvotes;
+
+	private int downvotes;
+
 	private ContributionType type;
 	
 	private Annotations annotations;
@@ -185,6 +189,21 @@ public class Contribution implements Serializable {
 	public void setTargetOfDiscourseRelations(Set<DiscourseRelation> targetOfDiscourseRelations) {
 		this.targetOfDiscourseRelations = targetOfDiscourseRelations;
 	}
-
+	
+	public int getUpvotes() {
+		return upvotes;
+	}
+	
+	public void setUpvotes(int upvotes) {
+		this.upvotes = upvotes;
+	}
+	
+	public int getDownvotes() {
+		return downvotes;
+	}
+	
+	public void setDownvotes(int downvotes) {
+		this.downvotes = downvotes;
+	}
 
 }
