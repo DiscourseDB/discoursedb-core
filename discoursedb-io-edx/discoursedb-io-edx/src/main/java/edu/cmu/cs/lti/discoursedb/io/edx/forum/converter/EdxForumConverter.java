@@ -24,13 +24,13 @@ import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
 /**
  * The EdxForumConverter is the first (and currently only) bean to be launched
- * by the EdxForumConverterApp.
+ * by the EdxForumConverterApp. (order defined by the Order annotation)
  * 
  * The converter loads the forum json file specified in the arguments of the app
  * and parses the jason into Post objects and maps each post object to
  * DiscourseDB.
  * 
- * @author oliverf
+ * @author Oliver Ferschke
  *
  */
 @Component
