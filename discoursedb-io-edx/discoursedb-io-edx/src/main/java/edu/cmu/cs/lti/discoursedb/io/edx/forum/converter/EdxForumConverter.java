@@ -6,14 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-import javax.transaction.Transactional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -21,16 +19,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
-@Transactional
-@ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" })
-public class EdxForumConverter  implements CommandLineRunner {
+/**
+ * The EdxForumConverter is the first (and currently only) bean to be launched
+ * by the EdxForumConverterApp.
+ * 
+ * The converter loads the forum json file specified in the arguments of the app
+ * and parses the jason into Post objects and maps each post object to
+ * DiscourseDB.
+ * 
+ * @author oliverf
+ *
+ */
+@Component
+@Order(1)
+public class EdxForumConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(EdxForumConverter.class);
 	private static int postcount = 1;
@@ -40,23 +45,7 @@ public class EdxForumConverter  implements CommandLineRunner {
 	 */
 
 	@Autowired
-	private UserRepository userRepo;
-
-	@Autowired
-	private DiscourseRepository discourseRepo;
-
-	@Autowired
-	private ContributionRepository contributionRepo;
-
-	@Autowired
-	private ContentRepository contentRepo;
-
-	@Autowired
-	private DiscoursePartRepository discoursePartRepo;
-
-	public static void main(String[] args) {
-		SpringApplication.run(EdxForumConverter.class, args);
-	}
+	private DiscourseRepository discourseRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -73,8 +62,7 @@ public class EdxForumConverter  implements CommandLineRunner {
 		}
 
 		logger.trace("Starting forum conversion");
-		EdxForumConverter converter = new EdxForumConverter();
-		converter.convert(inFileName);
+		this.convert(inFileName);
 	}
 
 	/**
@@ -91,7 +79,8 @@ public class EdxForumConverter  implements CommandLineRunner {
 	public void convert(String inFile) throws JsonParseException, JsonProcessingException, IOException {
 		final InputStream in = new FileInputStream(inFile);
 		try {
-			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it.hasNext();) {
+			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it
+					.hasNext();) {
 				logger.debug("Retrieving post number " + postcount++);
 				Post curPost = it.next();
 				map(curPost);
@@ -117,10 +106,12 @@ public class EdxForumConverter  implements CommandLineRunner {
 		// discourse name and descriptor are unique.
 		// So, we use the course id both as name and descriptor.
 		String courseid = p.getCourseId();
-		Discourse curDiscourse = discourseRepo.findOneByNameAndDescriptor(courseid, courseid);
+
+		Discourse curDiscourse = discourseRepository.findOneByNameAndDescriptor(courseid, courseid);
+
 		if (curDiscourse == null) {
 			curDiscourse = new Discourse(courseid, courseid);
-			discourseRepo.save(curDiscourse);
+			discourseRepository.save(curDiscourse);
 		}
 
 		// ---------- Init DiscoursePart -----------
@@ -137,7 +128,6 @@ public class EdxForumConverter  implements CommandLineRunner {
 
 		// TODO represent other properties
 
-		
 		logger.trace("Post mapping completed.");
 	}
 
