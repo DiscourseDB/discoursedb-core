@@ -19,7 +19,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContextRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
 /**
@@ -46,6 +50,14 @@ public class EdxForumConverter implements CommandLineRunner {
 
 	@Autowired
 	private DiscourseRepository discourseRepository;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private ContentRepository contentRepository;
+	@Autowired
+	private ContextRepository contextRepository;
+	@Autowired
+	private DiscoursePartRepository discoursePartRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -102,13 +114,11 @@ public class EdxForumConverter implements CommandLineRunner {
 		// ---------- Init Discourse -----------
 		logger.trace("Init Discourse entity");
 
-		// edX course ids are unique, but in DiscourseDB the combination of
-		// discourse name and descriptor are unique.
-		// So, we use the course id both as name and descriptor.
+		// In DiscourseDB, the combination of discourse name and descriptor is considered unique.
+		// Since edX course ids are unique already, we can use them both as name and descriptor. 
 		String courseid = p.getCourseId();
 
 		Discourse curDiscourse = discourseRepository.findOneByNameAndDescriptor(courseid, courseid);
-
 		if (curDiscourse == null) {
 			curDiscourse = new Discourse(courseid, courseid);
 			discourseRepository.save(curDiscourse);
