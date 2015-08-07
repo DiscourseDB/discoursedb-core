@@ -6,6 +6,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,13 +20,18 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * DiscourseDB base configuration class.
+ * Can be replaced by custom configuration.
+ */
 @Configuration
-@EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
+@EnableAutoConfiguration
 @EnableTransactionManagement
-@ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" })
+@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb" })
 @PropertySource(value = { "classpath:discoursedb.properties" })
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
-public class Config {
+@EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
+public class BaseConfiguration {
 
 	@Autowired
 	private Environment environment;
