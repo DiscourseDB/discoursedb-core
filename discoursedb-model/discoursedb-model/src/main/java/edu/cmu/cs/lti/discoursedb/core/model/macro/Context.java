@@ -48,7 +48,16 @@ public class Context implements Serializable {
 	private ContextType type;
 	
 	private Annotations annotations;
-	
+
+	private String sourceId;
+	@Column(name="source_id")
+	public String getSourceId() {
+		return sourceId;
+	}
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
+
 	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
 
 	private Date version;

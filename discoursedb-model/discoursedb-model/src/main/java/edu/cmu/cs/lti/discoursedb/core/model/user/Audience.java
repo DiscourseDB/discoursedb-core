@@ -47,6 +47,15 @@ public class Audience implements Serializable {
 	
 	public Audience(){}
 
+	private String sourceId;
+	@Column(name="source_id")
+	public String getSourceId() {
+		return sourceId;
+	}
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
+	
 	private Date version;
 	@Version
 	public Date getVersion() {

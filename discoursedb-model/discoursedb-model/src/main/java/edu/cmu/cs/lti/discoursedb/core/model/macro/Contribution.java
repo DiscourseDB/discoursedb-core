@@ -63,6 +63,15 @@ public class Contribution implements Serializable {
 
 	private Set<DiscourseRelation> targetOfDiscourseRelations = new HashSet<DiscourseRelation>();
 
+	private String sourceId;
+	@Column(name="source_id")
+	public String getSourceId() {
+		return sourceId;
+	}
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
+	
 	public Contribution(){}
 
 	private Date version;

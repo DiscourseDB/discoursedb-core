@@ -70,6 +70,15 @@ public class User implements Serializable {
 
 	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
 
+	private String sourceId;
+	@Column(name="source_id")
+	public String getSourceId() {
+		return sourceId;
+	}
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
+	
 	public User() {}
 
 	private Date version;

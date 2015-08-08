@@ -55,6 +55,15 @@ public class DiscoursePart implements Serializable{
 	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 	
 	public DiscoursePart(){}
+
+	private String sourceId;
+	@Column(name="source_id")
+	public String getSourceId() {
+		return sourceId;
+	}
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
 	
 	private Date version;
 	@Version
