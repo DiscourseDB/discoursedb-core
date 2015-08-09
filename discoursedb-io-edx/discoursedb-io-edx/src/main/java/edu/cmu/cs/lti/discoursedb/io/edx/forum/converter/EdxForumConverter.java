@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
@@ -166,9 +167,14 @@ public class EdxForumConverter implements CommandLineRunner {
 		curContribution.setCurrentRevision(curContent);
 
 		// ---------- Create DiscourseRelation -----------
-		// TODO create DiscourseRelation
-		// we can only do that if the parent already exists
 		
+		Optional<Contribution> curOptParentContributon = contributionRepository.findBySourceId(p.getCommentThreadId());
+		if(curOptParentContributon.isPresent()){
+			Contribution curParentContribution = curOptParentContributon.get();
+			DiscourseRelation curRelation = new DiscourseRelation();			
+			//TODO wire source and tareget
+			//TODO create DiscourseRelationType and wire it to DiscourseRelation - need to define type in edxForum specific enum
+		}
 		contributionRepository.save(curContribution);
 
 		
