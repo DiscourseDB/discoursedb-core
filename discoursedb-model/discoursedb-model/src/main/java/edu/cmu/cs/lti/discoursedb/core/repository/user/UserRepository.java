@@ -8,7 +8,9 @@ import edu.cmu.cs.lti.discoursedb.core.repository.CoreBaseRepository;
 public interface UserRepository extends CoreBaseRepository<User,Long>{
     
 	public Optional<User> findById(Long id);    
-    
+	
 	public long countByRealname(String realname);
+	
+	public Optional<User> findBySourceId(String id);
     
 }

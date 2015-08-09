@@ -28,6 +28,7 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContentInteraction;
+import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 
 @Entity
 @SelectBeforeUpdate 
@@ -51,10 +52,22 @@ public class Content implements Serializable {
 	private Blob data;
 	
 	private Annotations annotations;
+	
+	private User author;
 
 	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
 	
 	public Content(){}
+
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "fk_user_id")
+	public User getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(User author) {
+		this.author = author;
+	}
 
 	private String sourceId;
 	@Column(name="source_id")
