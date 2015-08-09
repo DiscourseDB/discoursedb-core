@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,10 +19,15 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContextRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
@@ -55,7 +61,11 @@ public class EdxForumConverter implements CommandLineRunner {
 	@Autowired
 	private ContentRepository contentRepository;
 	@Autowired
-	private ContextRepository contextRepository;
+	private ContributionRepository contributionRepository;
+	@Autowired
+	private DiscourseRelationRepository discourseRelationRepository;
+	@Autowired
+	private DiscourseRelationTypeRepository discourseRelationTypeRepository;
 	@Autowired
 	private DiscoursePartRepository discoursePartRepository;
 
@@ -126,16 +136,42 @@ public class EdxForumConverter implements CommandLineRunner {
 
 		// ---------- Init DiscoursePart -----------
 		logger.trace("Init DiscoursePart entity");
-
+		//TODO decide what a DiscoursePart should be in the edX forum context
+		
 		// ---------- Init User -----------
 		logger.trace("Init User entity");
-
+		Optional<User> curOptUser = userRepository.findBySourceId(p.getAuthorId());
+		User curUser;
+		if(curOptUser.isPresent()){
+			curUser=curOptUser.get();
+		}else{
+			curUser = new User();
+			curUser.setUsername(p.getAuthorUsername());
+			userRepository.save(curUser);
+		}
+			
 		// ---------- Create Content -----------
 		logger.trace("Create Content entity");
-
+		Content curContent = new Content();
+		curContent.setText(p.getBody());
+		curContent.setCreationTime(p.getCreatedAt());
+		curContent.setAuthor(curUser);
+		curContent.setSourceId(p.getId());
+		contentRepository.save(curContent);
+		
 		// ---------- Create Contribution -----------
 		logger.trace("Create Contribution entity");
+		Contribution curContribution = new Contribution();
+		curContribution.setSourceId(p.getId());
+		curContribution.setCurrentRevision(curContent);
 
+		// ---------- Create DiscourseRelation -----------
+		// TODO create DiscourseRelation
+		// we can only do that if the parent already exists
+		
+		contributionRepository.save(curContribution);
+
+		
 		// TODO represent other properties
 
 		logger.trace("Post mapping completed.");
