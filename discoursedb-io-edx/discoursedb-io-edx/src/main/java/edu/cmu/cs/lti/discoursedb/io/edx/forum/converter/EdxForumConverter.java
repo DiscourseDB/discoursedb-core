@@ -177,7 +177,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		curContent.setCreationTime(p.getCreatedAt());
 		curContent.setAuthor(curUser);
 		curContent.setSourceId(p.getId());
-		contentRepository.save(curContent);
+		contentRepository.save(curContent); //FIXME we get a  org.springframework.dao.InvalidDataAccessApiUsageException: detached entity passed to persist: edu.cmu.cs.lti.discoursedb.core.model.user.User;
 		
 		// ---------- Create Contribution -----------
 		logger.trace("Create Contribution entity");
