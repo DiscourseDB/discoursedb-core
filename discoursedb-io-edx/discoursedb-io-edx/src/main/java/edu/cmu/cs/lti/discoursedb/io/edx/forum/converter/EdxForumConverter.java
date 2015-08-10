@@ -196,6 +196,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		Contribution curContribution = new Contribution();
 		curContribution.setSourceId(p.getId());
 		curContribution.setCurrentRevision(curContent);
+		curContribution.setFirstRevision(curContent);
 		curContribution.setStartTime(p.getCreatedAt());
 		curContribution.setUpvotes(p.getUpvoteCount());
 
