@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -31,7 +32,7 @@ public class FeatureType implements Serializable{
 
 	private long id;
 	
-	private String name;
+	private String type;
 	
 	private String datatype;
 	
@@ -61,12 +62,12 @@ public class FeatureType implements Serializable{
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getType() {
+		return type;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getDatatype() {

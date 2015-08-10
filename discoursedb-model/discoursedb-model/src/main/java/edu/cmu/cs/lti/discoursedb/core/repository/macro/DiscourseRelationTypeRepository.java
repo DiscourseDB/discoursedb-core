@@ -1,9 +1,9 @@
 package edu.cmu.cs.lti.discoursedb.core.repository.macro;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
-import edu.cmu.cs.lti.discoursedb.core.repository.CoreBaseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.CoreBaseTypeRepository;
 
-public interface DiscourseRelationTypeRepository extends CoreBaseRepository<DiscourseRelationType,Long>{
+public interface DiscourseRelationTypeRepository extends CoreBaseTypeRepository<DiscourseRelationType,Long>{
     
-    
+
 }

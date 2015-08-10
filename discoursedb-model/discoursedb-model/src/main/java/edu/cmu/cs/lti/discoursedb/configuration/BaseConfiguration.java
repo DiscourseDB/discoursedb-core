@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableAutoConfiguration
 @EnableTransactionManagement
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb" })
-@PropertySource(value = { "classpath:discoursedb.properties" })
+@PropertySource(value = { "classpath:hibernate.properties" })
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
 public class BaseConfiguration {
