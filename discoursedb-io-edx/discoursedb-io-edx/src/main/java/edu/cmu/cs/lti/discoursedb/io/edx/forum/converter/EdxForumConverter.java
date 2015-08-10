@@ -150,7 +150,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		logger.trace("Init DiscoursePart entity");
 		Optional<DiscoursePart> curOPtDiscoursePart = discoursePartRepository.findOneByName(courseid);
 		DiscoursePart curDiscoursePart;
-		if(curOPtDiscourse.isPresent()){
+		if(curOPtDiscoursePart.isPresent()){
 			curDiscoursePart=curOPtDiscoursePart.get();
 		}else{
 			curDiscoursePart=new DiscoursePart();
