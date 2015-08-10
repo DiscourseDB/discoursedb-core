@@ -167,7 +167,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		}else{
 			curUser = new User();
 			curUser.setUsername(p.getAuthorUsername());
-			userRepository.save(curUser);
+//			userRepository.save(curUser);
 		}
 			
 		// ---------- Create Content -----------
@@ -177,7 +177,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		curContent.setCreationTime(p.getCreatedAt());
 		curContent.setAuthor(curUser);
 		curContent.setSourceId(p.getId());
-		contentRepository.save(curContent); //FIXME we get a  org.springframework.dao.InvalidDataAccessApiUsageException: detached entity passed to persist: edu.cmu.cs.lti.discoursedb.core.model.user.User;
+//		contentRepository.save(curContent); //FIXME we get a  org.springframework.dao.InvalidDataAccessApiUsageException: detached entity passed to persist: edu.cmu.cs.lti.discoursedb.core.model.user.User;
 		
 		// ---------- Create Contribution -----------
 		logger.trace("Create Contribution entity");
@@ -192,7 +192,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		discoursePartContrib.setContribution(curContribution);
 		discoursePartContrib.setDiscoursePart(curDiscoursePart);
 		discoursePartContrib.setStartTime(p.getCreatedAt());
-		discoursePartContribRepository.save(discoursePartContrib);
+//		discoursePartContribRepository.save(discoursePartContrib);
 		discoursePartContribs.add(discoursePartContrib);
 		
 
