@@ -128,6 +128,7 @@ public class Content implements Serializable {
 		this.creationTime = creationTime;
 	}
 
+	@Column(columnDefinition="TEXT")
 	public String getText() {
 		return text;
 	}
