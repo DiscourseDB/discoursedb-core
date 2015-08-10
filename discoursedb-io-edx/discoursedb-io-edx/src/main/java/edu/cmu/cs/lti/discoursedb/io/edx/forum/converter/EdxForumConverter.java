@@ -222,7 +222,7 @@ public class EdxForumConverter implements CommandLineRunner {
 			Set<DiscourseRelation> rels = partOfThreadType.getDiscourseRelations();
 			rels.add(curRelation);
 			partOfThreadType.setDiscourseRelations(rels);
-			discourseRelationTypeRepository.save(partOfThreadType);			
+//			discourseRelationTypeRepository.save(partOfThreadType);			
 
 			curRelation.setType(partOfThreadType);
 			discourseRelationRepository.save(curRelation);
@@ -249,7 +249,7 @@ public class EdxForumConverter implements CommandLineRunner {
 			Set<DiscourseRelation> rels = commentType.getDiscourseRelations();
 			rels.add(curRelation);
 			commentType.setDiscourseRelations(rels);
-			discourseRelationTypeRepository.save(commentType);			
+//			discourseRelationTypeRepository.save(commentType);			
 
 			curRelation.setType(commentType);
 			discourseRelationRepository.save(curRelation);
