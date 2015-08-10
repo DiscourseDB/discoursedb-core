@@ -95,7 +95,7 @@ public class Contribution implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_first_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_first_revision")
 	public Content getFirstRevision() {
 		return firstRevision;
 	}
@@ -105,7 +105,7 @@ public class Contribution implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_current_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_current_revision")
 	public Content getCurrentRevision() {
 		return currentRevision;
 	}
@@ -158,10 +158,15 @@ public class Contribution implements Serializable {
 	public Set<DiscoursePartContribution> getContributionPartOfDiscourseParts() {
 		return contributionPartOfDiscourseParts;
 	}
+    
 
 	public void setContributionPartOfDiscourseParts(Set<DiscoursePartContribution> contributionPartOfDiscourseParts) {
 		this.contributionPartOfDiscourseParts = contributionPartOfDiscourseParts;
 	}
+
+    public void addContributionPartOfDiscourseParts(DiscoursePartContribution discoursePartContribution){
+    	contributionPartOfDiscourseParts.add(discoursePartContribution);
+    }
 
     @OneToMany(mappedBy = "contribution")
 	public Set<ContributionAudience> getContributionAudiences() {
@@ -170,6 +175,10 @@ public class Contribution implements Serializable {
 
 	public void setContributionAudiences(Set<ContributionAudience> contributionAudiences) {
 		this.contributionAudiences = contributionAudiences;
+	}
+
+	public void addContributionAudiences(ContributionAudience contributionAudience) {
+		this.contributionAudiences.add(contributionAudience);
 	}
 
     @OneToMany(mappedBy = "contribution")
@@ -181,6 +190,10 @@ public class Contribution implements Serializable {
 		this.contributionContexts = contributionContexts;
 	}
 
+	public void addContributionContexts(ContributionContext contributionContext) {
+		this.contributionContexts.add(contributionContext);
+	}
+
     @OneToMany(mappedBy="source")
 	public Set<DiscourseRelation> getSourceOfDiscourseRelations() {
 		return sourceOfDiscourseRelations;
@@ -190,6 +203,10 @@ public class Contribution implements Serializable {
 		this.sourceOfDiscourseRelations = sourceOfDiscourseRelations;
 	}
 
+	public void addSourceOfDiscourseRelations(DiscourseRelation sourceOfDiscourseRelation) {
+		this.sourceOfDiscourseRelations.add(sourceOfDiscourseRelation);
+	}
+
     @OneToMany(mappedBy="target")
 	public Set<DiscourseRelation> getTargetOfDiscourseRelations() {
 		return targetOfDiscourseRelations;
@@ -197,6 +214,10 @@ public class Contribution implements Serializable {
 
 	public void setTargetOfDiscourseRelations(Set<DiscourseRelation> targetOfDiscourseRelations) {
 		this.targetOfDiscourseRelations = targetOfDiscourseRelations;
+	}
+
+	public void addTargetOfDiscourseRelations(DiscourseRelation targetOfDiscourseRelation) {
+		this.targetOfDiscourseRelations.add(targetOfDiscourseRelation);
 	}
 	
 	public int getUpvotes() {

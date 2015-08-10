@@ -99,7 +99,7 @@ public class UserRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_source",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_source")
 	public User getSource() {
 		return source;
 	}
@@ -109,7 +109,7 @@ public class UserRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_target",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_target")
 	public User getTarget() {
 		return target;
 	}

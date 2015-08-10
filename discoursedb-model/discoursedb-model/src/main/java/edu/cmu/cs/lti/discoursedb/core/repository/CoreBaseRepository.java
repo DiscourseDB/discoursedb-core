@@ -17,5 +17,6 @@ import org.springframework.data.repository.NoRepositoryBean;
  */
 @NoRepositoryBean
 public interface CoreBaseRepository<T, ID extends Serializable> extends CrudRepository<T, ID> {
-	//add additional common methods here
-}
+	
+
+	}

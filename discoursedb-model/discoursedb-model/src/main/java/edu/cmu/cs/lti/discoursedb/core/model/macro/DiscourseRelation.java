@@ -69,7 +69,7 @@ public class DiscourseRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_source",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_source")
 	public Contribution getSource() {
 		return source;
 	}
@@ -79,7 +79,7 @@ public class DiscourseRelation implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_source",insertable=false,updatable=false, nullable=false)
+	@JoinColumn(name = "fk_target")
 	public Contribution getTarget() {
 		return target;
 	}

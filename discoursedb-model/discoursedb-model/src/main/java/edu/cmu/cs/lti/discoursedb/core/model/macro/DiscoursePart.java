@@ -133,6 +133,11 @@ public class DiscoursePart implements Serializable{
 		this.discoursePartContributions = discoursePartContributions;
 	}
 
+	public void addDiscoursePartContribution(DiscoursePartContribution discoursePartContribution) {
+		discoursePartContributions.add(discoursePartContribution);
+	}
+
+	
     @OneToMany(mappedBy="source")
 	public Set<DiscoursePartRelation> getSourceOfDiscoursePartRelations() {
 		return sourceOfDiscoursePartRelations;

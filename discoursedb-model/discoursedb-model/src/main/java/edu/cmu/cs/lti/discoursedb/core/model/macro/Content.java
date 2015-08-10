@@ -99,7 +99,7 @@ public class Content implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_previous_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_previous_revision")
 	public Content getPreviousRevision() {
 		return previousRevision;
 	}
@@ -109,7 +109,7 @@ public class Content implements Serializable {
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_next_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_next_revision")
 	public Content getNextRevision() {
 		return nextRevision;
 	}
