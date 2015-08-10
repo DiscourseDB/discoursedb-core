@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.transaction.Transactional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRepository;
@@ -51,11 +52,17 @@ import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
  *
  */
 @Component
+@Transactional
 @Order(1)
 public class EdxForumConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(EdxForumConverter.class);
 	private static int postcount = 1;
+
+	/**
+	 * Determines whether the ids provided by the source system are unique within discourse db.
+	 */
+	private static final boolean uniqueSourceIds = true;
 
 	/*
 	 * Entity-Repositories for DiscourseDB connection.
@@ -75,8 +82,6 @@ public class EdxForumConverter implements CommandLineRunner {
 	private DiscourseRelationTypeRepository discourseRelationTypeRepository;
 	@Autowired
 	private DiscoursePartRepository discoursePartRepository;
-	@Autowired
-	private DiscoursePartContributionRepository discoursePartContribRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -130,6 +135,11 @@ public class EdxForumConverter implements CommandLineRunner {
 	public void map(Post p) {
 		logger.trace("Mapping post " + p.getId());
 
+		if(uniqueSourceIds&&!contributionRepository.findBySourceId(p.getId()).isEmpty()){
+			logger.warn("Skipping post with source id "+p.getId()+". Post was already in the database.");			
+			return;
+		}
+		
 		// ---------- Init Discourse -----------
 		logger.trace("Init Discourse entity");
 
@@ -137,18 +147,18 @@ public class EdxForumConverter implements CommandLineRunner {
 		// Since edX course ids are unique already, we can use them both as name and descriptor. 
 		String courseid = p.getCourseId();
 
-		Optional<Discourse> curOPtDiscourse = discourseRepository.findOneByNameAndDescriptor(courseid, courseid);
+		Optional<Discourse> curOptDiscourse = discourseRepository.findOneByNameAndDescriptor(courseid, courseid);
 		Discourse curDiscourse;
-		if (curOPtDiscourse.isPresent()) {
-			curDiscourse=curOPtDiscourse.get();
+		if (curOptDiscourse.isPresent()) {
+			curDiscourse=curOptDiscourse.get();
 		}else{
 			curDiscourse = new Discourse(courseid, courseid);
-			discourseRepository.save(curDiscourse);
+			curDiscourse=discourseRepository.save(curDiscourse);
 		}
 
 		// ---------- Init DiscoursePart -----------
 		logger.trace("Init DiscoursePart entity");
-		Optional<DiscoursePart> curOPtDiscoursePart = discoursePartRepository.findOneByName(courseid);
+		Optional<DiscoursePart> curOPtDiscoursePart = discoursePartRepository.findOneByName(courseid+"_FORUM");
 		DiscoursePart curDiscoursePart;
 		if(curOPtDiscoursePart.isPresent()){
 			curDiscoursePart=curOPtDiscoursePart.get();
@@ -167,9 +177,11 @@ public class EdxForumConverter implements CommandLineRunner {
 		}else{
 			curUser = new User();
 			curUser.setUsername(p.getAuthorUsername());
-//			userRepository.save(curUser);
+			curUser.setSourceId(p.getAuthorId());
 		}
-			
+		curUser.addDiscourses(curDiscourse);
+		curUser = userRepository.save(curUser);
+
 		// ---------- Create Content -----------
 		logger.trace("Create Content entity");
 		Content curContent = new Content();
@@ -177,38 +189,46 @@ public class EdxForumConverter implements CommandLineRunner {
 		curContent.setCreationTime(p.getCreatedAt());
 		curContent.setAuthor(curUser);
 		curContent.setSourceId(p.getId());
-//		contentRepository.save(curContent); //FIXME we get a  org.springframework.dao.InvalidDataAccessApiUsageException: detached entity passed to persist: edu.cmu.cs.lti.discoursedb.core.model.user.User;
+		curContent=contentRepository.save(curContent);
 		
 		// ---------- Create Contribution -----------
 		logger.trace("Create Contribution entity");
 		Contribution curContribution = new Contribution();
 		curContribution.setSourceId(p.getId());
 		curContribution.setCurrentRevision(curContent);
+		curContribution.setStartTime(p.getCreatedAt());
 		curContribution.setUpvotes(p.getUpvoteCount());
+
+		// ---------- Set Contribution Type-----------
+		
+		//TODO set contribution type according to the type field in the Post 
 		
 		//Connect the new contribution with the main forum DiscoursePart (since we don't have any other DiscourseParts)
-		Set<DiscoursePartContribution> discoursePartContribs = curDiscoursePart.getDiscoursePartContributions();
 		DiscoursePartContribution discoursePartContrib = new DiscoursePartContribution();
 		discoursePartContrib.setContribution(curContribution);
 		discoursePartContrib.setDiscoursePart(curDiscoursePart);
 		discoursePartContrib.setStartTime(p.getCreatedAt());
-//		discoursePartContribRepository.save(discoursePartContrib);
-		discoursePartContribs.add(discoursePartContrib);
+
+		curDiscoursePart.addDiscoursePartContribution(discoursePartContrib);
+		discoursePartRepository.save(curDiscoursePart);
 		
+		curContribution.addContributionPartOfDiscourseParts(discoursePartContrib);
+		curContribution = contributionRepository.save(curContribution);
+
 
 		// ---------- Create DiscourseRelations -----------		
 		logger.trace("Create DiscourseRelation entities");
 		
 		//If post has a is not a thread starter then create a DiscourseRelation of DESCENDANT type 
 		//that connects it with the thread starter 
-		Optional<Contribution> curOptParentContributon = contributionRepository.findBySourceId(p.getCommentThreadId());
+		Optional<Contribution> curOptParentContributon = contributionRepository.findOneBySourceId(p.getCommentThreadId());
 		if (curOptParentContributon.isPresent()) {
 			Contribution curParentContribution = curOptParentContributon.get();
 			DiscourseRelation curRelation = new DiscourseRelation();
 			curRelation.setSource(curParentContribution);
 			curRelation.setTarget(curContribution);
 
-			// We aasign the parent-child type by adding this DiscourseRelation
+			// We assign the parent-child type by adding this DiscourseRelation
 			// to the set of DESCENDANT TYPES
 			Optional<DiscourseRelationType> optPartOfThreadType = discourseRelationTypeRepository
 					.findOneByType(DiscourseRelationTypes.DESCENDANT.name());
@@ -222,21 +242,21 @@ public class EdxForumConverter implements CommandLineRunner {
 			Set<DiscourseRelation> rels = partOfThreadType.getDiscourseRelations();
 			rels.add(curRelation);
 			partOfThreadType.setDiscourseRelations(rels);
-//			discourseRelationTypeRepository.save(partOfThreadType);			
+			partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);			
 
 			curRelation.setType(partOfThreadType);
-			discourseRelationRepository.save(curRelation);
+			curRelation = discourseRelationRepository.save(curRelation);
 		}
 
 		//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
-		Optional<Contribution> curOptCommentedOnContributon = contributionRepository.findBySourceId(p.getParentId());
+		Optional<Contribution> curOptCommentedOnContributon = contributionRepository.findOneBySourceId(p.getParentId());
 		if (curOptCommentedOnContributon.isPresent()) {
 			Contribution curParentContribution = curOptCommentedOnContributon.get();
 			DiscourseRelation curRelation = new DiscourseRelation();
 			curRelation.setSource(curParentContribution);
 			curRelation.setTarget(curContribution);
-			// We asign the parent-child type by adding this DiscourseRelation
-			// to the set of DESCENDANT TYPES
+			// We assign the parent-child type by adding this DiscourseRelation
+			// to the set of REPLY TYPES
 			Optional<DiscourseRelationType> optCommentType = discourseRelationTypeRepository
 					.findOneByType(DiscourseRelationTypes.REPLY.name());
 			DiscourseRelationType commentType;
@@ -249,18 +269,11 @@ public class EdxForumConverter implements CommandLineRunner {
 			Set<DiscourseRelation> rels = commentType.getDiscourseRelations();
 			rels.add(curRelation);
 			commentType.setDiscourseRelations(rels);
-//			discourseRelationTypeRepository.save(commentType);			
+			commentType = discourseRelationTypeRepository.save(commentType);			
 
 			curRelation.setType(commentType);
-			discourseRelationRepository.save(curRelation);
-		}
-
-		//done with everything related to the contribution
-		discoursePartRepository.save(curDiscoursePart);
-		contributionRepository.save(curContribution);
-		
-		// TODO represent other properties?
-
+			curRelation = discourseRelationRepository.save(curRelation);
+		}		
 		logger.trace("Post mapping completed.");
 	}
 

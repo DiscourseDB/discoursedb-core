@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.edx.forum.converter;
 
+import javax.transaction.Transactional;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
  * 
  * @author Oliver Ferschke
  */
+@Transactional
 @ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" })
 public class EdxForumConverterApplication {
 	
