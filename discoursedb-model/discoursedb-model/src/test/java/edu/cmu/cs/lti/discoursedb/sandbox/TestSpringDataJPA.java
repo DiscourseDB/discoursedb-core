@@ -5,12 +5,10 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 
 /**
@@ -30,8 +28,6 @@ public class TestSpringDataJPA implements CommandLineRunner {
 
 	@Autowired
 	private UserRepository userRepo;
-	@Autowired
-	private DiscourseRepository discourseRepo;
 
 	public static void main(String[] args) {
 		SpringApplication.run(TestSpringDataJPA.class);
