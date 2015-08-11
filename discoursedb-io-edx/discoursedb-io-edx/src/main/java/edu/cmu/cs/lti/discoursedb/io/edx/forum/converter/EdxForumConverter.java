@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -24,19 +23,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
@@ -58,6 +65,10 @@ public class EdxForumConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(EdxForumConverter.class);
 	private static int postcount = 1;
+	private static final String EDX_COMMENT_TYPE = "Comment";
+	@SuppressWarnings("unused")
+	private static final String EDX_COMMENT_THREAD_TYPE = "CommentThread";
+	
 
 	/**
 	 * Determines whether the ids provided by the source system are unique within discourse db.
@@ -82,6 +93,12 @@ public class EdxForumConverter implements CommandLineRunner {
 	private DiscourseRelationTypeRepository discourseRelationTypeRepository;
 	@Autowired
 	private DiscoursePartRepository discoursePartRepository;
+	@Autowired
+	private ContributionTypeRepository contributionTypeRepository;
+	@Autowired
+	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
+	@Autowired
+	private DiscoursePartTypeRepository discoursePartTypeRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -157,6 +174,8 @@ public class EdxForumConverter implements CommandLineRunner {
 		}
 
 		// ---------- Init DiscoursePart -----------
+		// in edX, we consider the whole forum to be a single DiscoursePart
+		
 		logger.trace("Init DiscoursePart entity");
 		Optional<DiscoursePart> curOPtDiscoursePart = discoursePartRepository.findOneByName(courseid+"_FORUM");
 		DiscoursePart curDiscoursePart;
@@ -165,13 +184,33 @@ public class EdxForumConverter implements CommandLineRunner {
 		}else{
 			curDiscoursePart=new DiscoursePart();
 			curDiscoursePart.setName(courseid+"_FORUM");
+			//TODO no start time set - what's the start time of this forum?
 		}
+
+		//set Type of DiscoursePart
+		Optional<DiscoursePartType> optDiscoursePartType = discoursePartTypeRepository.findOneByType(DiscoursePartTypes.FORUM.name());
+		DiscoursePartType discoursePartType;
+		if(optDiscoursePartType.isPresent()){
+			discoursePartType = optDiscoursePartType.get();
+		}else{
+			discoursePartType = new DiscoursePartType();
+			discoursePartType.setType(DiscoursePartTypes.FORUM.name());
+			discoursePartType=discoursePartTypeRepository.save(discoursePartType);
+		}		
+		curDiscoursePart.setType(discoursePartType);
+		
+		// ---------- Connect DiscoursePart with Discourse -----------
+		DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();		
+		discourseToDiscoursePart.setDiscourse(curDiscourse);
+		discourseToDiscoursePart.setDiscoursePart(curDiscoursePart);
+		//TODO no start time set - what's the start time of this forum?
+		discourseToDiscoursePart=discourseToDiscoursePartRepository.save(discourseToDiscoursePart);
 		
 		// ---------- Init User -----------
 		logger.trace("Init User entity");
 		Optional<User> curOptUser = userRepository.findBySourceId(p.getAuthorId());
 		User curUser;
-		//FIXME the following is still a lame abuse of an Optional, but we can improve this later
+		//the following is still a lame abuse of an Optional, but we can improve this later
 		if(curOptUser.isPresent()){ 
 			curUser=curOptUser.get();
 		}else{
@@ -200,9 +239,20 @@ public class EdxForumConverter implements CommandLineRunner {
 		curContribution.setStartTime(p.getCreatedAt());
 		curContribution.setUpvotes(p.getUpvoteCount());
 
-		// ---------- Set Contribution Type-----------
+		//Set Contribution Type
 		
-		//TODO set contribution type according to the type field in the Post 
+		String mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST.name():ContributionTypes.THREAD_STARTER.name();
+		Optional<ContributionType> optType = contributionTypeRepository.findOneByType(mappedType);
+		ContributionType type;
+		if(optType.isPresent()){
+			type = optType.get();
+		}else{
+			type = new ContributionType();
+			type.setType(mappedType);
+			type=contributionTypeRepository.save(type);
+		}		
+		curContribution.setType(type);
+		
 		
 		//Connect the new contribution with the main forum DiscoursePart (since we don't have any other DiscourseParts)
 		DiscoursePartContribution discoursePartContrib = new DiscoursePartContribution();
@@ -240,21 +290,20 @@ public class EdxForumConverter implements CommandLineRunner {
 				partOfThreadType = new DiscourseRelationType();
 				partOfThreadType.setType(DiscourseRelationTypes.DESCENDANT.name());
 			}
-			Set<DiscourseRelation> rels = partOfThreadType.getDiscourseRelations();
-			rels.add(curRelation);
-			partOfThreadType.setDiscourseRelations(rels);
-			partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);			
-
 			curRelation.setType(partOfThreadType);
 			curRelation = discourseRelationRepository.save(curRelation);
+
+			partOfThreadType.addDiscourseRelation(curRelation);
+			partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);			
+
 		}
 
 		//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
-		Optional<Contribution> curOptCommentedOnContributon = contributionRepository.findOneBySourceId(p.getParentId());
-		if (curOptCommentedOnContributon.isPresent()) {
-			Contribution curParentContribution = curOptCommentedOnContributon.get();
+		Optional<Contribution> curOptPredecessorContributon = contributionRepository.findOneBySourceId(p.getParentId());
+		if (curOptPredecessorContributon.isPresent()) {
+			Contribution curPredecessorContribution = curOptPredecessorContributon.get();
 			DiscourseRelation curRelation = new DiscourseRelation();
-			curRelation.setSource(curParentContribution);
+			curRelation.setSource(curPredecessorContribution);
 			curRelation.setTarget(curContribution);
 			// We assign the parent-child type by adding this DiscourseRelation
 			// to the set of REPLY TYPES
@@ -267,14 +316,13 @@ public class EdxForumConverter implements CommandLineRunner {
 				commentType = new DiscourseRelationType();
 				commentType.setType(DiscourseRelationTypes.REPLY.name());
 			}
-			Set<DiscourseRelation> rels = commentType.getDiscourseRelations();
-			rels.add(curRelation);
-			commentType.setDiscourseRelations(rels);
-			commentType = discourseRelationTypeRepository.save(commentType);			
-
 			curRelation.setType(commentType);
 			curRelation = discourseRelationRepository.save(curRelation);
+
+			commentType.addDiscourseRelation(curRelation);
+			commentType = discourseRelationTypeRepository.save(commentType);			
 		}		
+		
 		logger.trace("Post mapping completed.");
 	}
 
