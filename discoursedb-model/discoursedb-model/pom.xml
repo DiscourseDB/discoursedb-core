@@ -66,6 +66,6 @@
 	    <parent>
 	    	<groupId>edu.cmu.cs.lti</groupId>
 	    	<artifactId>discoursedb-parent</artifactId>
-	    	<version>0.4</version>
+	    	<version>0.5-SNAPSHOT</version>
 	    </parent>
 </project>
