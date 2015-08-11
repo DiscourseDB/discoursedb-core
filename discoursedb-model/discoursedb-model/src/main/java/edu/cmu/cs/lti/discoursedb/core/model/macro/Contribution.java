@@ -159,7 +159,6 @@ public class Contribution implements Serializable {
 		return contributionPartOfDiscourseParts;
 	}
     
-
 	public void setContributionPartOfDiscourseParts(Set<DiscoursePartContribution> contributionPartOfDiscourseParts) {
 		this.contributionPartOfDiscourseParts = contributionPartOfDiscourseParts;
 	}

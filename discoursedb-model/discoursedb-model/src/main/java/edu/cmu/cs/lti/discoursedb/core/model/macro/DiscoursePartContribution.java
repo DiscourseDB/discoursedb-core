@@ -102,7 +102,6 @@ public class DiscoursePartContribution implements Serializable{
 		return annotations;
 	}
 
-
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
 	}

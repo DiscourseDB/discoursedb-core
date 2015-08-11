@@ -124,7 +124,7 @@ public class DiscoursePart implements Serializable{
 		this.discourseToDiscourseParts = discourseToDiscourseParts;
 	}
 
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "discoursePart")
 	public Set<DiscoursePartContribution> getDiscoursePartContributions() {
 		return discoursePartContributions;
 	}
