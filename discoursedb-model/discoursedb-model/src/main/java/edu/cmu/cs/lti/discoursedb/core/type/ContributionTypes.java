@@ -1,6 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.type;
 
-public enum ContributionType {
+public enum ContributionTypes {
 /**
  * A post that starts a new thread
  */

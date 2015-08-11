@@ -75,4 +75,8 @@ public class DiscourseRelationType implements Serializable {
 		this.discourseRelations = discourseRelations;
 	}
 
+	public void addDiscourseRelation(DiscourseRelation discourseRelation) {
+		this.discourseRelations.add(discourseRelation);
+	}
+
 }
