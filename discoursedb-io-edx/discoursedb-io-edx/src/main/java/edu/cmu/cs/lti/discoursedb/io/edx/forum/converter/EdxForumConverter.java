@@ -35,6 +35,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
@@ -99,6 +100,8 @@ public class EdxForumConverter implements CommandLineRunner {
 	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
 	@Autowired
 	private DiscoursePartTypeRepository discoursePartTypeRepository;
+	@Autowired
+	private DiscoursePartContributionRepository discoursePartContributionRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -198,13 +201,18 @@ public class EdxForumConverter implements CommandLineRunner {
 			discoursePartType=discoursePartTypeRepository.save(discoursePartType);
 		}		
 		curDiscoursePart.setType(discoursePartType);
-		
+		curDiscoursePart = discoursePartRepository.save(curDiscoursePart);
+
 		// ---------- Connect DiscoursePart with Discourse -----------
-		DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();		
-		discourseToDiscoursePart.setDiscourse(curDiscourse);
-		discourseToDiscoursePart.setDiscoursePart(curDiscoursePart);
-		//TODO no start time set - what's the start time of this forum?
-		discourseToDiscoursePart=discourseToDiscoursePartRepository.save(discourseToDiscoursePart);
+		
+		Optional<DiscourseToDiscoursePart> curOptdiscourseToDiscoursePart = discourseToDiscoursePartRepository.findOneByDiscourseAndDiscoursePart(curDiscourse, curDiscoursePart);
+		if(!curOptdiscourseToDiscoursePart.isPresent()){
+			DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();		
+			discourseToDiscoursePart.setDiscourse(curDiscourse);
+			discourseToDiscoursePart.setDiscoursePart(curDiscoursePart);
+			//TODO no start time set - what's the start time of this forum?
+			discourseToDiscoursePart=discourseToDiscoursePartRepository.save(discourseToDiscoursePart);			
+		}
 		
 		// ---------- Init User -----------
 		logger.trace("Init User entity");
@@ -253,19 +261,22 @@ public class EdxForumConverter implements CommandLineRunner {
 		}		
 		curContribution.setType(type);
 		
+		curContribution = contributionRepository.save(curContribution); 
 		
-		//Connect the new contribution with the main forum DiscoursePart (since we don't have any other DiscourseParts)
-		DiscoursePartContribution discoursePartContrib = new DiscoursePartContribution();
-		discoursePartContrib.setContribution(curContribution);
-		discoursePartContrib.setDiscoursePart(curDiscoursePart);
-		discoursePartContrib.setStartTime(p.getCreatedAt());
-
-		curDiscoursePart.addDiscoursePartContribution(discoursePartContrib);
-		discoursePartRepository.save(curDiscoursePart);
 		
-		curContribution.addContributionPartOfDiscourseParts(discoursePartContrib);
-		curContribution = contributionRepository.save(curContribution);
+		Optional<DiscoursePartContribution> curOptDiscoursePartContrib = discoursePartContributionRepository.findOneByContributionAndDiscoursePart(curContribution, curDiscoursePart);
+		if(!curOptDiscoursePartContrib.isPresent()){
+			DiscoursePartContribution discoursePartContrib = new DiscoursePartContribution();
+			discoursePartContrib.setContribution(curContribution);
+			discoursePartContrib.setDiscoursePart(curDiscoursePart);
+			discoursePartContrib.setStartTime(p.getCreatedAt());	
+			curDiscoursePart.addDiscoursePartContribution(discoursePartContrib);
+			curContribution.addContributionPartOfDiscourseParts(discoursePartContrib);
 
+			discoursePartContrib=discoursePartContributionRepository.save(discoursePartContrib);
+			curDiscoursePart = discoursePartRepository.save(curDiscoursePart); //update discoursePart
+			curContribution = contributionRepository.save(curContribution); //update contribution
+		}	
 
 		// ---------- Create DiscourseRelations -----------		
 		logger.trace("Create DiscourseRelation entities");
