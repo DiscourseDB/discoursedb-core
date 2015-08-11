@@ -119,7 +119,7 @@ public class Content implements Serializable {
 	}
 
 	@Column(name="creation_time")
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIME)
 	public Date getCreationTime() {
 		return creationTime;
 	}

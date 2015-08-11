@@ -66,7 +66,7 @@ public class DiscourseDB implements Serializable{
 	}
 	
 	@Column(name = "start_time")
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIME)
 	public Date getStartTime() {
 		return startTime;
 	}
@@ -76,7 +76,7 @@ public class DiscourseDB implements Serializable{
 	}
 
 	@Column(name = "end_time")
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIME)
 	public Date getEndTime() {
 		return endTime;
 	}
