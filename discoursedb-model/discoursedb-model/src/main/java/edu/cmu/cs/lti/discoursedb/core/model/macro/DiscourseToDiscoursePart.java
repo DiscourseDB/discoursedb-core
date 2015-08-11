@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -26,7 +27,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="discourse_has_discourse_part")
+@Table(name="discourse_has_discourse_part", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_discourse", "fk_discourse_part" }) )
 public class DiscourseToDiscoursePart implements Serializable{
 
 	private static final long serialVersionUID = 6916868753034800946L;

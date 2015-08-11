@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -26,7 +27,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="audience_has_group")
+@Table(name="audience_has_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_audience", "fk_group" }))
 public class AudienceGroup implements Serializable{
 	
 	private static final long serialVersionUID = 5232683398940704768L;

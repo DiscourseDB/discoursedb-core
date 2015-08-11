@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -26,7 +27,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="contribution_has_context")
+@Table(name="contribution_has_context", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_contribution", "fk_context" }))
 public class ContributionContext implements Serializable{
 	
 	private static final long serialVersionUID = -1542771414387707049L;
