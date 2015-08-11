@@ -79,7 +79,7 @@ public class UserRelation implements Serializable {
 	}
 
 	@Column(name = "start_time")
-	@Temporal(TemporalType.TIME)
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getStartTime() {
 		return startTime;
 	}
@@ -89,7 +89,7 @@ public class UserRelation implements Serializable {
 	}
 
 	@Column(name = "end_time")
-	@Temporal(TemporalType.TIME)
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getEndTime() {
 		return endTime;
 	}
