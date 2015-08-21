@@ -83,6 +83,10 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -97,12 +101,15 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</pluginRepository>
+		<pluginRepository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</pluginRepository>
 	</pluginRepositories>
-	<!-- END NEEDED FOR http://jira.codehaus.org/browse/MCOBERTURA-189 -->
 
 	<build>
 		<pluginManagement>
-		  <plugins>
+			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
