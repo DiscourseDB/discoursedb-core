@@ -1,5 +1,5 @@
 /**
- * Contains the DiscourseDB RESTful API application that exposes the API services for the core object model in
+ * Contains the DiscourseDB Controller classes based on Spring Data REST for the core object model in
  * {@link edu.cmu.cs.lti.discoursedb.core.model} and the corresponding Spring
  * Data repositories in {@link edu.cmu.cs.lti.discoursedb.core.repository}.
  * 
@@ -7,4 +7,4 @@
  * 
  * @author Oliver Ferschke
  */
-package edu.cmu.cs.lti.discoursedb.core.api;
+package edu.cmu.cs.lti.discoursedb.core.controller;
