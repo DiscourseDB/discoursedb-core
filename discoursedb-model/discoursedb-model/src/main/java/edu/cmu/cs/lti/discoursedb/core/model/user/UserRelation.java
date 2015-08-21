@@ -20,6 +20,7 @@ import javax.persistence.Version;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
@@ -98,6 +99,7 @@ public class UserRelation implements Serializable {
 		this.endTime = endTime;
 	}
 
+	@RestResource(rel="sourceUser",path="sourceUser")
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_source")
 	public User getSource() {
@@ -108,6 +110,7 @@ public class UserRelation implements Serializable {
 		this.source = source;
 	}
 
+	@RestResource(rel="targetUser",path="targetUser")
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_target")
 	public User getTarget() {
@@ -118,6 +121,7 @@ public class UserRelation implements Serializable {
 		this.target = target;
 	}
 	
+	@RestResource(rel="userRelationsAnnotations",path="userRelationsAnnotations")
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {

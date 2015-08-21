@@ -23,6 +23,7 @@ import javax.persistence.Version;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -151,6 +152,7 @@ public class User implements Serializable {
 		this.location = location;
 	}
 
+	@RestResource(rel="userAnnotations",path="userAnnotations")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {

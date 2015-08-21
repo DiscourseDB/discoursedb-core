@@ -20,6 +20,7 @@ import javax.persistence.Version;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
@@ -86,6 +87,7 @@ public class GroupUser implements Serializable{
 		this.id = id;
 	}
 
+	@RestResource(rel="userMemberOfGroupAnnotations",path="userMemberOfGroupAnnotations")
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_annotation")
 	public Annotations getAnnotations() {
@@ -96,6 +98,7 @@ public class GroupUser implements Serializable{
 		this.annotations = annotations;
 	}
 
+	@RestResource(rel="groupHasUser",path="groupHasUser")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_group")
 	public Group getGroup() {
@@ -106,6 +109,7 @@ public class GroupUser implements Serializable{
 		this.group = group;
 	}
 
+	@RestResource(rel="userMemberOfGroup",path="userMemberOfGroup")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_user")
 	public User getUser() {
