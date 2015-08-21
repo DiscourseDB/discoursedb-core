@@ -518,5 +518,6 @@
 	<modules>
 		<module>discoursedb-io-edx</module>
 		<module>discoursedb-model</module>
+		<module>discoursedb-api-rest</module>
 	</modules>
 </project>
