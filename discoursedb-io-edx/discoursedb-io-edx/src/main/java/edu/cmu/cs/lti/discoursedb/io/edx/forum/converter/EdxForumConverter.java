@@ -56,6 +56,11 @@ import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
  * and parses the jason into Post objects and maps each post object to
  * DiscourseDB.
  * 
+ * Many of the relations between entities are actually modeled in the form of relation tables
+ * which allows us to keep track of the time window in which the relation was active.
+ * However, this also entails that we need to explicitly instantiate these relations - i.e. 
+ * we have to create a "relationship-entity" which makes the code more verbose.
+ * 
  * @author Oliver Ferschke
  *
  */
@@ -281,7 +286,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		// ---------- Create DiscourseRelations -----------		
 		logger.trace("Create DiscourseRelation entities");
 		
-		//If post has a is not a thread starter then create a DiscourseRelation of DESCENDANT type 
+		//If post is not a thread starter then create a DiscourseRelation of DESCENDANT type 
 		//that connects it with the thread starter 
 		Optional<Contribution> curOptParentContributon = contributionRepository.findOneBySourceId(p.getCommentThreadId());
 		if (curOptParentContributon.isPresent()) {
