@@ -8,4 +8,10 @@
   <artifactId>discoursedb-io-tags</artifactId>
   <name>DiscourseDB TAGS converters</name>
   <description>DiscourseDB converters for tweets collected with TAGS v6</description>
+  <dependencies>
+  	<dependency>
+  		<groupId>edu.cmu.cs.lti</groupId>
+  		<artifactId>discoursedb-model</artifactId>
+  	</dependency>
+  </dependencies>
 </project>
