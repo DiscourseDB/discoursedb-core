@@ -5,9 +5,7 @@
     <artifactId>discoursedb-parent</artifactId>
     <version>0.5-SNAPSHOT</version>
   </parent>
-  <groupId>edu.cmu.cs.lti</groupId>
   <artifactId>discoursedb-io-prosolo</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
   <name>DiscourseDB prosolo converters</name>
   <description>DiscourseDB converters for prosolo data</description>
 </project>
