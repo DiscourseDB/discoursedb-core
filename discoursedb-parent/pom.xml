@@ -67,6 +67,21 @@
 				<version>${jackson.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-bazaar</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-prosolo</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-tags</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -584,6 +599,10 @@
 	</profiles>
 	<packaging>pom</packaging>
 	<modules>
+		<module>discoursedb-io-edx</module>
+		<module>discoursedb-io-bazaar</module>
+		<module>discoursedb-io-tags</module>
+		<module>discoursedb-io-prosolo</module>
 		<module>discoursedb-io-edx</module>
 		<module>discoursedb-model</module>
 		<module>discoursedb-api-rest</module>
