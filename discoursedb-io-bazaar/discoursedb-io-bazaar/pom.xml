@@ -8,4 +8,10 @@
   <artifactId>discoursedb-io-bazaar</artifactId>
   <name>DiscourseDB bazaar converters</name>
   <description>DiscourseDB converters for bazaar data</description>
+  <dependencies>
+  	<dependency>
+  		<groupId>edu.cmu.cs.lti</groupId>
+  		<artifactId>discoursedb-model</artifactId>
+  	</dependency>
+  </dependencies>
 </project>
