@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.core.api;
+package edu.cmu.cs.lti.discoursedb.api;
 
 import javax.servlet.ServletRegistration;
 
@@ -10,12 +10,16 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.configuration.WebConfiguration;
 
+/**
+ * A SpringBootApplication that launches a server that hosts the API.
+ *
+ */
 @SpringBootApplication
 @ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" })
-public class DiscourseDBCoreAPI extends AbstractAnnotationConfigDispatcherServletInitializer {
+public class DiscourseApiStarter extends AbstractAnnotationConfigDispatcherServletInitializer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DiscourseDBCoreAPI.class, args);
+		SpringApplication.run(DiscourseApiStarter.class, args);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.recommendation.resource;
+package edu.cmu.cs.lti.discoursedb.api.recommendation.resource;
 
 import org.springframework.hateoas.ResourceSupport;
 

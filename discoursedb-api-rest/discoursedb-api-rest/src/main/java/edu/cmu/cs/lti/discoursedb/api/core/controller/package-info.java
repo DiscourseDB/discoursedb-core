@@ -7,4 +7,4 @@
  * 
  * @author Oliver Ferschke
  */
-package edu.cmu.cs.lti.discoursedb.core.controller;
+package edu.cmu.cs.lti.discoursedb.api.core.controller;

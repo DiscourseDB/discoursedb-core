@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.core.controller;
+package edu.cmu.cs.lti.discoursedb.api.core.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
