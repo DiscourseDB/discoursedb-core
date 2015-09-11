@@ -37,7 +37,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 @Table(name="content")
 public class Content implements Serializable {
 
-	private static final long serialVersionUID = -7686736688076492828L;
+	private static final long serialVersionUID = -1465025480150664388L;
 
 	private long id;
 	
@@ -47,6 +47,8 @@ public class Content implements Serializable {
 
 	private Date creationTime;
 	
+	private String title;
+
 	private String text;
 	
 	private Blob data;
@@ -163,6 +165,14 @@ public class Content implements Serializable {
 
 	public void setContentInteractions(Set<ContentInteraction> contentInteractions) {
 		this.contentInteractions = contentInteractions;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 }

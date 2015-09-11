@@ -35,17 +35,17 @@ public class TestSpringDataJPA implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		Discourse discourse = new Discourse("Test","Phase6");
+//		Discourse discourse = new Discourse("Test","Phase6");
 	//	discourseRepo.save(discourse);
 				
-		User user = new User();
-		user.setRealname("John Doe");
-		user.setUsername("doe");
-		user.addDiscourses(discourse);	
-		userRepo.save(user);	
+//		User user = new User();
+//		user.setRealname("John Doe");
+//		user.setUsername("doe");
+//		user.addDiscourses(discourse);	
+//		userRepo.save(user);	
 		
 		for (User u : userRepo.findAll()) {
-			System.out.println(u.getRealname());
+			System.out.println(u.getUsername());
 			System.out.println(u.getDiscourses().size());
 		}
 	}
