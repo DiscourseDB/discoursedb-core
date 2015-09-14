@@ -159,12 +159,7 @@ public class EdxForumConverter implements CommandLineRunner {
 	 */
 	public void map(Post p) {
 		logger.trace("Mapping post " + p.getId());
-
-		if(uniqueSourceIds&&!contributionRepository.findBySourceId(p.getId()).isEmpty()){
-			logger.warn("Skipping post with source id "+p.getId()+". Post was already in the database.");			
-			return;
-		}
-		
+	
 		// ---------- Init Discourse -----------
 		logger.trace("Init Discourse entity");
 
@@ -234,40 +229,45 @@ public class EdxForumConverter implements CommandLineRunner {
 		curUser.addDiscourses(curDiscourse);
 		curUser = userRepository.save(curUser);
 
-		// ---------- Create Content -----------
-		logger.trace("Create Content entity");
-		Content curContent = new Content();
-		curContent.setText(p.getBody());
-		curContent.setCreationTime(p.getCreatedAt());
-		curContent.setAuthor(curUser);
-		curContent.setSourceId(p.getId());
-		curContent=contentRepository.save(curContent);
-		
-		// ---------- Create Contribution -----------
-		logger.trace("Create Contribution entity");
-		Contribution curContribution = new Contribution();
-		curContribution.setSourceId(p.getId());
-		curContribution.setCurrentRevision(curContent);
-		curContribution.setFirstRevision(curContent);
-		curContribution.setStartTime(p.getCreatedAt());
-		curContribution.setUpvotes(p.getUpvoteCount());
-
-		//Set Contribution Type
-		
-		String mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST.name():ContributionTypes.THREAD_STARTER.name();
-		Optional<ContributionType> optType = contributionTypeRepository.findOneByType(mappedType);
-		ContributionType type;
-		if(optType.isPresent()){
-			type = optType.get();
+		Optional<Contribution> curOptContribution = contributionRepository.findOneBySourceId(p.getId());
+		Contribution curContribution=null;
+		if(uniqueSourceIds&&!curOptContribution.isPresent()){		
+			// ---------- Create Content -----------
+			logger.trace("Create Content entity");
+			Content curContent = new Content();
+			curContent.setText(p.getBody());
+			curContent.setCreationTime(p.getCreatedAt());
+			curContent.setAuthor(curUser);
+			curContent.setSourceId(p.getId());
+			curContent=contentRepository.save(curContent);
+			
+			// ---------- Create Contribution -----------
+			logger.trace("Create Contribution entity");
+			curContribution = new Contribution();
+			curContribution.setSourceId(p.getId());
+			curContribution.setCurrentRevision(curContent);
+			curContribution.setFirstRevision(curContent);
+			curContribution.setStartTime(p.getCreatedAt());
+			curContribution.setUpvotes(p.getUpvoteCount());
+	
+			//Set Contribution Type
+			
+			String mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST.name():ContributionTypes.THREAD_STARTER.name();
+			Optional<ContributionType> optType = contributionTypeRepository.findOneByType(mappedType);
+			ContributionType type;
+			if(optType.isPresent()){
+				type = optType.get();
+			}else{
+				type = new ContributionType();
+				type.setType(mappedType);
+				type=contributionTypeRepository.save(type);
+			}		
+			curContribution.setType(type);
+			
+			curContribution = contributionRepository.save(curContribution); 		
 		}else{
-			type = new ContributionType();
-			type.setType(mappedType);
-			type=contributionTypeRepository.save(type);
-		}		
-		curContribution.setType(type);
-		
-		curContribution = contributionRepository.save(curContribution); 
-		
+			curContribution=curOptContribution.get();
+		}
 		
 		Optional<DiscoursePartContribution> curOptDiscoursePartContrib = discoursePartContributionRepository.findOneByContributionAndDiscoursePart(curContribution, curDiscoursePart);
 		if(!curOptDiscoursePartContrib.isPresent()){
@@ -297,22 +297,22 @@ public class EdxForumConverter implements CommandLineRunner {
 
 			// We assign the parent-child type by adding this DiscourseRelation
 			// to the set of DESCENDANT TYPES
-			Optional<DiscourseRelationType> optPartOfThreadType = discourseRelationTypeRepository
-					.findOneByType(DiscourseRelationTypes.DESCENDANT.name());
+			Optional<DiscourseRelationType> optPartOfThreadType = discourseRelationTypeRepository.findOneByType(DiscourseRelationTypes.DESCENDANT.name());
 			DiscourseRelationType partOfThreadType;
 			if (optPartOfThreadType.isPresent()) {
 				partOfThreadType = optPartOfThreadType.get();
 			} else {
 				partOfThreadType = new DiscourseRelationType();
 				partOfThreadType.setType(DiscourseRelationTypes.DESCENDANT.name());
+				partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);			
 			}
+			
 			curRelation.setType(partOfThreadType);
 			curRelation = discourseRelationRepository.save(curRelation);
-
 			partOfThreadType.addDiscourseRelation(curRelation);
-			partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);			
-
+			partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);
 		}
+		
 
 		//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
 		Optional<Contribution> curOptPredecessorContributon = contributionRepository.findOneBySourceId(p.getParentId());
