@@ -7,8 +7,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 
 /**
@@ -28,6 +32,11 @@ public class TestSpringDataJPA implements CommandLineRunner {
 
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private ContributionRepository contribRepo;
+	
+	@Autowired DiscourseRelationRepository discRelRepo;
 
 	public static void main(String[] args) {
 		SpringApplication.run(TestSpringDataJPA.class);
@@ -43,11 +52,21 @@ public class TestSpringDataJPA implements CommandLineRunner {
 //		user.setUsername("doe");
 //		user.addDiscourses(discourse);	
 //		userRepo.save(user);	
-		
-		for (User u : userRepo.findAll()) {
-			System.out.println(u.getUsername());
-			System.out.println(u.getDiscourses().size());
-		}
+		Contribution c1 = new Contribution();
+		Contribution c2 = new Contribution();
+		DiscourseRelation rel = new DiscourseRelation();
+		rel.setSource(c1);
+		rel.setTarget(c2);
+		DiscourseRelationType type = new DiscourseRelationType();
+		type.setType("TEST");
+		rel.setType(type);
+		discRelRepo.save(rel);
+		contribRepo.save(c1);
+		contribRepo.save(c2);
+//		for (User u : userRepo.findAll()) {
+//			System.out.println(u.getUsername());
+//			System.out.println(u.getDiscourses().size());
+//		}
 	}
 
 }
