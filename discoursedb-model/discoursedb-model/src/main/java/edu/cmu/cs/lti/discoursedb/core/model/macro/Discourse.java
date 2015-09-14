@@ -44,6 +44,8 @@ public class Discourse implements Serializable {
 
 	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
+	private Set<User> users;
+
 	public Discourse() {}
 
 	public Discourse(String name, String descriptor){
@@ -98,6 +100,15 @@ public class Discourse implements Serializable {
 
 	public void setDiscourseToDiscourseParts(Set<DiscourseToDiscoursePart> discourseToDiscourseParts) {
 		this.discourseToDiscourseParts = discourseToDiscourseParts;
+	}
+
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "discourses")
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
 	}
 
 }
