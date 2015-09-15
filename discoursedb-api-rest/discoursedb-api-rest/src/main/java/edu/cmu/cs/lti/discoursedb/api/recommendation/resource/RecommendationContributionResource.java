@@ -38,7 +38,7 @@ public class RecommendationContributionResource extends ResourceSupport {
 			this.add(linkTo(methodOn(RecommendationRestController.class).contrib(contrib.getSourceId())).withRel("parentContribution"));
 		}
 		
-		this.add(linkTo(methodOn(RecommendationRestController.class).user(contrib.getId())).withRel("author"));
+		this.add(linkTo(methodOn(RecommendationRestController.class).user(contrib.getCurrentRevision().getAuthor().getId())).withRel("author"));
 	}
 
 	public String getContributionSourceId() {
