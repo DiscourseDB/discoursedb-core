@@ -73,15 +73,7 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(EdxForumConverterPhase2.class);
 	private static int postcount = 1;
-	private static final String EDX_COMMENT_TYPE = "Comment";
-	@SuppressWarnings("unused")
-	private static final String EDX_COMMENT_THREAD_TYPE = "CommentThread";
 	
-
-	/**
-	 * Determines whether the ids provided by the source system are unique within discourse db.
-	 */
-	private static final boolean uniqueSourceIds = true;
 
 	/*
 	 * Entity-Repositories for DiscourseDB connection.
@@ -108,7 +100,7 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 			System.exit(1);
 		}
 
-		logger.trace("Starting forum conversion");
+		logger.info("Starting forum conversion Phase 2");
 		this.convert(inFileName);
 	}
 

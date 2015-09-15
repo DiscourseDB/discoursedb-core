@@ -98,19 +98,16 @@ public class Post {
 	/**
 	 * list of User IDs that up-voted this comment or thread.
 	 */
-	@JsonProperty("up")
 	private List<String> upvotes;
 
 	/**
 	 * total upvotes received.
 	 */
-	@JsonProperty("up_count")
 	private int upvoteCount;
 
 	/**
 	 * total votes cast.
 	 */
-	@JsonProperty("count")
 	private int voteCount;
 
 	/*
@@ -410,8 +407,12 @@ public class Post {
 		return upvoteCount;
 	}
 
-	public void setUpvoteCount(int upvoteCount) {
-		this.upvoteCount = upvoteCount;
+	@JsonProperty("votes")
+	public void setVotes(Map<String, Object> id) {
+		this.upvoteCount = (int) id.get("up_count");
+		this.upvotes = (List<String>) id.get("up");
+		this.upvoteCount = (int) id.get("count");
+		
 	}
 
 	public int getVoteCount() {

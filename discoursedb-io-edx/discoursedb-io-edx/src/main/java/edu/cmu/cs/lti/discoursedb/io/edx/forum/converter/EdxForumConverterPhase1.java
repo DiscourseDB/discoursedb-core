@@ -120,7 +120,7 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 			System.exit(1);
 		}
 
-		logger.trace("Starting forum conversion");
+		logger.info("Starting forum conversion Phase 1");
 		this.convert(inFileName);
 	}
 
