@@ -13,11 +13,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationContributionResource;
+import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationDiscoursePartResource;
+import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationDiscourseResource;
 import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationUserResource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 
@@ -26,6 +34,18 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 public class RecommendationRestController {
 
 	@Autowired
+	private DiscourseRepository discourseRepository;
+
+	@Autowired
+	private DiscoursePartRepository discoursePartRepository;
+
+	@Autowired
+	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
+
+	@Autowired
+	DiscoursePartContributionRepository discoursePartContributionRepository;
+	
+	@Autowired
 	private ContributionRepository contributionRepository;
 
 	@Autowired
@@ -33,6 +53,16 @@ public class RecommendationRestController {
 
 	// TODO ACCESS to DiscourseRepo which gives access to the contrib and user
 	// lists of each discourse
+	// maybe with discourse parts as an intermediate step
+
+	@RequestMapping(method = RequestMethod.GET)
+	@ResponseBody
+	Resources<RecommendationDiscourseResource> discourses() {
+		List<RecommendationDiscourseResource> discourseResources = StreamSupport
+				.stream(discourseRepository.findAll().spliterator(), false)
+				.map(RecommendationDiscourseResource::new).collect(Collectors.toList());
+		return new Resources<RecommendationDiscourseResource>(discourseResources);
+	}
 
 	@RequestMapping(value = "/contributions", method = RequestMethod.GET)
 	@ResponseBody
@@ -80,4 +110,21 @@ public class RecommendationRestController {
 		System.out.println(user.getUsername());
 		return new RecommendationUserResource(user);
 	}
+
+	@RequestMapping(value = "/{id}/discourseParts", method = RequestMethod.GET)
+	@ResponseBody
+	public Resources<RecommendationDiscoursePartResource> discourseToDiscourseParts(@PathVariable Long id) {
+		Discourse discourse = discourseRepository.findOne(id);
+		List<RecommendationDiscoursePartResource> discoursePartResources = discourseToDiscoursePartRepository.findByDiscourse(discourse).stream().map(e -> e.getDiscoursePart()).map(RecommendationDiscoursePartResource::new).collect(Collectors.toList());
+		return new Resources<RecommendationDiscoursePartResource>(discoursePartResources);
+	}
+
+	@RequestMapping(value = "/{id}/contributions", method = RequestMethod.GET)
+	@ResponseBody
+	public Resources<RecommendationContributionResource> contributionsForDiscoursePart(@PathVariable Long id) {
+		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		
+		List<RecommendationContributionResource> discoursePartResources = discoursePartContributionRepository.findByDiscoursePart(discoursePart).stream().map(e -> e.getContribution()).map(RecommendationContributionResource::new).collect(Collectors.toList());
+		return new Resources<RecommendationContributionResource>(discoursePartResources);
+	}
+
 }
