@@ -58,10 +58,11 @@ import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
  * However, this also entails that we need to explicitly instantiate these relations - i.e. 
  * we have to create a "relationship-entity" which makes the code more verbose.
  * 
- * The conversion is split into two phases.
+ * The conversion is split into three phases.
  * Phase 1 (this class) imports all of the data except for the DiscoursRelations.
  * These relations are created between entities and require the entities to be present in the database.
  * That is why they are created in a second pass (Phase2)
+ * Phase 3 adds personal information about the user to the database that comes from a different file. 
  * 
  * @author Oliver Ferschke
  *
