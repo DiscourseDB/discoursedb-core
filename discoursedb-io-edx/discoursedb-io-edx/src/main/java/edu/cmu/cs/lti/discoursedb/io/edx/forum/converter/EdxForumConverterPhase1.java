@@ -109,7 +109,7 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (args.length != 1) {
+		if (args.length < 1) {
 			logger.error("Missing input file. Must provide input file as launch parameter.");
 			System.exit(1);
 		}
