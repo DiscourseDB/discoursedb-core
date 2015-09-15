@@ -25,7 +25,7 @@ public class RecommendationUserResource extends ResourceSupport {
 	}
 
 	public void setCountry(String country) {
-		this.country = country;
+		this.country = nullCheck(country);
 	}
 
 	public String getEmail() {
@@ -33,7 +33,7 @@ public class RecommendationUserResource extends ResourceSupport {
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = nullCheck(email);
 	}
 
 	public String getEdxId() {
@@ -41,7 +41,7 @@ public class RecommendationUserResource extends ResourceSupport {
 	}
 
 	public void setEdxId(String edxId) {
-		this.edxId = edxId;
+		this.edxId = nullCheck(edxId);
 	}
 
 	public String getUsername() {
@@ -49,7 +49,7 @@ public class RecommendationUserResource extends ResourceSupport {
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
+		this.username = nullCheck(username);
 	}
 
 	public String getRealname() {
@@ -57,7 +57,11 @@ public class RecommendationUserResource extends ResourceSupport {
 	}
 
 	public void setRealname(String realname) {
-		this.realname = realname;
+		this.realname = nullCheck(realname);
+	}
+	
+	private String nullCheck(String s){
+		return s==null?"":s;
 	}
 
 }
