@@ -18,8 +18,11 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
@@ -96,11 +99,11 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 	public void convert(String inFile) throws JsonParseException, JsonProcessingException, IOException {
 		final InputStream in = new FileInputStream(inFile);
 		try {
-			for (Iterator<UserInfo> it = new ObjectMapper().readValues(new CsvFactory().createParser(in), UserInfo.class); it
-					.hasNext();) {
-				logger.debug("Retrieving post number " + postcount++);
-				UserInfo curPost = it.next();
-				map(curPost);
+			CsvMapper mapper = new CsvMapper();
+			CsvSchema schema = mapper.schemaFor(UserInfo.class).withColumnSeparator('\t').withHeader();
+			MappingIterator<UserInfo> it = mapper.readerFor(UserInfo.class).with(schema).readValues(in);
+			while (it.hasNextValue()) {
+				map(it.next());
 			}
 		} finally {
 			in.close();
@@ -142,7 +145,7 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 		if(curUser.getCountry()==null||curUser.getCountry().isEmpty()){
 			curUser.setCountry(u.getCountry());
 		}
-			
+		userRepository.save(curUser);
 		logger.trace("UserInfo mapping completed for user" + u.getUsername());
 	}
 
