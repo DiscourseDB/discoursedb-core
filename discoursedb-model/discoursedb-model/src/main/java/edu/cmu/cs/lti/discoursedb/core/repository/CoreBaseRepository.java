@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
  * The CoreBaseRepository interface defines the data access methods that every of the DiscourseDB Core repositories should have.

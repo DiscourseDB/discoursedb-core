@@ -18,6 +18,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -38,7 +39,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 @SelectBeforeUpdate
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "user")
+@Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = { "source_id", "username" }) )
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 8065834868365920898L;
@@ -54,6 +55,8 @@ public class User implements Serializable {
 	private String ip;
 
 	private String language;
+
+	private String country;
 
 	private String location;
 
@@ -222,6 +225,12 @@ public class User implements Serializable {
 
 	public void addDiscourses(Discourse discourse) {
 		this.discourses.add(discourse);
+	}
+	public String getCountry() {
+		return country;
+	}
+	public void setCountry(String country) {
+		this.country = country;
 	}
 
 	

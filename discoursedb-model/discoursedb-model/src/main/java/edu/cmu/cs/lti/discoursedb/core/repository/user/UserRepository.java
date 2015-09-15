@@ -12,5 +12,6 @@ public interface UserRepository extends CoreBaseRepository<User,Long>{
 	public long countByRealname(String realname);
 	
 	public Optional<User> findBySourceId(String id);
+	public Optional<User> findBySourceIdAndUsername(String sourceId, String username);
     
 }

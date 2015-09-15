@@ -47,22 +47,38 @@ public class TestSpringDataJPA implements CommandLineRunner {
 //		Discourse discourse = new Discourse("Test","Phase6");
 	//	discourseRepo.save(discourse);
 				
-//		User user = new User();
-//		user.setRealname("John Doe");
-//		user.setUsername("doe");
+		User user = new User();
+		user.setRealname("First");
+		user.setUsername("doe");
+		user.setSourceId("123");
 //		user.addDiscourses(discourse);	
-//		userRepo.save(user);	
-		Contribution c1 = new Contribution();
-		Contribution c2 = new Contribution();
-		DiscourseRelation rel = new DiscourseRelation();
-		rel.setSource(c1);
-		rel.setTarget(c2);
-		DiscourseRelationType type = new DiscourseRelationType();
-		type.setType("TEST");
-		rel.setType(type);
-		discRelRepo.save(rel);
-		contribRepo.save(c1);
-		contribRepo.save(c2);
+		userRepo.save(user);	
+
+		User user2 = new User();
+		user2.setRealname("Second");
+		user2.setUsername("doe");
+		user2.setSourceId("456");
+//		user2.addDiscourses(discourse);	
+		userRepo.save(user2);	
+
+		User retrievedUser = userRepo.findBySourceIdAndUsername("456", "doe").get();
+		System.out.println(retrievedUser.getRealname());
+		
+		
+		
+//		Contribution c1 = new Contribution();
+//		Contribution c2 = new Contribution();
+//		DiscourseRelation rel = new DiscourseRelation();
+//		rel.setSource(c1);
+//		rel.setTarget(c2);
+//		DiscourseRelationType type = new DiscourseRelationType();
+//		type.setType("TEST");
+//		rel.setType(type);
+//		discRelRepo.save(rel);
+//		contribRepo.save(c1);
+//		contribRepo.save(c2);
+		
+		
 //		for (User u : userRepo.findAll()) {
 //			System.out.println(u.getUsername());
 //			System.out.println(u.getDiscourses().size());
