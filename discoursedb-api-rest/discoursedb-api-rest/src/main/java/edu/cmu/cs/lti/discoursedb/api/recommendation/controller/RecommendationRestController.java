@@ -127,4 +127,12 @@ public class RecommendationRestController {
 		return new Resources<RecommendationContributionResource>(discoursePartResources);
 	}
 
+	@RequestMapping(value = "/{id}/users", method = RequestMethod.GET)
+	@ResponseBody
+	public Resources<RecommendationUserResource> usersForDiscoursePart(@PathVariable Long id) {
+		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		
+		List<RecommendationUserResource> discoursePartResources = discoursePartContributionRepository.findByDiscoursePart(discoursePart).stream().map(e -> e.getContribution().getCurrentRevision().getAuthor()).map(RecommendationUserResource::new).collect(Collectors.toList());
+		return new Resources<RecommendationUserResource>(discoursePartResources);
+	}
+
 }

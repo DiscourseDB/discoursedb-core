@@ -15,6 +15,7 @@ public class RecommendationDiscoursePartResource extends ResourceSupport {
 	public RecommendationDiscoursePartResource(DiscoursePart discoursePart) {
 		this.setName(discoursePart.getName());
 		this.add(linkTo(methodOn(RecommendationRestController.class).contributionsForDiscoursePart(discoursePart.getId())).withRel("contributions"));
+		this.add(linkTo(methodOn(RecommendationRestController.class).usersForDiscoursePart(discoursePart.getId())).withRel("users"));
 	}
 
 	public String getName() {
