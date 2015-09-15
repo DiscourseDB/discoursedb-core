@@ -152,12 +152,19 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 	/**
 	 * Maps a post to DiscourseDB entities.
 	 * 
+	 * Phase 1 maps everything except for DiscourseRelations (which connect existing Contribtions)
+	 * 
 	 * @param p
 	 *            the post object to map to DiscourseDB
 	 */
 	public void map(Post p) {
-		logger.trace("Mapping post " + p.getId());
+		if(contributionRepository.findOneBySourceId(p.getId()).isPresent()){
+			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
+			return;
+		}
 	
+		logger.trace("Mapping post " + p.getId());
+		
 		// ---------- Init Discourse -----------
 		logger.trace("Init Discourse entity");
 
