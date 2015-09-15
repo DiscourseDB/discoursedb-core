@@ -51,10 +51,6 @@ public class RecommendationRestController {
 	@Autowired
 	private UserRepository userRepository;
 
-	// TODO ACCESS to DiscourseRepo which gives access to the contrib and user
-	// lists of each discourse
-	// maybe with discourse parts as an intermediate step
-
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	Resources<RecommendationDiscourseResource> discourses() {
@@ -64,7 +60,7 @@ public class RecommendationRestController {
 		return new Resources<RecommendationDiscourseResource>(discourseResources);
 	}
 
-	@RequestMapping(value = "/contributions", method = RequestMethod.GET)
+	@RequestMapping(value = "/allcontributions", method = RequestMethod.GET)
 	@ResponseBody
 	Resources<RecommendationContributionResource> contributions() {
 		List<RecommendationContributionResource> contribResources = StreamSupport
@@ -73,7 +69,7 @@ public class RecommendationRestController {
 		return new Resources<RecommendationContributionResource>(contribResources);
 	}
 
-	@RequestMapping(value = "/users", method = RequestMethod.GET)
+	@RequestMapping(value = "/allusers", method = RequestMethod.GET)
 	@ResponseBody
 	Resources<RecommendationUserResource> users() {
 		List<RecommendationUserResource> userResources = StreamSupport
@@ -85,15 +81,19 @@ public class RecommendationRestController {
 	@RequestMapping(value = "/contributionParent/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public RecommendationContributionResource contribParent(@PathVariable String id) {
+		return new RecommendationContributionResource(getThreadStarter(id));				
+	}
+	
+	public Contribution getThreadStarter(String contribSourceId){
 		//TODO check if optional is present
-		Contribution contrib= contributionRepository.findOneBySourceId(id).get();
+		Contribution contrib= contributionRepository.findOneBySourceId(contribSourceId).get();
 		Contribution parent=null;
 		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
 			if(rel.getType().getType().equals(DiscourseRelationTypes.DESCENDANT.name())){
 				parent=rel.getSource();
 			}	
 		}
-		return parent==null?new RecommendationContributionResource(contrib):new RecommendationContributionResource(parent);		
+		return parent==null?contrib:parent;
 	}
 
 	@RequestMapping(value = "/contribution/{id}", method = RequestMethod.GET)
@@ -111,7 +111,7 @@ public class RecommendationRestController {
 		return new RecommendationUserResource(user);
 	}
 
-	@RequestMapping(value = "/{id}/discourseParts", method = RequestMethod.GET)
+	@RequestMapping(value = "/discoursePartsOfDiscourse/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationDiscoursePartResource> discourseToDiscourseParts(@PathVariable Long id) {
 		Discourse discourse = discourseRepository.findOne(id);
@@ -119,7 +119,7 @@ public class RecommendationRestController {
 		return new Resources<RecommendationDiscoursePartResource>(discoursePartResources);
 	}
 
-	@RequestMapping(value = "/{id}/contributions", method = RequestMethod.GET)
+	@RequestMapping(value = "/contributionsOfDiscoursePart/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationContributionResource> contributionsForDiscoursePart(@PathVariable Long id) {
 		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		
@@ -127,7 +127,7 @@ public class RecommendationRestController {
 		return new Resources<RecommendationContributionResource>(discoursePartResources);
 	}
 
-	@RequestMapping(value = "/{id}/users", method = RequestMethod.GET)
+	@RequestMapping(value = "/usersOfDiscoursePart/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationUserResource> usersForDiscoursePart(@PathVariable Long id) {
 		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		

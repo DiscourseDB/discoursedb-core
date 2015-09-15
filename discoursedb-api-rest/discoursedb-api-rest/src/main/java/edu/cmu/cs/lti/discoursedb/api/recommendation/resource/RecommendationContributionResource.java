@@ -18,6 +18,7 @@ public class RecommendationContributionResource extends ResourceSupport {
 	private String usermail;
 	private String contributionSourceId;
 	private String contributionType;
+//	private String threadStarterId;
 	private Date creationTime;
 	private int upvotes;
 	
@@ -30,12 +31,9 @@ public class RecommendationContributionResource extends ResourceSupport {
 		this.setContributionType(contrib.getType().getType());
 		this.setCreationTime(contrib.getStartTime());
 		this.setUpvotes(contrib.getUpvotes());
-		
-		//move the following code to the controller
+//		this.setThreadStarterId(methodOn(RecommendationRestController.class).contribParent(contrib.getContributionSourceId()).getSourceId());
 		if(getContributionType().equals(ContributionTypes.POST.name())){			
-			this.add(linkTo(methodOn(RecommendationRestController.class).contribParent(contrib.getSourceId())).withRel("parentContribution"));
-		}else{
-			this.add(linkTo(methodOn(RecommendationRestController.class).contrib(contrib.getSourceId())).withRel("parentContribution"));
+			this.add(linkTo(methodOn(RecommendationRestController.class).contribParent(contrib.getSourceId())).withRel("threadStarterContribution"));
 		}
 		
 		this.add(linkTo(methodOn(RecommendationRestController.class).user(contrib.getCurrentRevision().getAuthor().getId())).withRel("author"));
@@ -124,5 +122,13 @@ public class RecommendationContributionResource extends ResourceSupport {
 	public void setUserrealname(String userrealname) {
 		this.userrealname = userrealname;
 	}
+
+//	public String getThreadStarterId() {
+//		return threadStarterId;
+//	}
+//
+//	public void setThreadStarterId(String threadStarterId) {
+//		this.threadStarterId = threadStarterId;
+//	}
 
 }
