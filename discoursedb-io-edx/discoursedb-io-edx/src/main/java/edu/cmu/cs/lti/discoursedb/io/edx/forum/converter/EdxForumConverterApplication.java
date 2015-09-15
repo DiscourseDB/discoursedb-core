@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 /**
  * This starter class launches the components necessary for importing an EdX forum dump into DiscourseDB.
- * Currently, it only launches only EdxForumConverter. 
+ * Currently, it launches the two phases of the EdxForumConverter.
  * 
  * @author Oliver Ferschke
  */
