@@ -107,7 +107,6 @@ public class RecommendationRestController {
 	@ResponseBody
 	public RecommendationUserResource user(@PathVariable Long id) {
 		User user = userRepository.findOne(id);
-		System.out.println(user.getUsername());
 		return new RecommendationUserResource(user);
 	}
 
