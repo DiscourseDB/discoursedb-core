@@ -1,5 +1,5 @@
 /**
- * This package contains converters for prosolo data, in particular the social activities.
+ * This package contains converters for prosolo data such as social activites and blogs
  * 
  * @author Oliver Ferschke
  */
