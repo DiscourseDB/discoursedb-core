@@ -3,10 +3,10 @@ package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
- * Wraps entities from the social_activity table in prosolo. Comments are based
- * on discussions with the prosolo developers.
+ * Wraps entities from the social_activity table in prosolo. 
+ * Comments are based on discussions with the prosolo developers.
  * 
- * Currently, all fields String types but could be changed to more appropriate
+ * Currently, all fields have String types but could be changed to more appropriate
  * types with the necessary datatype conversion.
  * 
  * @author Oliver Ferschke
