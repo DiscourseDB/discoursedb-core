@@ -1,3 +1,4 @@
-Create csv dump of the social activities table without having to fiddle with apparmor to allow INTO OUTFILE commands.
- 
-mysql -uUSERNAME -p -e "SELECT * from social_activity" prosolo | sed 's/\t/","/g;s/^/"/;s/$/"/' > ./social_activity.csv
+Dump social activities to CSV
+
+
+select * from social_activity into outfile "/usr1/databases/social_activity.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\r\n';
