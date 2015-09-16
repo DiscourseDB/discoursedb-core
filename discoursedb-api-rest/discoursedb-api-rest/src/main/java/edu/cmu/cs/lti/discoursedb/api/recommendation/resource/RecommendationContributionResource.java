@@ -33,7 +33,7 @@ public class RecommendationContributionResource extends ResourceSupport {
 		this.setUpvotes(contrib.getUpvotes());
 //		this.setThreadStarterId(methodOn(RecommendationRestController.class).contribParent(contrib.getContributionSourceId()).getSourceId());
 		if(getContributionType().equals(ContributionTypes.POST.name())){			
-			this.add(linkTo(methodOn(RecommendationRestController.class).contribParent(contrib.getSourceId())).withRel("threadStarterContribution"));
+			this.add(linkTo(methodOn(RecommendationRestController.class).contribParent(contrib.getId())).withRel("threadStarterContribution"));
 		}
 		
 		this.add(linkTo(methodOn(RecommendationRestController.class).user(contrib.getCurrentRevision().getAuthor().getId())).withRel("author"));

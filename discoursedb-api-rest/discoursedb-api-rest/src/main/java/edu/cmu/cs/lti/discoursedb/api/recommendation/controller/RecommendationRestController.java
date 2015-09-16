@@ -80,13 +80,13 @@ public class RecommendationRestController {
 
 	@RequestMapping(value = "/contributionParent/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	public RecommendationContributionResource contribParent(@PathVariable String id) {
+	public RecommendationContributionResource contribParent(@PathVariable Long id) {
 		return new RecommendationContributionResource(getThreadStarter(id));				
 	}
 	
-	public Contribution getThreadStarter(String contribSourceId){
+	public Contribution getThreadStarter(Long contribId){
 		//TODO check if optional is present
-		Contribution contrib= contributionRepository.findOneBySourceId(contribSourceId).get();
+		Contribution contrib= contributionRepository.findOne(contribId);
 		Contribution parent=null;
 		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
 			if(rel.getType().getType().equals(DiscourseRelationTypes.DESCENDANT.name())){
@@ -98,8 +98,8 @@ public class RecommendationRestController {
 
 	@RequestMapping(value = "/contribution/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	public RecommendationContributionResource contrib(@PathVariable String id) {
-		Contribution contrib = contributionRepository.findOneBySourceId(id).get();
+	public RecommendationContributionResource contrib(@PathVariable Long id) {
+		Contribution contrib = contributionRepository.findOne(id);
 		return new RecommendationContributionResource(contrib);
 	}
 

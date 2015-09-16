@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.cmu.cs.lti.discoursedb.api.core.resource.macro.DiscourseResource;
-import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationContributionResource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
@@ -28,7 +27,7 @@ public class CoreApiRestController {
 	UserRepository userRepository;
 	
     @RequestMapping(method=RequestMethod.GET)
-    @ResponseBody 
+    @ResponseBody 	
     Resources<DiscourseResource> discourses() {
 		List<DiscourseResource> resourceList = StreamSupport
 				.stream(discourseRepository.findAll().spliterator(), true)
