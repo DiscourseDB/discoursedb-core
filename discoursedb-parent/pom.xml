@@ -17,9 +17,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.surefire.heap>512m</maven.surefire.heap>
 		<maven.surefire.argLine />
-		<jackson.version>2.6.0</jackson.version>
+		<jackson.version>2.6.1</jackson.version>
 	</properties>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -66,7 +65,6 @@
 				<artifactId>jackson-core</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-bazaar</artifactId>
@@ -81,6 +79,11 @@
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-tags</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-csv</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
