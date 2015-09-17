@@ -217,9 +217,11 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 		
 		// ---------- Init User -----------
 		logger.trace("Init User entity");
-		Optional<User> curOptUser = userRepository.findBySourceId(p.getAuthorId());
+
+		//there is a unique constraint on sourceId and username, so we can be sure that this checks out
+		//there is a tiny risk that two source platforms could have the same id and username pair for two different users
+		Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(p.getAuthorId(),p.getAuthorUsername());
 		User curUser;
-		//the following is still a lame abuse of an Optional, but we can improve this later
 		if(curOptUser.isPresent()){ 
 			curUser=curOptUser.get();
 		}else{

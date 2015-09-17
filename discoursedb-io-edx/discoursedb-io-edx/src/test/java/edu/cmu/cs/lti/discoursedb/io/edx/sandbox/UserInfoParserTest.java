@@ -22,7 +22,7 @@ public class UserInfoParserTest {
 	 * Stream-reads the json input and binds each post in the dataset to an
 	 * object that is passed on to the mapper.
 	 * 
-	 * @param filename
+	 * @param inFile
 	 *            of json file that contains forum data
 	 * @throws IOException
 	 *             in case the inFile could not be read
