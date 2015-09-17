@@ -1,9 +1,10 @@
 package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.converter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.transaction.Transactional;
 
@@ -13,29 +14,22 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
-import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
-
 /**
- * This converter loads the forum json file specified in the arguments of the app
- * and parses the json into Post objects and maps each post object to
+ * This converter loads the forum json file specified in the arguments of the
+ * app and parses the json into Post objects and maps each post object to
  * DiscourseDB.
  * 
- * Many of the relations between entities are actually modeled in the form of relation tables
- * which allows us to keep track of the time window in which the relation was active.
- * However, this also entails that we need to explicitly instantiate these relations - i.e. 
- * we have to create a "relationship-entity" which makes the code more verbose.
+ * Many of the relations between entities are actually modeled in the form of
+ * relation tables which allows us to keep track of the time window in which the
+ * relation was active. However, this also entails that we need to explicitly
+ * instantiate these relations - i.e. we have to create a "relationship-entity"
+ * which makes the code more verbose.
  * 
- * The conversion is split into three phases.
- * Phase 1 (this class) imports all of the data except for the DiscoursRelations.
- * These relations are created between entities and require the entities to be present in the database.
- * That is why they are created in a second pass (Phase2)
- * Phase 3 adds personal information about the user to the database that comes from a different file. 
+ * The conversion is split into three phases. Phase 1 (this class) imports all
+ * of the data except for the DiscoursRelations. These relations are created
+ * between entities and require the entities to be present in the database. That
+ * is why they are created in a second pass (Phase2) Phase 3 adds personal
+ * information about the user to the database that comes from a different file.
  * 
  * @author Oliver Ferschke
  *
@@ -46,63 +40,63 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity
 public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(ProsoloSocialActivityConverterPhase1.class);
-	
+
+	private Connection con = null;
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (args.length < 1) {
-			logger.error("Missing input file. Must provide </path/to/social_activity.csv> as launch parameter.");
+		
+		if (args.length != 4) {
+			logger.error("Missing database credentials <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
 			System.exit(1);
 		}
-		String inFileName = args[0];
-
-		File infile = new File(inFileName);
-		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
-			logger.error("Input file does not exist or is not readable.");
-			System.exit(1);
-		}
-
-		logger.info("Starting forum conversion Phase 1");
-		this.convert(inFileName);
-	}
-
-	/**
-	 * Stream-reads the json input and binds each post in the dataset to an
-	 * object that is passed on to the mapper.
-	 * 
-	 * @param filename
-	 *            of json file that contains forum data
-	 * @throws IOException
-	 *             in case the inFile could not be read
-	 * @throws JsonParseException
-	 *             in case the json was malformed and couln't be parsed
-	 */
-	public void convert(String inFile) throws JsonParseException, JsonProcessingException, IOException {
-		final InputStream in = new FileInputStream(inFile);
+		
+		///////////////////////////////////////////////
+		
+		logger.info("Establishing connection to prosolo database...");
 		try {
-			CsvMapper mapper = new CsvMapper();
-			CsvSchema schema = mapper.schemaFor(SocialActivity.class).withHeader().withColumnSeparator(',').withEscapeChar('\\').withLineSeparator("\r\n");
-			MappingIterator<SocialActivity> it = mapper.readerFor(SocialActivity.class).with(schema).readValues(in);			
-			while (it.hasNextValue()) {
-				map(it.next());
-			}
-		}finally {
-			in.close();
+			con = getConnection(args[0], args[1], args[2], args[3]);
+		} catch (SQLException ex) {
+			logger.error(ex.getMessage(), ex);
+			System.exit(1);
 		}
+		logger.info("...established");
+
+		///////////////////////////////////////////////	
+		
+		logger.info("Start mapping to DiscourseDB...");
+		try {
+			map();
+		} catch (SQLException ex) {
+			logger.error(ex.getMessage(), ex);
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException ex) {
+				logger.error(ex.getMessage(), ex);
+			}
+		}
+		logger.info("...mapping complete");
+	
+		///////////////////////////////////////////////
+	}
+	
+	
+
+	private void map() throws SQLException {
+		PreparedStatement pst = con.prepareStatement("SELECT * FROM user Limit 2");
+		// pst.setString(1, author);
+		ResultSet res = pst.executeQuery();
+		while (res.next()) {
+			System.out.println(res.getString("lastname"));
+		}
+		con.close();
 	}
 
-	
-	
-	/**
-	 * Maps a social activity to DiscourseDB entities.
-	 * 
-	 * @param p
-	 *            the post object to map to DiscourseDB
-	 */
-	public void map(SocialActivity a) {
-		logger.trace("Mapping social activity" + a.getId());
-			System.out.println(a.getText());			
-		logger.trace("Social activity mapping completed.");
+	private static Connection getConnection(String host, String db, String user, String pwd) throws SQLException {
+		return DriverManager.getConnection("jdbc:mysql://" + host + ":3306/" + db, user, pwd);
 	}
 
 }
