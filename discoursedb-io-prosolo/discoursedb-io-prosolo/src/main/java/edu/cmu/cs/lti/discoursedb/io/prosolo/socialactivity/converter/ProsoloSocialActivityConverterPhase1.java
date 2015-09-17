@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -13,10 +14,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.lambda.SQL;
 import org.jooq.lambda.Unchecked;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
 /**
@@ -28,7 +40,7 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity
  * connection. The configuration parameters for this connection are passed to
  * the converter as launch parameters in the following order
  * 
- * <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>
+ * <DiscourseName> <DiscourseDescriptor><prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>
  * 
  * @author Oliver Ferschke
  *
@@ -40,24 +52,62 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(ProsoloSocialActivityConverterPhase1.class);
 
+	
+	/*
+	 * Discourse parameters that this database represents.  
+	 */
+
+	private String discourseName;
+	private String discourseDescriptor;
+
+	
+	/*
+	 * Credentials for ProSolo database connection 
+	 */
+
 	private Connection con = null;
 	private String host;
 	private String db;
 	private String user;
 	private String pwd;
 
+	/*
+	 * Entity-Repositories for DiscourseDB connection.
+	 */
+
+	@Autowired
+	private DiscourseRepository discourseRepository;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private ContentRepository contentRepository;
+	@Autowired
+	private ContributionRepository contributionRepository;
+	@Autowired
+	private DiscoursePartRepository discoursePartRepository;
+	@Autowired
+	private ContributionTypeRepository contributionTypeRepository;
+	@Autowired
+	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
+	@Autowired
+	private DiscoursePartTypeRepository discoursePartTypeRepository;
+	@Autowired
+	private DiscoursePartContributionRepository discoursePartContributionRepository;
+	
 	@Override
 	public void run(String... args) throws Exception {
 
-		if (args.length != 4) {
-			logger.error("Missing database credentials <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
+		if (args.length != 6) {
+			logger.error("Missing database credentials <DiscourseName> <DiscourseDescriptor> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
 			System.exit(1);
 		}
 
-		this.host = args[0];
-		this.db = args[1];
-		this.user = args[2];
-		this.pwd = args[3];
+		this.discourseName=args[0];
+		this.discourseDescriptor=args[1];
+		this.host = args[2];
+		this.db = args[3];
+		this.user = args[4];
+		this.pwd = args[5];
 
 		logger.info("Start mapping to DiscourseDB...");
 		try {
@@ -75,36 +125,61 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 
 	/**
 	 * Maps prosolo data to DiscourseDB.
-	 * 
-	 * Within this method, only statements need to be properly closed. The
-	 * connection is managed by the the calling run method and will be closed
-	 * eventually.
-	 * 
+	 *  
 	 * @throws SQLException
 	 */
 	private void map() throws SQLException {
-		mapPostSocialActivities();
+		mapPostSocialActivityPosts();
 		//TODO mapNodeSocialAcitvities
 		//TODO apXSocialActivities
 	}
 
 	
-	private void mapPostSocialActivities() throws SQLException{
-		List<Long> ids = getIdsForDtype("PostSocialActivity");
+	/**
+	 * Maps social activities of the type "PostSocialActivity" and the 
+	 * subtype Post to DiscourseDB
+	 * 
+	 * @throws SQLException
+	 */
+	private void mapPostSocialActivityPosts() throws SQLException{
+		List<Long> ids = getIdsForDtypeAndAction("PostSocialActivity", "Post");
+		
+		//We assume here that a single ProSolo database refers to a single course.
+		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
+		Discourse discourse = createOrGetDiscourse(this.discourseName, this.discourseDescriptor);
+		
 		for (Long l : ids) {
 			SocialActivity curACtivity = getSocialActivity(l);
 			
-			//TODO do something with the activity
-			//at this point, we are free to make new queries using any properties in the activity object			
+			//Get the "course credentials" this activity is connected with from the prosolo database
+			//This will be mapped to a DiscoursePart in DiscourseDB 
+			//TODO implement
+			
+			//Create the contribution and contribution content for the activity
+			
+			
+			
 		}
+	}
+	
+	private Discourse createOrGetDiscourse(String name, String descriptor){
+		Optional<Discourse> curOptDiscourse = discourseRepository.findOneByNameAndDescriptor(name, descriptor);
+		Discourse curDiscourse;
+		if (curOptDiscourse.isPresent()) {
+			curDiscourse=curOptDiscourse.get();
+		}else{
+			curDiscourse = new Discourse(name, descriptor);
+			curDiscourse=discourseRepository.save(curDiscourse);
+		}
+		return curDiscourse;
 	}
 	
 	/**
 	 * Returns all ids for social activities of the given dtype. This idlist can
-	 * then be used to query one social activity at a time. This might be
-	 * preferred to streaming a whole resultset (even though this would have a
-	 * higher performance), because no other statements can be executed before
-	 * the (streaming) query isn't closed.
+	 * then be used to query one social activity at a time in a separate
+	 * PreparedStatement. This might be preferred to streaming a whole resultset
+	 * (even though this would have a higher performance), because no other
+	 * statements can be executed before the (streaming) query isn't closed.
 	 * 
 	 * @param dtype
 	 *            the dtype for the social activity
@@ -117,6 +192,32 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		String sql = "SELECT id from social_activity where dtype=?";
 		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 			stmt.setString(1, dtype);
+			idList = SQL.seq(stmt, Unchecked.function(rs -> rs.getLong("id"))).collect(Collectors.toList());
+		}
+		return idList;
+	}
+	
+	/**
+	 * Returns all ids for social activities of the given dtype. This idlist can
+	 * then be used to query one social activity at a time in a separate
+	 * PreparedStatement. This might be preferred to streaming a whole resultset
+	 * (even though this would have a higher performance), because no other
+	 * statements can be executed before the (streaming) query isn't closed.
+	 * 
+	 * @param dtype
+	 *            the dtype for the social activity
+	 * @param action
+	 *            the action for this activity (e.g. TwitterPost, Post)
+	 * @return a list of ids for social activities of the provided dtype
+	 * @throws SQLException
+	 */
+	private List<Long> getIdsForDtypeAndAction(String dtype, String action) throws SQLException {
+		List<Long> idList = null;
+
+		String sql = "SELECT id from social_activity where dtype=? and action=?";
+		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+			stmt.setString(1, dtype);
+			stmt.setString(2, action);
 			idList = SQL.seq(stmt, Unchecked.function(rs -> rs.getLong("id"))).collect(Collectors.toList());
 		}
 		return idList;

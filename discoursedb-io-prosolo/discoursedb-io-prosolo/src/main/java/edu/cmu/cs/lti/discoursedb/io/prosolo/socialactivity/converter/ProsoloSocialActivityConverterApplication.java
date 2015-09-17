@@ -21,8 +21,8 @@ public class ProsoloSocialActivityConverterApplication {
 	 * @param args {"social_activity.csv"}
 	 */
 	public static void main(String[] args) {
-        if(args.length!=4){
-        	throw new IllegalArgumentException("USAGE: ProsoloSocialActivityConverterApplication <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
+        if(args.length!=6){
+        	throw new IllegalArgumentException("USAGE: ProsoloSocialActivityConverterApplication <DiscourseName> <DiscourseDescriptor> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
         }
 		SpringApplication.run(ProsoloSocialActivityConverterApplication.class, args);       
 	}
