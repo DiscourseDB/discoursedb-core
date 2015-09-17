@@ -83,18 +83,41 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		///////////////////////////////////////////////
 	}
 	
-	
 
 	private void map() throws SQLException {
-		PreparedStatement pst = con.prepareStatement("SELECT * FROM user Limit 2");
+		PreparedStatement pst = con.prepareStatement("SELECT * FROM user");
+		pst.setFetchSize(Integer.MIN_VALUE);
 		// pst.setString(1, author);
+		
 		ResultSet res = pst.executeQuery();
-		while (res.next()) {
-			System.out.println(res.getString("lastname"));
+		try{
+			while (res.next()) {
+				System.out.println(res.getString("lastname"));
+			}			
+		}finally{
+			res.close();
+			pst.close();
 		}
-		con.close();
 	}
 
+/*
+ * EXAMPLE FOR STREAMING A LARGE RESULT SET
+ * 
+ *	PreparedStatement pst = con.prepareStatement("SELECT * FROM user");
+ *	pst.setFetchSize(Integer.MIN_VALUE);
+ *	// pst.setString(1, author);
+ *	
+ *	ResultSet res = pst.executeQuery();
+ *	try{
+ *		while (res.next()) {
+ *			System.out.println(res.getString("lastname"));
+ *		}			
+ *	}finally{
+ *		res.close();
+ *		pst.close();
+ *	}
+ */
+		
 	private static Connection getConnection(String host, String db, String user, String pwd) throws SQLException {
 		return DriverManager.getConnection("jdbc:mysql://" + host + ":3306/" + db, user, pwd);
 	}
