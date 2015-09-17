@@ -345,9 +345,10 @@ public class Post {
 		return parentIds;
 	}
 
+	@SuppressWarnings("unchecked")
 	@JsonProperty("parent_ids")
 	public void setParentIds(List<Map<String, Object>> parentIds) {
-		List<String> result = new ArrayList();
+		List<String> result = new ArrayList<>();
 		for(Object curIdEntity:parentIds){
 			String curId = (String)((Map<String, Object>)curIdEntity).get("$oid");
 			result.add(curId);
@@ -407,6 +408,7 @@ public class Post {
 		return upvoteCount;
 	}
 
+	@SuppressWarnings("unchecked")
 	@JsonProperty("votes")
 	public void setVotes(Map<String, Object> id) {
 		this.upvoteCount = (int) id.get("up_count");
@@ -484,12 +486,12 @@ public class Post {
 		return endorsementUserId;
 	}
 
+	@SuppressWarnings("unchecked")
 	@JsonProperty("endorsement")
 	public void setEndorsements(Map<String, Object> endorsements) {
 		if(endorsements!=null){
 			String userId = (String) endorsements.get("user_id");
 			this.endorsementUserId = userId;
-
 			Calendar calendar = Calendar.getInstance();
 			Map<String, Object> timeEntry =  (Map<String, Object>)endorsements.get("time");
 			Long timeInMillis = (Long)timeEntry.get("$date");
@@ -501,7 +503,7 @@ public class Post {
 	/**
 	 * TODO: not yet fully implemented
 	 * 
-	 * @return a String represenatio of this entity
+	 * @return a String representation of this entity
 	 */
 	public String toString(){
 		String nl = System.getProperty("line.separator");

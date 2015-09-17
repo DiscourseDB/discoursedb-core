@@ -21,30 +21,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.model.user.User;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
-import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
-import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
@@ -90,7 +72,7 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		if (args.length < 1) {
-			logger.error("Missing input file. Must provide input file as launch parameter.");
+			logger.error("Missing input file. Must provide </path/to/*-prod.mongo> as launch parameter.");
 			System.exit(1);
 		}
 		String inFileName = args[0];

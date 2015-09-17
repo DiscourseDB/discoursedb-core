@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -19,17 +18,11 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
-import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.UserInfo;
 
 /**
@@ -57,8 +50,6 @@ import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.UserInfo;
 public class EdxForumConverterPhase3 implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(EdxForumConverterPhase3.class);
-	private static int postcount = 1;
-	
 
 	/*
 	 * Entity-Repositories for DiscourseDB connection.
@@ -70,7 +61,7 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		if (args.length != 2) {
-			logger.error("Missing input file. Must provide pointer to *-auth_user-prod-analytics.sql file as second parameter.");
+			logger.error("Missing input file. Must provide pointer to *-auth_user-prod-analytics.sql file as SECOND parameter.");
 			System.exit(1);
 		}
 		String inFileName = args[1];
