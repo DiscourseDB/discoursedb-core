@@ -85,9 +85,23 @@
 				<artifactId>jackson-dataformat-csv</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.jooq</groupId>
+				<artifactId>jool</artifactId>
+				<version>0.9.7</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+	</dependencies>
 
 	<!-- BEGIN NEEDED FOR http://jira.codehaus.org/browse/MCOBERTURA-189 -->
 	<repositories>
