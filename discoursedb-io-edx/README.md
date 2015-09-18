@@ -6,7 +6,7 @@ All DiscourseDB projects require Java 8 and Maven 3.
 
 This project has dependencies to the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) project and the [discoursedb-parent](https://github.com/DiscourseDB/discoursedb-parent) project. You need to check out both of these projects for the converter project to work. We are currently working on setting up an artifactory that serves these repositories automatically so Maven can pull in the dependencies as libraries without you having to check them out.
 
-This converter requires write access to a MySQL database. The access credentials are defined in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with login credentials user:user and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters.
+This converter requires write access to a MySQL database. The access credentials are defined in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials user:user and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters.
 
 
 ## DiscourseDB
