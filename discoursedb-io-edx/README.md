@@ -9,7 +9,7 @@ To import the project into eclipse, simply follow the following steps (Steps 3 a
 ```
 - Select the "Import..." context menu from the Package Explorer view
 - Select "Check out Maven projects from SCM" option under the Maven category
-- On the window that is presented choose the link "Find more SCM connectors in - the m2e Marketplace
+- On the window that is presented choose the link "Find more SCM connectors"
 - Find connector for Git...install...restart
 ```
 
