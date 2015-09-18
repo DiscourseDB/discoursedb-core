@@ -2,7 +2,7 @@
 This project provides converters for edX data dumps. Right now, discoursedb-io-edx can import discussion forum data into a DiscourseDB instance. Support for other parts of the edX data dumps will be added to this project in the future. Converters for other sources than edX have their own discoursedb-io-* projects.
 
 ## Requirements
-All DiscourseDB components require Java 8 and Maven 3.
+All DiscourseDB projects require Java 8 and Maven 3.
 
 ## DiscourseDB
 
