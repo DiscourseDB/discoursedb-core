@@ -1,2 +1,2 @@
 # discoursedb-io-edx
-DiscourseDB converters for edX data
+The project documentation can be found [here](https://discoursedb.github.io/discoursedb-io-edx/)
