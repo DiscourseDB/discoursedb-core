@@ -4,7 +4,7 @@ This project provides converters for edX data dumps. Right now, discoursedb-io-e
 ## Requirements and Setup
 All DiscourseDB projects require Java 8 and Maven 3.
 
-To import the project into eclipse, simply follow the following steps (Steps 3 and 4 only necessary the first time you import a Maven project from git):
+To import the project into eclipse, simply follow the following steps (Steps 3 and 4 are only necessary the first time you import a Maven project from git):
 
 ```
 - Select the "Import..." context menu from the Package Explorer view
