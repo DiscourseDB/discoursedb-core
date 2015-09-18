@@ -25,8 +25,8 @@ All DiscourseDB-IO components implement the [CommandLineRunner](http://docs.spri
 
 ## Converter Components
 
-The main processing units of a DiscourseDB-IO project are Spring Components that have access to the DiscourseDB database via autowired [Spring Data Repositories](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories). A Spring Data Repository provides access methods to the data in the DiscourseDB database. Autowired means that Spring takes care of establishing the connection to the database by injecting a fully repository instance into your field or constructor. 
-For instance, the field
+The main processing units of a DiscourseDB-IO project are Spring Components that have access to the DiscourseDB database via autowired [Spring Data Repositories](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories). A Spring Data Repository provides access methods to the data in the DiscourseDB database. Autowired means that Spring takes care of establishing the connection to the database by injecting a fully configured repository instance into your field or constructor. 
+For example, the field
 
 ```java
 @Autowired
