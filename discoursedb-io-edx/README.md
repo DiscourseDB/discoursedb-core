@@ -32,7 +32,7 @@ For example, the field
 @Autowired
 private UserRepository userRepo;
 ```
-will be instantiated by Spring automatically and we can then use ```userRepo``` in the component to access User data in DiscoursDB without any further setup.
+will be instantiated by Spring automatically and we can then use ```userRepo``` in the component to access User data in DiscourseDB without any further setup.
 For more information about Spring Data JPA, have a look at the [reference documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/).
 
 The responsibility of a converter is to load the source data, produce a mapping to the DiscourseDB schema and then store it in DiscourseDB using the required Data Repositories.
