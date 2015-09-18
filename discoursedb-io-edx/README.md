@@ -52,7 +52,19 @@ This component is launched first as indicatd by the ```@Order(1)``` annotation. 
 
 The forum converter uses the [Jackson-Databind](https://github.com/FasterXML/jackson-databind) library to parse the Json forum dump and bind each entity to a POJO. The POJO for a forum post that Jackson maps to can be found [here](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/model/Post.java). The ```@map(Post)``` method of the converter then individually maps each Post object produced by the streaming parser to DiscourseDB entities.
 
+Mapping a post to DiscourseDB involves the creation of several entities. The discoursedb-model documentation will provide a more detailed account of the the discoursedb schem. The following decisions have to made in Phase 1 of the forum import process (step through the code while you read this)
 
+- The Discourse is the context in which the forum conversations took place, i.e. the edX course. First, check whether a Discourse entitiy exists in DiscourseDB for the given edX course and create it if necessary.
+- Forums can have nested structures such as sub forums. Forums and sub forums are basically containers for contributions which translate to DiscoursePart entities. Check whether a DiscoursePart for the edX forum for the given edX course exists and create it otherwise. 
+- DiscoursePart entities are generic containers. Since we are dealing with a forum we need to fetch or create a DiscoursePartType entity and assign it to the DiscoursePart
+- Establish a relationship between Discourse and DiscoursePart. This needs to be done explicitly, since we are keeping track of the time span this relationsship existed, i.e. the relation is represented in a separate relation table.
+- Each post has a specific author. Check if the user is already stored in DiscourseDB and create the corresponding entity if not.
+- Create a contribution for the post and fill in all the fields for which we have data. The textual content is not part of the contribution but represented in a separate content entity.
+-Contributions in edX forums can either be thread starters or comments. Create a ContributionType entity and set the type value to ContributionTypes.THREAD_STARTER or ContributionTypes.POST. Establish a relation between that ContributionType and the Contribution.
+- Create a content entity containig the textual content of the contribution. Content entities allow us to keep track of revisions to contributions. Since edX forum dumps do not contain post revisions, a single content entity will be both the first and the current revision of the contribution we just created.
+-Finally, create a relationship between the Contribution and the DiscoursePart. Again, this relation holds additional information about when this relationship was active, so it needs to be represented in a separate DiscoursePartContribution entity.
+
+These steps create all the information except for relationships between contributions, since this is not possible when processing the data dump sequentially.
 
 ### Phase 2
 [EdxForumConverterPhase2.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase2.java)
