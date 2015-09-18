@@ -88,7 +88,7 @@ private UserRepository userRepo;
 
 		⋮     ⋮
 
-public void map(Post p) {
+public void map(Post post) {
 		⋮     ⋮
 	Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(post.getAuthorId(),post.getAuthorUsername());
     User curUser;
