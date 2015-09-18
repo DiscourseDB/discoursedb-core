@@ -19,7 +19,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
@@ -29,6 +33,8 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeReposit
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
 /**
@@ -149,16 +155,18 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		Discourse discourse = createOrGetDiscourse(this.discourseName, this.discourseDescriptor);
 		
 		for (Long l : ids) {
-			SocialActivity curACtivity = getSocialActivity(l);
+			SocialActivity curActivity = getSocialActivity(l);
+			ProsoloUser curProsoloUser = getProsoloUser(curActivity.getMaker());
 			
 			//Get the "course credentials" this activity is connected with from the prosolo database
 			//This will be mapped to a DiscoursePart in DiscourseDB 
 			//TODO implement
 			
 			//Create the contribution and contribution content for the activity
+			// ---------- Init User -----------
+			logger.trace("Init User entity");
 			
-			
-			
+						
 		}
 	}
 	
@@ -281,6 +289,46 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		return activity;
 	}
 
+	/**
+	 * Returns a single ProsoloUser object
+	 * 
+	 * @param id
+	 *            the id of the prosolo user
+	 * @return a list of ids for social activities of the provided dtype
+	 * @throws SQLException
+	 */
+	private ProsoloUser getProsoloUser(Long id) throws SQLException {
+		ProsoloUser pUser = null;
+		try (Connection c = getConnection()) {
+			String sql = "SELECT * from user where id=?";
+			try (PreparedStatement stmt = c.prepareStatement(sql)) {
+				stmt.setLong(1, id); 
+				pUser = SQL.seq(stmt, Unchecked.function(rs -> new ProsoloUser(
+						rs.getLong("id"),
+						rs.getString("created"),
+						rs.getString("deleted"),
+						rs.getString("dc_description"),
+						rs.getString("title"),
+						rs.getString("avatar_url"),
+						rs.getString("lastname"),
+						rs.getDouble("latitude"),
+						rs.getString("location_name"),
+						rs.getDouble("longitude"),
+						rs.getString("name"),
+						rs.getString("password"),
+						rs.getInt("password_length"),
+						rs.getString("position"),
+						rs.getString("profile_url"),
+						rs.getString("system"),
+						rs.getString("user_type"),
+						rs.getString("email"),
+						rs.getString("user_user_organization")
+		            ))).findAny().get();
+			}
+		}
+		return pUser;
+	}
+	
 	private Connection getConnection() throws SQLException {
 		if (con == null || con.isClosed()) {
 			return DriverManager.getConnection("jdbc:mysql://" + this.host + ":3306/" + this.db, this.user, this.pwd);
