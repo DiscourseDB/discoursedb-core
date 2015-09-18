@@ -43,10 +43,6 @@ This component is launched first as indicatd by the ```@Order(1)``` annotation. 
 
 The forum converter uses the [Jackson-Databind](https://github.com/FasterXML/jackson-databind) library to parse the Json forum dump and bind each entity to a POJO. The POJO for a forum post that Jackson maps to can be found [here](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/model/Post.java). The map(Post) method of the converter then maps each Post object produced by the streaming parser to DiscourseDB entities.
 
-
-
-
-
 ### Phase 2
 [EdxForumConverterPhase2.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase2.java)
 
