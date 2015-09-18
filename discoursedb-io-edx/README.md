@@ -37,7 +37,7 @@ For more information about Spring Data JPA, have a look at the [reference docume
 
 The responsibility of a converter is to load the source data, produce a mapping to the DiscourseDB schema and then store it in DiscourseDB using the required Data Repositories.
 
-Currently, all DiscourseDB Core repositories provide CRUD operations. In most cases, it is necessary to add custom data access methods to the repositories when mapping data to DiscourseDB. In that case, these methods are to be added to the Repository interfaces in ```edu.cmu.cs.lti.discoursedb.core.repository``` in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) project. Documentation for this will be added to the discoursedb-model project. A detailed description of how to define data access and query methods can already be found [here](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.details).
+All DiscourseDB Core repositories provide CRUD operations. In most cases, it is necessary to add custom data access methods to the repositories when mapping data to DiscourseDB. In that case, these methods need to be added to the Repository interfaces in ```edu.cmu.cs.lti.discoursedb.core.repository``` in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) project. Documentation for this will be added to the discoursedb-model project. A detailed description of how to define data access and query methods can already be found [here](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.details). Instructions for how to interact with repositories are given below.
 
 ## Forum Conversion
 The forum conversion is split into three phases. Each phase corresponds to a separate component.
@@ -50,7 +50,7 @@ Class: [EdxForumConverterPhase1.java](https://github.com/DiscourseDB/discoursedb
 
 This component is launched first as indicatd by the ```@Order(1)``` annotation. In classes implementing the CommandLineRunner interface, the run method takes over the role of the main method. It is automatically invoked by the starter class which also passes on the command line arguments. The first argument is supposed to contain the location of the edx forum json dump.
 
-The forum converter uses the [Jackson-Databind](https://github.com/FasterXML/jackson-databind) library to parse the Json forum dump and bind each entity to a POJO. The POJO for a forum post that Jackson maps to can be found [here](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/model/Post.java). The ```@map(Post)``` method of the converter then individually maps each Post object produced by the streaming parser to DiscourseDB entities.
+The forum converter uses the [Jackson-Databind](https://github.com/FasterXML/jackson-databind) library to parse the Json forum dump and bind each entity to a POJO. The POJO for a forum post that Jackson maps to can be found [here](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/model/Post.java). The ```map(Post)``` method of the converter then individually maps each Post object produced by the streaming parser to DiscourseDB entities.
 
 Mapping a post to DiscourseDB involves the creation of several entities. The discoursedb-model documentation will provide a more detailed account of the the discoursedb schema. The following decisions have to made in Phase 1 of the forum import process (step through code of the map(Post) method while you read this)
 
@@ -78,4 +78,24 @@ Class: [EdxForumConverterPhase3.java](https://github.com/DiscourseDB/discoursedb
 This component is launched last as indicatd by the ```@Order(3)``` annotation. It reads a separate data file that contains mappings from user ids to user names. Similarly to Phase 1, we use Jackson to map the data file to a POJO (UserInfo). Since the mappings are provided as TSV data, we use the Jackson-csv data format. For each entry in the source file, we check whether a corresponding user exist in the DiscourseDB database and update their record with the additional information in the mapping file.
 
 ## Using Spring Data Repositories
+Spring Data Repositories are used to retrieve and store data in the DiscourseDB database. The Spring framework takes care of transaction management, consistency and connections. 
+
+The following example shows how to create a new user entity from a Post object and store it in DiscourseDB. 
+
+```java
+Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(post.getAuthorId(),post.getAuthorUsername());
+User curUser;
+if(curOptUser.isPresent()){ 
+	curUser=curOptUser.get();
+}else{
+	curUser = new User();
+	curUser.setUsername(post.getAuthorUsername());
+	curUser.setSourceId(post.getAuthorId());
+    curUser = userRepository.save(curUser);
+}
+```
+
+- Check if user with the current edX id (post.getAuthorId()) and the given username (post.getAuthorUsername()) already exist. 
+- If user exists, use the existing one for anything that happens downstream.
+- If user does not exist, create a new User entity, populate it with data and save it in the database. Make sure to reuse the object that is returned by the save method downstream, since the save operation might alter the entity.
 
