@@ -52,7 +52,7 @@ This component is launched first as indicatd by the ```@Order(1)``` annotation. 
 
 The forum converter uses the [Jackson-Databind](https://github.com/FasterXML/jackson-databind) library to parse the Json forum dump and bind each entity to a POJO. The POJO for a forum post that Jackson maps to can be found [here](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/model/Post.java). The ```@map(Post)``` method of the converter then individually maps each Post object produced by the streaming parser to DiscourseDB entities.
 
-Mapping a post to DiscourseDB involves the creation of several entities. The discoursedb-model documentation will provide a more detailed account of the the discoursedb schema. The following decisions have to made in Phase 1 of the forum import process (step through the code while you read this)
+Mapping a post to DiscourseDB involves the creation of several entities. The discoursedb-model documentation will provide a more detailed account of the the discoursedb schema. The following decisions have to made in Phase 1 of the forum import process (step through code of the map(Post) method while you read this)
 
 - The Discourse is the context in which the forum conversations took place, i.e. the edX course. First, check whether a Discourse entitiy exists in DiscourseDB for the given edX course and create it if necessary.
 - Forums can have nested structures such as sub forums. Forums and sub forums are basically containers for contributions which translate to DiscoursePart entities. Check whether a DiscoursePart for the edX forum for the given edX course exists and create it otherwise. 
