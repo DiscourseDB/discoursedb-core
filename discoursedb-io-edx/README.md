@@ -88,16 +88,16 @@ private UserRepository userRepo;
 
 		⋮     ⋮
 
-public void map(Post post) {
+public void map(Post p) {
 		⋮     ⋮
-	Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(post.getAuthorId(),post.getAuthorUsername());
+	Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(p.getAuthorId(),p.getAuthorUsername());
     User curUser;
     if(curOptUser.isPresent()){ 
         curUser=curOptUser.get();
     }else{
         curUser = new User();
-        curUser.setUsername(post.getAuthorUsername());
-        curUser.setSourceId(post.getAuthorId());
+        curUser.setUsername(p.getAuthorUsername());
+        curUser.setSourceId(p.getAuthorId());
         curUser = userRepository.save(curUser);
     }
 		⋮     ⋮
