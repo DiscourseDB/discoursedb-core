@@ -64,14 +64,15 @@ Mapping a post to DiscourseDB involves the creation of several entities. The dis
 - Create a content entity containig the textual content of the contribution. Content entities allow us to keep track of revisions to contributions. Since edX forum dumps do not contain post revisions, a single content entity will be both the first and the current revision of the contribution we just created.
 -Finally, create a relationship between the Contribution and the DiscoursePart. Again, this relation holds additional information about when this relationship was active, so it needs to be represented in a separate DiscoursePartContribution entity.
 
-These steps create all the information except for relationships between contributions, since this is not possible when processing the data dump sequentially.
+These steps create all the information about a Post except for the relationships between contributions (e.g. the reply relations), since this is not possible when processing the data dump sequentially. This will be handled in a second pass in Phase 2.
 
 ### Phase 2
 [EdxForumConverterPhase2.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase2.java)
 
 This component is launched first as indicatd by the ```@Order(2)``` annotation.
+The second phase is concerned with establishing DiscourseRelations between Contributions. In edX Forums, a contribution is either a reply to a previous post or a thread starter. For every post that is not a thread starter, we therefore want to create a DiscourseRelation entity that relates this post to its parent (DiscourseRelationType REPLY), and also to the thread starter (DiscourseRelationType DESCENDANT). From a technical point of view, this works similar to Phase 1.
 
 ### Phase 3
 [EdxForumConverterPhase3.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase3.java)
 
-This component is launched last as indicatd by the ```@Order(3)``` annotation.
+This component is launched last as indicatd by the ```@Order(3)``` annotation. It reads a separate data file that contains mappings from user ids to user names. Similarly to Phase 1, we use Jackson to map the data file to a POJO (UserInfo). Since the mappings are provided as TSV data, we use the Jackson-csv data format. For each entry in the source file, we check whether a corresponding user exist in the DiscourseDB database and update their record with the additional information in the mapping file.
