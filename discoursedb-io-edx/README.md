@@ -18,10 +18,10 @@ The main processing units of a DiscourseDB-IO project are Spring Components that
 For instance, the field
 
 ```java
-@Autoconfigured
+@Autowired
 private UserRepository userRepo;
 ```
-will be instantiated automatically by Spring and we can use userRepo in our Components to access User data in DiscoursDB.
+will be instantiated by Spring automatically and we can use ```userRepo``` in our Components to access User data in DiscoursDB.
 For more information about Spring Data JPA, have a look at the [reference documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/).
 
 The forum conversion is split into three phases. Each phase corresponds to a separate component.
