@@ -24,6 +24,10 @@ private UserRepository userRepo;
 will be instantiated by Spring automatically and we can use ```userRepo``` in our Components to access User data in DiscoursDB.
 For more information about Spring Data JPA, have a look at the [reference documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/).
 
+The responsibility of a converter is then to load the source data, produce a mapping to the DiscourseDB schema and then store it in DiscourseDB using the required Data Repositories.
+
+Currently, all DiscourseDB Core repositories provide CRUD operations. In most cases, it is necessary to add custom data access methods to the repositories when mapping data to DiscourseDB. In that case, these methods are to be added to the Repository interfaces in ```edu.cmu.cs.lti.discoursedb.core.repository``` in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) project. Documentation for this will be added to the discoursedb-model project. A detailed description of how to define data access and query methods can already be found [here](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.details).
+
 The forum conversion is split into three phases. Each phase corresponds to a separate component.
 
 ### Phase 1 
