@@ -86,18 +86,23 @@ The following example shows how to create a new user entity from a Post object a
 @Autowired
 private UserRepository userRepo;
 
-⋮     ⋮     ⋮     ⋮     ⋮
+		⋮     ⋮
 
-Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(post.getAuthorId(),post.getAuthorUsername());
-User curUser;
-if(curOptUser.isPresent()){ 
-	curUser=curOptUser.get();
-}else{
-	curUser = new User();
-	curUser.setUsername(post.getAuthorUsername());
-	curUser.setSourceId(post.getAuthorId());
-    curUser = userRepository.save(curUser);
+public void map(Post p) {
+		⋮     ⋮
+	Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(post.getAuthorId(),post.getAuthorUsername());
+    User curUser;
+    if(curOptUser.isPresent()){ 
+        curUser=curOptUser.get();
+    }else{
+        curUser = new User();
+        curUser.setUsername(post.getAuthorUsername());
+        curUser.setSourceId(post.getAuthorId());
+        curUser = userRepository.save(curUser);
+    }
+		⋮     ⋮
 }
+
 ```
 
 - Check if user with the current edX id (post.getAuthorId()) and the given username (post.getAuthorUsername()) already exist. 
