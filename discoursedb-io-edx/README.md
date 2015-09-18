@@ -88,7 +88,6 @@ private UserRepository userRepo;
 
 ⋮     ⋮     ⋮     ⋮     ⋮
 
-
 Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(post.getAuthorId(),post.getAuthorUsername());
 User curUser;
 if(curOptUser.isPresent()){ 
