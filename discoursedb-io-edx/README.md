@@ -86,8 +86,8 @@ The following example shows how to create a new user entity from a Post object a
 @Autowired
 private UserRepository userRepo;
 
-⋮	⋮	⋮	⋮	⋮
-⋮	⋮	⋮	⋮	⋮
+⋮	   ⋮   	 ⋮	   ⋮   	⋮
+
 
 Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(post.getAuthorId(),post.getAuthorUsername());
 User curUser;
