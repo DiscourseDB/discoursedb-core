@@ -8,9 +8,6 @@ This project has dependencies to the [discoursedb-model](https://github.com/Disc
 
 This converter requires write access to a MySQL database. The access credentials are defined in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials user:user and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters.
 
-
-## DiscourseDB
-
 ## Forum Converter Architecture
 All DiscourseDB-IO projects are [Spring Boot Applications](http://projects.spring.io/spring-boot/). Spring Boot is a Spring project that makes it easy to create stand-alone Spring based applications with a minimum of configuration. A single [starter class](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterApplication.java) is launched by the user which configures the runtime environment and establishes a connection to DiscourseDB. The necessary DiscourseDB configurations are automatically pulled in from the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) project which contains the DiscourseDB core components.
 Once the environment is set up, SpringBoot launches all classes with an ```@Component``` annotation in the order provided by the ```@Order``` annotations. The forum conversion requires three of these components which are described in more detail below. For more information about SpringBoot, have a look at the [reference documentation](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/).
@@ -35,19 +32,27 @@ Currently, all DiscourseDB Core repositories provide CRUD operations. In most ca
 
 ## Forum Conversion
 The forum conversion is split into three phases. Each phase corresponds to a separate component.
+Phase 1 covers the non-relational aspects of the data import and creates all the entities necessary to represent a forum post (Contribution, Entity, Discourse, DiscoursePart etc.)
+Phase 2 creates relationships between the contributions and creates the thread structure. 
+Phase 3 augments the user information which details that are not contained in the forum dump by reading a separate data file from the edx data package.
 
 ### Phase 1 
 [EdxForumConverterPhase1.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase1.java)
 
 This component is launched first as indicatd by the ```@Order(1)``` annotation. In classes implementing the CommandLineRunner interface, the run method takes over the role of the main method. It is automatically invoked by the starter class which also passes on the command line arguments. The first argument is supposed to contain the location of the edx forum json dump.
 
-The forum converter uses the  https://github.com/FasterXML/jackson-databind
+The forum converter uses the [Jackson-Databind](https://github.com/FasterXML/jackson-databind) library to parse the Json forum dump and bind each entity to a POJO. The POJO for a forum post that Jackson maps to can be found [here](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/model/Post.java). The map(Post) method of the converter then maps each Post object produced by the streaming parser to DiscourseDB entities.
+
+
 
 
 
 ### Phase 2
 [EdxForumConverterPhase2.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase2.java)
 
+This component is launched first as indicatd by the ```@Order(2)``` annotation.
+
 ### Phase 3
 [EdxForumConverterPhase3.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase3.java)
 
+This component is launched last as indicatd by the ```@Order(3)``` annotation.
