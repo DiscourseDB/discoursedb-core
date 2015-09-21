@@ -14,7 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -27,7 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 @SelectBeforeUpdate
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "discourse", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "descriptor" }) )
+@Table(name = "discourse")
 public class Discourse implements Serializable {
 
 	private static final long serialVersionUID = -3736157436274230022L;
@@ -36,21 +35,14 @@ public class Discourse implements Serializable {
 
 	private String name;
 
-	/**
-	 * Used to disambiguate the Discourse, e.g. with source information, version number or similar.
-	 * The combination of name and descriptor must be unique.
-	 */
-	private String descriptor;
-
 	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
 	private Set<User> users;
 
 	public Discourse() {}
 
-	public Discourse(String name, String descriptor){
+	public Discourse(String name){
 		this.setName(name);
-		this.setDescriptor(descriptor);
 	}
 	
 	private Date version;
@@ -75,22 +67,13 @@ public class Discourse implements Serializable {
 		this.id = id;
 	}
 
-	@Column(updatable=false)
+	@Column(updatable=false, unique=true)
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	@Column(updatable=false)
-	public String getDescriptor() {
-		return descriptor;
-	}
-
-	public void setDescriptor(String descriptor) {
-		this.descriptor = descriptor;
 	}
 
 	@OneToMany(mappedBy = "discourse")
