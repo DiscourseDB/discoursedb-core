@@ -1,2 +1,2 @@
-# discoursedb-model
-Object Model and Object Relational Mapping for Discourse DB based on Hibernate, Spring, Spring Data JPA
+# DiscourseDB Core Model
+This project contains the core object model for DiscourseDB which both defines the database schema and constitutes as an access layer to the the database. discoursedb-model is based on the [Spring Framework](http://projects.spring.io/spring-framework/) and [Spring Data JPA](http://projects.spring.io/spring-data-jpa/) with [Hibernate ORM](http://hibernate.org/orm/) as its JPA Provider. 
