@@ -23,4 +23,4 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 ### Entity Classes: The DiscourseDB Core Model
 ### Spring Data Repositories
 ### Service Components
-### Types
+### Entity Type Definitions
