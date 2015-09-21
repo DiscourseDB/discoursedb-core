@@ -10,12 +10,10 @@ public class DiscourseResource extends ResourceSupport {
 
 	private long uid;
 	private String name;
-	private String descriptor;
 	private Date lastModified;
 	
 	public DiscourseResource(Discourse discourse) {
 		this.setName(discourse.getName());
-		this.setDescriptor(discourse.getDescriptor());
 		this.setLastModified(discourse.getVersion());
 		this.setUid(discourse.getId());	
 	}
@@ -35,14 +33,6 @@ public class DiscourseResource extends ResourceSupport {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getDescriptor() {
-		return descriptor;
-	}
-
-	public void setDescriptor(String descriptor) {
-		this.descriptor = descriptor;
 	}
 
 	public Date getLastModified() {
