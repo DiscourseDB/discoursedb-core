@@ -168,12 +168,12 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 		// Since edX course ids are unique already, we can use them both as name and descriptor. 
 		String courseid = p.getCourseId();
 
-		Optional<Discourse> curOptDiscourse = discourseRepository.findOneByNameAndDescriptor(courseid, courseid);
+		Optional<Discourse> curOptDiscourse = discourseRepository.findOneByName(courseid);
 		Discourse curDiscourse;
 		if (curOptDiscourse.isPresent()) {
 			curDiscourse=curOptDiscourse.get();
 		}else{
-			curDiscourse = new Discourse(courseid, courseid);
+			curDiscourse = new Discourse(courseid);
 			curDiscourse=discourseRepository.save(curDiscourse);
 		}
 
