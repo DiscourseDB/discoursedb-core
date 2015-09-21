@@ -7,10 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
@@ -23,6 +26,50 @@ public class DiscoursePartService {
 	@Autowired
 	private DiscoursePartTypeRepository discourePartTypeRepo;
 
+	@Autowired
+	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepo;
+
+
+	/**
+	 * Retrieves existing or creates a new DiscoursePartType entity with the
+	 * provided type. It then creates a new empty DiscoursePart entity and
+	 * connects it with the type.  
+	 * 
+	 * Both changed/created entities are saved to
+	 * DiscourseDB and the empty typed DiscoursePart is returned. It then adds
+	 * the new empty DiscoursePart to the db. 
+	 * 
+	 * @param discourse
+	 *            the discourse of which the new DiscoursePart is a part of
+	 * @param type
+	 *            the value for the DiscoursePartType
+	 * @return a new empty DiscoursePart that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public DiscoursePart createTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){		
+		Optional<DiscoursePartType> optDiscoursePartType = discourePartTypeRepo.findOneByType(type.name());
+		DiscoursePartType discoursePartType = null;
+		if(optDiscoursePartType.isPresent()){
+			discoursePartType = optDiscoursePartType.get();
+		}else{
+			discoursePartType = new DiscoursePartType();
+			discoursePartType.setType(type.name());
+			discoursePartType= discourePartTypeRepo.save(discoursePartType);
+		}		
+
+		DiscoursePart dPart = new DiscoursePart();
+		dPart.setType(discoursePartType);
+		dPart = discourePartRepo.save(dPart);
+		
+		DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();
+		discourseToDiscoursePart.setDiscourse(discourse);
+		discourseToDiscoursePart.setDiscoursePart(dPart);
+		discourseToDiscoursePartRepo.save(discourseToDiscoursePart);
+		
+		return dPart;
+	}		
+
+	
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity and

@@ -12,5 +12,14 @@ public enum DiscoursePartTypes {
 	/**
 	 * A thread of interconnected contributions. 
 	 */
-	THREAD
+	THREAD,
+	/**
+	 * Prosolo course credentials 
+	 */
+	PROSOLO_COURSE_CREDENTIALS,
+	/**
+	 * A Prosolo post with the type PostSocialActivity, i.e. a post to the wall. 
+	 */
+	PROSOLO_POST_SOCIAL_ACTIVITY
+	
 }
