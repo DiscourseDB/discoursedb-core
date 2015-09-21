@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,12 +25,12 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
+import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
@@ -136,14 +137,16 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 * @throws SQLException In case of a database access error
 	 */
 	private void mapPostSocialActivityPosts() throws SQLException{
-		List<Long> ids = getIdsForDtypeAndAction("PostSocialActivity", "Post");
 		
 		//We assume here that a single ProSolo database refers to a single course.
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
+
 		
-		for (Long l : ids) {
-			SocialActivity curActivity = getSocialActivity(l);
+		//START WITH PostSocialActivity entities of the subtype Post
+		//after that, we proceed with the subtype PostShare
+		for (Long l : getIdsForDtypeAndAction("PostSocialActivity", "Post")) {
+			SocialActivity curPostActivity = getSocialActivity(l);
 			
 			
 			// ---------- DiscourseParts -----------
@@ -158,10 +161,10 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		
 			// ---------- Init User -----------
 			logger.trace("Process User entity");
-			ProsoloUser curProsoloUser = getProsoloUser(curActivity.getMaker());
+			ProsoloUser curProsoloUser = getProsoloUser(curPostActivity.getMaker());
 			User curUser = null; 
 			if(curProsoloUser==null){
-				logger.error("Could not find user information for creator of social activity "+curActivity.getId()+" in prosolo db.");
+				logger.error("Could not find user information for creator of social activity "+curPostActivity.getId()+" in prosolo db.");
 			}else{
 				//TODO retrieve mapping for user to discourse-specific auth data - i.e. edX usernames
 
@@ -173,10 +176,10 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			// ---------- Init Content -----------
 			Content curContent = new Content();
 			curContent.setAuthor(curUser);
-			curContent.setCreationTime(curActivity.getCreated());
-			curContent.setText(curActivity.getText());
-			curContent.setTitle(curActivity.getTitle());
-			curContent.setSourceId(curActivity.getId()+"");
+			curContent.setCreationTime(curPostActivity.getCreated());
+			curContent.setText(curPostActivity.getText());
+			curContent.setTitle(curPostActivity.getTitle());
+			curContent.setSourceId(curPostActivity.getId()+"");
 			curContent = contentRepository.save(curContent);
 
 			
@@ -184,14 +187,23 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			Contribution curContrib = contributionService.createTypedContribution(ContributionTypes.POST);
 			curContrib.setCurrentRevision(curContent);
 			curContrib.setFirstRevision(curContent);
-			curContrib.setStartTime(curActivity.getCreated());
-			curContrib.setSourceId(curActivity.getId()+"");
-			curContrib.setUpvotes(curActivity.getLike_count());			
+			curContrib.setStartTime(curPostActivity.getCreated());
+			curContrib.setSourceId(curPostActivity.getId()+"");
+			curContrib.setUpvotes(curPostActivity.getLike_count());			
 			curContrib=contributionService.save(curContrib);
 		}
 		
-		//TODO DiscourseRelation: Reply
 		
+		//Process the PostShare subtype and create content interactions
+		for (Long l : getIdsForDtypeAndAction("PostSocialActivity", "PostShare")) {
+			SocialActivity curShareActivity = getSocialActivity(l);
+			ProsoloPost pPost = getProsoloPost(curShareActivity.getPost_object());
+
+			//user_target indicates the person it was shared with
+
+			
+		}		
+		//TODO DiscourseRelation: Reply		
 		//TODO DiscourseRelation: Descendant		
 		
 	}
@@ -212,6 +224,9 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 */
 	@SuppressWarnings("unused")
 	private List<Long> getIdsForDtype(String dtype) throws SQLException {
+		if(dtype==null){
+			return new ArrayList<Long>();
+		}
 		List<Long> idList = null;
 
 		String sql = "SELECT id from social_activity where dtype=?";
@@ -237,8 +252,10 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 * @throws SQLException
 	 */
 	private List<Long> getIdsForDtypeAndAction(String dtype, String action) throws SQLException {
+		if(dtype==null||action==null){
+			return new ArrayList<Long>();
+		}
 		List<Long> idList = null;
-
 		String sql = "SELECT id from social_activity where dtype=? and action=?";
 		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 			stmt.setString(1, dtype);
@@ -257,6 +274,9 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 * @throws SQLException
 	 */
 	private SocialActivity getSocialActivity(Long id) throws SQLException {
+		if(id==null){
+			return null;
+		}
 		SocialActivity activity = null;
 		try (Connection c = getConnection()) {
 			String sql = "SELECT * from social_activity where id=?";
@@ -307,6 +327,44 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	}
 
 	/**
+	 * Returns a single SocialActivity object
+	 * 
+	 * @param id
+	 *            the id of the post object
+	 * @return the prosolo post object
+	 * @throws SQLException
+	 */
+	private ProsoloPost getProsoloPost(Long id) throws SQLException {
+		if(id==null){
+			return null;
+		}
+		ProsoloPost post = null;
+		try (Connection c = getConnection()) {
+			String sql = "SELECT * from post where id=?";
+			try (PreparedStatement stmt = c.prepareStatement(sql)) {
+				stmt.setLong(1, id); 
+				post = SQL.seq(stmt, Unchecked.function(rs -> new ProsoloPost(
+						rs.getLong("id"),
+						rs.getTimestamp("created"),
+						rs.getBoolean("deleted"),
+						rs.getString("dc_description"),
+						rs.getString("title"),
+						rs.getString("content"),
+						rs.getString("link"),
+						rs.getString("visibility"),
+						rs.getBoolean("connect_with_status"),
+						rs.getLong("maker"),
+						rs.getLong("reshare_of"),
+						rs.getLong("rich_content"),
+						rs.getLong("goal"),
+						rs.getString("post_link")
+		            ))).findAny().get();
+			}
+		}
+		return post;
+	}
+	
+	/**
 	 * Returns a single ProsoloUser object
 	 * 
 	 * @param id
@@ -315,6 +373,9 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 * @throws SQLException
 	 */
 	private ProsoloUser getProsoloUser(Long id) throws SQLException {
+		if(id==null){
+			return null;
+		}
 		ProsoloUser pUser = null;
 		try (Connection c = getConnection()) {
 			String sql = "SELECT * from user where id=?";
