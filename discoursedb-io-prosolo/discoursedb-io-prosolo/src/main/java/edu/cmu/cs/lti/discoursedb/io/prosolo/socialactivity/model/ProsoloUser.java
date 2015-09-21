@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model;
 
+import java.util.Date;
+
 /**
  * 
  * Wraps entities from the user table in prosolo. 
@@ -10,7 +12,7 @@ package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model;
  */
 public class ProsoloUser {
 	private long id;
-	private String created;
+	private Date created;
 	private String deleted;
 	private String dc_description;
 	private String title;
@@ -31,7 +33,7 @@ public class ProsoloUser {
 	
 	
 	
-	public ProsoloUser(long id, String created, String deleted, String dc_description, String title, String avatar_url,
+	public ProsoloUser(long id, Date created, String deleted, String dc_description, String title, String avatar_url,
 			String lastname, Double latitude, String location_name, Double longitude, String name, String password,
 			Integer password_length, String position, String profile_url, String sytem, String user_type, String email,
 			String user_user_organization) {
@@ -62,10 +64,10 @@ public class ProsoloUser {
 	public void setId(long id) {
 		this.id = id;
 	}
-	public String getCreated() {
+	public Date getCreated() {
 		return created;
 	}
-	public void setCreated(String created) {
+	public void setCreated(Date created) {
 		this.created = created;
 	}
 	public String getDeleted() {
@@ -170,4 +172,5 @@ public class ProsoloUser {
 	public void setUser_user_organization(String user_user_organization) {
 		this.user_user_organization = user_user_organization;
 	}
+	
 }

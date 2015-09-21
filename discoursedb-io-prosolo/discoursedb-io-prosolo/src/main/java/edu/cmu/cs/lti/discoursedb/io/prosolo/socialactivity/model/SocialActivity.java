@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
@@ -17,8 +19,8 @@ public class SocialActivity {
 
 	
 
-	public SocialActivity(String dtype, Long id, String created, String deleted, String dc_description, String title,
-			String action, Long bookmark_count, String comments_disabled, Integer dislike_count, String last_action,
+	public SocialActivity(String dtype, Long id, Date created, String deleted, String dc_description, String title,
+			String action, Long bookmark_count, String comments_disabled, Integer dislike_count, Date last_action,
 			Integer like_count, Integer share_count, String text, String visibility, String avatar_url, String name,
 			String nickname, String post_link, String profile_url, Integer service_type, Integer user_type, Long actor,
 			Long maker, Long reason, Long rich_content, Long goal_target, Long post_object, Long user_target,
@@ -68,7 +70,7 @@ public class SocialActivity {
 	 */
 	private String dtype;
 	private Long id;
-	private String created;
+	private Date created;
 	/**
 	 * Whether activity has been deleted or not
 	 */
@@ -89,7 +91,7 @@ public class SocialActivity {
 	/**
 	 * Date when the social activity was carried out
 	 */
-	private String last_action;
+	private Date last_action;
 	private Integer like_count;
 	private Integer share_count;
 	/**
@@ -181,10 +183,10 @@ public class SocialActivity {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getCreated() {
+	public Date getCreated() {
 		return created;
 	}
-	public void setCreated(String created) {
+	public void setCreated(Date created) {
 		this.created = created;
 	}
 	public String getDeleted() {
@@ -229,10 +231,10 @@ public class SocialActivity {
 	public void setDislike_count(Integer dislike_count) {
 		this.dislike_count = dislike_count;
 	}
-	public String getLast_action() {
+	public Date getLast_action() {
 		return last_action;
 	}
-	public void setLast_action(String last_action) {
+	public void setLast_action(Date last_action) {
 		this.last_action = last_action;
 	}
 	public Integer getLike_count() {

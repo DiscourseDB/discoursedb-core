@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -21,19 +20,16 @@ import org.springframework.stereotype.Component;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
@@ -64,7 +60,6 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 */
 
 	private String discourseName;
-	private String discourseDescriptor;
 
 	
 	/*
@@ -82,38 +77,30 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 */
 
 	@Autowired
-	private DiscourseRepository discourseRepository;
-	@Autowired
-	private UserRepository userRepository;
+	private DiscourseService discourseService;
+	
 	@Autowired
 	private ContentRepository contentRepository;
+	
 	@Autowired
-	private ContributionRepository contributionRepository;
+	private ContributionService contributionService;
+
 	@Autowired
-	private DiscoursePartRepository discoursePartRepository;
-	@Autowired
-	private ContributionTypeRepository contributionTypeRepository;
-	@Autowired
-	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
-	@Autowired
-	private DiscoursePartTypeRepository discoursePartTypeRepository;
-	@Autowired
-	private DiscoursePartContributionRepository discoursePartContributionRepository;
+	private DiscoursePartService discoursePartService;
 	
 	@Override
 	public void run(String... args) throws Exception {
 
-		if (args.length != 6) {
-			logger.error("Missing database credentials <DiscourseName> <DiscourseDescriptor> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
+		if (args.length != 5) {
+			logger.error("Missing database credentials <DiscourseName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
 			System.exit(1);
 		}
 
 		this.discourseName=args[0];
-		this.discourseDescriptor=args[1];
-		this.host = args[2];
-		this.db = args[3];
-		this.user = args[4];
-		this.pwd = args[5];
+		this.host = args[1];
+		this.db = args[2];
+		this.user = args[3];
+		this.pwd = args[4];
 
 		logger.info("Start mapping to DiscourseDB...");
 		try {
@@ -130,9 +117,10 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	}
 
 	/**
-	 * Maps prosolo data to DiscourseDB.
+	 * Calls the mapping routines for the different social actitiy types in ProSolo.
+	 * Each social activity is handled by a separate method.
 	 *  
-	 * @throws SQLException
+	 * @throws SQLException In case of a database access error
 	 */
 	private void map() throws SQLException {
 		mapPostSocialActivityPosts();
@@ -145,42 +133,70 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 * Maps social activities of the type "PostSocialActivity" and the 
 	 * subtype Post to DiscourseDB
 	 * 
-	 * @throws SQLException
+	 * @throws SQLException In case of a database access error
 	 */
 	private void mapPostSocialActivityPosts() throws SQLException{
 		List<Long> ids = getIdsForDtypeAndAction("PostSocialActivity", "Post");
 		
 		//We assume here that a single ProSolo database refers to a single course.
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
-		Discourse discourse = createOrGetDiscourse(this.discourseName, this.discourseDescriptor);
+		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
 		
 		for (Long l : ids) {
 			SocialActivity curActivity = getSocialActivity(l);
-			ProsoloUser curProsoloUser = getProsoloUser(curActivity.getMaker());
 			
-			//Get the "course credentials" this activity is connected with from the prosolo database
-			//This will be mapped to a DiscoursePart in DiscourseDB 
-			//TODO implement
 			
-			//Create the contribution and contribution content for the activity
+			// ---------- DiscourseParts -----------
+			logger.trace("Process DiscourseParts");
+			
+			// Prosolo has different types of social activities that
+			// represent different spaces in the platform. They are translated to different DiscourseParts
+			
+			DiscoursePart postSocialActivityContainer = discoursePartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY);
+			postSocialActivityContainer.setName(this.discourseName+"_POST"); //no specific title here, create  generic title 			
+			//TODO the relationships between discourseParts and Discourse don't have a start date
+		
 			// ---------- Init User -----------
-			logger.trace("Init User entity");
+			logger.trace("Process User entity");
+			ProsoloUser curProsoloUser = getProsoloUser(curActivity.getMaker());
+			User curUser = null; 
+			if(curProsoloUser==null){
+				logger.error("Could not find user information for creator of social activity "+curActivity.getId()+" in prosolo db.");
+			}else{
+				//TODO retrieve mapping for user to discourse-specific auth data - i.e. edX usernames
+
+				//TODO use auth data to identify whether user already exists in database: how
+													
+			}
 			
-						
+			logger.trace("Process contribution and content");
+			// ---------- Init Content -----------
+			Content curContent = new Content();
+			curContent.setAuthor(curUser);
+			curContent.setCreationTime(curActivity.getCreated());
+			curContent.setText(curActivity.getText());
+			curContent.setTitle(curActivity.getTitle());
+			curContent.setSourceId(curActivity.getId()+"");
+			curContent = contentRepository.save(curContent);
+
+			
+			// ---------- Init Contribution -----------
+			Contribution curContrib = contributionService.createTypedContribution(ContributionTypes.POST);
+			curContrib.setCurrentRevision(curContent);
+			curContrib.setFirstRevision(curContent);
+			curContrib.setStartTime(curActivity.getCreated());
+			curContrib.setSourceId(curActivity.getId()+"");
+			curContrib.setUpvotes(curActivity.getLike_count());			
+			curContrib=contributionService.save(curContrib);
 		}
+		
+		//TODO DiscourseRelation: Reply
+		
+		//TODO DiscourseRelation: Descendant		
+		
 	}
 	
-	private Discourse createOrGetDiscourse(String name, String descriptor){
-		Optional<Discourse> curOptDiscourse = discourseRepository.findOneByNameAndDescriptor(name, descriptor);
-		Discourse curDiscourse;
-		if (curOptDiscourse.isPresent()) {
-			curDiscourse=curOptDiscourse.get();
-		}else{
-			curDiscourse = new Discourse(name, descriptor);
-			curDiscourse=discourseRepository.save(curDiscourse);
-		}
-		return curDiscourse;
-	}
+
 	
 	/**
 	 * Returns all ids for social activities of the given dtype. This idlist can
@@ -194,6 +210,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 * @return a list of ids for social activities of the provided dtype
 	 * @throws SQLException
 	 */
+	@SuppressWarnings("unused")
 	private List<Long> getIdsForDtype(String dtype) throws SQLException {
 		List<Long> idList = null;
 
@@ -248,7 +265,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 				activity = SQL.seq(stmt, Unchecked.function(rs -> new SocialActivity(
 						rs.getString("dtype"),
 						rs.getLong("id"),
-						rs.getString("created"),
+						rs.getTimestamp("created"),
 						rs.getString("deleted"),
 						rs.getString("dc_description"),
 						rs.getString("title"),
@@ -256,7 +273,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 						rs.getLong("bookmark_count"),
 						rs.getString("comments_disabled"),
 						rs.getInt("dislike_count"),
-						rs.getString("last_action"),
+						rs.getTimestamp("last_action"),
 						rs.getInt("like_count"),
 						rs.getInt("share_count"),
 						rs.getString("text"),
@@ -305,7 +322,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 				stmt.setLong(1, id); 
 				pUser = SQL.seq(stmt, Unchecked.function(rs -> new ProsoloUser(
 						rs.getLong("id"),
-						rs.getString("created"),
+						rs.getTimestamp("created"),
 						rs.getString("deleted"),
 						rs.getString("dc_description"),
 						rs.getString("title"),
@@ -329,6 +346,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		return pUser;
 	}
 	
+		
 	private Connection getConnection() throws SQLException {
 		if (con == null || con.isClosed()) {
 			return DriverManager.getConnection("jdbc:mysql://" + this.host + ":3306/" + this.db, this.user, this.pwd);
