@@ -25,7 +25,7 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 ### Spring Service Components
 Spring Service Components offer provide a higher level of abstractio for repository access. Rather than directly manipulating entities using the CRUD and custom repository methods, Services encapsulate whole processes and further allow to perform additional consistency and validity checks.
 
-The following example shows how a service-level method that operates on multiple repositories.
+The following example shows how to use a service-level method that operates on multiple repositories.
 
 ```java
 @Autowired
@@ -39,4 +39,8 @@ Discourse discourse = discourseService.createOrGetDiscourse("DUMMYDISCOURSE");
 DiscoursePart courseCredentialContainer = discoursePartService.createTypedDiscoursePart(discourse,DiscoursePartTypes.FORUM);
 }
 ```
+
+The first service internally checks whether a Discourse exists and retrieves it if it exists or creates it if it doesn't.
+The second service call creates a new DiscoursePart, retrieves or creates a DiscoursePartType and connects it with that DiscoursePart. It then establishes a relation relation between the DiscoursePart and the given Discourse.
+
 ### Entity Type Definitions
