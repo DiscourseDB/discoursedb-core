@@ -12,11 +12,14 @@ import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRe
 @Service
 public class ContentService {
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private ContentRepository contentRepo;
 	
+	@SuppressWarnings("unused")
 	@Autowired
 	private ContributionInteractionRepository contributionInteractionRepo;
+
 	
 	
 
