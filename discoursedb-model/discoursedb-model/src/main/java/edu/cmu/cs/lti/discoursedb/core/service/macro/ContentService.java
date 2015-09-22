@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.ContentInteractionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
 
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @Service
@@ -16,7 +16,7 @@ public class ContentService {
 	private ContentRepository contentRepo;
 	
 	@Autowired
-	private ContentInteractionRepository contentInteractionRepo;
+	private ContributionInteractionRepository contributionInteractionRepo;
 	
 	
 

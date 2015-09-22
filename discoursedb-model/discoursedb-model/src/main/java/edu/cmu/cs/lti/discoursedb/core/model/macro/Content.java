@@ -27,7 +27,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
-import edu.cmu.cs.lti.discoursedb.core.model.user.ContentInteraction;
+import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 
 @Entity
@@ -57,7 +57,7 @@ public class Content implements Serializable {
 	
 	private User author;
 
-	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
+	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 	
 	public Content(){}
 
@@ -159,12 +159,12 @@ public class Content implements Serializable {
 	}
 
     @OneToMany(mappedBy = "content")
-	public Set<ContentInteraction> getContentInteractions() {
-		return contentInteractions;
+	public Set<ContributionInteraction> getContributionInteractions() {
+		return contributionInteractions;
 	}
 
-	public void setContentInteractions(Set<ContentInteraction> contentInteractions) {
-		this.contentInteractions = contentInteractions;
+	public void setContributionInteractions(Set<ContributionInteraction> contributionInteractions) {
+		this.contributionInteractions = contributionInteractions;
 	}
 
 	public String getTitle() {

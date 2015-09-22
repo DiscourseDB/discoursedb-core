@@ -25,6 +25,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
 @Entity
 @SelectBeforeUpdate 
@@ -62,6 +63,8 @@ public class Contribution implements Serializable {
 	private Set<DiscourseRelation> sourceOfDiscourseRelations = new HashSet<DiscourseRelation>();
 
 	private Set<DiscourseRelation> targetOfDiscourseRelations = new HashSet<DiscourseRelation>();
+	
+	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 
 	private String sourceId;
 	@Column(name="source_id")
@@ -218,6 +221,16 @@ public class Contribution implements Serializable {
 	public void addTargetOfDiscourseRelations(DiscourseRelation targetOfDiscourseRelation) {
 		this.targetOfDiscourseRelations.add(targetOfDiscourseRelation);
 	}
+	
+    @OneToMany(mappedBy = "contribution")
+	public Set<ContributionInteraction> getContributionInteractions() {
+		return contributionInteractions;
+	}
+
+	public void setContributionInteractions(Set<ContributionInteraction> contributionInteractions) {
+		this.contributionInteractions = contributionInteractions;
+	}
+	
 	
 	public int getUpvotes() {
 		return upvotes;

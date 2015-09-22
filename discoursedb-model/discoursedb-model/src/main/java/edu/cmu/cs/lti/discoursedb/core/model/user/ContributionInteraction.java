@@ -22,13 +22,14 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="content_interaction")
-public class ContentInteraction implements Serializable{
+@Table(name="contribution_interaction")
+public class ContributionInteraction implements Serializable{
 
 	private static final long serialVersionUID = 3846201435729013318L;
 
@@ -36,17 +37,19 @@ public class ContentInteraction implements Serializable{
 	
 	private User user;
 	
+	private Contribution contribution;
+
 	private Content content;
-	
+
 	private Date startTime;
 	
 	private Date endTime;
 	
-	private ContentInteractionType type;
+	private ContributionInteractionType type;
 	
 	private Annotations annotations;
 	
-	public ContentInteraction(){}
+	public ContributionInteraction(){}
 
 	private Date version;
 	@Version
@@ -58,7 +61,7 @@ public class ContentInteraction implements Serializable{
 	}
 	
 	@Id
-	@Column(name="id_content_interaction", nullable=false)
+	@Column(name="id_contribution_interaction", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
@@ -79,13 +82,13 @@ public class ContentInteraction implements Serializable{
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "fk_content")
-	public Content getContent() {
-		return content;
+	@JoinColumn(name = "fk_contribution")
+	public Contribution getContribution() {
+		return contribution;
 	}
 
-	public void setContent(Content content) {
-		this.content = content;
+	public void setContribution(Contribution contribution) {
+		this.contribution = contribution;
 	}
 
 	@Column(name = "start_time")
@@ -110,12 +113,12 @@ public class ContentInteraction implements Serializable{
 
 
 	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_content_interaction_type")
-	public ContentInteractionType getType() {
+	@JoinColumn(name = "fk_contribution_interaction_type")
+	public ContributionInteractionType getType() {
 		return type;
 	}
 
-	public void setType(ContentInteractionType type) {
+	public void setType(ContributionInteractionType type) {
 		this.type = type;
 	}
 
@@ -127,6 +130,15 @@ public class ContentInteraction implements Serializable{
 
 	public void setAnnotations(Annotations annotations) {
 		this.annotations = annotations;
+	}
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "fk_content")
+	public Content getContent() {
+		return content;
+	}
+	
+	public void setContent(Content content) {
+		this.content = content;
 	}
 
 }

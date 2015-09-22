@@ -24,8 +24,8 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="content_interaction_type")
-public class ContentInteractionType implements Serializable{
+@Table(name="contribution_interaction_type")
+public class ContributionInteractionType implements Serializable{
 
 	private static final long serialVersionUID = 4718842646037560198L;
 
@@ -33,7 +33,7 @@ public class ContentInteractionType implements Serializable{
 	
 	private String type;
 	
-	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
+	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 
 	private Date version;
 	@Version
@@ -45,7 +45,7 @@ public class ContentInteractionType implements Serializable{
 	}
 	
 	@Id
-	@Column(name="id_content_interaction_type", nullable=false)
+	@Column(name="id_contribution_interaction_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
@@ -64,14 +64,14 @@ public class ContentInteractionType implements Serializable{
 		this.type = type;
 	}
 	
-	public ContentInteractionType(){}
+	public ContributionInteractionType(){}
 
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<ContentInteraction> getContentInteractions() {
-		return contentInteractions;
+	public Set<ContributionInteraction> getContributionInteractions() {
+		return contributionInteractions;
 	}
 
-	public void setContentInteractions(Set<ContentInteraction> contentInteractions) {
-		this.contentInteractions = contentInteractions;
+	public void setContributionInteractions(Set<ContributionInteraction> contributionInteractions) {
+		this.contributionInteractions = contributionInteractions;
 	}
 }

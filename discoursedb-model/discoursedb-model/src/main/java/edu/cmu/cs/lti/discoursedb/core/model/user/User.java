@@ -64,7 +64,7 @@ public class User implements Serializable {
 
 	private Annotations annotations;
 
-	private Set<ContentInteraction> contentInteractions = new HashSet<ContentInteraction>();
+	private Set<ContributionInteraction> contentInteractions = new HashSet<ContributionInteraction>();
 
 	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
 
@@ -167,11 +167,11 @@ public class User implements Serializable {
 	}
 
 	@OneToMany(mappedBy = "user")
-	public Set<ContentInteraction> getContentInteractions() {
+	public Set<ContributionInteraction> getContentInteractions() {
 		return contentInteractions;
 	}
 
-	public void setContentInteractions(Set<ContentInteraction> contentInteractions) {
+	public void setContentInteractions(Set<ContributionInteraction> contentInteractions) {
 		this.contentInteractions = contentInteractions;
 	}
 
