@@ -56,7 +56,7 @@ public class UserService {
 	
 	/**
 	 * Returns a User object with the given username and a given discourse if it
-	 * exists or creates a new User entity with that username.
+	 * exists or creates a new User entity with that username and that discourse.
 	 * 
 	 * @param discourse
 	 *            the discourse in which the user was active

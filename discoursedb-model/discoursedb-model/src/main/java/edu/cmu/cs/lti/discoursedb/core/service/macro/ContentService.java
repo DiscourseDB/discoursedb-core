@@ -5,22 +5,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
 
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @Service
 public class ContentService {
 
-	@SuppressWarnings("unused")
 	@Autowired
 	private ContentRepository contentRepo;
 	
-	@SuppressWarnings("unused")
-	@Autowired
-	private ContributionInteractionRepository contributionInteractionRepo;
-
-	
+	public Content createContent(){
+		return contentRepo.save(new Content());
+	}
 	
 
 }
