@@ -229,7 +229,7 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 			curUser.setUsername(p.getAuthorUsername());
 			curUser.setSourceId(p.getAuthorId());
 		}
-		curUser.addDiscourses(curDiscourse);
+		curUser.addDiscourse(curDiscourse);
 		curUser = userRepository.save(curUser);
 
 		Optional<Contribution> curOptContribution = contributionRepository.findOneBySourceId(p.getId());
