@@ -15,13 +15,13 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -29,7 +29,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="user_memberof_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_group", "fk_user" }))
-public class GroupUser implements Serializable{
+public class GroupUser extends CoreBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = 5232683398940704768L;
 
@@ -46,15 +46,6 @@ public class GroupUser implements Serializable{
     private Annotations annotations;
     
 	public GroupUser() {}
-    
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 	
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)

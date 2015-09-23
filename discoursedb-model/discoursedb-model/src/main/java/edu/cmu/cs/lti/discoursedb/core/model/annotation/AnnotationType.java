@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,18 +13,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="annotation_type")
-public class AnnotationType implements Serializable{
+public class AnnotationType extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 9194247332380412321L;
 
@@ -38,15 +38,6 @@ public class AnnotationType implements Serializable{
 	private boolean isEntityAnnotation;
 	
     private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
-	
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 
 	public AnnotationType(){}
 

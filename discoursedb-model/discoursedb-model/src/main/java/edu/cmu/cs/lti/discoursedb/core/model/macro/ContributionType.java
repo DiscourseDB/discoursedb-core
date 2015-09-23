@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,18 +13,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="contribution_type")
-public class ContributionType implements Serializable {
+public class ContributionType extends CoreBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -4187467243916373251L;
 
@@ -36,16 +36,7 @@ public class ContributionType implements Serializable {
 	private Set<Contribution> contributions = new HashSet<Contribution>();
 
 	public ContributionType(){}
-	
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
-	
+		
 	@Id
 	@Column(name="id_contribution_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)

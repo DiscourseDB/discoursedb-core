@@ -14,12 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.user.Audience;
 
@@ -28,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.Audience;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="contribution_has_audience")
-public class ContributionAudience implements Serializable{
+public class ContributionAudience extends CoreBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -2668707116929576568L;
 
@@ -46,15 +46,6 @@ public class ContributionAudience implements Serializable{
     
 	public ContributionAudience() {}
     
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
-
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getStartTime() {

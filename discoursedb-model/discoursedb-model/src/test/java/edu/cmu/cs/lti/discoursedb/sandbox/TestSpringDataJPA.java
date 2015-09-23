@@ -7,9 +7,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 
 /**
  * 1. We need a ComponentScan in order to discover the configuration
@@ -27,9 +28,10 @@ import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 public class TestSpringDataJPA implements CommandLineRunner {
 
 	@Autowired
-	private UserRepository userRepo;
-	
-	@Autowired DiscourseRelationRepository discRelRepo;
+	private UserService userService;
+
+	@Autowired
+	private DiscourseService discourseService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(TestSpringDataJPA.class);
@@ -37,45 +39,25 @@ public class TestSpringDataJPA implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-//		Discourse discourse = new Discourse("Test","Phase6");
-	//	discourseRepo.save(discourse);
-				
-		User user = new User();
-		user.setRealname("First");
-		user.setUsername("doe");
-		user.setSourceId("123");
-//		user.addDiscourses(discourse);	
-		userRepo.save(user);	
-
-		User user2 = new User();
-		user2.setRealname("Second");
-		user2.setUsername("doe");
-		user2.setSourceId("456");
-//		user2.addDiscourses(discourse);	
-		userRepo.save(user2);	
-
-		User retrievedUser = userRepo.findBySourceIdAndUsername("456", "doe").get();
-		System.out.println(retrievedUser.getRealname());
-		
-		
-		
-//		Contribution c1 = new Contribution();
-//		Contribution c2 = new Contribution();
-//		DiscourseRelation rel = new DiscourseRelation();
-//		rel.setSource(c1);
-//		rel.setTarget(c2);
-//		DiscourseRelationType type = new DiscourseRelationType();
-//		type.setType("TEST");
-//		rel.setType(type);
-//		discRelRepo.save(rel);
-//		contribRepo.save(c1);
-//		contribRepo.save(c2);
-		
-		
-//		for (User u : userRepo.findAll()) {
-//			System.out.println(u.getUsername());
-//			System.out.println(u.getDiscourses().size());
-//		}
+		Discourse d = discourseService.createOrGetDiscourse("UTArlingtonX/LINK5.10x/3T2014");
+		User u = userService.createOrGetUserByUsername(d, "testuser1");
+		u.setRealname("AAAAA");
+		userService.save(u);
+		 u = userService.createOrGetUserByUsername(d, "testuser2");
+		u.setRealname("AAAAA");
+		userService.save(u);
+		 u = userService.createOrGetUserByUsername(d, "testuser3");
+		u.setRealname("AAAAA");
+		userService.save(u);
+		 u = userService.createOrGetUserByUsername(d, "testuser1");
+		u.setRealname("BBBB");
+		userService.save(u);
+		 u = userService.createOrGetUserByUsername(d, "testuser2");
+		u.setRealname("BBBB");
+		userService.save(u);
+		 u = userService.createOrGetUserByUsername(d, "testuser3");
+		u.setRealname("BBBB");
+		userService.save(u);
 	}
 
 }

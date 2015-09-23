@@ -15,12 +15,12 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -28,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discourse_has_discourse_part", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_discourse", "fk_discourse_part" }) )
-public class DiscourseToDiscoursePart implements Serializable{
+public class DiscourseToDiscoursePart extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 6916868753034800946L;
 	
@@ -45,15 +45,6 @@ public class DiscourseToDiscoursePart implements Serializable{
     private Annotations annotations;
     
 	public DiscourseToDiscoursePart() {}
-    
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 	
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)

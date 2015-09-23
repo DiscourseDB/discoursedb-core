@@ -14,12 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 
@@ -28,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discourse_part_interaction")
-public class DiscoursePartInteraction implements Serializable{
+public class DiscoursePartInteraction extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -7782010595781927999L;
 
@@ -47,15 +47,6 @@ public class DiscoursePartInteraction implements Serializable{
 	private Annotations annotations;
 	
 	public DiscoursePartInteraction(){}
-
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 	
 	@Id
 	@Column(name="id_content_interaction", nullable=false)

@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,18 +13,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="group_type")
-public class GroupType implements Serializable{
+public class GroupType extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -8085963752024237480L;
 
@@ -36,15 +36,6 @@ public class GroupType implements Serializable{
 	private Set<Group> groups = new HashSet<Group>();
 
 	public GroupType(){}
-
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 	
 	@Id
 	@Column(name="id_group_type", nullable=false)

@@ -11,18 +11,19 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discoursedb")
-public class DiscourseDB implements Serializable{
+public class DiscourseDB extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 3740314651476462251L;
 
@@ -35,15 +36,6 @@ public class DiscourseDB implements Serializable{
 	private Date endTime;
 	
 	public DiscourseDB(){}
-	
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 	
 	@Id
 	@Column(name="id_discoursedb", nullable=false)

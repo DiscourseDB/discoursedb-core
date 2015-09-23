@@ -17,12 +17,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -30,7 +30,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="\"group\"")
-public class Group implements Serializable {
+public class Group extends CoreBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -8400689664755883198L;
 
@@ -60,16 +60,7 @@ public class Group implements Serializable {
 	public void setSourceId(String sourceId) {
 		this.sourceId = sourceId;
 	}
-	
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
-	
+
 	@Id
 	@Column(name="id_group", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)

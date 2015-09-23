@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,13 +18,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 
@@ -47,7 +46,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = { "source_id", "username" }) )
-public class User implements Serializable {
+public class User extends CoreBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 8065834868365920898L;
 
@@ -91,17 +90,6 @@ public class User implements Serializable {
 	}
 	
 	public User() {}
-
-	private Date version;
-
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 
 	@Id
 	@Column(name = "id_user", nullable = false)

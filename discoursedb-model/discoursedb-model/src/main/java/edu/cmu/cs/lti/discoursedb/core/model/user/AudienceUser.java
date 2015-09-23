@@ -14,13 +14,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -28,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="audience_has_user")
-public class AudienceUser implements Serializable{
+public class AudienceUser extends CoreBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -6740377434969542427L;
 
@@ -46,15 +46,6 @@ public class AudienceUser implements Serializable{
     
 	public AudienceUser() {}
     
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
-	
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getStartTime() {

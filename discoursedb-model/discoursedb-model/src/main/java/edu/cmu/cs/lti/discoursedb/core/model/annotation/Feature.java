@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,18 +11,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="feature")
-public class Feature implements Serializable{
+public class Feature extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -5462337134833586687L;
 
@@ -36,15 +36,6 @@ public class Feature implements Serializable{
 	private AnnotationInstance annotation;
 	
 	public Feature(){}
-
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 
 	@Id
 	@Column(name="id_feature", nullable=false)

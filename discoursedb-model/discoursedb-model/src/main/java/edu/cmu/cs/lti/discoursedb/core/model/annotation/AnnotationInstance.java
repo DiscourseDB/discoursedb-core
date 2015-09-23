@@ -18,18 +18,19 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
+
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="annotation_instance")
-public class AnnotationInstance implements Serializable{
+public class AnnotationInstance extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 6699029374236146557L;
     
@@ -50,16 +51,7 @@ public class AnnotationInstance implements Serializable{
 	private Annotations annotationAggregate;
 	
 	private Set<Feature> features = new HashSet<Feature>();
-	
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
-	
+		
 	public AnnotationInstance(){}
 
 	@Id

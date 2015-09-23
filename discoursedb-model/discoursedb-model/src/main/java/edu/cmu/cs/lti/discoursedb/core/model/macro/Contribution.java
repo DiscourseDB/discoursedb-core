@@ -18,12 +18,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
+import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
@@ -32,7 +32,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="contribution")
-public class Contribution implements Serializable {
+public class Contribution extends CoreBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -2489956863731652149L;
 
@@ -76,15 +76,6 @@ public class Contribution implements Serializable {
 	}
 	
 	public Contribution(){}
-
-	private Date version;
-	@Version
-	public Date getVersion() {
-		return version;
-	}
-	public void setVersion(Date version) {
-		this.version = version;
-	}
 
 	@Id
 	@Column(name="id_contribution", nullable=false)

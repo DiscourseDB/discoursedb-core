@@ -2,7 +2,6 @@ package edu.cmu.cs.lti.discoursedb.core.service.user;
 
 import java.util.Optional;
 
-import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -42,8 +41,18 @@ public class UserService {
 	 * @return the User object with the given sourceid - either retrieved or
 	 *         newly created
 	 */
-	public User createOrGetUserWithSourceId(Discourse discourse, String sourceid) {
-		throw new NotYetImplementedException();		
+	public User createOrGetUserBySourceId(Discourse discourse, String sourceid) {
+		Optional<User> curOptUser = userRepo.findAllBySourceId(sourceid).stream()
+				.filter(u -> u.getDiscourses().contains(discourse)).findFirst();
+		User curUser;
+		if (curOptUser.isPresent()) {
+			return curOptUser.get();
+		} else {
+			curUser = new User();
+			curUser.setSourceId(sourceid);
+			curUser.addDiscourses(discourse);
+			return save(curUser);			
+		}
 	}
 	
 	/**
@@ -57,8 +66,18 @@ public class UserService {
 	 * @return the User object with the given username - either retrieved or
 	 *         newly created
 	 */
-	public User createOrGetUserWithUsername(Discourse discourse, String username) {
-		throw new NotYetImplementedException();		
+	public User createOrGetUserByUsername(Discourse discourse, String username) {
+		Optional<User> curOptUser = userRepo.findAllByUsername(username).stream()
+				.filter(u -> u.getDiscourses().contains(discourse)).findFirst();	
+		User curUser;
+		if (curOptUser.isPresent()) {
+			return curOptUser.get();
+		} else {
+			curUser = new User();
+			curUser.setUsername(username);
+			curUser.addDiscourses(discourse);
+			return save(curUser);			
+		}
 	}
 
 	/**
@@ -73,18 +92,21 @@ public class UserService {
 	 * @return the User object with the given username and source id- either retrieved or
 	 *         newly created
 	 */
-	public User createOrGetUser(String sourceId, String username) {
+	public User createOrGetUser(Discourse discourse, String sourceId, String username) {
 		Optional<User> curOptUser = userRepo.findBySourceIdAndUsername(sourceId, username);
 		User curUser;
 		if (curOptUser.isPresent()) {
 			curUser = curOptUser.get();
+			if(!curUser.getDiscourses().contains(discourse)){
+				curUser.addDiscourses(discourse);
+			}
 		} else {
 			curUser = new User();
 			curUser.setSourceId(sourceId);
 			curUser.setUsername(username);
-			curUser = userRepo.save(curUser);
+			curUser.addDiscourses(discourse);
 		}
-		return curUser;
+		return userRepo.save(curUser);
 	}
 
 	/**
@@ -117,5 +139,14 @@ public class UserService {
 
 	public Optional<User> findBySourceIdAndUsername(String sourceId, String username) {
 		return userRepo.findBySourceIdAndUsername(sourceId, username);
+	}
+	
+	/**
+	 * Calls the save method of the user repository, saves the provided User entity and returns it after the save process
+	 * @param user the user entity to save
+	 * @return the user entity after the save process
+	 */
+	public User save(User user){
+		return userRepo.save(user);
 	}
 }
