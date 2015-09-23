@@ -25,10 +25,11 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
@@ -74,15 +75,14 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	private String user;
 	private String pwd;
 
-	/*
-	 * Entity-Repositories for DiscourseDB connection.
-	 */
-
 	@Autowired
 	private DiscourseService discourseService;
 	
 	@Autowired
-	private ContentRepository contentRepository;
+	private UserService userService;
+
+	@Autowired
+	private ContentService contentService;
 	
 	@Autowired
 	private ContributionService contributionService;
@@ -146,8 +146,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		//START WITH PostSocialActivity entities of the subtype Post
 		for (Long l : getIdsForDtypeAndAction("PostSocialActivity", "Post")) {
 			SocialActivity curPostActivity = getSocialActivity(l).get(); 
-			ProsoloPost curProsoloPost = getProsoloPost(curPostActivity.getPost_object()).get();
-			
+			ProsoloPost curProsoloPost = getProsoloPost(curPostActivity.getPost_object()).get();			
 			
 			// ---------- DiscourseParts -----------
 			logger.trace("Process DiscourseParts");			
@@ -157,25 +156,58 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			DiscoursePart postSocialActivityContainer = discoursePartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY);
 			postSocialActivityContainer.setName(this.discourseName+"_POST"); //no specific title here, create  generic title 			
 		
+			
 			// ---------- Init User -----------
 			logger.trace("Process User entity");
 			ProsoloUser curProsoloUser = getProsoloUser(curPostActivity.getMaker()).get();
 			User curUser = null; 
 			if(curProsoloUser==null){
 				logger.error("Could not find user information for creator of social activity "+curPostActivity.getId()+" in prosolo db.");
-			}else{
-				//TODO try to identify whether user exists already in the context of this discourse
+			}else{				
+				//CHECK IF USER WITH SAME edX username exists in the current Discourse context
+				Optional<String> edXUserName = mapProsoloUserIdToedXUsername(curProsoloUser.getId());
+				if(edXUserName.isPresent()){
+					curUser=userService.createOrGetUserByUsername(discourse, edXUserName.get());
+					curUser.setSourceId(curProsoloUser.getId()+"");
+					//TODO update sourceID --> needs to be a list
+				}else{
+					curUser=userService.createOrGetUserBySourceId(discourse, curProsoloUser.getId()+"");
+				}
+				
+				//Update the realname of the user, if not set in DiscourseDB
+				if(curUser.getRealname()==null||curUser.getRealname().isEmpty()){
+					if(curProsoloUser.getName().isEmpty()){
+						if(!curProsoloUser.getLastname().isEmpty()){
+							curUser.setRealname(curProsoloUser.getLastname());
+						}
+					}else{
+						if(curProsoloUser.getLastname().isEmpty()){
+							curUser.setRealname(curProsoloUser.getName());
+						}else{
+							curUser.setRealname(curProsoloUser.getName()+" "+curProsoloUser.getLastname());
+						}						
+					}						
+				}
+				
+				//Update email address if not set in db
+				//TODO allow multiple email addresses
+				if(curUser.getEmail()==null||curUser.getEmail().isEmpty()){
+					Optional<String> prosoloMail = getEmailForProsoloUser(curProsoloUser.getId());
+					if(prosoloMail.isPresent()){
+						curUser.setEmail(prosoloMail.get());
+					}
+				}				
 			}
+			
 			
 			logger.trace("Process contribution and content");
 			// ---------- Init Content -----------
-			Content curContent = new Content();
+			Content curContent = contentService.createContent();
 			curContent.setAuthor(curUser);
 			curContent.setCreationTime(curProsoloPost.getCreated());
 			curContent.setText(curProsoloPost.getContent());
-			curContent.setSourceId(curProsoloPost.getId()+""); //content id should refer to the Post object
-			curContent = contentRepository.save(curContent);
-
+			curContent.setSourceId(curProsoloPost.getId()+"");
+			
 			
 			// ---------- Init Contribution -----------
 			Contribution curContrib = contributionService.createTypedContribution(ContributionTypes.POST);
@@ -184,19 +216,18 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			curContrib.setStartTime(curProsoloPost.getCreated());
 			curContrib.setSourceId(curProsoloPost.getId()+"");
 			curContrib.setUpvotes(curPostActivity.getLike_count());			
-			curContrib=contributionService.save(curContrib);
 		}
 		
 		
-		//Process the PostShare subtype and create contribution interactions
-		for (Long l : getIdsForDtypeAndAction("PostSocialActivity", "PostShare")) {
-			SocialActivity curShareActivity = getSocialActivity(l).get();
-			ProsoloPost pPost = getProsoloPost(curShareActivity.getPost_object()).get();
-//			SocialActivity pPost.getReshare_of()
-			//user_target indicates the person it was shared with
-		}		
-		//TODO DiscourseRelation: Reply		
-		//TODO DiscourseRelation: Descendant		
+//		//Process the PostShare subtype and create contribution interactions
+//		for (Long l : getIdsForDtypeAndAction("PostSocialActivity", "PostShare")) {
+//			SocialActivity curShareActivity = getSocialActivity(l).get();
+//			ProsoloPost pPost = getProsoloPost(curShareActivity.getPost_object()).get();
+////			SocialActivity pPost.getReshare_of()
+//			//user_target indicates the person it was shared with
+//		}		
+//		//TODO DiscourseRelation: Reply		
+//		//TODO DiscourseRelation: Descendant		
 		
 	}
 	
@@ -420,16 +451,47 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		}
 		String edXid=null;
 		try (Connection c = getConnection()) {
-			String sql = "SELECT validated_id from "+TableConstants.OPENIDACCOUNT+" where id=?";
+			String sql = "SELECT validated_id from "+TableConstants.OPENIDACCOUNT+" where user=?";
 			try (PreparedStatement stmt = c.prepareStatement(sql)) {
 				stmt.setLong(1, id); 
 				edXid = SQL.seq(stmt, Unchecked.function(rs -> rs.getString("validated_id")
+		            )).findFirst().get();
+			}
+		}		
+		if(edXid==null){
+			return Optional.empty();
+		}else{
+			return Optional.of(edXid.substring(edXid.lastIndexOf("/")+1));							
+		}
+	}
+
+	/**
+	 * Returns the email address for a given ProSolo user identified by the user id
+	 * 
+	 * @param id the prosolo user id
+	 * @return an Optional containing the email address of the prosolo user with the provided id, if it exists
+	 * @throws SQLException
+	 */
+	private Optional<String> getEmailForProsoloUser(Long id) throws SQLException {
+		if(id==null){
+			return Optional.empty();
+		}
+		String edXid=null;
+		try (Connection c = getConnection()) {
+			String sql = "SELECT address from "+TableConstants.EMAIL+" as e, "+TableConstants.USER+" as u where u.id=? and u.email=e.id";
+		try (PreparedStatement stmt = c.prepareStatement(sql)) {
+				stmt.setLong(1, id); 
+				edXid = SQL.seq(stmt, Unchecked.function(rs -> rs.getString("address")
 		            )).findAny().get();
 			}
 		}		
-		return Optional.of(edXid.substring(edXid.lastIndexOf("/")+1));				
+		if(edXid==null){
+			return Optional.empty();
+		}else{
+			return Optional.of(edXid.substring(edXid.lastIndexOf("/")+1));							
+		}
 	}
-	
+
 		
 	private Connection getConnection() throws SQLException {
 		if (con == null || con.isClosed()) {
