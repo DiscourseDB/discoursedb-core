@@ -30,8 +30,8 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "contribution_interaction", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "user", "type", "contribution" }),
-		@UniqueConstraint(columnNames = { "user", "type", "content" }) })
+		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_contribution" }),
+		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_content" }) })
 public class ContributionInteraction extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 3846201435729013318L;
