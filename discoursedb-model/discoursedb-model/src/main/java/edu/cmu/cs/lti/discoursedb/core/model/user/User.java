@@ -33,9 +33,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
  * nor username alone are unique. However, source_id and username are unique in
  * the context of a given Discourse.
  * 
- * TODO: We should have an insert trigger that assures that a User is associated
- * with a discourse
- * 
  * TODO: We should make sure that source_id and username each are unique within a certain Discourse context
  * 
  * @author Oliver Ferschke
