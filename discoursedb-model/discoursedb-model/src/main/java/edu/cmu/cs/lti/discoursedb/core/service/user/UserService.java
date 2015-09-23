@@ -48,9 +48,8 @@ public class UserService {
 		if (curOptUser.isPresent()) {
 			return curOptUser.get();
 		} else {
-			curUser = new User();
+			curUser = new User(discourse);
 			curUser.setSourceId(sourceid);
-			curUser.addDiscourse(discourse);
 			return save(curUser);			
 		}
 	}
@@ -73,9 +72,8 @@ public class UserService {
 		if (curOptUser.isPresent()) {
 			return curOptUser.get();
 		} else {
-			curUser = new User();
+			curUser = new User(discourse);
 			curUser.setUsername(username);
-			curUser.addDiscourse(discourse);
 			return save(curUser);			
 		}
 	}
@@ -101,10 +99,9 @@ public class UserService {
 				curUser.addDiscourse(discourse);
 			}
 		} else {
-			curUser = new User();
+			curUser = new User(discourse);
 			curUser.setSourceId(sourceId);
 			curUser.setUsername(username);
-			curUser.addDiscourse(discourse);
 		}
 		return userRepo.save(curUser);
 	}

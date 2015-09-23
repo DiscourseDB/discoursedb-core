@@ -38,7 +38,7 @@ public class Discourse extends CoreBaseEntity implements Serializable {
 
 	private Set<User> users;
 
-	public Discourse() {}
+	Discourse() {}
 
 	public Discourse(String name){
 		this.setName(name);

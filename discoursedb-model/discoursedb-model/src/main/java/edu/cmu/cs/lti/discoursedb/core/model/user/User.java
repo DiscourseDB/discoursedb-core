@@ -89,7 +89,9 @@ public class User extends CoreBaseEntity implements Serializable {
 		this.sourceId = sourceId;
 	}
 	
-	public User() {}
+	User() {}
+
+	public User(Discourse discourse) {addDiscourse(discourse);}
 
 	@Id
 	@Column(name = "id_user", nullable = false)
