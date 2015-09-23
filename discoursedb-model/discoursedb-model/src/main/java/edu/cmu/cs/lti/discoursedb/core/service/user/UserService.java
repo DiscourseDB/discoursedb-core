@@ -146,4 +146,13 @@ public class UserService {
 	public User save(User user){
 		return userRepo.save(user);
 	}
+
+	/**
+	 * Calls the delete method of the user repository and delete the provided User entity 
+	 * @param user the user entity to delete
+	 */
+	public void delete(User user){
+		userRepo.delete(user);
+	}
+
 }
