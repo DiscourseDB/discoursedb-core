@@ -107,8 +107,8 @@ public class UserService {
 	}
 
 	/**
-	 * Creates a new Contribution interaction of the provided type and applies
-	 * it to the provided user and contribution. A connections to a content
+	 * Creates a new ContributionInteraction of the provided type and applies
+	 * it to the provided user and contribution. A connection to a content
 	 * entity is optional and is not established by this method. This is
 	 * necessary e.g. for REVERT interactions.
 	 * 
@@ -119,19 +119,32 @@ public class UserService {
 	 * @param type
 	 *            the type of the interaction
 	 * @return the ContributionInteraction object after being saved to the
-	 *         database
+	 *         database. If it already existed, the existing entity will be retrieved and returned.
 	 */
-	public ContributionInteraction createContributionInteraction(User user, Contribution contrib,
-			ContributionInteractionTypes type) {
-		ContributionInteractionType contribInteractionType = new ContributionInteractionType();
-		contribInteractionType.setType(type.name());
-		contribInteractionTypeRepo.save(contribInteractionType);
+	public ContributionInteraction createContributionInteraction(User user, Contribution contrib, ContributionInteractionTypes type) {
 
-		ContributionInteraction contribInteraction = new ContributionInteraction();
-		contribInteraction.setContribution(contrib);
-		contribInteraction.setUser(user);
-		contribInteraction.setType(contribInteractionType);
-		return contribInteractionRepo.save(contribInteraction);
+		//Retrieve type or create if it doesn't exist in db
+		ContributionInteractionType contribInteractionType =null;
+		Optional<ContributionInteractionType> existingContribInteractionType = contribInteractionTypeRepo.findOneByType(type.name());
+		if(existingContribInteractionType.isPresent()){
+			contribInteractionType=existingContribInteractionType.get();
+		}else{
+			contribInteractionType = new ContributionInteractionType();
+			contribInteractionType.setType(type.name());
+			contribInteractionTypeRepo.save(contribInteractionType);			
+		}
+
+		//Retrieve ContributionInteraction or create if it doesn't exist in db
+		Optional<ContributionInteraction> existingContribInteraction =  contribInteractionRepo.findOneByUserAndContributionAndType(user, contrib, contribInteractionType.getType());		
+		if(existingContribInteraction.isPresent()){
+			return existingContribInteraction.get();
+		}else{
+			ContributionInteraction contribInteraction = new ContributionInteraction();
+			contribInteraction.setContribution(contrib);
+			contribInteraction.setUser(user);
+			contribInteraction.setType(contribInteractionType);
+			return contribInteractionRepo.save(contribInteraction);			
+		}
 	}
 
 	public Optional<User> findBySourceIdAndUsername(String sourceId, String username) {

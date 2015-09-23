@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -28,7 +29,9 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="contribution_interaction")
+@Table(name = "contribution_interaction", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "user", "type", "contribution" }),
+		@UniqueConstraint(columnNames = { "user", "type", "content" }) })
 public class ContributionInteraction extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 3846201435729013318L;
