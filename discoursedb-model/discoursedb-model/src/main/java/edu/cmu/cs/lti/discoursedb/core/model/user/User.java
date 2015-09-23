@@ -218,9 +218,10 @@ public class User extends CoreBaseEntity implements Serializable {
 		this.discourses = discourses;
 	}
 
-	public void addDiscourses(Discourse discourse) {
+	public void addDiscourse(Discourse discourse) {
 		this.discourses.add(discourse);
 	}
+	
 	public String getCountry() {
 		return country;
 	}

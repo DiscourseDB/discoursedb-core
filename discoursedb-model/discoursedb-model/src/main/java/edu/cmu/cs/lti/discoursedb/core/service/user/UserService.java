@@ -50,7 +50,7 @@ public class UserService {
 		} else {
 			curUser = new User();
 			curUser.setSourceId(sourceid);
-			curUser.addDiscourses(discourse);
+			curUser.addDiscourse(discourse);
 			return save(curUser);			
 		}
 	}
@@ -75,7 +75,7 @@ public class UserService {
 		} else {
 			curUser = new User();
 			curUser.setUsername(username);
-			curUser.addDiscourses(discourse);
+			curUser.addDiscourse(discourse);
 			return save(curUser);			
 		}
 	}
@@ -98,13 +98,13 @@ public class UserService {
 		if (curOptUser.isPresent()) {
 			curUser = curOptUser.get();
 			if(!curUser.getDiscourses().contains(discourse)){
-				curUser.addDiscourses(discourse);
+				curUser.addDiscourse(discourse);
 			}
 		} else {
 			curUser = new User();
 			curUser.setSourceId(sourceId);
 			curUser.setUsername(username);
-			curUser.addDiscourses(discourse);
+			curUser.addDiscourse(discourse);
 		}
 		return userRepo.save(curUser);
 	}
