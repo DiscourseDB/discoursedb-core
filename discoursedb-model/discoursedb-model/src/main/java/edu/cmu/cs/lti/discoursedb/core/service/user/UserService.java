@@ -42,11 +42,11 @@ public class UserService {
 	 *         newly created
 	 */
 	public User createOrGetUserBySourceId(Discourse discourse, String sourceid) {
-		Optional<User> curOptUser = userRepo.findAllBySourceId(sourceid).stream()
+		Optional<User> existingUser = userRepo.findAllBySourceId(sourceid).stream()
 				.filter(u -> u.getDiscourses().contains(discourse)).findFirst();
 		User curUser;
-		if (curOptUser.isPresent()) {
-			return curOptUser.get();
+		if (existingUser.isPresent()) {
+			return existingUser.get();
 		} else {
 			curUser = new User(discourse);
 			curUser.setSourceId(sourceid);
@@ -66,11 +66,11 @@ public class UserService {
 	 *         newly created
 	 */
 	public User createOrGetUserByUsername(Discourse discourse, String username) {
-		Optional<User> curOptUser = userRepo.findAllByUsername(username).stream()
+		Optional<User> existingUser = userRepo.findAllByUsername(username).stream()
 				.filter(u -> u.getDiscourses().contains(discourse)).findFirst();	
 		User curUser;
-		if (curOptUser.isPresent()) {
-			return curOptUser.get();
+		if (existingUser.isPresent()) {
+			return existingUser.get();
 		} else {
 			curUser = new User(discourse);
 			curUser.setUsername(username);
@@ -91,10 +91,10 @@ public class UserService {
 	 *         newly created
 	 */
 	public User createOrGetUser(Discourse discourse, String sourceId, String username) {
-		Optional<User> curOptUser = userRepo.findBySourceIdAndUsername(sourceId, username);
+		Optional<User> existingUser = userRepo.findBySourceIdAndUsername(sourceId, username);
 		User curUser;
-		if (curOptUser.isPresent()) {
-			curUser = curOptUser.get();
+		if (existingUser.isPresent()) {
+			curUser = existingUser.get();
 			if(!curUser.getDiscourses().contains(discourse)){
 				curUser.addDiscourse(discourse);
 			}
