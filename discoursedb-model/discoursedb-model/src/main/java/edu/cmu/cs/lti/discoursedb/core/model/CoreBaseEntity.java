@@ -7,13 +7,11 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 @MappedSuperclass
 public abstract class CoreBaseEntity {
 
 	private Date createDate;
-	private Date updateDate;
 	private Long version;
 	
 	@Version
@@ -34,13 +32,4 @@ public abstract class CoreBaseEntity {
 	    this.createDate = createDate;
 	}
 
-	@UpdateTimestamp
-	@Column(name = "last_updated")
-	public Date getUpdateDate() {
-	    return this.updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-	    this.updateDate = updateDate;
-	}
 }
