@@ -207,7 +207,7 @@ public class User extends CoreBaseEntity implements Serializable {
 	}
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(name = "discourse_has_user", joinColumns = {
+	@JoinTable(name = "user_memberof_discourse", joinColumns = {
 		@JoinColumn(name = "id_user", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "id_discourse", nullable = false, updatable = false) })
 	public Set<Discourse> getDiscourses() {
