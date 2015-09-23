@@ -205,7 +205,7 @@ public class User extends CoreBaseEntity implements Serializable {
 		this.targetOfUserRelations = targetOfUserRelations;
 	}
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
 	@JoinTable(name = "user_memberof_discourse", joinColumns = {
 		@JoinColumn(name = "id_user", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "id_discourse", nullable = false, updatable = false) })
@@ -219,6 +219,9 @@ public class User extends CoreBaseEntity implements Serializable {
 
 	public void addDiscourse(Discourse discourse) {
 		this.discourses.add(discourse);
+	}
+	public void removeDiscourse(Discourse discourse) {
+		this.discourses.remove(discourse);
 	}
 	
 	public String getCountry() {

@@ -148,10 +148,15 @@ public class UserService {
 	}
 
 	/**
-	 * Calls the delete method of the user repository and delete the provided User entity 
+	 * Removes user from all their discourses and then deletes it by calling
+	 * the delete method in the user repository.
+	 *  
 	 * @param user the user entity to delete
 	 */
-	public void delete(User user){
+	public void delete(User user){		
+		for(Discourse d:user.getDiscourses()){
+			user.removeDiscourse(d);
+		}
 		userRepo.delete(user);
 	}
 

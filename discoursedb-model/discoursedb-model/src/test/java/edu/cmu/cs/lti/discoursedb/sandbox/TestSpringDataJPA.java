@@ -41,7 +41,7 @@ public class TestSpringDataJPA implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		Discourse d = discourseService.createOrGetDiscourse("UTArlingtonX/LINK5.10x/3T2014");
 		User u = userService.createOrGetUserByUsername(d, "olifer");
-//  	u.setRealname("Oliver Ferschke");
+//		u.setRealname("Oliver Ferschke");
 		userService.delete(u);
 		
 	}
