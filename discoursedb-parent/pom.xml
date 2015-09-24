@@ -18,6 +18,7 @@
 		<maven.surefire.heap>512m</maven.surefire.heap>
 		<maven.surefire.argLine />
 		<jackson.version>2.6.1</jackson.version>
+		<querydsl.version>3.6.7</querydsl.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -37,6 +38,11 @@
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-edx</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.mysema.querydsl</groupId>
+				<artifactId>querydsl-jpa</artifactId>
+				<version>${querydsl.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
@@ -247,6 +253,12 @@
 					<version>0.11</version>
 				</plugin>
 				<plugin>
+					<groupId>com.mysema.maven</groupId>
+					<artifactId>apt-maven-plugin</artifactId>
+					<version>1.1.1</version>
+				</plugin>
+
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>1.4</version>
@@ -279,6 +291,34 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>com.mysema.maven</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/generated-sources/java</outputDirectory>
+							<processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.mysema.querydsl</groupId>
+						<artifactId>querydsl-apt</artifactId>
+						<version>${querydsl.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>com.mysema.querydsl</groupId>
+						<artifactId>querydsl-jpa</artifactId>
+						<classifier>apt</classifier>
+						<version>${querydsl.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 			<!-- https://mrhanlon.com/posts/using-npm-bower-and-grunt-with-maven/ -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
