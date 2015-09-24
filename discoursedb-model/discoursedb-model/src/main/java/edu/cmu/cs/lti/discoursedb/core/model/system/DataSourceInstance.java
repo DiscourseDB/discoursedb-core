@@ -11,37 +11,70 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceType;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="data_source_instance")
+@Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id", "source_type","dataset_name" }) )
 public class DataSourceInstance extends CoreBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -6293065846688380816L;
 
 	private long id;
 	
-	private String sourceId;
+	private String entitySourceId;
 	
-	private String sourceDescriptor;	
+	private DataSourceType sourceType;	
+	
+	private String datasetName;	
 	
 	private DataSources sourceAggregate;
 	
 	DataSourceInstance(){}
 
-	public DataSourceInstance(String sourceId, String sourceDescriptor) {
-		setSourceId(sourceId);
-		setSourceDescriptor(sourceDescriptor);
+	/**
+	 * Creates a new DataSourceInstance for the entity with the source id
+	 * "entitySourceId" based on the dataset with the provided name. The type of
+	 * the source has to be defined separately or left blank
+	 * 
+	 * @param entitySourceId
+	 *            the id of the entity in the source system
+	 * @param datasetName
+	 *            the name of the dataset, e.g. edx_dalmooc_20150202
+	 */
+	public DataSourceInstance(String entitySourceId, String datasetName) {
+		setEntitySourceId(entitySourceId);
+		setDatasetName(datasetName);
 	}
-
+	
+	/**
+	 * Creates a new DataSourceInstance for the entity with the source id
+	 * "entitySourceId" based on the dataset with the provided name
+	 * "datasetName" which is an instance of the source with the provided name
+	 * "sourceType".
+	 * 
+	 * @param entitySourceId
+	 *            the id of the entity in the source system
+	 * @param sourceType
+	 *            the name of the source system (e.g. edX, prosolo, wikipedia)
+	 * @param datasetName
+	 *            the name of the dataset, e.g. edx_dalmooc_20150202
+	 */
+	public DataSourceInstance(String entitySourceId, DataSourceType sourceType, String datasetName) {
+		setEntitySourceId(entitySourceId);
+		setSourceName(sourceType);
+		setDatasetName(datasetName);
+	}
+	
 	@Id
 	@Column(name="id_data_source_instance", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -52,25 +85,34 @@ public class DataSourceInstance extends CoreBaseEntity implements Serializable{
 	public void setId(long id) {
 		this.id = id;
 	}
-
-	@Column(name="entity_source_id", nullable=false)
-	public String getSourceId() {
-		return sourceId;
-	}
-
-	public void setSourceId(String sourceId) {
-		this.sourceId = sourceId;
-	}
-
-	@Column(name="descriptor", nullable=false)
-	public String getSourceDescriptor() {
-		return sourceDescriptor;
-	}
-
-	public void setSourceDescriptor(String sourceDescriptor) {
-		this.sourceDescriptor = sourceDescriptor;
-	}
 	
+	@Column(name="entity_source_id", nullable=false, updatable=false)
+	public String getEntitySourceId() {
+		return entitySourceId;
+	}
+
+	public void setEntitySourceId(String entitySourceId) {
+		this.entitySourceId = entitySourceId;
+	}
+
+	@Column(name="source_type")
+	public DataSourceType getSourceName() {
+		return sourceType;
+	}
+
+	public void setSourceName(DataSourceType sourceType) {
+		this.sourceType = sourceType;
+	}
+
+	@Column(name="dataset_name")
+	public String getDatasetName() {
+		return datasetName;
+	}
+
+	public void setDatasetName(String datasetName) {
+		this.datasetName = datasetName;
+	}
+
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_sources")
 	public DataSources getSourceAggregate() {

@@ -21,7 +21,7 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 
 /**
- *
+ * Aggregate entity that aggregates all DataSources of the associated entity.
  */
 @Entity
 @SelectBeforeUpdate 
