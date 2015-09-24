@@ -11,9 +11,21 @@ public interface UserRepository extends CoreBaseRepository<User,Long>{
 	public Optional<User> findById(Long id);    	
 	public long countByRealname(String realname);
     public List<User> findAllByUsername(String username);
+
+    /*
+     * The following methods need to be implemented based on multi-valued DataSources
+     */
     
-    //TODO the following need to be adapted for multivalued userids - probably within a service
-	public Optional<User> findBySourceId(String id);
+//	public Optional<User> findByDataSource(DataSourceInstance source);
+//	public Optional<User> findByEntitySourceIdAndUsername(String entitySourceId, String username);
+//	public List<User> findAllBySourceType(DataSourceTypes type);
+//	public List<User> findAllByDataset(String dataSetName);
+
+
+    /*
+     * The following methods need to be replaced by the above
+     */
+    
 	public Optional<User> findBySourceIdAndUsername(String sourceId, String username);
     public List<User> findAllBySourceId(String sourceId);
 }
