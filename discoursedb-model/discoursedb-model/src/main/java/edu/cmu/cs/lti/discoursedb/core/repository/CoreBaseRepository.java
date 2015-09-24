@@ -2,6 +2,7 @@ package edu.cmu.cs.lti.discoursedb.core.repository;
 
 import java.io.Serializable;
 
+import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -16,7 +17,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @param <ID> the primary key type (usually long)
  */
 @NoRepositoryBean
-public interface CoreBaseRepository<T, ID extends Serializable> extends CrudRepository<T, ID> {
+public interface CoreBaseRepository<T, ID extends Serializable> extends CrudRepository<T, ID>, QueryDslPredicateExecutor<T> {
 	
 
 	}
