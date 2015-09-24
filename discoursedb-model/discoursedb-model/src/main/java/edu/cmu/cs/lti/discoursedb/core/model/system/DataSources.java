@@ -57,5 +57,9 @@ public class DataSources extends UntimedBaseEntity implements Serializable{
 	public void setSources(Set<DataSourceInstance> sources) {
 		this.sources = sources;
 	}
+
+	public void addSource(DataSourceInstance source) {
+		this.sources.add(source);
+	}
 	
 }

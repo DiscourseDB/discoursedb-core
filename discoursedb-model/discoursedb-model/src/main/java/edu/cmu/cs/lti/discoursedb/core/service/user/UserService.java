@@ -30,6 +30,8 @@ public class UserService {
 	@Autowired
 	private ContributionInteractionTypeRepository contribInteractionTypeRepo;
 
+	
+	
 	/**
 	 * Returns a User object with the given sourceid and a given discourse if it
 	 * exists or creates a new User entity with that sourceid.
