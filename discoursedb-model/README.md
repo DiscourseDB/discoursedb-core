@@ -25,7 +25,7 @@ The entity classes define the DiscourseDB Core model. They are annotated with OR
 
 DiscourseDB defines five categories of entities
 
-- **Type entities** extend ```BaseTypeEntity``` which adds version, creation date and type identifier.
+- **Type entities** extend ```BaseTypeEntity``` which adds version, creation date and type identifier fields to the entity.
 - **Untimed entities** extend ```UntimedBaseEntity``` and are the same as type entities but without the type identifier.
 - **Timed entities** extend ```TimedBaseEntity``` and are the same as untimed entities, but they keep track of the entity lifespan with a start and end date.
 - **Untimed entities with source information** extend ```UntimedBaseEntityWithSource``` and are the same as untimed entities, but they keep track of what source they were imported from and how they can be identified in that source.
