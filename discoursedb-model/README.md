@@ -21,6 +21,17 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 ### Architecture Overview
 ### DiscourseDB Configuration
 ### Entity Classes: The DiscourseDB Core Model
+The entity classes define the DiscourseDB Core model. They are annotated with ORM annotations that allow hibernate to dynamically create and update the database schema from these classes.
+
+DiscourseDB defines five categories of entities
+
+**Type entities** implement ```BaseTypeEntity``` which adds version, creation date and type identifier.
+**Untimed entities** extend ```UntimedBaseEntity``` and are the same as type entities but without the type identifier.
+**Timed entities** extend ```TimedBaseEntity``` and are the same as untimed entities, but they keep track of the entity lifespan with a start and end date.
+**Untimed entities with source information** extend ```UntimedBaseEntityWithSource``` and are the same as untimed entities, but they keep track of what source they were imported from and how they can be identified in that source.
+**Timed entities with source information** extend ```TimedBaseEntityWithSource``` and are the same as timed entities, , but they keep track of what source they were imported from and how they can be identified in that source.
+
+
 ### Spring Data Repositories
 ### Spring Service Components
 Spring Service Components offer provide a higher level of abstractio for repository access. Rather than directly manipulating entities using the CRUD and custom repository methods, Services encapsulate whole processes and further allow to perform additional consistency and validity checks.
@@ -36,7 +47,7 @@ private DiscoursePartService discoursePartService;
 
 public void dummyMethod(){
 Discourse discourse = discourseService.createOrGetDiscourse("DUMMYDISCOURSE");
-DiscoursePart courseCredentialContainer = discoursePartService.createTypedDiscoursePart(discourse,DiscoursePartTypes.FORUM);
+DiscoursePart courseForum = discoursePartService.createOrGetTypedDiscoursePart(discourse,"DUMMYDISCOURSE_FORUM",DiscoursePartTypes.FORUM);
 }
 ```
 
