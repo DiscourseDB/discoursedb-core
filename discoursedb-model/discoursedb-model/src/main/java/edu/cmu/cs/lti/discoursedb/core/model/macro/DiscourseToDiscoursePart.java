@@ -17,15 +17,14 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discourse_has_discourse_part", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_discourse", "fk_discourse_part" }) )
-public class DiscourseToDiscoursePart extends TimedBaseEntity implements Serializable{
+public class DiscourseToDiscoursePart extends TimedAnnotatableBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 6916868753034800946L;
 	
@@ -34,8 +33,6 @@ public class DiscourseToDiscoursePart extends TimedBaseEntity implements Seriali
     private Discourse discourse;
     
     private DiscoursePart discoursePart;
-	
-    private Annotations annotations;
     
 	public DiscourseToDiscoursePart() {}
 	
@@ -69,17 +66,5 @@ public class DiscourseToDiscoursePart extends TimedBaseEntity implements Seriali
 	public void setDiscoursePart(DiscoursePart discoursePart) {
 		this.discoursePart = discoursePart;
 	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
-	}
-    
 	
 }

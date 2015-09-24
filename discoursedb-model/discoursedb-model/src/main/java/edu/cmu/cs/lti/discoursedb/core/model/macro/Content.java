@@ -2,7 +2,6 @@ package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
 import java.sql.Blob;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,19 +13,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 
@@ -35,7 +30,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="content")
-public class Content extends UntimedBaseEntityWithSource implements Serializable {
+public class Content extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -1465025480150664388L;
 
@@ -45,15 +40,11 @@ public class Content extends UntimedBaseEntityWithSource implements Serializable
 	
 	private Content nextRevision;
 
-	private Date creationTime;
-	
 	private String title;
 
 	private String text;
 	
 	private Blob data;
-	
-	private Annotations annotations;
 	
 	private User author;
 
@@ -102,16 +93,6 @@ public class Content extends UntimedBaseEntityWithSource implements Serializable
 		this.nextRevision = nextRevision;
 	}
 
-	@Column(name="creation_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
-
 	@Column(columnDefinition="TEXT")
 	public String getText() {
 		return text;
@@ -128,16 +109,6 @@ public class Content extends UntimedBaseEntityWithSource implements Serializable
 
 	public void setData(Blob data) {
 		this.data = data;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
     @OneToMany(mappedBy = "content")

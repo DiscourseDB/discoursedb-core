@@ -19,15 +19,14 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="\"group\"")
-public class Group extends TimedBaseEntityWithSource implements Serializable {
+public class Group extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -8400689664755883198L;
 
@@ -36,8 +35,6 @@ public class Group extends TimedBaseEntityWithSource implements Serializable {
 	private GroupType type;
 
 	private String name;
-	
-	private Annotations annotations;
 	
 	private Set<AudienceGroup> groupAudiences = new HashSet<AudienceGroup>();
 
@@ -73,17 +70,7 @@ public class Group extends TimedBaseEntityWithSource implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
-	}
-
+	
     @OneToMany(mappedBy = "group")
 	public Set<AudienceGroup> getGroupAudiences() {
 		return groupAudiences;

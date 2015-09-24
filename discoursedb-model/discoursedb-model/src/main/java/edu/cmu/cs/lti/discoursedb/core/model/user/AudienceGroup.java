@@ -17,15 +17,14 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="audience_has_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_audience", "fk_group" }))
-public class AudienceGroup extends TimedBaseEntity implements Serializable{
+public class AudienceGroup extends TimedAnnotatableBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = 5232683398940704768L;
 
@@ -35,8 +34,6 @@ public class AudienceGroup extends TimedBaseEntity implements Serializable{
     
     private Audience audience;
 	
-    private Annotations annotations;
-    
 	public AudienceGroup() {}
 
 	@Id
@@ -48,16 +45,6 @@ public class AudienceGroup extends TimedBaseEntity implements Serializable{
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)

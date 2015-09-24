@@ -20,15 +20,14 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="context")
-public class Context extends TimedBaseEntityWithSource implements Serializable {
+public class Context extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = 6013322457584994562L;
 
@@ -40,8 +39,6 @@ public class Context extends TimedBaseEntityWithSource implements Serializable {
 	
 	private ContextType type;
 	
-	private Annotations annotations;
-
 	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
 
 	public Context(){}
@@ -85,17 +82,6 @@ public class Context extends TimedBaseEntityWithSource implements Serializable {
 
 	public void setType(ContextType type) {
 		this.type = type;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
     @OneToMany(mappedBy = "context")

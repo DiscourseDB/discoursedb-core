@@ -2,13 +2,18 @@ package edu.cmu.cs.lti.discoursedb.core.model;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 /**
  * Adds basic fields to entities that keep track of their lifetime (Version,
@@ -18,7 +23,7 @@ import org.hibernate.annotations.CreationTimestamp;
  *
  */
 @MappedSuperclass
-public abstract class TimedBaseEntity{
+public abstract class TimedAnnotatableBaseEntity{
 
 	private Date createDate;
 	private Long version;
@@ -65,6 +70,19 @@ public abstract class TimedBaseEntity{
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
+	
+	private Annotations annotations;
+
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "fk_annotation")
+	public Annotations getAnnotations() {
+		return annotations;
+	}
+
+	public void setAnnotations(Annotations annotations) {
+		this.annotations = annotations;
+	}
+
 
 
 }

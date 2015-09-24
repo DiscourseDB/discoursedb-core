@@ -14,7 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -22,10 +21,8 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
-import org.springframework.data.rest.core.annotation.RestResource;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 
 /**
@@ -43,7 +40,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = { "source_id", "username" }) )
-public class User extends UntimedBaseEntityWithSource implements Serializable {
+public class User extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = 8065834868365920898L;
 
@@ -64,8 +61,6 @@ public class User extends UntimedBaseEntityWithSource implements Serializable {
 	private String location;
 
 	private Set<Discourse> discourses = new HashSet<Discourse>();
-
-	private Annotations annotations;
 
 	private Set<ContributionInteraction> contentInteractions = new HashSet<ContributionInteraction>();
 
@@ -138,17 +133,6 @@ public class User extends UntimedBaseEntityWithSource implements Serializable {
 
 	public void setLocation(String location) {
 		this.location = location;
-	}
-
-	@RestResource(rel="userAnnotations",path="userAnnotations")
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
 	@OneToMany(mappedBy = "user")

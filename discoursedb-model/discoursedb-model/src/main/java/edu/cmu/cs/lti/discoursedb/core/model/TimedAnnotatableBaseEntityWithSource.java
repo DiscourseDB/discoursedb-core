@@ -10,7 +10,7 @@ import javax.persistence.MappedSuperclass;
  *
  */
 @MappedSuperclass
-public abstract class TimedBaseEntityWithSource extends TimedBaseEntity{
+public abstract class TimedAnnotatableBaseEntityWithSource extends TimedAnnotatableBaseEntity{
 
 	private String sourceId;
 	@Column(name="source_id")
@@ -20,6 +20,5 @@ public abstract class TimedBaseEntityWithSource extends TimedBaseEntity{
 	public void setSourceId(String sourceId) {
 		this.sourceId = sourceId;
 	}
-
 
 }

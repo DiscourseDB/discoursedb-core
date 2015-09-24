@@ -17,8 +17,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 
@@ -29,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 @Table(name = "contribution_interaction", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_contribution" }),
 		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_content" }) })
-public class ContributionInteraction extends TimedBaseEntity implements Serializable{
+public class ContributionInteraction extends TimedAnnotatableBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 3846201435729013318L;
 
@@ -42,8 +41,6 @@ public class ContributionInteraction extends TimedBaseEntity implements Serializ
 	private Content content;
 	
 	private ContributionInteractionType type;
-	
-	private Annotations annotations;
 	
 	public ContributionInteraction(){}
 	
@@ -88,15 +85,6 @@ public class ContributionInteraction extends TimedBaseEntity implements Serializ
 		this.type = type;
 	}
 
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
-	}
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_content")
 	public Content getContent() {

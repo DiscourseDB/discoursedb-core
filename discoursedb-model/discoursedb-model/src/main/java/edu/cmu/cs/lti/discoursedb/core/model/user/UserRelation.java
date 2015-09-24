@@ -18,15 +18,14 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="user_relation")
-public class UserRelation extends TimedBaseEntity implements Serializable {
+public class UserRelation extends TimedAnnotatableBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -5267036520925282560L;
 
@@ -37,8 +36,6 @@ public class UserRelation extends TimedBaseEntity implements Serializable {
 	private User source;
 	
 	private User target;
-	
-	private Annotations annotations;
 	
 	public UserRelation(){}
 	
@@ -83,18 +80,6 @@ public class UserRelation extends TimedBaseEntity implements Serializable {
 
 	public void setTarget(User target) {
 		this.target = target;
-	}
-	
-	@RestResource(rel="userRelationsAnnotations",path="userRelationsAnnotations")
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
 }

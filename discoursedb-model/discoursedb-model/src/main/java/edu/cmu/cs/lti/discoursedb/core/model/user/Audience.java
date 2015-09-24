@@ -19,8 +19,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionAudience;
 
 @Entity
@@ -28,15 +27,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionAudience;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="audience")
-public class Audience extends UntimedBaseEntityWithSource implements Serializable {
+public class Audience extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -8464122652580037597L;
 
 	private long id;
 	
 	private AudienceType type;
-	
-	private Annotations annotations;
 	
 	private Set<ContributionAudience> audienceContributions = new HashSet<ContributionAudience>();
 	
@@ -65,17 +62,6 @@ public class Audience extends UntimedBaseEntityWithSource implements Serializabl
 
 	public void setType(AudienceType type) {
 		this.type = type;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
     @OneToMany(mappedBy = "audience")

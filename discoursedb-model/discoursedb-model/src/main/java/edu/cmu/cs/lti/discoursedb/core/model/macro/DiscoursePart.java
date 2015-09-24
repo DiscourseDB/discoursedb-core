@@ -19,23 +19,20 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discourse_part")
-public class DiscoursePart extends TimedBaseEntityWithSource implements Serializable{
+public class DiscoursePart extends TimedAnnotatableBaseEntityWithSource implements Serializable{
 
 	private static final long serialVersionUID = -7341483666466458901L;
 
 	private long id;
 	
 	private String name;
-	
-	private Annotations annotations;
 	
 	private DiscoursePartType type;
 	
@@ -77,17 +74,6 @@ public class DiscoursePart extends TimedBaseEntityWithSource implements Serializ
 
 	public void setType(DiscoursePartType type) {
 		this.type = type;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 	
     @OneToMany(mappedBy = "discoursePart")

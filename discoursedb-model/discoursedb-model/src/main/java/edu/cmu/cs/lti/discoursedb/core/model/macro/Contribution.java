@@ -20,8 +20,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
 @Entity
@@ -29,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="contribution")
-public class Contribution extends TimedBaseEntityWithSource implements Serializable {
+public class Contribution extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -2489956863731652149L;
 
@@ -44,8 +43,6 @@ public class Contribution extends TimedBaseEntityWithSource implements Serializa
 	private int downvotes;
 
 	private ContributionType type;
-	
-	private Annotations annotations;
 	
 	private Set<DiscoursePartContribution> contributionPartOfDiscourseParts = new HashSet<DiscoursePartContribution>();
 
@@ -100,16 +97,6 @@ public class Contribution extends TimedBaseEntityWithSource implements Serializa
 
 	public void setType(ContributionType type) {
 		this.type = type;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
     @OneToMany(mappedBy = "contribution")

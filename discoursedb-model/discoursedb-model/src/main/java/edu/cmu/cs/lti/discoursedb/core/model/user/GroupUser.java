@@ -18,15 +18,14 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="user_memberof_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_group", "fk_user" }))
-public class GroupUser extends TimedBaseEntity implements Serializable{
+public class GroupUser extends TimedAnnotatableBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = 5232683398940704768L;
 
@@ -35,8 +34,6 @@ public class GroupUser extends TimedBaseEntity implements Serializable{
     private Group group;
     
     private User user;
-	
-    private Annotations annotations;
     
 	public GroupUser() {}
 	
@@ -49,17 +46,6 @@ public class GroupUser extends TimedBaseEntity implements Serializable{
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@RestResource(rel="userMemberOfGroupAnnotations",path="userMemberOfGroupAnnotations")
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
 	@RestResource(rel="groupHasUser",path="groupHasUser")

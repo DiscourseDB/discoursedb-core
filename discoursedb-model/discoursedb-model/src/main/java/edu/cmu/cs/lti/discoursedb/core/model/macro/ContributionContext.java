@@ -17,15 +17,14 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="contribution_has_context", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_contribution", "fk_context" }))
-public class ContributionContext extends TimedBaseEntity implements Serializable{
+public class ContributionContext extends TimedAnnotatableBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -1542771414387707049L;
 
@@ -35,8 +34,6 @@ public class ContributionContext extends TimedBaseEntity implements Serializable
     
     private Context context;
 	
-    private Annotations annotations;
-    
 	public ContributionContext() {}
 
 	@Id
@@ -48,17 +45,6 @@ public class ContributionContext extends TimedBaseEntity implements Serializable
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
     @ManyToOne(cascade = CascadeType.ALL)

@@ -167,7 +167,9 @@ public class UserService {
 	 * @param user the user entity to delete
 	 */
 	public void delete(User user){				
-		user.getDiscourses().stream().forEach(d->user.removeDiscourse(d));
+		for(Discourse d:user.getDiscourses()){
+			user.removeDiscourse(d);
+		}
 		userRepo.delete(user);
 	}
 

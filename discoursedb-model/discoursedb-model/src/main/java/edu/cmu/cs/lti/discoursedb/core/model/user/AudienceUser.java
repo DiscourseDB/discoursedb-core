@@ -15,17 +15,15 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
-import org.springframework.data.rest.core.annotation.RestResource;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="audience_has_user")
-public class AudienceUser extends TimedBaseEntity implements Serializable{
+public class AudienceUser extends TimedAnnotatableBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -6740377434969542427L;
 
@@ -34,8 +32,6 @@ public class AudienceUser extends TimedBaseEntity implements Serializable{
     private User user;
     
     private Audience audience;
-	
-    private Annotations annotations;
     
 	public AudienceUser() {}
 
@@ -48,17 +44,6 @@ public class AudienceUser extends TimedBaseEntity implements Serializable{
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@RestResource(rel="audienceHasUsersAnnotations",path="audienceHasUsersAnnotations")
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
 	}
 
 	@ManyToOne(cascade = CascadeType.ALL)

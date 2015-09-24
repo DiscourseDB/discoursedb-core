@@ -20,14 +20,14 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
+import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="annotation_instance")
-public class AnnotationInstance extends TimedBaseEntityWithSource implements Serializable{
+public class AnnotationInstance extends UntimedBaseEntityWithSource implements Serializable{
 
 	private static final long serialVersionUID = 6699029374236146557L;
     
