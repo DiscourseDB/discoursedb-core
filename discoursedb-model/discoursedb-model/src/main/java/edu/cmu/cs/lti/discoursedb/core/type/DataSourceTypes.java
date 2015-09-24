@@ -1,6 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.type;
 
-public enum DataSourceType {
+public enum DataSourceTypes {
 	/**
 	 * An edX dataset
 	 */

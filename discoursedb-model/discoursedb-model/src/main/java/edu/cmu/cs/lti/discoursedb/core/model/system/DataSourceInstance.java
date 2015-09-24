@@ -18,7 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.type.DataSourceType;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 @Entity
 @SelectBeforeUpdate 
@@ -33,7 +33,7 @@ public class DataSourceInstance extends CoreBaseEntity implements Serializable{
 	
 	private String entitySourceId;
 	
-	private DataSourceType sourceType;	
+	private DataSourceTypes sourceType;	
 	
 	private String datasetName;	
 	
@@ -69,7 +69,7 @@ public class DataSourceInstance extends CoreBaseEntity implements Serializable{
 	 * @param datasetName
 	 *            the name of the dataset, e.g. edx_dalmooc_20150202
 	 */
-	public DataSourceInstance(String entitySourceId, DataSourceType sourceType, String datasetName) {
+	public DataSourceInstance(String entitySourceId, DataSourceTypes sourceType, String datasetName) {
 		setEntitySourceId(entitySourceId);
 		setSourceName(sourceType);
 		setDatasetName(datasetName);
@@ -96,11 +96,11 @@ public class DataSourceInstance extends CoreBaseEntity implements Serializable{
 	}
 
 	@Column(name="source_type")
-	public DataSourceType getSourceName() {
+	public DataSourceTypes getSourceName() {
 		return sourceType;
 	}
 
-	public void setSourceName(DataSourceType sourceType) {
+	public void setSourceName(DataSourceTypes sourceType) {
 		this.sourceType = sourceType;
 	}
 
