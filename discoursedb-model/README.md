@@ -25,11 +25,11 @@ The entity classes define the DiscourseDB Core model. They are annotated with OR
 
 DiscourseDB defines five categories of entities
 
-**Type entities** implement ```BaseTypeEntity``` which adds version, creation date and type identifier.
-**Untimed entities** extend ```UntimedBaseEntity``` and are the same as type entities but without the type identifier.
-**Timed entities** extend ```TimedBaseEntity``` and are the same as untimed entities, but they keep track of the entity lifespan with a start and end date.
-**Untimed entities with source information** extend ```UntimedBaseEntityWithSource``` and are the same as untimed entities, but they keep track of what source they were imported from and how they can be identified in that source.
-**Timed entities with source information** extend ```TimedBaseEntityWithSource``` and are the same as timed entities, , but they keep track of what source they were imported from and how they can be identified in that source.
+- **Type entities** implement ```BaseTypeEntity``` which adds version, creation date and type identifier.
+- **Untimed entities** extend ```UntimedBaseEntity``` and are the same as type entities but without the type identifier.
+- **Timed entities** extend ```TimedBaseEntity``` and are the same as untimed entities, but they keep track of the entity lifespan with a start and end date.
+- **Untimed entities with source information** extend ```UntimedBaseEntityWithSource``` and are the same as untimed entities, but they keep track of what source they were imported from and how they can be identified in that source.
+- **Timed entities with source information** extend ```TimedBaseEntityWithSource``` and are the same as timed entities, , but they keep track of what source they were imported from and how they can be identified in that source.
 
 
 ### Spring Data Repositories
