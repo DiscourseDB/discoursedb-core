@@ -161,7 +161,7 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 			logger.trace("Create Content entity");
 			Content curContent = contentService.createContent();
 			curContent.setText(p.getBody());
-			curContent.setCreationTime(p.getCreatedAt());
+			curContent.setStartTime(p.getCreatedAt());
 			curContent.setAuthor(curUser);
 			curContent.setSourceId(p.getId());
 			
