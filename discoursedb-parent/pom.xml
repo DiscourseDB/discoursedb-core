@@ -41,6 +41,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.mysema.querydsl</groupId>
+				<artifactId>querydsl-collections</artifactId>
+				<version>${querydsl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.mysema.querydsl</groupId>
 				<artifactId>querydsl-jpa</artifactId>
 				<version>${querydsl.version}</version>
 			</dependency>
