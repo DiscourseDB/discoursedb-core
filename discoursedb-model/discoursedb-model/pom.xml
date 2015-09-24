@@ -62,11 +62,15 @@
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.mysema.querydsl</groupId>
+			<artifactId>querydsl-collections</artifactId>
+		</dependency>
 	</dependencies>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-	</parent>		
-	
+	</parent>
+
 </project>
