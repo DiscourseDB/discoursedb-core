@@ -21,5 +21,16 @@ public abstract class UntimedBaseEntityWithSource extends UntimedBaseEntity{
 		this.sourceId = sourceId;
 	}
 
+//	private DataSources dataSources;
+//
+//	@ManyToOne(cascade=CascadeType.ALL) 
+//	@JoinColumn(name = "fk_data_sources")
+//	public DataSources getDataSources() {
+//		return dataSources;
+//	}
+//
+//	public void setDataSources(DataSources dataSources) {
+//		this.dataSources = dataSources;
+//	}
 
 }
