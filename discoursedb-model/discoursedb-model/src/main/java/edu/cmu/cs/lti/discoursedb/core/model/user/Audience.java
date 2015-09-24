@@ -19,7 +19,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionAudience;
 
@@ -28,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionAudience;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="audience")
-public class Audience extends CoreBaseEntity implements Serializable {
+public class Audience extends UntimedBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -8464122652580037597L;
 
@@ -45,15 +45,6 @@ public class Audience extends CoreBaseEntity implements Serializable {
 	private Set<AudienceGroup> audienceGroups = new HashSet<AudienceGroup>();
 	
 	public Audience(){}
-
-	private String sourceId;
-	@Column(name="source_id")
-	public String getSourceId() {
-		return sourceId;
-	}
-	public void setSourceId(String sourceId) {
-		this.sourceId = sourceId;
-	}
 	
 	@Id
 	@Column(name="id_audience", nullable=false)

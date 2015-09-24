@@ -25,7 +25,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
@@ -35,7 +35,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="content")
-public class Content extends CoreBaseEntity implements Serializable {
+public class Content extends UntimedBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -1465025480150664388L;
 
@@ -69,15 +69,6 @@ public class Content extends CoreBaseEntity implements Serializable {
 
 	public void setAuthor(User author) {
 		this.author = author;
-	}
-
-	private String sourceId;
-	@Column(name="source_id")
-	public String getSourceId() {
-		return sourceId;
-	}
-	public void setSourceId(String sourceId) {
-		this.sourceId = sourceId;
 	}
 	
 	@Id

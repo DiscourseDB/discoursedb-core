@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,15 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -28,7 +25,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="audience_has_user")
-public class AudienceUser extends CoreBaseEntity implements Serializable{
+public class AudienceUser extends TimedBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -6740377434969542427L;
 
@@ -37,34 +34,10 @@ public class AudienceUser extends CoreBaseEntity implements Serializable{
     private User user;
     
     private Audience audience;
-    
-    private Date startTime;
-    
-    private Date endTime;
 	
     private Annotations annotations;
     
 	public AudienceUser() {}
-    
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
 
 	@Id
 	@Column(name="id_audience_user", nullable=false)

@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,14 +15,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -31,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="context")
-public class Context extends CoreBaseEntity implements Serializable {
+public class Context extends TimedBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = 6013322457584994562L;
 
@@ -41,22 +38,9 @@ public class Context extends CoreBaseEntity implements Serializable {
 	
 	private Content currentRevision;
 	
-	private Date startTime;
-	
-	private Date endTime;
-
 	private ContextType type;
 	
 	private Annotations annotations;
-
-	private String sourceId;
-	@Column(name="source_id")
-	public String getSourceId() {
-		return sourceId;
-	}
-	public void setSourceId(String sourceId) {
-		this.sourceId = sourceId;
-	}
 
 	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
 
@@ -92,27 +76,6 @@ public class Context extends CoreBaseEntity implements Serializable {
 	public void setCurrentRevision(Content currentRevision) {
 		this.currentRevision = currentRevision;
 	}
-
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
-
 
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_context_type")

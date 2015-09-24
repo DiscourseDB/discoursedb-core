@@ -18,7 +18,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 
 /**
  * Aggregate entity that aggregates all DataSources of the associated entity.
@@ -28,7 +28,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="data_sources")
-public class DataSources extends CoreBaseEntity implements Serializable{
+public class DataSources extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -6582983183583393074L;
 

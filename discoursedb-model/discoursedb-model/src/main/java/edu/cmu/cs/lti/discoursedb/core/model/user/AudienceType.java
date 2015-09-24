@@ -18,20 +18,18 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="audience_type")
-public class AudienceType extends CoreBaseEntity implements Serializable {
+public class AudienceType extends BaseTypeEntity implements Serializable {
 
 	private static final long serialVersionUID = 2596255302608073060L;
 
 	private long id;
-	
-	private String type;
 	
 	private Set<Audience> audiences = new HashSet<Audience>();
 	
@@ -44,15 +42,6 @@ public class AudienceType extends CoreBaseEntity implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@Column(unique=true)
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public AudienceType(){}

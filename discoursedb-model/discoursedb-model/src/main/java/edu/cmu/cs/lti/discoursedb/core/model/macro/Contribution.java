@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,14 +15,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
@@ -32,7 +29,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="contribution")
-public class Contribution extends CoreBaseEntity implements Serializable {
+public class Contribution extends TimedBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -2489956863731652149L;
 
@@ -42,10 +39,6 @@ public class Contribution extends CoreBaseEntity implements Serializable {
 	
 	private Content currentRevision;
 	
-	private Date startTime;
-	
-	private Date endTime;
-
 	private int upvotes;
 
 	private int downvotes;
@@ -66,15 +59,6 @@ public class Contribution extends CoreBaseEntity implements Serializable {
 	
 	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 
-	private String sourceId;
-	@Column(name="source_id")
-	public String getSourceId() {
-		return sourceId;
-	}
-	public void setSourceId(String sourceId) {
-		this.sourceId = sourceId;
-	}
-	
 	public Contribution(){}
 
 	@Id
@@ -106,26 +90,6 @@ public class Contribution extends CoreBaseEntity implements Serializable {
 
 	public void setCurrentRevision(Content currentRevision) {
 		this.currentRevision = currentRevision;
-	}
-
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 

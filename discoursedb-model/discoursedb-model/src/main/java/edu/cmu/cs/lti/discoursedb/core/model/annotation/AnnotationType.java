@@ -18,20 +18,19 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="annotation_type")
-public class AnnotationType extends CoreBaseEntity implements Serializable{
+public class AnnotationType extends BaseTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = 9194247332380412321L;
 
 	private long id;
 	
-	private String type;
 	
 	private String description;
 	
@@ -50,15 +49,6 @@ public class AnnotationType extends CoreBaseEntity implements Serializable{
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@Column(unique=true)
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public String getDescription() {

@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,14 +12,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -28,7 +25,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discourse_relation")
-public class DiscourseRelation extends CoreBaseEntity implements Serializable {
+public class DiscourseRelation extends TimedBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -2533440012916999219L;
 
@@ -37,10 +34,6 @@ public class DiscourseRelation extends CoreBaseEntity implements Serializable {
 	private Contribution source;
 	
 	private Contribution target;
-	
-	private Date startTime;
-	
-	private Date endTime;
 	
 	private DiscourseRelationType type;
 	
@@ -77,26 +70,6 @@ public class DiscourseRelation extends CoreBaseEntity implements Serializable {
 
 	public void setTarget(Contribution target) {
 		this.target = target;
-	}
-
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL)

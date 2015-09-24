@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,15 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -28,7 +25,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discourse_has_discourse_part", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_discourse", "fk_discourse_part" }) )
-public class DiscourseToDiscoursePart extends CoreBaseEntity implements Serializable{
+public class DiscourseToDiscoursePart extends TimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 6916868753034800946L;
 	
@@ -37,35 +34,11 @@ public class DiscourseToDiscoursePart extends CoreBaseEntity implements Serializ
     private Discourse discourse;
     
     private DiscoursePart discoursePart;
-    
-    private Date startTime;
-    
-    private Date endTime;
 	
     private Annotations annotations;
     
 	public DiscourseToDiscoursePart() {}
 	
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
-
 	@Id
 	@Column(name="id_discourse_has_discourse_part", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	

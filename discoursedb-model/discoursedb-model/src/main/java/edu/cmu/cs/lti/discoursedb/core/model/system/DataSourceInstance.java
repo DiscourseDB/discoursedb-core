@@ -17,7 +17,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 @Entity
@@ -25,7 +25,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id", "source_type","dataset_name" }) )
-public class DataSourceInstance extends CoreBaseEntity implements Serializable{
+public class DataSourceInstance extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -6293065846688380816L;
 

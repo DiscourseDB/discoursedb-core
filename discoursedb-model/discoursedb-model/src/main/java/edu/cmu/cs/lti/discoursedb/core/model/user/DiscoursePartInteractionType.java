@@ -18,20 +18,18 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discourse_part_interaction_type")
-public class DiscoursePartInteractionType extends CoreBaseEntity implements Serializable{
+public class DiscoursePartInteractionType extends BaseTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = -4161973201397061713L;
 
 	private long id;
-	
-	private String type;
 	
 	private Set<DiscoursePartInteraction> discoursePartInteractions = new HashSet<DiscoursePartInteraction>();
 	
@@ -46,15 +44,6 @@ public class DiscoursePartInteractionType extends CoreBaseEntity implements Seri
 		this.id = id;
 	}
 
-	@Column(unique=true)
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-	
 	public DiscoursePartInteractionType(){}
 
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")

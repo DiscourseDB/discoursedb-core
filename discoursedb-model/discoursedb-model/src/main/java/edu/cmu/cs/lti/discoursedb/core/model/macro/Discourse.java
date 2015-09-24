@@ -18,7 +18,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 
 @Entity
@@ -26,7 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "discourse")
-public class Discourse extends CoreBaseEntity implements Serializable {
+public class Discourse extends UntimedBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -3736157436274230022L;
 

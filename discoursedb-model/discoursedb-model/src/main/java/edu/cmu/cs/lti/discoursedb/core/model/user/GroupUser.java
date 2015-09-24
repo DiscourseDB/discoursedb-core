@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -21,7 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -29,7 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="user_memberof_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_group", "fk_user" }))
-public class GroupUser extends CoreBaseEntity implements Serializable{
+public class GroupUser extends TimedBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = 5232683398940704768L;
 
@@ -38,35 +35,11 @@ public class GroupUser extends CoreBaseEntity implements Serializable{
     private Group group;
     
     private User user;
-    
-    private Date startTime;
-    
-    private Date endTime;
 	
     private Annotations annotations;
     
 	public GroupUser() {}
 	
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
-
 	@Id
 	@Column(name="id_group_user", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	

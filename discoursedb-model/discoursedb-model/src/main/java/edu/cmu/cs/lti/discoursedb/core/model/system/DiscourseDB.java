@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.system;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,32 +8,26 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="discoursedb")
-public class DiscourseDB extends CoreBaseEntity implements Serializable{
+public class DiscourseDB extends TimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 3740314651476462251L;
 
 	private long id;
 	
 	private String schemaVersion;
-	
-	private Date startTime;
-	
-	private Date endTime;
-	
+		
 	public DiscourseDB(){}
 	
 	@Id
@@ -55,26 +48,6 @@ public class DiscourseDB extends CoreBaseEntity implements Serializable{
 	
 	public void setSchemaVersion(String schemaVersion) {
 		this.schemaVersion = schemaVersion;
-	}
-	
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
 	}
 	
 }

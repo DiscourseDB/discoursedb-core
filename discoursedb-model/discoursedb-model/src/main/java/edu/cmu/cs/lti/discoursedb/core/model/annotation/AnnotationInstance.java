@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,21 +15,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="annotation_instance")
-public class AnnotationInstance extends CoreBaseEntity implements Serializable{
+public class AnnotationInstance extends TimedBaseEntityWithSource implements Serializable{
 
 	private static final long serialVersionUID = 6699029374236146557L;
     
@@ -41,10 +38,6 @@ public class AnnotationInstance extends CoreBaseEntity implements Serializable{
 	private int endOffset;
 	
 	private String coveredText;
-	
-	private Date startTime;
-	
-	private Date endTime;	
 	
 	private AnnotationType type;	
 	
@@ -90,26 +83,6 @@ public class AnnotationInstance extends CoreBaseEntity implements Serializable{
 
 	public void setCoveredText(String coveredText) {
 		this.coveredText = coveredText;
-	}
-
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL)

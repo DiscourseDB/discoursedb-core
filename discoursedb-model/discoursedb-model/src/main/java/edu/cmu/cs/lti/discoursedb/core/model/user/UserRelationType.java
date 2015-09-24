@@ -18,20 +18,18 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
 @Table(name="user_relation_type")
-public class UserRelationType extends CoreBaseEntity implements Serializable {
+public class UserRelationType extends BaseTypeEntity implements Serializable {
 
 	private static final long serialVersionUID = 3266414066287662012L;
 
 	private long id;
-	
-	private String type;
 	
 	private Set<UserRelation> userRelations = new HashSet<UserRelation>();
 
@@ -46,15 +44,6 @@ public class UserRelationType extends CoreBaseEntity implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@Column(unique=true)
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")

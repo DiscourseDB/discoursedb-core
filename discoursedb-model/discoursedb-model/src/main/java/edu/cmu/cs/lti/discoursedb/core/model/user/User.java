@@ -24,7 +24,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 
@@ -43,7 +43,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = { "source_id", "username" }) )
-public class User extends CoreBaseEntity implements Serializable {
+public class User extends UntimedBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = 8065834868365920898L;
 
@@ -77,15 +77,6 @@ public class User extends CoreBaseEntity implements Serializable {
 
 	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
 
-	private String sourceId;
-	@Column(name="source_id")
-	public String getSourceId() {
-		return sourceId;
-	}
-	public void setSourceId(String sourceId) {
-		this.sourceId = sourceId;
-	}
-	
 	User() {}
 
 	public User(Discourse discourse) {addDiscourse(discourse);}

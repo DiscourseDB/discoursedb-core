@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,14 +14,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import edu.cmu.cs.lti.discoursedb.core.model.CoreBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 
 @Entity
@@ -30,7 +27,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @DynamicUpdate
 @DynamicInsert
 @Table(name="\"group\"")
-public class Group extends CoreBaseEntity implements Serializable {
+public class Group extends TimedBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -8400689664755883198L;
 
@@ -40,10 +37,6 @@ public class Group extends CoreBaseEntity implements Serializable {
 
 	private String name;
 	
-	private Date startTime;
-	
-	private Date endTime;
-	
 	private Annotations annotations;
 	
 	private Set<AudienceGroup> groupAudiences = new HashSet<AudienceGroup>();
@@ -51,15 +44,6 @@ public class Group extends CoreBaseEntity implements Serializable {
 	private Set<GroupUser> groupMembers = new HashSet<GroupUser>();
 	
 	public Group(){}
-
-	private String sourceId;
-	@Column(name="source_id")
-	public String getSourceId() {
-		return sourceId;
-	}
-	public void setSourceId(String sourceId) {
-		this.sourceId = sourceId;
-	}
 
 	@Id
 	@Column(name="id_group", nullable=false)
@@ -88,26 +72,6 @@ public class Group extends CoreBaseEntity implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 
