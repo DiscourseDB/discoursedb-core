@@ -175,6 +175,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 				}
 				
 				//Update the realname of the user, if not set in DiscourseDB
+				//TODO move this to separate method or even to UserService
 				if(curUser.getRealname()==null||curUser.getRealname().isEmpty()){
 					if(curProsoloUser.getName().isEmpty()){
 						if(!curProsoloUser.getLastname().isEmpty()){
@@ -190,7 +191,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 				}
 				
 				//Update email address if not set in db
-				//TODO allow multiple email addresses
+				//TODO allow multiple email addresses?
 				if(curUser.getEmail()==null||curUser.getEmail().isEmpty()){
 					Optional<String> prosoloMail = getEmailForProsoloUser(curProsoloUser.getId());
 					if(prosoloMail.isPresent()){
@@ -204,7 +205,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			// ---------- Init Content -----------
 			Content curContent = contentService.createContent();
 			curContent.setAuthor(curUser);
-			curContent.setCreationTime(curProsoloPost.getCreated());
+			curContent.setStartTime(curProsoloPost.getCreated());
 			curContent.setText(curProsoloPost.getContent());
 			curContent.setSourceId(curProsoloPost.getId()+"");
 			
