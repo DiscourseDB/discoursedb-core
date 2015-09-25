@@ -38,32 +38,32 @@ public class UserService {
 
     public Optional<User> findUserByDiscourseAndSourceIdAndSourceType(Discourse discourse, String sourceId, DataSourceTypes type) {
 		return Optional.ofNullable(userRepo.findOne(
-						UserPredicates.userHasDiscourse(discourse).and(
-						UserPredicates.userHasSourceId(sourceId)).and(
-						UserPredicates.userDataSourceType(type))));
+						UserPredicates.hasDiscourse(discourse).and(
+						UserPredicates.hasSourceId(sourceId)).and(
+						UserPredicates.hasDataSourceType(type))));
     }
 
     public Optional<User> findUserByDiscourseAndSourceIdAndDataSet(Discourse discourse, String sourceId, String dataSetName) {
 		return Optional.ofNullable(userRepo.findOne(
-						UserPredicates.userHasDiscourse(discourse).and(
-						UserPredicates.userHasSourceId(sourceId)).and(
-						UserPredicates.userHasDataSet(dataSetName))));
+						UserPredicates.hasDiscourse(discourse).and(
+						UserPredicates.hasSourceId(sourceId)).and(
+						UserPredicates.hasDataSet(dataSetName))));
     }
 
     public Optional<User> findUserByDiscourseAndSourceId(Discourse discourse, String sourceId) {
 		return Optional.ofNullable(userRepo.findOne(
-						UserPredicates.userHasDiscourse(discourse).and(
-						UserPredicates.userHasSourceId(sourceId))));
+						UserPredicates.hasDiscourse(discourse).and(
+						UserPredicates.hasSourceId(sourceId))));
     }
 
     public Optional<User> findUserBySourceIdAndUsername(String sourceId, String username) {
 		return Optional.ofNullable(userRepo.findOne(
-						UserPredicates.userHasSourceId(sourceId).and(
-						UserPredicates.userHasUserName(username))));
+						UserPredicates.hasSourceId(sourceId).and(
+						UserPredicates.hasUserName(username))));
     }
 
     public Iterable<User> findUsersBySourceId(String sourceId) {
-		return userRepo.findAll(UserPredicates.userHasSourceId(sourceId));
+		return userRepo.findAll(UserPredicates.hasSourceId(sourceId));
     }
 	
 	/**
@@ -79,8 +79,8 @@ public class UserService {
 	 */
 	public User createOrGetUser(Discourse discourse, String username) {
 		Optional<User> existingUser = Optional.ofNullable(userRepo.findOne(
-				UserPredicates.userHasDiscourse(discourse).and(
-				UserPredicates.userHasUserName(username))));	
+				UserPredicates.hasDiscourse(discourse).and(
+				UserPredicates.hasUserName(username))));	
 		User curUser;
 		if (existingUser.isPresent()) {
 			return existingUser.get();

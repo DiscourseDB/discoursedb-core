@@ -27,15 +27,15 @@ public class DataSourceService {
 	
 	public Optional<DataSourceInstance> getDataSource(String entitySourceId, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
-				DataSourcePredicates.dataSourceInstanceHasSourceId(entitySourceId).and(
-				DataSourcePredicates.dataSourceInstanceHasDataSetName(dataSetName))));
+				DataSourcePredicates.hasSourceId(entitySourceId).and(
+				DataSourcePredicates.hasDataSetName(dataSetName))));
 	}
 	
 	public Optional<DataSourceInstance> getDataSource(String entitySourceId, DataSourceTypes type, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
-				DataSourcePredicates.dataSourceInstanceHasSourceId(entitySourceId).and(
-				DataSourcePredicates.dataSourceInstanceHasSourceType(type).and(
-				DataSourcePredicates.dataSourceInstanceHasDataSetName(dataSetName)))));
+				DataSourcePredicates.hasSourceId(entitySourceId).and(
+				DataSourcePredicates.hasSourceType(type).and(
+				DataSourcePredicates.hasDataSetName(dataSetName)))));
 	}
 	/**
 	 * Checks if the provided DataSourceInstance exists in the database.
@@ -47,16 +47,15 @@ public class DataSourceService {
 	 */
 	public DataSourceInstance createIfNotExists(DataSourceInstance source){
 		Optional<DataSourceInstance> instance = Optional.ofNullable(dataSourceInstanceRepo.findOne(
-				DataSourcePredicates.dataSourceInstanceHasSourceId(source.getEntitySourceId()).and(
-				DataSourcePredicates.dataSourceInstanceHasSourceType(source.getSourceType()).and(
-				DataSourcePredicates.dataSourceInstanceHasDataSetName(source.getDatasetName())))));
+				DataSourcePredicates.hasSourceId(source.getEntitySourceId()).and(
+				DataSourcePredicates.hasSourceType(source.getSourceType()).and(
+				DataSourcePredicates.hasDataSetName(source.getDatasetName())))));
 		if(instance.isPresent()){
 			return instance.get();
 		}else{
 			return dataSourceInstanceRepo.save(source);
 		}
-	}
-	
+	}	
 	
 	public <T extends TimedAnnotatableBaseEntityWithSource> boolean hasSourceId(T entity, String sourceId) {
 		return entity.getDataSourceAggregate().getSources().stream()

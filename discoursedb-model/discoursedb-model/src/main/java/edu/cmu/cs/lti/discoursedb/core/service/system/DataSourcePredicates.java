@@ -10,7 +10,7 @@ public final class DataSourcePredicates {
 	private DataSourcePredicates() {
 	}
 
-	public static BooleanExpression dataSourceInstanceHasSourceId(String entitySourceId) {
+	public static BooleanExpression hasSourceId(String entitySourceId) {
 		if (entitySourceId == null||entitySourceId.isEmpty()) {
 			return QDataSourceInstance.dataSourceInstance.isNull();
 		} else {
@@ -18,7 +18,7 @@ public final class DataSourcePredicates {
 			return QDataSourceInstance.dataSourceInstance.entitySourceId.eq(entitySourceId);
 		}
 	}
-	public static BooleanExpression dataSourceInstanceHasSourceType(DataSourceTypes type) {
+	public static BooleanExpression hasSourceType(DataSourceTypes type) {
 		if (type == null) {
 			return QDataSourceInstance.dataSourceInstance.isNull();
 		} else {
@@ -27,7 +27,7 @@ public final class DataSourcePredicates {
 		}
 	}
 	
-	public static BooleanExpression dataSourceInstanceHasDataSetName(String dataSetName) {
+	public static BooleanExpression hasDataSetName(String dataSetName) {
 		if (dataSetName == null||dataSetName.isEmpty()) {
 			return QDataSourceInstance.dataSourceInstance.isNull();
 		} else {
