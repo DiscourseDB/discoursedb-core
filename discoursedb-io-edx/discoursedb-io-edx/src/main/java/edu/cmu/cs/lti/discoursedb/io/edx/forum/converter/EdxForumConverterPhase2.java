@@ -121,6 +121,11 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	 *            the post object to map to DiscourseDB
 	 */
 	public void map(Post p) {
+		
+		/*
+		 * TODO: this needs to be converted to use Service classes rather than repositories
+		 */
+		
 		logger.trace("Mapping relations for post " + p.getId());
 	
 		Optional<Contribution> curOptContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
@@ -164,8 +169,7 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 			curRelation.setTarget(curContribution);
 			// We assign the parent-child type by adding this DiscourseRelation
 			// to the set of REPLY TYPES
-			Optional<DiscourseRelationType> optCommentType = discourseRelationTypeRepository
-					.findOneByType(DiscourseRelationTypes.REPLY.name());
+			Optional<DiscourseRelationType> optCommentType = discourseRelationTypeRepository.findOneByType(DiscourseRelationTypes.REPLY.name());
 			DiscourseRelationType commentType;
 			if (optCommentType.isPresent()) {
 				commentType = optCommentType.get();
