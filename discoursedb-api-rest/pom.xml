@@ -10,12 +10,17 @@
 	<artifactId>discoursedb-api-rest</artifactId>
 	<name>DiscourseDB REST API</name>
 	<description>RESTful API to the discoursedb-model based on Spring Data REST</description>
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-api-rest</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-api-rest</url>
+	</scm>
 	<dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
 			<artifactId>discoursedb-model</artifactId>
@@ -46,18 +51,18 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-hateoas</artifactId>
 		</dependency>
-		        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.plugin</groupId>
-            <artifactId>spring-plugin-core</artifactId>
-        </dependency>
-        <dependency>
-        	<groupId>com.jayway.jsonpath</groupId>
-        	<artifactId>json-path</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.plugin</groupId>
+			<artifactId>spring-plugin-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
