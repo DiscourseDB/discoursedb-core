@@ -9,13 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteractionType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
@@ -25,41 +28,43 @@ public class UserService {
 	private UserRepository userRepo;
 
 	@Autowired
+	private DataSourceService dataSourceService;
+
+	@Autowired
 	private ContributionInteractionRepository contribInteractionRepo;
 
 	@Autowired
 	private ContributionInteractionTypeRepository contribInteractionTypeRepo;
 
+    public Optional<User> findUserByDiscourseAndSourceIdAndSourceType(Discourse discourse, String sourceId, DataSourceTypes type) {
+		return Optional.ofNullable(userRepo.findOne(
+						UserPredicates.userHasDiscourse(discourse).and(
+						UserPredicates.userHasSourceId(sourceId)).and(
+						UserPredicates.userDataSourceType(type))));
+    }
+
+    public Optional<User> findUserByDiscourseAndSourceIdAndDataSet(Discourse discourse, String sourceId, String dataSetName) {
+		return Optional.ofNullable(userRepo.findOne(
+						UserPredicates.userHasDiscourse(discourse).and(
+						UserPredicates.userHasSourceId(sourceId)).and(
+						UserPredicates.userHasDataSet(dataSetName))));
+    }
+
+    public Optional<User> findUserByDiscourseAndSourceId(Discourse discourse, String sourceId) {
+		return Optional.ofNullable(userRepo.findOne(
+						UserPredicates.userHasDiscourse(discourse).and(
+						UserPredicates.userHasSourceId(sourceId))));
+    }
+
+    public Optional<User> findUserBySourceIdAndUsername(String sourceId, String username) {
+		return Optional.ofNullable(userRepo.findOne(
+						UserPredicates.userHasSourceId(sourceId).and(
+						UserPredicates.userHasUserName(username))));
+    }
+
     public Iterable<User> findUsersBySourceId(String sourceId) {
-        return userRepo.findAll(UserPredicates.userHasSourceId(sourceId));
+		return userRepo.findAll(UserPredicates.userHasSourceId(sourceId));
     }
-    public Iterable<User> findUsersBySourceIdAndDataSetName(String sourceId, String dataSetName) {
-        return userRepo.findAll(UserPredicates.userHasSourceIdAndDataSetName(sourceId, dataSetName));
-    }
-	
-	/**
-	 * Returns a User object with the given sourceid and a given discourse if it
-	 * exists or creates a new User entity with that sourceid.
-	 * 
-	 * @param discourse
-	 *            the discourse in which the user was active
-	 * @param sourceid
-	 *            sourceId of the requested user
-	 * @return the User object with the given sourceid - either retrieved or
-	 *         newly created
-	 */
-	public User createOrGetUserBySourceId(Discourse discourse, String sourceid) {
-		Optional<User> existingUser = userRepo.findAllBySourceId(sourceid).stream()
-				.filter(u -> u.getDiscourses().contains(discourse)).findFirst();
-		User curUser;
-		if (existingUser.isPresent()) {
-			return existingUser.get();
-		} else {
-			curUser = new User(discourse);
-			curUser.setSourceId(sourceid);
-			return save(curUser);			
-		}
-	}
 	
 	/**
 	 * Returns a User object with the given username and a given discourse if it
@@ -72,9 +77,10 @@ public class UserService {
 	 * @return the User object with the given username - either retrieved or
 	 *         newly created
 	 */
-	public User createOrGetUserByUsername(Discourse discourse, String username) {
-		Optional<User> existingUser = userRepo.findAllByUsername(username).stream()
-				.filter(u -> u.getDiscourses().contains(discourse)).findFirst();	
+	public User createOrGetUser(Discourse discourse, String username) {
+		Optional<User> existingUser = Optional.ofNullable(userRepo.findOne(
+				UserPredicates.userHasDiscourse(discourse).and(
+				UserPredicates.userHasUserName(username))));	
 		User curUser;
 		if (existingUser.isPresent()) {
 			return existingUser.get();
@@ -97,20 +103,18 @@ public class UserService {
 	 * @return the User object with the given username and source id- either retrieved or
 	 *         newly created
 	 */
-	public User createOrGetUser(Discourse discourse, String sourceId, String username) {
-		Optional<User> existingUser = userRepo.findBySourceIdAndUsername(sourceId, username);
+	public User createOrGetUser(Discourse discourse, String username, String sourceId, DataSourceTypes dataSourceType, String dataSetName) {
+		Optional<User> existingUser = findUserByDiscourseAndSourceIdAndDataSet(discourse, sourceId, dataSetName);
 		User curUser;
 		if (existingUser.isPresent()) {
 			curUser = existingUser.get();
-			if(!curUser.getDiscourses().contains(discourse)){
-				curUser.addDiscourse(discourse);
-			}
 		} else {
 			curUser = new User(discourse);
-			curUser.setSourceId(sourceId);
 			curUser.setUsername(username);
+			curUser = userRepo.save(curUser);
+			dataSourceService.addSource(curUser, new DataSourceInstance(sourceId,dataSourceType,dataSetName));	
 		}
-		return userRepo.save(curUser);
+		return curUser;
 	}
 
 	/**
@@ -154,10 +158,6 @@ public class UserService {
 		}
 	}
 
-	public Optional<User> findBySourceIdAndUsername(String sourceId, String username) {
-		return userRepo.findBySourceIdAndUsername(sourceId, username);
-	}
-	
 	/**
 	 * Calls the save method of the user repository, saves the provided User entity and returns it after the save process
 	 * @param user the user entity to save

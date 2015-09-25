@@ -16,7 +16,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -39,10 +38,10 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 @SelectBeforeUpdate
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = { "source_id", "username" }) )
+@Table(name = "user")
 public class User extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
-	private static final long serialVersionUID = 8065834868365920898L;
+	private static final long serialVersionUID = 5989078859132072475L;
 
 	private long id;
 

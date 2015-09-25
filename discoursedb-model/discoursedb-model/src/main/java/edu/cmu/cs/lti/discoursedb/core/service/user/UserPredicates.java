@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.core.service.user;
 import com.mysema.query.types.Predicate;
 import com.mysema.query.types.expr.BooleanExpression;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.user.QUser;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
@@ -11,42 +12,43 @@ public final class UserPredicates {
 	private UserPredicates() {
 	}
 
-	public static Predicate userHasSourceId(String sourceId) {
+	public static BooleanExpression userHasSourceId(String sourceId) {
 		if (sourceId == null || sourceId.isEmpty()) {
 			return QUser.user.isNull();
 		} else {
 			return QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId);
 		}
 	}
-	
-	public static Predicate userHasSourceIdAndDataSourceType(String sourceId, DataSourceTypes type) {
-		if (sourceId == null || sourceId.isEmpty() || type == null) {
+
+	public static BooleanExpression userHasUserName(String name) {
+		if (name == null || name.isEmpty()) {
 			return QUser.user.isNull();
 		} else {
-			BooleanExpression hasEntitySourceId = QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId);
-			BooleanExpression hasSourceType = QUser.user.dataSourceAggregate.sources.any().sourceType.eq(type);
-			return hasEntitySourceId.and(hasSourceType);					
+			return QUser.user.username.eq(name);
 		}
 	}
 
-	public static Predicate userHasSourceIdAndDataSetName(String sourceId, String dataSetName) {
-		if (sourceId == null || sourceId.isEmpty() || dataSetName == null || dataSetName.isEmpty()) {
+	public static BooleanExpression userHasDiscourse(Discourse discourse) {
+		if (discourse == null) {
 			return QUser.user.isNull();
 		} else {
-			BooleanExpression hasEntitySourceId = QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId);
-			BooleanExpression hasDataSetName = QUser.user.dataSourceAggregate.sources.any().datasetName.eq(dataSetName);
-			return hasEntitySourceId.and(hasDataSetName);					
+			return QUser.user.discourses.contains(discourse);
 		}
 	}
 	
-	public static Predicate userHasSourceIdAndDataSourceTypeAndDataSetName(String sourceId, DataSourceTypes type, String dataSetName) {
-		if (sourceId == null || sourceId.isEmpty() || dataSetName == null || dataSetName.isEmpty()|| type == null) {
+	public static BooleanExpression userDataSourceType(DataSourceTypes type) {
+		if (type == null) {
 			return QUser.user.isNull();
 		} else {
-			BooleanExpression hasSourceType = QUser.user.dataSourceAggregate.sources.any().sourceType.eq(type);
-			BooleanExpression hasEntitySourceId = QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId);
-			BooleanExpression hasDataSetName = QUser.user.dataSourceAggregate.sources.any().datasetName.eq(dataSetName);
-			return hasEntitySourceId.and(hasDataSetName.and(hasSourceType));					
+			return QUser.user.dataSourceAggregate.sources.any().sourceType.eq(type);
 		}
 	}
+
+	public static Predicate userHasDataSet(String dataSetName) {
+		if (dataSetName == null || dataSetName.isEmpty()) {
+			return QUser.user.isNull();
+		} else {
+			return QUser.user.dataSourceAggregate.sources.any().datasetName.eq(dataSetName);
+		}
+	}	
 }

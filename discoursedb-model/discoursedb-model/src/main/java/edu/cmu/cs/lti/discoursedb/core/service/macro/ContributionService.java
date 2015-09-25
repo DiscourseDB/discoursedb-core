@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
@@ -19,6 +21,9 @@ public class ContributionService {
 
 	@Autowired
 	private ContributionRepository contributionRepo;
+
+	@Autowired
+	private DataSourceService dataSourceService;
 	
 	@Autowired
 	private ContributionTypeRepository contribTypeRepo;
@@ -60,9 +65,25 @@ public class ContributionService {
 	public Contribution save(Contribution contrib){
 		return contributionRepo.save(contrib);
 	}
-	
-	public Optional<Contribution> findOneBySourceId(String id){
-		return contributionRepo.findOneBySourceId(id);		
+
+	/**
+	 * Retrieves a contribution that has a source which exactly matches the given DataSource parameters.
+	 * 
+	 * @param entitySourceId the source id of the contribution  
+	 * @param type the type of the source
+	 * @param dataSetName the dataset the source id was derived from
+	 * @return an optional contribution that meets the requested parameters
+	 */
+	public Optional<Contribution> findOneByDataSource(String entitySourceId, String dataSetName) {		
+		Optional<DataSourceInstance> dataSource = dataSourceService.getDataSource(entitySourceId, dataSetName);
+		if(dataSource.isPresent()){
+			return Optional.ofNullable(contributionRepo.findOne(
+					ContributionPredicates.contributionHasDataSource(dataSource.get())));			
+		}else{
+			return Optional.empty();
+		}
 	}
+	
+	
 
 }
