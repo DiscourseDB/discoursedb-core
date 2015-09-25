@@ -5,6 +5,7 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
+		<relativePath>../discoursedb-parent</relativePath>
 	</parent>
 	<artifactId>discoursedb-io-prosolo</artifactId>
 	<name>DiscourseDB prosolo converters</name>
