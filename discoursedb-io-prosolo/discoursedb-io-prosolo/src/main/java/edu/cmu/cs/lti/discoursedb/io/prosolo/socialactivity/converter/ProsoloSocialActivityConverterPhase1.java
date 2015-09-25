@@ -24,13 +24,16 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
@@ -63,6 +66,8 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 */
 
 	private String discourseName;
+	private DataSourceTypes dataSourceType;
+	private String dataSetName;
 
 	
 	/*
@@ -82,6 +87,9 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	private UserService userService;
 
 	@Autowired
+	private DataSourceService dataSourceService;
+
+	@Autowired
 	private ContentService contentService;
 	
 	@Autowired
@@ -99,10 +107,23 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		}
 
 		this.discourseName=args[0];
-		this.host = args[1];
-		this.db = args[2];
-		this.user = args[3];
-		this.pwd = args[4];
+		try{
+			this.dataSourceType = DataSourceTypes.valueOf(args[1]);
+		}catch(Exception e){
+			StringBuilder types = new StringBuilder();
+			for(DataSourceTypes type : DataSourceTypes.values()){
+				if(types.length()==0){types.append(",");}
+				types.append(type.name());
+			}
+			logger.error("Invalid DataSourceType: "+args[1]+". Valid values: "+types.toString());
+			logger.error("");
+			System.exit(1);
+		}
+		this.dataSetName=args[2];
+		this.host = args[3];
+		this.db = args[4];
+		this.user = args[5];
+		this.pwd = args[6];
 
 		logger.info("Start mapping to DiscourseDB...");
 		try {
@@ -167,11 +188,10 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 				//CHECK IF USER WITH SAME edX username exists in the current Discourse context
 				Optional<String> edXUserName = mapProsoloUserIdToedXUsername(curProsoloUser.getId());
 				if(edXUserName.isPresent()){
-					curUser=userService.createOrGetUserByUsername(discourse, edXUserName.get());
-					curUser.setSourceId(curProsoloUser.getId()+"");
-					//TODO update sourceID --> needs to be a list
+					curUser=userService.createOrGetUser(discourse, edXUserName.get());
+					dataSourceService.addSource(curUser, new DataSourceInstance(curProsoloUser.getId()+"",dataSourceType,dataSetName));
 				}else{
-					curUser=userService.createOrGetUserBySourceId(discourse, curProsoloUser.getId()+"");
+					curUser=userService.createOrGetUser(discourse,"", curProsoloUser.getId()+"",dataSourceType,dataSetName);
 				}
 				
 				//Update the realname of the user, if not set in DiscourseDB
@@ -206,8 +226,8 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			Content curContent = contentService.createContent();
 			curContent.setAuthor(curUser);
 			curContent.setStartTime(curProsoloPost.getCreated());
-			curContent.setText(curProsoloPost.getContent());
-			curContent.setSourceId(curProsoloPost.getId()+"");
+			curContent.setText(curProsoloPost.getContent());			
+			dataSourceService.addSource(curContent, new DataSourceInstance(curProsoloPost.getId()+"",dataSourceType,dataSetName));
 			
 			
 			// ---------- Init Contribution -----------
@@ -215,8 +235,8 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			curContrib.setCurrentRevision(curContent);
 			curContrib.setFirstRevision(curContent);
 			curContrib.setStartTime(curProsoloPost.getCreated());
-			curContrib.setSourceId(curProsoloPost.getId()+"");
 			curContrib.setUpvotes(curPostActivity.getLike_count());			
+			dataSourceService.addSource(curContrib, new DataSourceInstance(curProsoloPost.getId()+"",dataSourceType,dataSetName));
 		}
 		
 		
