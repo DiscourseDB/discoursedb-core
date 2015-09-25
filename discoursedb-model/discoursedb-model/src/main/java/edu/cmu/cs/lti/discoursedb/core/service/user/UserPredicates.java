@@ -13,7 +13,7 @@ public final class UserPredicates {
 
 	public static Predicate userHasSourceId(String sourceId) {
 		if (sourceId == null || sourceId.isEmpty()) {
-			return QUser.user.isNotNull();
+			return QUser.user.isNull();
 		} else {
 			return QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId);
 		}
