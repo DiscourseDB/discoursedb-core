@@ -34,7 +34,7 @@ DiscourseDB defines five categories of entities
 
 ### Spring Data Repositories
 ### Spring Service Components
-Spring Service Components offer provide a higher level of abstractio for repository access. Rather than directly manipulating entities using the CRUD and custom repository methods, Services encapsulate whole processes and further allow to perform additional consistency and validity checks.
+Spring Service Components offer provide a higher level of abstraction for data access. Rather than directly manipulating entities using the CRUD and custom repository methods, Services encapsulate whole processes and further allow to perform additional consistency and validity checks. Beyond that, they allow to define complex queries using [QueryDSL-JPA](http://www.querydsl.com/).
 
 The following example shows how to use a service-level method that operates on multiple repositories.
 
@@ -50,8 +50,37 @@ Discourse discourse = discourseService.createOrGetDiscourse("DUMMYDISCOURSE");
 DiscoursePart courseForum = discoursePartService.createOrGetTypedDiscoursePart(discourse,"DUMMYDISCOURSE_FORUM",DiscoursePartTypes.FORUM);
 }
 ```
-
 The first service internally checks whether a Discourse exists and retrieves it if it exists or creates it if it doesn't.
 The second service call creates a new DiscoursePart, retrieves or creates a DiscoursePartType and connects it with that DiscoursePart. It then establishes a relation relation between the DiscoursePart and the given Discourse.
+
+### QueryDSL
+We have seen that service-level classes can access multiple Spring Data repositories and therefore wrap more complex processes in single methods.
+Beyond that, Spring service may also contain even more complex queries using QueryDSL abstraction.
+
+The following example shows how  to define a query in a service class using QueryDSL.
+
+```java
+@Service
+public class DemoService{
+
+	@Autowired
+	private UserRepository userRepository;
+
+	public static Predicate userHasSourceId(String sourceId) {
+		if (sourceId == null || sourceId.isEmpty()) {
+			return QUser.user.isNull();
+		} else {
+			return QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId);
+		}
+	}
+    
+    public Iterable<User> findUsersBySourceId(String sourceId) {
+        return userRepo.findAll(UserPredicates.userHasSourceId(sourceId));
+    }
+}
+```
+
+The findUsersBySourceId()-method retrieves all User entities that have an associated DataSourceInstance which contains the provided sourceId.
+
 
 ### Entity Type Definitions
