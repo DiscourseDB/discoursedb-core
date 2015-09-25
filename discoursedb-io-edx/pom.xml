@@ -4,6 +4,11 @@
 	<artifactId>discoursedb-io-edx</artifactId>
 	<name>DiscourseDB edx converters</name>
 	<description>DiscourseDB converters for edX data</description>
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-edx</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-io-edx</url>
+	</scm>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
