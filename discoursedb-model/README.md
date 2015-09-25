@@ -68,7 +68,8 @@ public class DemoService{
     
     public Iterable<User> findUsersBySourceId(String sourceId) {
         return userRepo.findAll(
-        	QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId));
+       	QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId)
+            );
     }
 }
 ```
