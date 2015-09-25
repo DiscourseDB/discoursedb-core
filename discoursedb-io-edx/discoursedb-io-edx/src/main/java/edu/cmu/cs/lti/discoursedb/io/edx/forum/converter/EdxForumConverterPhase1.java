@@ -192,12 +192,11 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 			curContribution.setStartTime(p.getCreatedAt());
 			curContribution.setUpvotes(p.getUpvoteCount());
 			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),dataSourceType,dataSetName));
-		}else{
-			curContribution=existingContribution.get();
+
+			//Add contribution to DiscoursePart
+			discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
 		}
 
-		//Add contribution to DiscoursePart
-		discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
 				
 		logger.trace("Post mapping completed.");
 	}
