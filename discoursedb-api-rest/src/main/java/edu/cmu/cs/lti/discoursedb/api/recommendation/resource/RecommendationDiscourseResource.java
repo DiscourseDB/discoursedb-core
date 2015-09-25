@@ -11,11 +11,9 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 public class RecommendationDiscourseResource extends ResourceSupport {
 	
 	private String name;
-	private String descriptor;
 	
 	public RecommendationDiscourseResource(Discourse discourse) {
 		this.setName(discourse.getName());
-		this.setDescriptor(discourse.getDescriptor());
 		this.add(linkTo(methodOn(RecommendationRestController.class).discourseToDiscourseParts(discourse.getId())).withRel("discourseParts"));
 	}
 
@@ -27,13 +25,6 @@ public class RecommendationDiscourseResource extends ResourceSupport {
 		this.name = name;
 	}
 
-	public String getDescriptor() {
-		return descriptor;
-	}
-
-	public void setDescriptor(String descriptor) {
-		this.descriptor = descriptor;
-	}
 
 
 }
