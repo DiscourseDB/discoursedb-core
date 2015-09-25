@@ -307,17 +307,6 @@
 		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>com.mysema.maven</groupId>
 				<artifactId>apt-maven-plugin</artifactId>
 				<executions>
@@ -344,49 +333,6 @@
 						<version>${querydsl.version}</version>
 					</dependency>
 				</dependencies>
-			</plugin>
-			<!-- https://mrhanlon.com/posts/using-npm-bower-and-grunt-with-maven/ -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>exec-npm-install</id>
-						<phase>generate-sources</phase>
-						<configuration>
-							<executable>npm</executable>
-							<arguments>
-								<argument>install</argument>
-							</arguments>
-						</configuration>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>exec-bower-install</id>
-						<phase>generate-sources</phase>
-						<configuration>
-							<executable>bower</executable>
-							<arguments>
-								<argument>install</argument>
-							</arguments>
-						</configuration>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>exec-grunt</id>
-						<phase>process-resources</phase>
-						<configuration>
-							<executable>grunt</executable>
-						</configuration>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -495,112 +441,6 @@
 			</build>
 		</profile>
 		<profile>
-			<id>javancss</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>javancss-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>report</goal>
-								</goals>
-								<configuration>
-									<linkXRef>false</linkXRef>
-									<excludes>
-										<exclude>**/type/**/*.java</exclude>
-									</excludes>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>findbugs</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>findbugs-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>findbugs</goal>
-								</goals>
-								<configuration>
-									<findbugsXmlOutput>true</findbugsXmlOutput>
-									<xmlOutput>true</xmlOutput>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>cobertura</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>cobertura-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>cobertura</goal>
-								</goals>
-								<configuration>
-									<formats>
-										<format>xml</format>
-									</formats>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>check-license.txt</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>check-license.txt</id>
-								<phase>package</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<inherited>true</inherited>
-								<configuration>
-									<tasks>
-										<fail message="LICENSE.txt file is missing.">
-											<condition>
-												<not>
-													<resourcecount count="1">
-														<fileset dir="." includes="LICENSE.txt" />
-													</resourcecount>
-												</not>
-											</condition>
-										</fail>
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
 			<id>m2e</id>
 			<activation>
 				<property>
@@ -686,7 +526,6 @@
 		<module>../discoursedb-io-bazaar</module>
 		<module>../discoursedb-io-tags</module>
 		<module>../discoursedb-io-prosolo</module>
-		<module>../discoursedb-io-edx</module>
 		<module>../discoursedb-model</module>
 		<module>../discoursedb-api-rest</module>
 	</modules>
