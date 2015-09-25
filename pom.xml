@@ -159,7 +159,6 @@
 			<url>https://repo.spring.io/libs-release</url>
 		</pluginRepository>
 	</pluginRepositories>
-
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -389,20 +388,22 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>attach-javadoc</id>
+			<id>assemble</id>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
+						<artifactId>maven-assembly-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>attach-javadoc</id>
+								<phase>package</phase>
 								<goals>
-									<goal>jar</goal>
+									<goal>single</goal>
 								</goals>
 								<configuration>
-									<additionalparam>-Xdoclint:none</additionalparam>
+									<descriptors>
+										<descriptor>assemblies/dist.xml</descriptor>
+									</descriptors>
 								</configuration>
 							</execution>
 						</executions>
