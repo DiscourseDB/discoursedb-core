@@ -49,7 +49,7 @@ public class TestSpringDataJPA implements CommandLineRunner {
 		User u = userService.createOrGetUserByUsername(d, "olifer");
 		dataSourceService.addSource(u, new DataSourceInstance("testSourceId",DataSourceTypes.EDX,"edxtestdataset"));
 		
-		for(User x:userService.findUsersBySourceId("testSourceId")){
+		for(User x:userService.findUsersBySourceIdAndDataSetName("testSourceId","")){
 			System.out.println(x.getUsername());
 		}
 //		u.setRealname("Oliver Ferschke");

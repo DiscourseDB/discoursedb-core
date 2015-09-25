@@ -33,6 +33,9 @@ public class UserService {
     public Iterable<User> findUsersBySourceId(String sourceId) {
         return userRepo.findAll(UserPredicates.userHasSourceId(sourceId));
     }
+    public Iterable<User> findUsersBySourceIdAndDataSetName(String sourceId, String dataSetName) {
+        return userRepo.findAll(UserPredicates.userHasSourceIdAndDataSetName(sourceId, dataSetName));
+    }
 	
 	/**
 	 * Returns a User object with the given sourceid and a given discourse if it
