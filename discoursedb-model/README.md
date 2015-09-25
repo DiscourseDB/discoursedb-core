@@ -66,7 +66,7 @@ public class DemoService{
 	@Autowired
 	private UserRepository userRepository;
 
-	public static Predicate userHasSourceId(String sourceId) {
+	private static Predicate userHasSourceId(String sourceId) {
 		if (sourceId == null || sourceId.isEmpty()) {
 			return QUser.user.isNull();
 		} else {
