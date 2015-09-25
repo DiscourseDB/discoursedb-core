@@ -4,7 +4,11 @@
 	<artifactId>discoursedb-model</artifactId>
 	<name>DiscourseDB ORM</name>
 	<description>Object Relational Mapping for DiscourseDB</description>
-
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-model</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-model.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-model</url>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>org.hibernate</groupId>
