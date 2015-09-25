@@ -24,7 +24,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 public class DiscoursePartService {
 
 	@Autowired
-	private DiscoursePartRepository discourePartRepo;
+	private DiscoursePartRepository discoursePartRepo;
 	
 	@Autowired
 	private DiscoursePartTypeRepository discourePartTypeRepo;
@@ -61,18 +61,25 @@ public class DiscoursePartService {
 			discoursePartType.setType(type.name());
 			discoursePartType= discourePartTypeRepo.save(discoursePartType);
 		}		
+		
+		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
+		Optional<DiscoursePart> existingDiscoursePart = Optional.ofNullable(discoursePartRepo.findOne(
+						DiscoursePartPredicates.discourseHasName(discoursePartName).and(
+						DiscoursePartPredicates.discourseHasType(discoursePartType).and(
+						DiscoursePartPredicates.discoursePartHasDiscourse(discourse)))));
 
-		Optional<DiscoursePart> curOPtDiscoursePart = findOneByName(discoursePartName);
-		DiscoursePart dPart = new DiscoursePart();
-		if(curOPtDiscoursePart.isPresent()){
-			dPart=curOPtDiscoursePart.get();
+		DiscoursePart dPart;
+		if(existingDiscoursePart.isPresent()){
+			dPart=existingDiscoursePart.get();
 		}else{
+			dPart=new DiscoursePart();
 			dPart.setType(discoursePartType);
-			dPart = discourePartRepo.save(dPart);
+			dPart.setName(discoursePartName);
+			dPart = discoursePartRepo.save(dPart);
 		}
 		
-		Optional<DiscourseToDiscoursePart> optDiscourseToDiscoursePart = discourseToDiscoursePartRepo.findOneByDiscourseAndDiscoursePart(discourse, dPart);	
-		if(!optDiscourseToDiscoursePart.isPresent()){
+		Optional<DiscourseToDiscoursePart> existingDiscourseToDiscoursePart = discourseToDiscoursePartRepo.findOneByDiscourseAndDiscoursePart(discourse, dPart);	
+		if(!existingDiscourseToDiscoursePart.isPresent()){
 			DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();			
 			discourseToDiscoursePart.setDiscourse(discourse);
 			discourseToDiscoursePart.setDiscoursePart(dPart);
@@ -82,74 +89,6 @@ public class DiscoursePartService {
 		return dPart;
 	}		
 
-
-	/**
-	 * Retrieves existing or creates a new DiscoursePartType entity with the
-	 * provided type. It then creates a new DiscoursePart entity and
-	 * connects it with the type and the provided discourse.
-	 * 
-	 * The changed/created entities are saved to
-	 * DiscourseDB and the empty typed DiscoursePart is returned. It then adds
-	 * the new empty DiscoursePart to the db. 
-	 * 
-	 * @param discourse
-	 *            the discourse of which the new DiscoursePart is a part of
-	 * @param type
-	 *            the value for the DiscoursePartType
-	 * @return a new empty DiscoursePart that is already saved to the db and
-	 *         connected with its requested type
-	 */
-	public DiscoursePart createTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){		
-		Optional<DiscoursePartType> optDiscoursePartType = discourePartTypeRepo.findOneByType(type.name());
-		DiscoursePartType discoursePartType = null;
-		if(optDiscoursePartType.isPresent()){
-			discoursePartType = optDiscoursePartType.get();
-		}else{
-			discoursePartType = new DiscoursePartType();
-			discoursePartType.setType(type.name());
-			discoursePartType= discourePartTypeRepo.save(discoursePartType);
-		}		
-
-		DiscoursePart dPart = new DiscoursePart();
-		dPart.setType(discoursePartType);
-		dPart = discourePartRepo.save(dPart);
-		
-		DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();
-		discourseToDiscoursePart.setDiscourse(discourse);
-		discourseToDiscoursePart.setDiscoursePart(dPart);
-		discourseToDiscoursePartRepo.save(discourseToDiscoursePart);
-		
-		return dPart;
-	}		
-
-	
-	/**
-	 * Retrieves existing or creates a new DiscoursePartType entity with the
-	 * provided type. It then creates a new empty DiscoursePart entity and
-	 * connects it with the type. Both changed/created entities are saved to
-	 * DiscourseDB and the empty typed DiscoursePart is returned. It then adds
-	 * the new empty discoursePart to the db and returns the object
-	 * 
-	 * @param type
-	 *            the value for the DiscoursePartType
-	 * @return a new empty DiscoursePart that is already saved to the db and
-	 *         connected with its requested type
-	 */
-	public DiscoursePart createTypedDiscoursePart(DiscoursePartTypes type){		
-		Optional<DiscoursePartType> optDiscoursePartType = discourePartTypeRepo.findOneByType(type.name());
-		DiscoursePartType discoursePartType = null;
-		if(optDiscoursePartType.isPresent()){
-			discoursePartType = optDiscoursePartType.get();
-		}else{
-			discoursePartType = new DiscoursePartType();
-			discoursePartType.setType(type.name());
-			discoursePartType= discourePartTypeRepo.save(discoursePartType);
-		}
-
-		DiscoursePart dPart = new DiscoursePart();
-		dPart.setType(discoursePartType);
-		return discourePartRepo.save(dPart);
-	}		
 		
 	/**
 	 * Adds the given contribution to the provided DiscoursePart.
@@ -161,15 +100,15 @@ public class DiscoursePartService {
 	 * @param dPArt the DiscoursePart that contains the given contribution.
 	 */
 	public void addContributionToDiscoursePart(Contribution contrib, DiscoursePart dPArt){	
-		Optional<DiscoursePartContribution> curOptDiscoursePartContrib = discoursePartContributionRepo.findOneByContributionAndDiscoursePart(contrib, dPArt);
-		if(!curOptDiscoursePartContrib.isPresent()){
+		Optional<DiscoursePartContribution> existingDiscoursePartContrib = discoursePartContributionRepo.findOneByContributionAndDiscoursePart(contrib, dPArt);
+		if(!existingDiscoursePartContrib.isPresent()){
 			DiscoursePartContribution discoursePartContrib = new DiscoursePartContribution();
 			discoursePartContrib.setContribution(contrib);
 			discoursePartContrib.setDiscoursePart(dPArt);
 			discoursePartContrib.setStartTime(contrib.getStartTime());	
+			discoursePartContributionRepo.save(discoursePartContrib);
 			dPArt.addDiscoursePartContribution(discoursePartContrib);
 			contrib.addContributionPartOfDiscourseParts(discoursePartContrib);
-			discoursePartContributionRepo.save(discoursePartContrib);
 		}	
 	}
 	
@@ -180,11 +119,11 @@ public class DiscoursePartService {
 	 * @return the possibly altered entity after the save process 
 	 */
 	public DiscoursePart save(DiscoursePart part){
-		return discourePartRepo.save(part);
+		return discoursePartRepo.save(part);
 	}
 	
 	public Optional<DiscoursePart> findOneByName(String name){
-		return discourePartRepo.findOneByName(name);		
+		return discoursePartRepo.findOneByName(name);		
 	}
 
 }

@@ -75,7 +75,7 @@ public class ContributionService {
 	 * @return an optional contribution that meets the requested parameters
 	 */
 	public Optional<Contribution> findOneByDataSource(String entitySourceId, String dataSetName) {		
-		Optional<DataSourceInstance> dataSource = dataSourceService.getDataSource(entitySourceId, dataSetName);
+		Optional<DataSourceInstance> dataSource = dataSourceService.findDataSource(entitySourceId, dataSetName);
 		if(dataSource.isPresent()){
 			return Optional.ofNullable(contributionRepo.findOne(
 					ContributionPredicates.contributionHasDataSource(dataSource.get())));			

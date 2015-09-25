@@ -30,10 +30,8 @@ public final class DataSourcePredicates {
 	public static BooleanExpression hasDataSetName(String dataSetName) {
 		if (dataSetName == null||dataSetName.isEmpty()) {
 			return QDataSourceInstance.dataSourceInstance.isNull();
-		} else {
-			
+		} else {			
 			return QDataSourceInstance.dataSourceInstance.datasetName.eq(dataSetName);
 		}
 	}
-
 }

@@ -25,18 +25,19 @@ public class DataSourceService {
 	private DataSourceInstanceRepository dataSourceInstanceRepo;
 
 	
-	public Optional<DataSourceInstance> getDataSource(String entitySourceId, String dataSetName ){
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
 				DataSourcePredicates.hasDataSetName(dataSetName))));
 	}
 	
-	public Optional<DataSourceInstance> getDataSource(String entitySourceId, DataSourceTypes type, String dataSetName ){
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, DataSourceTypes type, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
 				DataSourcePredicates.hasSourceType(type).and(
 				DataSourcePredicates.hasDataSetName(dataSetName)))));
 	}
+	
 	/**
 	 * Checks if the provided DataSourceInstance exists in the database.
 	 * If so, it returns the instance in the database.
