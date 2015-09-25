@@ -48,8 +48,8 @@ public class ExampleComponent{
   private DiscoursePartService discoursePartService;
   
   public void dummyMethod(){
-  Discourse discourse = discourseService.createOrGetDiscourse("DUMMYDISCOURSE");
-  DiscoursePart courseForum = discoursePartService.createOrGetTypedDiscoursePart(discourse,"DUMMYDISCOURSE_FORUM",DiscoursePartTypes.FORUM);
+ 	 Discourse discourse = discourseService.createOrGetDiscourse("DUMMYDISCOURSE");
+  	DiscoursePart courseForum = discoursePartService.createOrGetTypedDiscoursePart(discourse,"DUMMYDISCOURSE_FORUM",DiscoursePartTypes.FORUM);
   }
 }
 ```
