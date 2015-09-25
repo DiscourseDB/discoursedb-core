@@ -39,15 +39,18 @@ Spring Service Components offer provide a higher level of abstraction for data a
 The following example shows how to use service-level methods that operate on multiple repositories.
 
 ```java
-@Autowired
-private DiscourseService discourseService;
-
-@Autowired
-private DiscoursePartService discoursePartService;
-
-public void dummyMethod(){
-Discourse discourse = discourseService.createOrGetDiscourse("DUMMYDISCOURSE");
-DiscoursePart courseForum = discoursePartService.createOrGetTypedDiscoursePart(discourse,"DUMMYDISCOURSE_FORUM",DiscoursePartTypes.FORUM);
+@Component
+public class ExampleComponent{
+  @Autowired
+  private DiscourseService discourseService;
+  
+  @Autowired
+  private DiscoursePartService discoursePartService;
+  
+  public void dummyMethod(){
+  Discourse discourse = discourseService.createOrGetDiscourse("DUMMYDISCOURSE");
+  DiscoursePart courseForum = discoursePartService.createOrGetTypedDiscoursePart(discourse,"DUMMYDISCOURSE_FORUM",DiscoursePartTypes.FORUM);
+  }
 }
 ```
 The call of the first service-level method internally checks whether a Discourse exists and retrieves it if it exists or creates it if it doesn't.
