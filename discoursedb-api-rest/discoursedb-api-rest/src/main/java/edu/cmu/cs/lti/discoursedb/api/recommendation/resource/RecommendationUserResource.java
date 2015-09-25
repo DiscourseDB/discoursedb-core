@@ -13,7 +13,6 @@ public class RecommendationUserResource extends ResourceSupport {
 	private String username;
 	private String realname;
 	private String email;
-	private String edxId;
 	private String country;
 	
 	public RecommendationUserResource(User user) {
@@ -38,14 +37,6 @@ public class RecommendationUserResource extends ResourceSupport {
 
 	public void setEmail(String email) {
 		this.email = nullCheck(email);
-	}
-
-	public String getEdxId() {
-		return edxId;
-	}
-
-	public void setEdxId(String edxId) {
-		this.edxId = nullCheck(edxId);
 	}
 
 	public String getUsername() {
