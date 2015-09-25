@@ -48,7 +48,7 @@ Phase 3 augments the user information which details that are not contained in th
 ### Phase 1 
 Class: [EdxForumConverterPhase1.java](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterPhase1.java)
 
-**NOTE:** The implementation of Phase1 is outdated. Phase1 now uses service-level classes rather than Spring Data repositories to interact with DiscourseDB. This description refers to the old version.
+**NOTE: The following description of Phase1 is outdated. Phase1 now uses service-level classes rather than Spring Data repositories to interact with DiscourseDB. This description refers to the old version.**
 
 This component is launched first as indicatd by the `@Order(1)` annotation. In classes implementing the CommandLineRunner interface, the run method takes over the role of the main method. It is automatically invoked by the starter class which also passes on the command line arguments. The first argument is supposed to contain the location of the edx forum json dump.
 
