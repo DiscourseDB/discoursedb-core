@@ -9,6 +9,11 @@
 	<artifactId>discoursedb-io-prosolo</artifactId>
 	<name>DiscourseDB prosolo converters</name>
 	<description>DiscourseDB converters for prosolo data</description>
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-prosolo</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-io-prosolo</url>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
