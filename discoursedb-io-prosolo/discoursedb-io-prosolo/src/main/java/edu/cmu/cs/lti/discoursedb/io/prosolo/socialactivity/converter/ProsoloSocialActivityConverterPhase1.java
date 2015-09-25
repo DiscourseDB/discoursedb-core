@@ -132,11 +132,8 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			logger.error(ex.getMessage(), ex);
 		} finally {
 			closeConnection();
-
 		}
 		logger.info("...mapping complete");
-
-		///////////////////////////////////////////////
 	}
 
 	/**
@@ -148,8 +145,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	private void map() throws SQLException {
 		mapPosts();
 		mapTwitterPosts();
-		//TODO mapNodeSocialAcitvities
-		//TODO apXSocialActivities
+		mapNodeSocialActivities();
 	}
 
 	
@@ -260,7 +256,22 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	private void mapTwitterPosts() throws SQLException{
 		
 	}
-
+	/**
+	 * Maps posts (dtype=TwitterPost) to DiscourseDB 
+	 * 
+	 * @throws SQLException In case of a database access error
+	 */
+	private void mapNodeSocialActivities() throws SQLException{
+		
+	}
+	
+	
+	
+		
+	/****************************************************************
+	 *    				PROSOLO DB ACCESS BELOW
+	 ****************************************************************/
+		
 	
 	/**
 	 * Returns all ids for social activities of the given dtype. This idlist can
