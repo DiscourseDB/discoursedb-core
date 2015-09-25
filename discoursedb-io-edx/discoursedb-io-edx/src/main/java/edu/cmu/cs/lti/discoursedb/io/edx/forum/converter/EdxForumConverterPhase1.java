@@ -25,13 +25,16 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
@@ -62,8 +65,9 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 	private static final Logger logger = LogManager.getLogger(EdxForumConverterPhase1.class);
 	private static int postcount = 1;
 	private static final String EDX_COMMENT_TYPE = "Comment";
-	@SuppressWarnings("unused")
-	private static final String EDX_COMMENT_THREAD_TYPE = "CommentThread";
+	
+	private DataSourceTypes dataSourceType;
+	private String dataSetName;
 
 	/*
 	 * Entity-Repositories for DiscourseDB connection.
@@ -74,6 +78,8 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 	@Autowired
 	private UserService userService;
 	@Autowired
+	private DataSourceService dataSourceService;
+	@Autowired
 	private ContentService contentService;
 	@Autowired
 	private ContributionService contributionService;
@@ -82,11 +88,25 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (args.length < 1) {
-			logger.error("Missing input file. Must provide </path/to/*-prod.mongo> as launch parameter.");
+		if(args.length<3){
+			logger.error("Usage: EdxForumConverterApplication <DataSourceType> <DataSetName> </path/to/*-prod.mongo>");
 			System.exit(1);
 		}
-		String inFileName = args[0];
+		try{
+			this.dataSourceType = DataSourceTypes.valueOf(args[0]);
+		}catch(Exception e){
+			StringBuilder types = new StringBuilder();
+			for(DataSourceTypes type : DataSourceTypes.values()){
+				if(types.length()==0){types.append(",");}
+				types.append(type.name());
+			}
+			logger.error("Invalid DataSourceType: "+args[1]+". Valid values: "+types.toString());
+			logger.error("");
+			System.exit(1);
+		}
+
+		this.dataSetName=args[1];
+		String inFileName = args[2];
 
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
@@ -131,8 +151,8 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 	 * @param p
 	 *            the post object to map to DiscourseDB
 	 */
-	public void map(Post p) {
-		if(contributionService.findOneBySourceId(p.getId()).isPresent()){
+	public void map(Post p) {				
+		if(contributionService.findOneByDataSource(p.getId(),dataSetName).isPresent()){
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
 			return;
 		}
@@ -148,14 +168,14 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,courseid+"_FORUM",DiscoursePartTypes.FORUM);
 		
 		logger.trace("Init User entity");
-		User curUser  = userService.createOrGetUserByUsername(curDiscourse,p.getAuthorUsername());
-		curUser.setSourceId(p.getAuthorId()); //TODO this overwrites an existing userid - we need to support multiple userids
+		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthorUsername());
+		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthorId(),dataSourceType, dataSetName));
 
 		// ---------- Create Contribution and Content -----------
 		//Check if contribution exists already. This could only happen if we import the same dump multiple times.
-		Optional<Contribution> curOptContribution = contributionService.findOneBySourceId(p.getId());
+		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
 		Contribution curContribution=null;
-		if(!curOptContribution.isPresent()){		
+		if(!existingContribution.isPresent()){		
 			ContributionTypes mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST:ContributionTypes.THREAD_STARTER;
 
 			logger.trace("Create Content entity");
@@ -163,17 +183,17 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 			curContent.setText(p.getBody());
 			curContent.setStartTime(p.getCreatedAt());
 			curContent.setAuthor(curUser);
-			curContent.setSourceId(p.getId());
+			dataSourceService.addSource(curContent, new DataSourceInstance(p.getId(),dataSourceType,dataSetName));
 			
 			logger.trace("Create Contribution entity");
 			curContribution = contributionService.createTypedContribution(mappedType);
-			curContribution.setSourceId(p.getId());
 			curContribution.setCurrentRevision(curContent);
 			curContribution.setFirstRevision(curContent);
 			curContribution.setStartTime(p.getCreatedAt());
 			curContribution.setUpvotes(p.getUpvoteCount());
+			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),dataSourceType,dataSetName));
 		}else{
-			curContribution=curOptContribution.get();
+			curContribution=existingContribution.get();
 		}
 
 		//Add contribution to DiscoursePart

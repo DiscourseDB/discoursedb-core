@@ -23,11 +23,11 @@ public class EdxForumConverterApplication {
 	 * Launches the SpringBoot application which runs the converter components in the order provided by the Order annotation.
 	 * The launch parameters are passed on to each component.
 	 * 
-	 * @param args </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>
+	 * @param args <DataSetType> <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>
 	 */
 	public static void main(String[] args) {
-		if(args.length!=2){
-			logger.error("Usage: EdxForumConverterApplication </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>");
+		if(args.length!=4){
+			logger.error("Usage: EdxForumConverterApplication <DataSetType> <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>");
 			System.exit(1);
 		}
         SpringApplication.run(EdxForumConverterApplication.class, args);       

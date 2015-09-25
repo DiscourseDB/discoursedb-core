@@ -22,7 +22,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.UserInfo;
 
 /**
@@ -56,15 +56,15 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 	 */
 
 	@Autowired
-	private UserRepository userRepository;
+	private UserService userService;
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (args.length != 2) {
-			logger.error("Missing input file. Must provide pointer to *-auth_user-prod-analytics.sql file as SECOND parameter.");
+		if (args.length != 4) {
+			logger.error("Missing input file. Must provide pointer to *-auth_user-prod-analytics.sql file as FOURTH parameter.");
 			System.exit(1);
 		}
-		String inFileName = args[1];
+		String inFileName = args[3];
 
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
@@ -110,11 +110,11 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 	public void map(UserInfo u) {
 		logger.trace("Mapping UserInfo for user" + u.getUsername());
 	
-		Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(u.getId()+"", u.getUsername());
-		if(!curOptUser.isPresent()){
+		Optional<User> existingUser = userService.findUserBySourceIdAndUsername(u.getId()+"", u.getUsername());
+		if(!existingUser.isPresent()){
 			return;
 		}
-		User curUser=curOptUser.get();
+		User curUser=existingUser.get();
 		if(curUser.getEmail()==null||curUser.getEmail().isEmpty()){
 			curUser.setEmail(u.getEmail());
 		}
@@ -136,7 +136,6 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 		if(curUser.getCountry()==null||curUser.getCountry().isEmpty()){
 			curUser.setCountry(u.getCountry());
 		}
-		userRepository.save(curUser);
 		logger.trace("UserInfo mapping completed for user" + u.getUsername());
 	}
 

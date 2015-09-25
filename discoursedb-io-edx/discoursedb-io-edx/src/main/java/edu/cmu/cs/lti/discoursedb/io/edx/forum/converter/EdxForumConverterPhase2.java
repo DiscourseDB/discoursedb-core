@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
@@ -57,13 +57,14 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	private static final Logger logger = LogManager.getLogger(EdxForumConverterPhase2.class);
 	private static int postcount = 1;
 	
+	private String dataSetName;
 
 	/*
 	 * Entity-Repositories for DiscourseDB connection.
 	 */
 
 	@Autowired
-	private ContributionRepository contributionRepository;
+	private ContributionService contributionService;
 	@Autowired
 	private DiscourseRelationRepository discourseRelationRepository;
 	@Autowired
@@ -71,11 +72,12 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (args.length < 1) {
-			logger.error("Missing input file. Must provide </path/to/*-prod.mongo> as launch parameter.");
+		if(args.length<3){
+			logger.error("Usage: EdxForumConverterApplication <DataSourceType> <DataSetName> </path/to/*-prod.mongo>");
 			System.exit(1);
 		}
-		String inFileName = args[0];
+		this.dataSetName=args[1];
+		String inFileName = args[2];
 
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
@@ -121,12 +123,13 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	public void map(Post p) {
 		logger.trace("Mapping relations for post " + p.getId());
 	
-		Optional<Contribution> curOptContribution = contributionRepository.findOneBySourceId(p.getId());
+		Optional<Contribution> curOptContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
+
 		Contribution curContribution=curOptContribution.get();
 		
 		//If post is not a thread starter then create a DiscourseRelation of DESCENDANT type 
 		//that connects it with the thread starter 
-		Optional<Contribution> curOptParentContributon = contributionRepository.findOneBySourceId(p.getCommentThreadId());
+		Optional<Contribution> curOptParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),dataSetName);
 		if (curOptParentContributon.isPresent()) {
 			Contribution curParentContribution = curOptParentContributon.get();
 			DiscourseRelation curRelation = new DiscourseRelation();
@@ -153,7 +156,7 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 		
 
 		//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
-		Optional<Contribution> curOptPredecessorContributon = contributionRepository.findOneBySourceId(p.getParentId());
+		Optional<Contribution> curOptPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),dataSetName);
 		if (curOptPredecessorContributon.isPresent()) {
 			Contribution curPredecessorContribution = curOptPredecessorContributon.get();
 			DiscourseRelation curRelation = new DiscourseRelation();
