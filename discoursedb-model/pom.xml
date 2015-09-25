@@ -75,6 +75,7 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
+		<relativePath>../discoursedb-parent</relativePath>
 	</parent>
 
 </project>
