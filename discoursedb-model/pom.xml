@@ -70,6 +70,10 @@
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-collections</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>javax.interceptor</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+		</dependency>
 	</dependencies>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
