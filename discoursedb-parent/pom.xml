@@ -18,7 +18,7 @@
 		<maven.surefire.heap>512m</maven.surefire.heap>
 		<maven.surefire.argLine />
 		<jackson.version>2.6.1</jackson.version>
-		<querydsl.version>3.6.7</querydsl.version>
+		<querydsl.version>3.6.0</querydsl.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
