@@ -172,11 +172,8 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			// ---------- DiscourseParts -----------
 			logger.trace("Process DiscourseParts");			
 			// Prosolo has different types of social activities that
-			// represent different spaces in the platform. They are translated to different DiscourseParts
-			
-			DiscoursePart postSocialActivityContainer = discoursePartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY);
-			postSocialActivityContainer.setName(this.discourseName+"_POST"); //no specific title here, create  generic title 			
-		
+			// represent different spaces in the platform. They are translated to different DiscourseParts			
+			DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, this.discourseName+"_POST", DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY);		
 			
 			// ---------- Init User -----------
 			logger.trace("Process User entity");
@@ -237,6 +234,9 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			curContrib.setStartTime(curProsoloPost.getCreated());
 			curContrib.setUpvotes(curPostActivity.getLike_count());			
 			dataSourceService.addSource(curContrib, new DataSourceInstance(curProsoloPost.getId()+"",dataSourceType,dataSetName));
+		
+			//TODO add contribs to DiscoursePart
+		
 		}
 		
 		
