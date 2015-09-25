@@ -1,17 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>edu.cmu.cs.lti</groupId>
-    <artifactId>discoursedb-parent</artifactId>
-    <version>0.5-SNAPSHOT</version>
-  </parent>
-  <artifactId>discoursedb-io-bazaar</artifactId>
-  <name>DiscourseDB bazaar converters</name>
-  <description>DiscourseDB converters for bazaar data</description>
-  <dependencies>
-  	<dependency>
-  		<groupId>edu.cmu.cs.lti</groupId>
-  		<artifactId>discoursedb-model</artifactId>
-  	</dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.cmu.cs.lti</groupId>
+		<artifactId>discoursedb-parent</artifactId>
+		<version>0.5-SNAPSHOT</version>
+	</parent>
+	<artifactId>discoursedb-io-bazaar</artifactId>
+	<name>DiscourseDB bazaar converters</name>
+	<description>DiscourseDB converters for bazaar data</description>
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-bazaar</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-bazaar.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-io-bazaar</url>
+	</scm>
+	<dependencies>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+	</dependencies>
 </project>
