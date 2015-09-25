@@ -65,17 +65,9 @@ public class DemoService{
 
 	@Autowired
 	private UserRepository userRepository;
-
-	private static Predicate userHasSourceId(String sourceId) {
-		if (sourceId == null || sourceId.isEmpty()) {
-			return QUser.user.isNull();
-		} else {
-			return QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId);
-		}
-	}
     
     public Iterable<User> findUsersBySourceId(String sourceId) {
-        return userRepo.findAll(UserPredicates.userHasSourceId(sourceId));
+        return userRepo.findAll(QUser.user.dataSourceAggregate.sources.any().entitySourceId.eq(sourceId));
     }
 }
 ```
