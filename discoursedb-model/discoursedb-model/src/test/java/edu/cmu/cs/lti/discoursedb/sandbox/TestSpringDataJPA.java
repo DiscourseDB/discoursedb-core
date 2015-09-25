@@ -8,9 +8,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 /**
  * 1. We need a ComponentScan in order to discover the configuration
@@ -33,6 +36,9 @@ public class TestSpringDataJPA implements CommandLineRunner {
 	@Autowired
 	private DiscourseService discourseService;
 
+	@Autowired
+	private DataSourceService dataSourceService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(TestSpringDataJPA.class);
 	}
@@ -41,8 +47,13 @@ public class TestSpringDataJPA implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		Discourse d = discourseService.createOrGetDiscourse("UTArlingtonX/LINK5.10x/3T2014");
 		User u = userService.createOrGetUserByUsername(d, "olifer");
+		dataSourceService.addSource(u, new DataSourceInstance("testSourceId",DataSourceTypes.EDX,"edxtestdataset"));
+		
+		for(User x:userService.findUsersBySourceId("testSourceId")){
+			System.out.println(x.getUsername());
+		}
 //		u.setRealname("Oliver Ferschke");
-		userService.delete(u);
+//		userService.delete(u);
 		
 	}
 

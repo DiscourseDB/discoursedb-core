@@ -30,7 +30,9 @@ public class UserService {
 	@Autowired
 	private ContributionInteractionTypeRepository contribInteractionTypeRepo;
 
-	
+    public Iterable<User> findUsersBySourceId(String sourceId) {
+        return userRepo.findAll(UserPredicates.userHasSourceId(sourceId));
+    }
 	
 	/**
 	 * Returns a User object with the given sourceid and a given discourse if it

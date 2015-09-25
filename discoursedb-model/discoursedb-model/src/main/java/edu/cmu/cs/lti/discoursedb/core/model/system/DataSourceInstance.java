@@ -71,7 +71,7 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 	 */
 	public DataSourceInstance(String entitySourceId, DataSourceTypes sourceType, String datasetName) {
 		setEntitySourceId(entitySourceId);
-		setSourceName(sourceType);
+		setSourceType(sourceType);
 		setDatasetName(datasetName);
 	}
 	
@@ -96,11 +96,11 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 	}
 
 	@Column(name="source_type")
-	public DataSourceTypes getSourceName() {
+	public DataSourceTypes getSourceType() {
 		return sourceType;
 	}
 
-	public void setSourceName(DataSourceTypes sourceType) {
+	public void setSourceType(DataSourceTypes sourceType) {
 		this.sourceType = sourceType;
 	}
 
