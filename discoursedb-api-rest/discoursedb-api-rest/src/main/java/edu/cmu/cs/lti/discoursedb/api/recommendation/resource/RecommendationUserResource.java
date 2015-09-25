@@ -1,7 +1,11 @@
 package edu.cmu.cs.lti.discoursedb.api.recommendation.resource;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 import org.springframework.hateoas.ResourceSupport;
 
+import edu.cmu.cs.lti.discoursedb.api.recommendation.controller.RecommendationRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 
 public class RecommendationUserResource extends ResourceSupport {
@@ -15,9 +19,9 @@ public class RecommendationUserResource extends ResourceSupport {
 	public RecommendationUserResource(User user) {
 		this.setUsername(user.getUsername());
 		this.setRealname(user.getRealname());
-		this.setEdxId(user.getSourceId());
 		this.setEmail(user.getEmail());
 		this.setCountry(user.getCountry());
+		this.add(linkTo(methodOn(RecommendationRestController.class).sourcesForUser(user.getId())).withRel("userSources"));
 	}
 
 	public String getCountry() {

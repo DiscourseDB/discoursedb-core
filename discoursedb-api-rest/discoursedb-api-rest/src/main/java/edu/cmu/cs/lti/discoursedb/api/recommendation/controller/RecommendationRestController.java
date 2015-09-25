@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationContributionResource;
+import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationDataSourceInstanceResource;
 import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationDiscourseResource;
 import edu.cmu.cs.lti.discoursedb.api.recommendation.resource.RecommendationUserResource;
@@ -122,7 +123,10 @@ public class RecommendationRestController {
 	@ResponseBody
 	public Resources<RecommendationContributionResource> contributionsForDiscoursePart(@PathVariable Long id) {
 		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		
-		List<RecommendationContributionResource> discoursePartResources = discoursePartContributionRepository.findByDiscoursePart(discoursePart).stream().map(e -> e.getContribution()).map(RecommendationContributionResource::new).collect(Collectors.toList());
+		List<RecommendationContributionResource> discoursePartResources = discoursePartContributionRepository
+				.findByDiscoursePart(discoursePart).stream()
+				.map(e -> e.getContribution())
+				.map(RecommendationContributionResource::new).collect(Collectors.toList());
 		return new Resources<RecommendationContributionResource>(discoursePartResources);
 	}
 
@@ -130,8 +134,32 @@ public class RecommendationRestController {
 	@ResponseBody
 	public Resources<RecommendationUserResource> usersForDiscoursePart(@PathVariable Long id) {
 		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		
-		List<RecommendationUserResource> discoursePartResources = discoursePartContributionRepository.findByDiscoursePart(discoursePart).stream().map(e -> e.getContribution().getCurrentRevision().getAuthor()).map(RecommendationUserResource::new).collect(Collectors.toList());
+		List<RecommendationUserResource> discoursePartResources = discoursePartContributionRepository
+				.findByDiscoursePart(discoursePart).stream()
+				.map(e -> e.getContribution().getCurrentRevision().getAuthor())
+				.map(RecommendationUserResource::new)
+				.collect(Collectors.toList());
 		return new Resources<RecommendationUserResource>(discoursePartResources);
+	}
+	
+	@RequestMapping(value = "/sourcesForUser/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public Resources<RecommendationDataSourceInstanceResource> sourcesForUser(@PathVariable Long id) {
+		User user= userRepository.findOne(id);		
+		List<RecommendationDataSourceInstanceResource> dataSourceResources = 
+				user.getDataSourceAggregate().getSources().stream()
+				.map(RecommendationDataSourceInstanceResource::new).collect(Collectors.toList());
+		return new Resources<RecommendationDataSourceInstanceResource>(dataSourceResources);
+	}
+	
+	@RequestMapping(value = "/sourcesForContribution/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public Resources<RecommendationDataSourceInstanceResource> sourcesForContribution(@PathVariable Long id) {
+		Contribution contrib= contributionRepository.findOne(id);		
+		List<RecommendationDataSourceInstanceResource> dataSourceResources = 
+				contrib.getDataSourceAggregate().getSources().stream()
+				.map(RecommendationDataSourceInstanceResource::new).collect(Collectors.toList());
+		return new Resources<RecommendationDataSourceInstanceResource>(dataSourceResources);
 	}
 
 }
