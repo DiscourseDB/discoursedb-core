@@ -11,6 +11,10 @@
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-parent.git</developerConnection>
 		<url>https://github.com/discoursedb/discoursedb-parent</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/DiscourseDB/discoursedb-parent/issues</url>
+	</issueManagement>
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-parent</artifactId>
 	<version>0.5-SNAPSHOT</version>
