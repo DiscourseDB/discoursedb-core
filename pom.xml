@@ -145,7 +145,6 @@
 			<url>https://repo.spring.io/libs-release</url>
 		</repository>
 	</repositories>
-
 	<pluginRepositories>
 		<pluginRepository>
 			<id>codehaus-snapshots</id>
@@ -315,7 +314,7 @@
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
-						<phase>package</phase>
+						<phase>javadoc</phase>
 						<goals>
 							<goal>jar</goal>
 						</goals>
