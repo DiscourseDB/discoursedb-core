@@ -9,6 +9,10 @@
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</developerConnection>
 		<url>https://github.com/discoursedb/discoursedb-io-edx</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/DiscourseDB/discoursedb-io-edx/issues</url>
+	</issueManagement>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
