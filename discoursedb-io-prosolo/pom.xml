@@ -15,6 +15,10 @@
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</developerConnection>
 		<url>https://github.com/discoursedb/discoursedb-io-prosolo</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/DiscourseDB/discoursedb-io-prosolo/issues</url>
+	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
