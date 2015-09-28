@@ -611,11 +611,11 @@
 	</profiles>
 	<packaging>pom</packaging>
 	<modules>
-		<module>discoursedb-io-edx</module>
-		<module>discoursedb-io-bazaar</module>
-		<module>discoursedb-io-tags</module>
-		<module>discoursedb-io-prosolo</module>
-		<module>discoursedb-model</module>
-		<module>discoursedb-api-rest</module>
+		<module>../discoursedb-io-edx</module>
+		<module>../discoursedb-io-bazaar</module>
+		<module>../discoursedb-io-tags</module>
+		<module>../discoursedb-io-prosolo</module>
+		<module>../discoursedb-model</module>
+		<module>../discoursedb-api-rest</module>
 	</modules>
 </project>
