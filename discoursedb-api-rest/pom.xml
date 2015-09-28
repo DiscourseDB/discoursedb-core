@@ -15,6 +15,10 @@
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</developerConnection>
 		<url>https://github.com/discoursedb/discoursedb-api-rest</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/DiscourseDB/discoursedb-api-rest/issues</url>
+	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
