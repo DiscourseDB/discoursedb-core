@@ -15,6 +15,10 @@
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-tags.git</developerConnection>
 		<url>https://github.com/discoursedb/discoursedb-io-tags</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/DiscourseDB/discoursedb-io-tags/issues</url>
+	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
