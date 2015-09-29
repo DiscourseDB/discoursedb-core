@@ -6,7 +6,8 @@ The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8
 
 ## Requirements and Setup
 All DiscourseDB projects require Java 8 and Maven 3.
-### Add dependency to your Maven project
+
+### Configuring Maven repository
 You can simply add any DiscourseDB project as a dependency to your Maven project. The following configuration needs to be added to your project pom.xml or settings.xml.
 
 ```xml
@@ -29,7 +30,6 @@ You can simply add any DiscourseDB project as a dependency to your Maven project
 ```
 
 ### Check out projects
-
 To import the project into eclipse, simply follow the following steps (Steps 3 and 4 are only necessary the first time you import a Maven project from git):
 
 ```
