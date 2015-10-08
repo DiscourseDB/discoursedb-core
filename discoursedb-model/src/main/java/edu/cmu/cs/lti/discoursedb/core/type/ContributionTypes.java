@@ -8,5 +8,9 @@ THREAD_STARTER,
 /**
  * A post that is part of a thread or a comment to a previous reply but not a thread starter.
  */
-POST
+POST,
+/**
+ * A regular tweet.
+ */
+TWEET
 }
