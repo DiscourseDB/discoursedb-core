@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.util;
+package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io;
 
 public final class TableConstants {
 
