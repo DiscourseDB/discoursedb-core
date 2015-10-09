@@ -59,7 +59,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	private DataSourceTypes dataSourceType;
 	private String dataSetName;
 	
-	//Access to the prosolo database
+	//Provides access to the prosolo database
 	private ProsoloDB prosolo = null;
 
 	@Autowired
@@ -123,6 +123,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	/**
 	 * Calls the mapping routines for the different social activity types in ProSolo.
 	 * Each social activity is handled by a separate method.
+	 * If the provided dataset has previously been imported already, the process will not proceed importing anything to avoid duplicates.
 	 *  
 	 * @throws SQLException In case of a database access error
 	 */
@@ -223,7 +224,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	 * 
 	 * @param prosoloUser the prosolo user to add to discoursedb 
 	 * @return the DiscourseDB user based on or updated with the prosolo user
-	 * @throws SQLException
+	 * @throws SQLException In case of a database access error
 	 */
 	private User addOrUpdateUser(ProsoloUser prosoloUser) throws SQLException{
 		User curUser = null; 
