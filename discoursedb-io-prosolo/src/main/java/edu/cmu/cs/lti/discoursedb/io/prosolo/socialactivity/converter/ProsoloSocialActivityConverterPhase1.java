@@ -23,7 +23,9 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserInteractionService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
+import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
@@ -77,7 +79,10 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 
 	@Autowired
 	private DiscoursePartService discoursePartService;
-	
+
+	@Autowired
+	private UserInteractionService userInteractionService;
+
 	@Override
 	public void run(String... args) throws Exception {
 
@@ -116,12 +121,16 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	}
 
 	/**
-	 * Calls the mapping routines for the different social actitiy types in ProSolo.
+	 * Calls the mapping routines for the different social activity types in ProSolo.
 	 * Each social activity is handled by a separate method.
 	 *  
 	 * @throws SQLException In case of a database access error
 	 */
 	private void map() throws SQLException {
+		if(dataSourceService.dataSourceExists(dataSetName)){
+			logger.warn("Dataset "+dataSetName+" has previously already been imported. Terminating...");			
+			return;
+		}
 		mapPosts();
 		mapTwitterPosts();
 		mapNodeSocialActivities();
@@ -130,6 +139,8 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	
 	/**
 	 * Maps posts (dtype=post) to DiscourseDB 
+ 	 * We assume here that a single ProSolo database refers to a single course (ie. a single discourse).
+	 * The course details are passed on as a parameter to this converter and are not read from the prosolo database
 	 * 
 	 * @throws SQLException In case of a database access error
 	 */
@@ -153,31 +164,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			// ---------- Init User -----------
 			logger.trace("Process User entity");
 			ProsoloUser curProsoloUser = prosolo.getProsoloUser(curPostActivity.getMaker()).get();
-			User curUser = null; 
-			if(curProsoloUser==null){
-				logger.error("Could not find user information for creator of social activity "+curPostActivity.getId()+" in prosolo db.");
-			}else{				
-				//CHECK IF USER WITH SAME edX username exists in the current Discourse context
-				Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(curProsoloUser.getId());
-				if(edXUserName.isPresent()){
-					curUser=userService.createOrGetUser(discourse, edXUserName.get());
-					dataSourceService.addSource(curUser, new DataSourceInstance(curProsoloUser.getId()+"",dataSourceType,dataSetName));
-				}else{
-					curUser=userService.createOrGetUser(discourse,"", curProsoloUser.getId()+"",dataSourceType,dataSetName);
-				}
-
-				//update the real name of the user if necessary
-				curUser=userService.setRealname(curUser, curProsoloUser.getName(), curProsoloUser.getLastname());
-				
-				//Update email address if not set in db
-				//TODO allow multiple email addresses?
-				if(curUser.getEmail()==null||curUser.getEmail().isEmpty()){
-					Optional<String> prosoloMail = prosolo.getEmailForProsoloUser(curProsoloUser.getId());
-					if(prosoloMail.isPresent()){
-						curUser.setEmail(prosoloMail.get());
-					}
-				}				
-			}
+			User curUser = addOrUpdateUser(curProsoloUser);
 			
 			
 			logger.trace("Process contribution and content");
@@ -195,6 +182,7 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 			curContrib.setFirstRevision(curContent);
 			curContrib.setStartTime(curProsoloPost.getCreated());
 			curContrib.setUpvotes(curPostActivity.getLike_count());			
+			curContrib.setDownvotes(curPostActivity.getDislike_count());			
 			dataSourceService.addSource(curContrib, new DataSourceInstance(curProsoloPost.getId()+"",dataSourceType,dataSetName));
 		
 			//add contribution to DiscoursePart
@@ -202,16 +190,76 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 		}
 		
 		
-//		//Process the PostShare subtype and create contribution interactions
-//		for (Long l : getIdsForDtypeAndAction("PostSocialActivity", "PostShare")) {
-//			SocialActivity curShareActivity = getSocialActivity(l).get();
-//			ProsoloPost pPost = getProsoloPost(curShareActivity.getPost_object()).get();
-////			SocialActivity pPost.getReshare_of()
-//			//user_target indicates the person it was shared with
-//		}		
-//		//TODO DiscourseRelation: Reply		
-//		//TODO DiscourseRelation: Descendant		
+		//Process the PostShare subtype and create user-contribution interactions
+		for (Long l : prosolo.getIdsForDtypeAndAction("PostSocialActivity", "PostShare")) {
+			
+			//get the details of the postsharing activity
+			SocialActivity curSharingActivity = prosolo.getSocialActivity(l).get();
+			ProsoloPost sharingPost = prosolo.getProsoloPost(curSharingActivity.getPost_object()).get();
+			
+			//get the post that was shared
+			if(sharingPost.getReshare_of()!=null){
+				SocialActivity curSharedActivity = prosolo.getSocialActivity(sharingPost.getReshare_of()).get();
+				ProsoloPost sharedPost = prosolo.getProsoloPost(curSharedActivity.getPost_object()).get();
+							
+				//look up the contribution for the shared post in DiscourseDB
+				Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", dataSetName);
+				if(sharedContribution.isPresent()){					
+					ProsoloUser sharingProsoloUser = prosolo.getProsoloUser(curSharingActivity.getMaker()).get();
+					userInteractionService.createTypedContributionIteraction(addOrUpdateUser(sharingProsoloUser), sharedContribution.get(), ContributionInteractionTypes.SHARE);
+					
+					//TODO in addition to the userInteraction, should the shared post also be added as a contribution? Shares could have likes?
+					
+					//TODO what about PostShare entities that don't have a reshare_of value? 					
+				}				
+			}
+		}		
 		
+	}
+	
+	/**
+	 * Creates a new DiscourseDB user based on the information in the ProsoloUser object if it doesn't exist
+	 * or updates the contents of an existing DiscourseDB user.
+	 * 
+	 * @param prosoloUser the prosolo user to add to discoursedb 
+	 * @return the DiscourseDB user based on or updated with the prosolo user
+	 * @throws SQLException
+	 */
+	private User addOrUpdateUser(ProsoloUser prosoloUser) throws SQLException{
+		User curUser = null; 
+		if(prosoloUser==null){
+			logger.error("Could not find user information for prosolo user in prosolo database");
+		}else{				
+			//CHECK IF USER WITH SAME edX username exists in the current Discourse context
+			Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(prosoloUser.getId());
+			if(edXUserName.isPresent()){
+				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(this.discourseName), edXUserName.get());
+				dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"",dataSourceType,dataSetName));
+			}else{
+				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(this.discourseName),"", prosoloUser.getId()+"",dataSourceType,dataSetName);
+			}
+
+			//update the real name of the user if necessary
+			curUser=userService.setRealname(curUser, prosoloUser.getName(), prosoloUser.getLastname());
+			
+			//Update email address if not set in db
+			//TODO allow multiple email addresses?
+			if(curUser.getEmail()==null||curUser.getEmail().isEmpty()){
+				Optional<String> prosoloMail = prosolo.getEmailForProsoloUser(prosoloUser.getId());
+				if(prosoloMail.isPresent()){
+					curUser.setEmail(prosoloMail.get());
+				}
+			}
+			
+			//Update location if not yet set in db
+			if(curUser.getLocation()==null||curUser.getLocation().isEmpty()){
+				curUser.setLocation(prosoloUser.getLocation_name());					
+			}
+
+			//update data source
+			dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"",dataSourceType,dataSetName));
+		}
+		return curUser;		
 	}
 	
 	/**
