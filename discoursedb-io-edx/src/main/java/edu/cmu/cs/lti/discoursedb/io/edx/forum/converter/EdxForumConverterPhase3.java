@@ -60,11 +60,11 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (args.length != 4) {
-			logger.error("Missing input file. Must provide pointer to *-auth_user-prod-analytics.sql file as FOURTH parameter.");
+		if (args.length != 3) {
+			logger.error("Missing input file. Must provide pointer to *-auth_user-prod-analytics.sql file as THIRD parameter.");
 			System.exit(1);
 		}
-		String inFileName = args[3];
+		String inFileName = args[2];
 
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {

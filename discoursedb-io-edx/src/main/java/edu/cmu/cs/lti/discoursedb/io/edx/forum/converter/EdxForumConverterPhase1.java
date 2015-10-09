@@ -88,30 +88,19 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if(args.length<3){
-			logger.error("Usage: EdxForumConverterApplication <DataSourceType> <DataSetName> </path/to/*-prod.mongo>");
+		if(args.length<2){
+			logger.error("Usage: EdxForumConverterApplication <DataSetName> </path/to/*-prod.mongo>");
 			System.exit(1);
 		}
-		try{
-			this.dataSourceType = DataSourceTypes.valueOf(args[0]);
-		}catch(Exception e){
-			StringBuilder types = new StringBuilder();
-			for(DataSourceTypes type : DataSourceTypes.values()){
-				if(types.length()==0){types.append(",");}
-				types.append(type.name());
-			}
-			logger.error("Invalid DataSourceType: "+args[1]+". Valid values: "+types.toString());
-			logger.error("");
-			System.exit(1);
-		}
+		this.dataSourceType = DataSourceTypes.EDX;
 
-		this.dataSetName=args[1];
+		this.dataSetName=args[0];
 		if(dataSourceService.dataSourceExists(dataSetName)){
 			logger.error("Dataset "+dataSetName+" has already been imported. Terminating...");			
 			System.exit(1);
 		}
 		
-		String inFileName = args[2];
+		String inFileName = args[1];
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
 			logger.error("Input file does not exist or is not readable.");

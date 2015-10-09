@@ -26,8 +26,8 @@ public class EdxForumConverterApplication {
 	 * @param args <DataSetType> <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>
 	 */
 	public static void main(String[] args) {
-		if(args.length!=4){
-			logger.error("Usage: EdxForumConverterApplication <DataSetType> <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>");
+		if(args.length!=3){
+			logger.error("Usage: EdxForumConverterApplication <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>");
 			System.exit(1);
 		}
         SpringApplication.run(EdxForumConverterApplication.class, args);       

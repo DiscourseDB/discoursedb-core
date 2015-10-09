@@ -72,12 +72,12 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if(args.length<3){
-			logger.error("Usage: EdxForumConverterApplication <DataSourceType> <DataSetName> </path/to/*-prod.mongo>");
+		if(args.length<2){
+			logger.error("Usage: EdxForumConverterApplication <DataSetName> </path/to/*-prod.mongo>");
 			System.exit(1);
 		}
-		this.dataSetName=args[1];
-		String inFileName = args[2];
+		this.dataSetName=args[0];
+		String inFileName = args[1];
 
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
