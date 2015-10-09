@@ -24,7 +24,6 @@ public class DataSourceService {
 	@Autowired
 	private DataSourceInstanceRepository dataSourceInstanceRepo;
 
-	
 	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
@@ -36,6 +35,10 @@ public class DataSourceService {
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
 				DataSourcePredicates.hasSourceType(type).and(
 				DataSourcePredicates.hasDataSetName(dataSetName)))));
+	}
+	
+	public boolean dataSourceExists(String dataSetName){		
+		return dataSourceInstanceRepo.count(DataSourcePredicates.hasDataSetName(dataSetName))>0;
 	}
 	
 	/**

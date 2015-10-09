@@ -158,6 +158,38 @@ public class UserService {
 		}
 	}
 
+	
+	/**
+	 * This method is a convenience method to build a single real name from a first and a last name (each of which might be empty)
+	 * 
+	 * Sets the real name of the given user based on a given first and last name.
+	 * Either first or last name (or both) may be empty - the real name is assembled accordingly.
+	 * If a realname was already set before, no operation is performed. The name is not updated.
+	 * 
+	 * 
+	 * @param user the user to update
+	 * @param firstName the first name of the user
+	 * @param lastName the last name of the user
+	 * @return the user with updated or unchanged realname
+	 */
+	public User setRealname(User user, String firstName, String lastName){
+		if(user.getRealname()==null||user.getRealname().isEmpty()){
+			if(firstName.isEmpty()){
+				if(!lastName.isEmpty()){
+					user.setRealname(lastName);
+				}
+			}else{
+				if(lastName.isEmpty()){
+					user.setRealname(firstName);
+				}else{
+					user.setRealname(firstName+" "+lastName);
+				}						
+			}						
+			return save(user);
+		}
+		return user;
+	}
+	
 	/**
 	 * Calls the save method of the user repository, saves the provided User entity and returns it after the save process
 	 * @param user the user entity to save

@@ -16,5 +16,10 @@ public enum ContributionInteractionTypes {
 	/**
 	 * A user reverts the content of a contribution (needs content field to be filled)
 	 */
-	REVERT	
+	REVERT,	
+	/**
+	 * A user shared the contribution
+	 */
+	SHARE	
 }
+
