@@ -106,8 +106,12 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 		}
 
 		this.dataSetName=args[1];
+		if(dataSourceService.dataSourceExists(dataSetName)){
+			logger.error("Dataset "+dataSetName+" has already been imported. Terminating...");			
+			System.exit(1);
+		}
+		
 		String inFileName = args[2];
-
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
 			logger.error("Input file does not exist or is not readable.");
