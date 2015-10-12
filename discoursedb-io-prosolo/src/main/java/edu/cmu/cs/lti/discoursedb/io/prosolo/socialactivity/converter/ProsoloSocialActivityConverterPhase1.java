@@ -86,28 +86,17 @@ public class ProsoloSocialActivityConverterPhase1 implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-		if (args.length != 7) {
-			logger.error("Incorrect number of parameters. USAGE: <DiscourseName> <DataSourceType> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
+		if (args.length != 6) {
+			logger.error("Incorrect number of parameters. USAGE: <DiscourseName> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
 			System.exit(1);
 		}
 
 		//Parse command line parameters		
-		this.discourseName=args[0];
-		try{
-			this.dataSourceType = DataSourceTypes.valueOf(args[1]);
-		}catch(Exception e){
-			StringBuilder types = new StringBuilder();
-			for(DataSourceTypes type : DataSourceTypes.values()){
-				if(types.length()==0){types.append(",");}
-				types.append(type.name());
-			}
-			logger.error("Invalid DataSourceType: "+args[1]+". Valid values: "+types.toString());
-			logger.error("");
-			System.exit(1);
-		}
-		this.dataSetName=args[2];
+		this.discourseName=args[0];			
+		this.dataSourceType = DataSourceTypes.PROSOLO;
+		this.dataSetName=args[1];
 
-		prosolo = new ProsoloDB(args[3],args[4],args[5],args[6]);
+		prosolo = new ProsoloDB(args[2],args[3],args[4],args[5]);
 
 		logger.info("Start mapping to DiscourseDB...");
 		try {
