@@ -146,7 +146,7 @@ public class UserService {
 		}
 
 		//Retrieve ContributionInteraction or create if it doesn't exist in db
-		Optional<ContributionInteraction> existingContribInteraction =  contribInteractionRepo.findOneByUserAndContributionAndType(user, contrib, contribInteractionType.getType());		
+		Optional<ContributionInteraction> existingContribInteraction =  contribInteractionRepo.findOneByUserAndContributionAndType(user, contrib, contribInteractionType);		
 		if(existingContribInteraction.isPresent()){
 			return existingContribInteraction.get();
 		}else{

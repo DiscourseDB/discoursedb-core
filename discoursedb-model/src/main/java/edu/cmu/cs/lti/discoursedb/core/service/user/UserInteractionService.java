@@ -50,11 +50,16 @@ public class UserInteractionService {
 		}
 		
 		//TODO can we assume that the created interaction is unique?
-		ContributionInteraction contribInteraction = new ContributionInteraction();
-		contribInteraction.setContribution(contrib);
-		contribInteraction.setUser(user);
-		contribInteraction.setType(contribInteractionType);
-		return contribInteractionRepo.save(contribInteraction);
+		Optional<ContributionInteraction> existingContribInteraction = contribInteractionRepo.findOneByUserAndContributionAndType(user, contrib, contribInteractionType);
+		if(existingContribInteraction.isPresent()){
+			return existingContribInteraction.get();
+		}else{
+			ContributionInteraction contribInteraction = new ContributionInteraction();
+			contribInteraction.setContribution(contrib);
+			contribInteraction.setUser(user);
+			contribInteraction.setType(contribInteractionType);
+			return contribInteractionRepo.save(contribInteraction);			
+		}
 	}	
 	
 	
