@@ -12,5 +12,10 @@ POST,
 /**
  * A regular tweet.
  */
-TWEET
+TWEET,
+/**
+ * A ProSolo Goal Note
+ */
+GOAL_NOTE
+
 }

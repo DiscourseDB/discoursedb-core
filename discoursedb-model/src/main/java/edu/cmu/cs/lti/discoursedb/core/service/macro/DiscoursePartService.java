@@ -34,7 +34,26 @@ public class DiscoursePartService {
 
 	@Autowired
 	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepo;
-
+	/**
+	 * Retrieves existing or creates a new DiscoursePartType entity with the
+	 * provided type. It then creates a new empty DiscoursePart entity,
+	 * connects it with the type and the provided discourse.<br/>
+	 * 
+	 * All changed/created entities are committed to the db and the DiscoursePart is returned.<br/>
+	 * 
+	 * The discoursePartName is constructed like this: <code>discourseName_DiscoursePartType</code>.<br/>
+	 * Use {@link #createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type)} to explicitly set the discoursePartName. 
+	 * 
+	 * @param discourse
+	 *            the discourse of which the new DiscoursePart is a part of
+	 * @param type
+	 *            the value for the DiscoursePartType
+	 * @return a new empty DiscoursePart that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
+		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
+	}
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,

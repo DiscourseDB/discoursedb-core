@@ -20,6 +20,9 @@ public enum DiscoursePartTypes {
 	/**
 	 * A Prosolo post with the type PostSocialActivity, i.e. a post to the wall. 
 	 */
-	PROSOLO_POST_SOCIAL_ACTIVITY
-	
+	PROSOLO_POST_SOCIAL_ACTIVITY,
+	/**
+	 * A Prosolo post with the type GoalNoteSocialActivity 
+	 */
+	PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY
 }
