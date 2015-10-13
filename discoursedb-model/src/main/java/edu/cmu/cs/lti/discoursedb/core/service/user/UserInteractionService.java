@@ -3,6 +3,9 @@ package edu.cmu.cs.lti.discoursedb.core.service.user;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
@@ -12,6 +15,8 @@ import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRe
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
 
+@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+@Service
 public class UserInteractionService {
 
 	@Autowired
