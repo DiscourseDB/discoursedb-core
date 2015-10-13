@@ -22,7 +22,7 @@ public class SocialActivity {
 	public SocialActivity(String dtype, Long id, Date created, String deleted, String dc_description, String title,
 			String action, Long bookmark_count, String comments_disabled, Integer dislike_count, Date last_action,
 			Integer like_count, Integer share_count, String text, String visibility, String avatar_url, String name,
-			String nickname, String post_link, String profile_url, Integer service_type, Integer user_type, Long actor,
+			String nickname, String post_link, String profile_url, String service_type, String user_type, Long actor,
 			Long maker, Long reason, Long rich_content, Long goal_target, Long post_object, Long user_target,
 			Long node_object, Long user_object, Long node_target, Long node, Long social_activity,
 			Long enrollment_object, Long course_object, Long course_enrollment_object) {
@@ -122,11 +122,11 @@ public class SocialActivity {
 	/**
 	 * Related to TwitterPostSocialActivity. Null for all other activities.
 	 */
-	private Integer service_type;
+	private String service_type;
 	/**
 	 * Twitter user or Prosolo user
 	 */
-	private Integer user_type;
+	private String user_type;
 	/**
 	 * Removed in new schema
 	 */
@@ -291,16 +291,16 @@ public class SocialActivity {
 	public void setProfile_url(String profile_url) {
 		this.profile_url = profile_url;
 	}
-	public Integer getService_type() {
+	public String getService_type() {
 		return service_type;
 	}
-	public void setService_type(Integer service_type) {
+	public void setService_type(String service_type) {
 		this.service_type = service_type;
 	}
-	public Integer getUser_type() {
+	public String getUser_type() {
 		return user_type;
 	}
-	public void setUser_type(Integer user_type) {
+	public void setUser_type(String user_type) {
 		this.user_type = user_type;
 	}
 	public Long getActor() {

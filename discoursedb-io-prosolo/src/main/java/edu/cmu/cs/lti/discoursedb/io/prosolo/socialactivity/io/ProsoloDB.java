@@ -107,7 +107,7 @@ public class ProsoloDB {
 		if(id==null){
 			return Optional.empty();
 		}
-		SocialActivity activity = null;
+		Optional<SocialActivity> activity = null;
 		try (Connection c = getConnection()) {
 			String sql = "SELECT * from "+TableConstants.SOCIALACTIVITY+" where id=?";
 			try (PreparedStatement stmt = c.prepareStatement(sql)) {
@@ -133,8 +133,8 @@ public class ProsoloDB {
 						rs.getString("nickname"),
 						rs.getString("post_link"),
 						rs.getString("profile_url"),
-						rs.getInt("service_type"),
-						rs.getInt("user_type"),
+						rs.getString("service_type"),
+						rs.getString("user_type"),
 						rs.getLong("actor"),
 						rs.getLong("maker"),
 						rs.getLong("reason"),
@@ -150,10 +150,10 @@ public class ProsoloDB {
 						rs.getLong("enrollment_object"),
 						rs.getLong("course_object"),
 						rs.getLong("course_enrollment_object")					
-		            ))).findAny().get();
+		            ))).findFirst();
 			}
 		}
-		return Optional.of(activity);
+		return activity;
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class ProsoloDB {
 		if(id==null){
 			return Optional.empty();
 		}
-		ProsoloPost post = null;
+		Optional<ProsoloPost> post = null;
 		try (Connection c = getConnection()) {
 			String sql = "SELECT * from "+TableConstants.POST+" where id=?";
 			try (PreparedStatement stmt = c.prepareStatement(sql)) {
@@ -188,10 +188,10 @@ public class ProsoloDB {
 						rs.getLong("rich_content"),
 						rs.getLong("goal"),
 						rs.getString("post_link")
-		            ))).findAny().get();
+		            ))).findFirst();
 			}
 		}
-		return Optional.of(post);
+		return post;
 	}
 	
 	/**
@@ -206,7 +206,7 @@ public class ProsoloDB {
 		if(id==null){
 			return Optional.empty();
 		}
-		ProsoloUser pUser = null;
+		Optional<ProsoloUser> pUser = null;
 		try (Connection c = getConnection()) {
 			String sql = "SELECT * from "+TableConstants.USER+" where id=?";
 			try (PreparedStatement stmt = c.prepareStatement(sql)) {
@@ -231,10 +231,10 @@ public class ProsoloDB {
 						rs.getString("user_type"),
 						rs.getString("email"),
 						rs.getString("user_user_organization")
-		            ))).findAny().get();
+		            ))).findFirst();
 			}
 		}
-		return Optional.of(pUser);
+		return pUser;
 	}
 	
 	/**
@@ -248,19 +248,18 @@ public class ProsoloDB {
 		if(id==null){
 			return Optional.empty();
 		}
-		String edXid=null;
+		Optional<String> edXid=null;
 		try (Connection c = getConnection()) {
-			String sql = "SELECT validated_id from "+TableConstants.OPENIDACCOUNT+" where user=?";
+			String sql = "SELECT validated_id from "+TableConstants.OPENIDACCOUNT+" where user=? and validated_id is not null";
 			try (PreparedStatement stmt = c.prepareStatement(sql)) {
 				stmt.setLong(1, id); 
-				edXid = SQL.seq(stmt, Unchecked.function(rs -> rs.getString("validated_id")
-		            )).findFirst().get();
+				edXid = SQL.seq(stmt, Unchecked.function(rs -> rs.getString("validated_id"))).findFirst();
 			}
 		}		
-		if(edXid==null){
-			return Optional.empty();
+		if(!edXid.isPresent()){
+			return edXid;
 		}else{
-			return Optional.of(edXid.substring(edXid.lastIndexOf("/")+1));							
+			return Optional.of(edXid.get().substring(edXid.get().lastIndexOf("/")+1));							
 		}
 	}
 
@@ -275,20 +274,15 @@ public class ProsoloDB {
 		if(id==null){
 			return Optional.empty();
 		}
-		String edXid=null;
+		Optional<String> email=null;
 		try (Connection c = getConnection()) {
-			String sql = "SELECT address from "+TableConstants.EMAIL+" as e, "+TableConstants.USER+" as u where u.id=? and u.email=e.id";
+			String sql = "SELECT address from "+TableConstants.EMAIL+" as e, "+TableConstants.USER+" as u where u.id=? and u.email=e.id and e.address is not null";
 		try (PreparedStatement stmt = c.prepareStatement(sql)) {
 				stmt.setLong(1, id); 
-				edXid = SQL.seq(stmt, Unchecked.function(rs -> rs.getString("address")
-		            )).findAny().get();
+				email = SQL.seq(stmt, Unchecked.function(rs -> rs.getString("address"))).findFirst();
 			}
-		}		
-		if(edXid==null){
-			return Optional.empty();
-		}else{
-			return Optional.of(edXid.substring(edXid.lastIndexOf("/")+1));							
 		}
+		return email;
 	}
 
 		
