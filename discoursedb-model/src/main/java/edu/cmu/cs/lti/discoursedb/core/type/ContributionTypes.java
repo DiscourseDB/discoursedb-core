@@ -16,6 +16,11 @@ TWEET,
 /**
  * A ProSolo Goal Note
  */
-GOAL_NOTE
+GOAL_NOTE,
+/**
+ * A ProSolo Node Comment
+ */
+NODE_COMMENT
+
 
 }
