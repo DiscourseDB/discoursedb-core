@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.jooq.lambda.SQL;
 import org.jooq.lambda.Unchecked;
 
+import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloNode;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
@@ -156,8 +157,68 @@ public class ProsoloDB {
 		return activity;
 	}
 
+	
 	/**
-	 * Returns a single SocialActivity object
+	 * Returns a single ProsoloNode
+	 * 
+	 * @param id
+	 *            the id of the post node ibject 
+	 * @return the prosolo node object
+	 * @throws SQLException
+	 */
+	public Optional<ProsoloNode> getProsoloNode(Long id) throws SQLException {
+		if(id==null){
+			return Optional.empty();
+		}
+		Optional<ProsoloNode> post = null;
+		try (Connection c = getConnection()) {
+			String sql = "SELECT * from "+TableConstants.POST+" where id=?";
+			try (PreparedStatement stmt = c.prepareStatement(sql)) {
+				stmt.setLong(1, id); 
+				post = SQL.seq(stmt, Unchecked.function(rs -> new ProsoloNode(						
+						rs.getString("dtype"),
+						rs.getLong("id"),
+						rs.getTimestamp("created"),
+						rs.getBoolean("deleted"),
+						rs.getString("dc_description"),
+						rs.getString("title"),
+						rs.getString("visibility"),
+						rs.getTimestamp("deadline"),
+						rs.getBoolean("free_to_join"),
+						rs.getBoolean("archived"),
+						rs.getTimestamp("completed_date"),
+						rs.getInt("progress"),
+						rs.getBoolean("progress_activity_dependent"),
+						rs.getInt("duration"),
+						rs.getString("type"),
+						rs.getInt("validity_period"),
+						rs.getBoolean("completed"),
+						rs.getTimestamp("completed_day"),
+						rs.getTimestamp("date_finished"),
+						rs.getTimestamp("date_started"),
+						rs.getString("assignment_link"),
+						rs.getString("assignment_title"),
+						rs.getBoolean("completed"),
+						rs.getTimestamp("date_completed"),
+						rs.getLong("ta_position"),
+						rs.getBoolean("mandatory"),
+						rs.getInt("max_files_number"),
+						rs.getBoolean("visible_to_everyone"),
+						rs.getLong("maker"),
+						rs.getLong("course_enrollment"),
+						rs.getLong("learning_goal"),
+						rs.getLong("competence"),
+						rs.getLong("parent_goal"),
+						rs.getLong("activity"),
+						rs.getLong("parent_competence"),
+						rs.getLong("rich_content")
+						))).findFirst();
+			}
+		}
+		return post;
+	}
+	/**
+	 * Returns a single Post object
 	 * 
 	 * @param id
 	 *            the id of the post object

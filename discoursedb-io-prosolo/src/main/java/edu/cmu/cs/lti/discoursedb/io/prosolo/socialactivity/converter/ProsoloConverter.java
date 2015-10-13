@@ -32,6 +32,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io.ProsoloDB;
+import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloNode;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
@@ -57,6 +58,10 @@ public class ProsoloConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(ProsoloConverter.class);
 	
+	/**
+	 * List of all supported actions on nodes.
+	 */
+	private final List<String> NODE_ACTIONS = Arrays.asList(new String[]{"Comment","Create"});
 	/**
 	 * List of all the actions that create/add a new contribution.
 	 */
@@ -121,14 +126,15 @@ public class ProsoloConverter implements CommandLineRunner {
 		mapCreateSocialActivities("PostSocialActivity", "Post");
 		mapShareSocialActivities("PostSocialActivity","PostShare");
 		mapCreateSocialActivities("GoalNoteSocialActivity", "AddNote");
+		mapNodeSocialActivities("NodeSocialActivity", "Create");
+		mapNodeSocialActivities("NodeComment", "Comment");
 	}
 
 	
 
 	/**
 	 * Maps social activities of the given type and the given action to DiscourseDB
-	 * This method only covers "create" or "add" actions that create new contributions.
-	 * Actions such as "share" are not covered
+	 * This method covers "post" or "add" actions that create new contributions.
 	 * 
 	 * @param dtype the type of the SocialActivity
 	 * @param action the create/add action
@@ -182,6 +188,49 @@ public class ProsoloConverter implements CommandLineRunner {
 			discoursePartService.addContributionToDiscoursePart(curContrib, postSocialActivityContainer);			
 		}
 	}
+	
+	/**
+	 * Maps social activities of the given type and the given action to DiscourseDB
+	 * This method only covers "create" or "comment" actions related to Node contributions.
+	 * 
+	 * @param dtype the type of the SocialActivity
+	 * @param action the create/add action
+	 * @throws SQLException
+	 */
+	private void mapNodeSocialActivities(String dtype, String action) throws SQLException{
+		if(!NODE_ACTIONS.contains(action)){
+			logger.warn("Action "+action+" (SocialActivity type "+dtype+") cannot be mapped to a new contribution. The action is not registered as a node action.");
+			return;
+		}
+		
+		//We assume here that a single ProSolo database refers to a single course.
+		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
+		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
+		
+		for (Long l : prosolo.getIdsForDtypeAndAction(dtype, action)) {
+			SocialActivity curPostActivity = prosolo.getSocialActivity(l).get(); 
+			Optional<ProsoloNode> existingNode = prosolo.getProsoloNode(curPostActivity.getNode());
+			if(existingNode.isPresent()){
+				ProsoloNode curNode=existingNode.get();			
+			
+				// ---------- DiscourseParts -----------
+				logger.trace("Process DiscourseParts");			
+				// Prosolo has different types of social activities that
+				// represent different spaces in the platform. They are translated to different DiscourseParts			
+				DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype, action));		
+				
+				// ---------- Init User -----------
+				logger.trace("Process User entity");
+				ProsoloUser curProsoloUser = prosolo.getProsoloUser(curPostActivity.getMaker()).get();
+				User curUser = addOrUpdateUser(curProsoloUser);
+						 				
+				//create contribution and content
+				//if comment ... 
+			}
+			
+		}
+	}
+	
 	
 	/**
 	 * Maps social activities of the given type and the given action to DiscourseDB
@@ -279,11 +328,14 @@ public class ProsoloConverter implements CommandLineRunner {
 	private ContributionTypes lookUpContributionType(String dtype, String action){
 		if(dtype.equals("GoalNoteSocialActivity")&&action.equals("AddNote")){
 			return ContributionTypes.GOAL_NOTE;
-		}
-		else if(dtype.equals("PostSocialActivity")&&action.equals("Post")){
+		}else if(dtype.equals("NodeSocialActivity")&&action.equals("Create")){
+			return ContributionTypes.GOAL_NOTE; //TODO check if that's the correct type
+		}else if(dtype.equals("NodeComment")&&action.equals("Comment")){
+				return ContributionTypes.NODE_COMMENT; //TODO check if that's the correct type
+		}else if(dtype.equals("PostSocialActivity")&&action.equals("Post")){
 			return ContributionTypes.POST;			
 		}else{
-			throw new IllegalArgumentException("No Contribution Type for dtype "+dtype+" and action "+action);
+			throw new IllegalArgumentException("No ContributionType mapping for dtype "+dtype+" and action "+action);
 		}		
 	}
 
@@ -297,11 +349,14 @@ public class ProsoloConverter implements CommandLineRunner {
 	private DiscoursePartTypes lookUpDiscoursePartType(String dtype, String action){
 		if(dtype.equals("GoalNoteSocialActivity")&&action.equals("AddNote")){
 			return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;
-		}
-		else if(dtype.equals("PostSocialActivity")&&action.equals("Post")){
+		}else if(dtype.equals("PostSocialActivity")&&action.equals("Post")){
 			return DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY;			
+		}else if(dtype.equals("NodeSocialActivity")&&action.equals("Create")){
+			return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;			
+		}else if(dtype.equals("NodeComment")&&action.equals("Comment")){
+				return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;			
 		}else{
-			throw new IllegalArgumentException("No Contribution Type for dtype "+dtype+" and action "+action);
+			throw new IllegalArgumentException("No DiscoursePartType mapping for dtype "+dtype+" and action "+action);
 		}		
 	}
 
