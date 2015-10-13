@@ -15,15 +15,15 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @Transactional
 @ComponentScan(basePackages = {"edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity"})
-public class ProsoloSocialActivityConverterApplication {
+public class ProsoloConverterApplication {
 	
 	/**
-	 * @param args {"social_activity.csv"}
+	 * @param args <DiscourseName> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>
 	 */
 	public static void main(String[] args) {
         if(args.length!=6){
         	throw new IllegalArgumentException("USAGE: ProsoloSocialActivityConverterApplication <DiscourseName> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
         }
-		SpringApplication.run(ProsoloSocialActivityConverterApplication.class, args);       
+		SpringApplication.run(ProsoloConverterApplication.class, args);       
 	}
 }
