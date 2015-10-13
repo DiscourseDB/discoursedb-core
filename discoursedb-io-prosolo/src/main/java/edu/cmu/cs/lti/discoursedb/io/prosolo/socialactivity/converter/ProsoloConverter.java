@@ -204,22 +204,20 @@ public class ProsoloConverter implements CommandLineRunner {
 				
 			//get the entity that was shared
 			if(sharingPost.getReshare_of()!=null){
-				Optional<SocialActivity> existingSharedActivity = prosolo.getSocialActivity(sharingPost.getReshare_of());
-				if(existingSharedActivity.isPresent()){						
-					SocialActivity curSharedActivity = existingSharedActivity.get(); 
-					Optional<ProsoloPost> existingSharedPost = prosolo.getProsoloPost(curSharedActivity.getPost_object());
-					if(existingSharedPost.isPresent()){
-						ProsoloPost sharedPost = existingSharedPost.get();
-						
-						//look up the contribution for the shared entity in DiscourseDB
-						Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", dataSetName);
-						if(sharedContribution.isPresent()){					
-							ProsoloUser sharingProsoloUser = prosolo.getProsoloUser(curSharingActivity.getMaker()).get();
-							userInteractionService.createTypedContributionIteraction(addOrUpdateUser(sharingProsoloUser), sharedContribution.get(), ContributionInteractionTypes.SHARE);					
-							//TODO in addition to the userInteraction, should the shared entity also be added as a contribution? Shares can have likes.		
-							//There are PostShare entities that don't have a reshare_of value. Unclear how they have to be interpreted
-						}										
-					}
+				Optional<ProsoloPost> existingSharedPost = prosolo.getProsoloPost(sharingPost.getReshare_of());
+				if(existingSharedPost.isPresent()){
+					ProsoloPost sharedPost = existingSharedPost.get();
+					//look up the contribution for the shared entity in DiscourseDB
+					Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", dataSetName);
+					if(sharedContribution.isPresent()){					
+						ProsoloUser sharingProsoloUser = prosolo.getProsoloUser(curSharingActivity.getMaker()).get();
+						userInteractionService.createTypedContributionIteraction(addOrUpdateUser(sharingProsoloUser), sharedContribution.get(), ContributionInteractionTypes.SHARE);					
+						//TODO in addition to the userInteraction, should the shared entity also be added as a contribution? Shares can have likes.		
+						//There are PostShare entities that don't have a reshare_of value. Unclear how they have to be interpreted
+					}										
+				}else{
+					//NOP
+					//no post entry with id specified in the reshare_of field of the post associated with the PostShare social activity
 				}
 			}
 		}		
