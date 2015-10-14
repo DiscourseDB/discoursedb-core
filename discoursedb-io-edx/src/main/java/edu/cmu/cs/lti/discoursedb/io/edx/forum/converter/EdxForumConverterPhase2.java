@@ -108,7 +108,7 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	}
 
 	/**
-	 * Maps a post to DiscourseDB entities.
+	 * Creates DiscourseRelations between the current post and existing posts already imported in an earlier Phase
 	 * 
 	 * @param p
 	 *            the post object to map to DiscourseDB
