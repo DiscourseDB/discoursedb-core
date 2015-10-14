@@ -47,11 +47,13 @@ public class DiscourseRelationService {
 			discRelationTypeRepo.save(discourseRelationType);			
 		}
 		
+		//check if a relation of the given type already exists between the two contributions.
 		Optional<DiscourseRelation> existingRelation = discourseRelationRepo.findOneBySourceAndTargetAndType(sourceContribution, targetContribution, discourseRelationType);
 		if(existingRelation.isPresent()){
 			return existingRelation.get();
 		}
 		
+		//create, save and return the new relation
 		DiscourseRelation newRelation = new DiscourseRelation();
 		newRelation.setSource(sourceContribution);
 		newRelation.setTarget(targetContribution);
