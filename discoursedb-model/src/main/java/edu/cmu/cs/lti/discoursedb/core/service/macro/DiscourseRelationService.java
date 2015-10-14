@@ -24,7 +24,11 @@ public class DiscourseRelationService {
 	/**
 	 * Creates a new DiscourseRelation of the given type between the two provided contributions.
 	 * Depending on the type, the relation might be directed or not. This information should be given in the type definition.
-	 * e.g. a REPLY relation would be interpreted as the target(child) being the reply to the source(parent). 
+	 * e.g. a REPLY relation would be interpreted as the target(child) being the reply to the source(parent).
+	 * 
+	 * If a DiscourseRelation of the given type already exists between the two contributions (taking into account the direction of the relation),
+	 * then the existing relation is returned. 
+	 * DiscourseDB does not enforce the uniqueness of these relations by default, but enforcing it in this service method will cater to most of the use cases we will see.
 	 * 
 	 * @param sourceContribution the source or parent contribution of the relation
 	 * @param targetContribution the target or child contribution of the relation
