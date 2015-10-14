@@ -22,7 +22,9 @@ public class DiscourseRelationService {
 	@Autowired private DiscourseRelationRepository discourseRelationRepo;
 
 	/**
-	 * Creates a new DiscourseRelation of the given type between the two provided contributioin
+	 * Creates a new DiscourseRelation of the given type between the two provided contributions.
+	 * Depending on the type, the relation might be directed or not. This information should be given in the type definition.
+	 * e.g. a REPLY relation would be interpreted as the target(child) being the reply to the source(parent). 
 	 * 
 	 * @param sourceContribution the source or parent contribution of the relation
 	 * @param targetContribution the target or child contribution of the relation
