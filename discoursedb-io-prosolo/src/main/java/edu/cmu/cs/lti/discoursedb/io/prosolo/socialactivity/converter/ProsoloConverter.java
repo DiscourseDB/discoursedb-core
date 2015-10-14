@@ -113,7 +113,6 @@ public class ProsoloConverter implements CommandLineRunner {
 
 	/**
 	 * Calls the mapping routines for the different social activity types in ProSolo.
-	 * Each social activity is handled by a separate method.
 	 * If the provided dataset has previously been imported already, the process will not proceed importing anything to avoid duplicates.
 	 *  
 	 * @throws SQLException In case of a database access error
@@ -125,12 +124,10 @@ public class ProsoloConverter implements CommandLineRunner {
 		}
 		mapCreateSocialActivities("PostSocialActivity", "Post");
 		mapShareSocialActivities("PostSocialActivity","PostShare");
-		mapCreateSocialActivities("GoalNoteSocialActivity", "AddNote");
 		mapNodeSocialActivities("NodeSocialActivity", "Create");
-		mapNodeSocialActivities("NodeComment", "Comment");
+		mapCreateSocialActivities("GoalNoteSocialActivity", "AddNote"); //TODO create discourserelation Node-GoalNote
+		mapNodeSocialActivities("NodeComment", "Comment"); //TODO create discourserelation Node-NodeComment
 	}
-
-	
 
 	/**
 	 * Maps social activities of the given type and the given action to DiscourseDB
@@ -146,37 +143,30 @@ public class ProsoloConverter implements CommandLineRunner {
 			return;
 		}
 		
-		//We assume here that a single ProSolo database refers to a single course.
+		//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
 		
 		for (Long l : prosolo.getIdsForDtypeAndAction(dtype, action)) {
+			logger.trace("Processing "+dtype+" ("+action+") id:"+l);			
+
+			//get data from prosolo database
 			SocialActivity curPostActivity = prosolo.getSocialActivity(l).get(); 
 			ProsoloPost curProsoloPost = prosolo.getProsoloPost(curPostActivity.getPost_object()).get();			
 			
-			// ---------- DiscourseParts -----------
-			logger.trace("Process DiscourseParts");			
-			// Prosolo has different types of social activities that
-			// represent different spaces in the platform. They are translated to different DiscourseParts			
-			DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype, action));		
+			// each social activity translates to a separate DiscoursePart			
+			DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype));		
 			
-			// ---------- Init User -----------
-			logger.trace("Process User entity");
 			ProsoloUser curProsoloUser = prosolo.getProsoloUser(curPostActivity.getMaker()).get();
 			User curUser = addOrUpdateUser(curProsoloUser);
 			
-			
-			logger.trace("Process contribution and content");
-			// ---------- Init Content -----------
 			Content curContent = contentService.createContent();
 			curContent.setAuthor(curUser);
 			curContent.setStartTime(curProsoloPost.getCreated());
 			curContent.setText(curProsoloPost.getContent());			
 			dataSourceService.addSource(curContent, new DataSourceInstance(curProsoloPost.getId()+"",dataSourceType,dataSetName));
 			
-			
-			// ---------- Init Contribution -----------
-			Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(dtype, action));
+			Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(dtype));
 			curContrib.setCurrentRevision(curContent);
 			curContrib.setFirstRevision(curContent);
 			curContrib.setStartTime(curProsoloPost.getCreated());
@@ -203,29 +193,48 @@ public class ProsoloConverter implements CommandLineRunner {
 			return;
 		}
 		
-		//We assume here that a single ProSolo database refers to a single course.
+		//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
 		
 		for (Long l : prosolo.getIdsForDtypeAndAction(dtype, action)) {
-			SocialActivity curPostActivity = prosolo.getSocialActivity(l).get(); 
-			Optional<ProsoloNode> existingNode = prosolo.getProsoloNode(curPostActivity.getNode());
+			logger.trace("Processing "+dtype+" ("+action+") id:"+l);			
+
+			//get data from prosolo database
+			SocialActivity curNodeActivity = prosolo.getSocialActivity(l).get(); 
+			Optional<ProsoloNode> existingNode = prosolo.getProsoloNode(curNodeActivity.getNode());
+			
 			if(existingNode.isPresent()){
 				ProsoloNode curNode=existingNode.get();			
 			
-				// ---------- DiscourseParts -----------
-				logger.trace("Process DiscourseParts");			
-				// Prosolo has different types of social activities that
-				// represent different spaces in the platform. They are translated to different DiscourseParts			
-				DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype, action));		
+				// each social activity translates to a separate DiscoursePart			
+				DiscoursePart nodeSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype));		
 				
-				// ---------- Init User -----------
-				logger.trace("Process User entity");
-				ProsoloUser curProsoloUser = prosolo.getProsoloUser(curPostActivity.getMaker()).get();
-				User curUser = addOrUpdateUser(curProsoloUser);
-						 				
-				//create contribution and content
-				//if comment ... 
+				ProsoloUser curProsoloUser = prosolo.getProsoloUser(curNodeActivity.getMaker()).get();
+				User curUser = addOrUpdateUser(curProsoloUser);						 								
+				
+				Content curContent = contentService.createContent();
+				curContent.setAuthor(curUser);
+				curContent.setStartTime(curNode.getCreated());
+				curContent.setTitle(curNode.getTitle());
+				curContent.setTitle(curNode.getDc_description());
+				dataSourceService.addSource(curContent, new DataSourceInstance(curNode.getId()+"",dataSourceType,dataSetName));
+				
+				Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(curNode.getDtype()));
+				curContrib.setCurrentRevision(curContent);
+				curContrib.setFirstRevision(curContent);
+				curContrib.setStartTime(curNode.getCreated());
+				curContrib.setUpvotes(curNodeActivity.getLike_count());
+				curContrib.setDownvotes(curNodeActivity.getDislike_count());
+				curContrib.setStartTime(curNode.getCreated());
+				dataSourceService.addSource(curContrib, new DataSourceInstance(curNode.getId()+"",dataSourceType,dataSetName));
+				
+				//add contribution to DiscoursePart
+				discoursePartService.addContributionToDiscoursePart(curContrib, nodeSocialActivityContainer);
+				
+				
+				//if type is NodeComment.....
+				
 			}
 			
 		}
@@ -248,6 +257,8 @@ public class ProsoloConverter implements CommandLineRunner {
 		}
 
 		for (Long l : prosolo.getIdsForDtypeAndAction(dtype, action)) {
+			logger.trace("Processing "+dtype+" ("+action+") id:"+l);			
+
 			SocialActivity curSharingActivity = prosolo.getSocialActivity(l).get();
 			ProsoloPost sharingPost = prosolo.getProsoloPost(curSharingActivity.getPost_object()).get();
 				
@@ -264,9 +275,6 @@ public class ProsoloConverter implements CommandLineRunner {
 						//TODO in addition to the userInteraction, should the shared entity also be added as a contribution? Shares can have likes.		
 						//There are PostShare entities that don't have a reshare_of value. Unclear how they have to be interpreted
 					}										
-				}else{
-					//NOP
-					//no post entry with id specified in the reshare_of field of the post associated with the PostShare social activity
 				}
 			}
 		}		
@@ -297,8 +305,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			//update the real name of the user if necessary
 			curUser=userService.setRealname(curUser, prosoloUser.getName(), prosoloUser.getLastname());
 			
-			//Update email address if not set in db
-			//TODO allow multiple email addresses?
+			//Update email address if not set in db (TODO allow multiple email addresses?)
 			if(curUser.getEmail()==null||curUser.getEmail().isEmpty()){
 				Optional<String> prosoloMail = prosolo.getEmailForProsoloUser(prosoloUser.getId());
 				if(prosoloMail.isPresent()){
@@ -311,7 +318,7 @@ public class ProsoloConverter implements CommandLineRunner {
 				curUser.setLocation(prosoloUser.getLocation_name());					
 			}
 
-			//update data source
+			//add new data source
 			dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"",dataSourceType,dataSetName));
 		}
 		return curUser;		
@@ -319,45 +326,41 @@ public class ProsoloConverter implements CommandLineRunner {
 	
 	
 	/**
-	 * Maps SocialActivity dtype and action to an appropriate DiscourseDB ContributionType
+	 * Maps SocialActivity dtype to an appropriate DiscourseDB ContributionType
 	 * 
 	 * @param dtype the SocialActivity type
-	 * @param action the SocialActivity action
 	 * @return an appropriate ContributionType for the given SocialActivity entity
 	 */
-	private ContributionTypes lookUpContributionType(String dtype, String action){
-		if(dtype.equals("GoalNoteSocialActivity")&&action.equals("AddNote")){
-			return ContributionTypes.GOAL_NOTE;
-		}else if(dtype.equals("NodeSocialActivity")&&action.equals("Create")){
-			return ContributionTypes.GOAL_NOTE; //TODO check if that's the correct type
-		}else if(dtype.equals("NodeComment")&&action.equals("Comment")){
-				return ContributionTypes.NODE_COMMENT; //TODO check if that's the correct type
-		}else if(dtype.equals("PostSocialActivity")&&action.equals("Post")){
-			return ContributionTypes.POST;			
-		}else{
-			throw new IllegalArgumentException("No ContributionType mapping for dtype "+dtype+" and action "+action);
-		}		
+	private ContributionTypes lookUpContributionType(String dtype){
+		switch(dtype){
+			case "GoalNoteSocialActivity": return ContributionTypes.GOAL_NOTE; 
+			case "LearningGoal": return ContributionTypes.LEARNING_GOAL; 
+			case "TargetLearningGoal": return ContributionTypes.LEARNING_GOAL;  
+			case "Competence": return ContributionTypes.COMPETENCE; 
+			case "TargetCompetence": return ContributionTypes.COMPETENCE;  
+			case "ResourceActivity": return ContributionTypes.RESOURCE_ACTIVITY;
+			case "TargetActivity": return ContributionTypes.TARGET_ACTIVITY; 
+			case "UploadAssignmentActivity": return ContributionTypes.UPLOAD_ASSIGNMENT_ACTIVITY;
+			case "NodeComment": return ContributionTypes.NODE_COMMENT; 
+			case "PostSocialActivity": return ContributionTypes.POST; 
+			default: throw new IllegalArgumentException("No ContributionType mapping for dtype "+dtype); 
+		}
 	}
 
 	/**
-	 * Maps SocialActivity dtype and action to an appropriate DiscourseDB DiscoursePartType
+	 * Maps SocialActivity dtype to an appropriate DiscourseDB DiscoursePartType
 	 * 
 	 * @param dtype the SocialActivity type
-	 * @param action the SocialActivity action
 	 * @return an appropriate DiscoursePartType for the given SocialActivity entity
 	 */
-	private DiscoursePartTypes lookUpDiscoursePartType(String dtype, String action){
-		if(dtype.equals("GoalNoteSocialActivity")&&action.equals("AddNote")){
-			return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;
-		}else if(dtype.equals("PostSocialActivity")&&action.equals("Post")){
-			return DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY;			
-		}else if(dtype.equals("NodeSocialActivity")&&action.equals("Create")){
-			return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;			
-		}else if(dtype.equals("NodeComment")&&action.equals("Comment")){
-				return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;			
-		}else{
-			throw new IllegalArgumentException("No DiscoursePartType mapping for dtype "+dtype+" and action "+action);
-		}		
+	private DiscoursePartTypes lookUpDiscoursePartType(String dtype){
+		switch(dtype){
+			case "GoalNoteSocialActivity": return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;
+			case "NodeSocialActivity": return DiscoursePartTypes.PROSOLO_NODE_SOCIAL_ACTIVITY;
+			case "NodeComment": return DiscoursePartTypes.PROSOLO_NODE_SOCIAL_ACTIVITY;
+			case "PostSocialActivity": return DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY;			
+			default: throw new IllegalArgumentException("No DiscoursePartType mapping for dtype "+dtype);
+		}
 	}
 
 }
