@@ -132,6 +132,8 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 			if (existingPredecessorContributon.isPresent()) {
 				discourseRelationService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
 			}					
+		}else{
+			logger.warn("No Contribution for Post "+p.getId()+" found in DiscourseDB. It should have been imported in Phase1.");
 		}
 		
 		logger.trace("Post relation mapping completed.");
