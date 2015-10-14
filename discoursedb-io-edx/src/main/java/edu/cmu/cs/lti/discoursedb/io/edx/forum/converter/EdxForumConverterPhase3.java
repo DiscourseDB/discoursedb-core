@@ -55,8 +55,7 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 	 * Entity-Repositories for DiscourseDB connection.
 	 */
 
-	@Autowired
-	private UserService userService;
+	@Autowired private UserService userService;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -119,20 +118,8 @@ public class EdxForumConverterPhase3 implements CommandLineRunner {
 			curUser.setEmail(u.getEmail());
 		}
 
-		if(curUser.getRealname()==null||curUser.getRealname().isEmpty()){
-			if(!u.getFirst_name().isEmpty()){
-				if(!u.getLast_name().isEmpty()){
-					curUser.setRealname(u.getFirst_name()+" "+u.getLast_name());
-				}else{
-					curUser.setRealname(u.getFirst_name());
-				}
-			}else{
-				if(!u.getLast_name().isEmpty()){
-					curUser.setRealname(u.getLast_name());
-				}				
-			}
-		}
-		
+		curUser = userService.setRealname(curUser, u.getFirst_name(), u.getLast_name());
+				
 		if(curUser.getCountry()==null||curUser.getCountry().isEmpty()){
 			curUser.setCountry(u.getCountry());
 		}

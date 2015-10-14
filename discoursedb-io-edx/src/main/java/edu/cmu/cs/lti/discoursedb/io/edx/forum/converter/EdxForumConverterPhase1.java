@@ -69,22 +69,12 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 	private DataSourceTypes dataSourceType;
 	private String dataSetName;
 
-	/*
-	 * Entity-Repositories for DiscourseDB connection.
-	 */
-
-	@Autowired
-	private DiscourseService discourseService;
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private DataSourceService dataSourceService;
-	@Autowired
-	private ContentService contentService;
-	@Autowired
-	private ContributionService contributionService;
-	@Autowired
-	private DiscoursePartService discoursePartService;
+	@Autowired private DiscourseService discourseService;
+	@Autowired private UserService userService;
+	@Autowired private DataSourceService dataSourceService;
+	@Autowired private ContentService contentService;
+	@Autowired private ContributionService contributionService;
+	@Autowired private DiscoursePartService discoursePartService;
 
 	@Override
 	public void run(String... args) throws Exception {

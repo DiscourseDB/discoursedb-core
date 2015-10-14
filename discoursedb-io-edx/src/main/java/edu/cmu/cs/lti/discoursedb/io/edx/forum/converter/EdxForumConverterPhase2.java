@@ -22,11 +22,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseRelationService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 
@@ -63,12 +60,8 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	 * Entity-Repositories for DiscourseDB connection.
 	 */
 
-	@Autowired
-	private ContributionService contributionService;
-	@Autowired
-	private DiscourseRelationRepository discourseRelationRepository;
-	@Autowired
-	private DiscourseRelationTypeRepository discourseRelationTypeRepository;
+	@Autowired private ContributionService contributionService;
+	@Autowired private DiscourseRelationService discourseRelationService;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -120,68 +113,23 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	 * @param p
 	 *            the post object to map to DiscourseDB
 	 */
-	public void map(Post p) {
-		
-		/*
-		 * TODO: this needs to be converted to use Service classes rather than repositories
-		 */
-		
+	public void map(Post p) {		
 		logger.trace("Mapping relations for post " + p.getId());
 	
-		Optional<Contribution> curOptContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
-
-		Contribution curContribution=curOptContribution.get();
+		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
+		Contribution curContribution=existingContribution.get();
 		
 		//If post is not a thread starter then create a DiscourseRelation of DESCENDANT type 
 		//that connects it with the thread starter 
-		Optional<Contribution> curOptParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),dataSetName);
-		if (curOptParentContributon.isPresent()) {
-			Contribution curParentContribution = curOptParentContributon.get();
-			DiscourseRelation curRelation = new DiscourseRelation();
-			curRelation.setSource(curParentContribution);
-			curRelation.setTarget(curContribution);
-
-			// We assign the parent-child type by adding this DiscourseRelation
-			// to the set of DESCENDANT TYPES
-			Optional<DiscourseRelationType> optPartOfThreadType = discourseRelationTypeRepository.findOneByType(DiscourseRelationTypes.DESCENDANT.name());
-			DiscourseRelationType partOfThreadType;
-			if (optPartOfThreadType.isPresent()) {
-				partOfThreadType = optPartOfThreadType.get();
-			} else {
-				partOfThreadType = new DiscourseRelationType();
-				partOfThreadType.setType(DiscourseRelationTypes.DESCENDANT.name());
-				partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);			
-			}
-			
-			curRelation.setType(partOfThreadType);
-			curRelation = discourseRelationRepository.save(curRelation);
-			partOfThreadType.addDiscourseRelation(curRelation);
-			partOfThreadType = discourseRelationTypeRepository.save(partOfThreadType);
+		Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),dataSetName);
+		if (existingParentContributon.isPresent()) {
+			discourseRelationService.createDiscourseRelation(existingParentContributon.get(), curContribution, DiscourseRelationTypes.DESCENDANT);
 		}
-		
 
 		//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
-		Optional<Contribution> curOptPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),dataSetName);
-		if (curOptPredecessorContributon.isPresent()) {
-			Contribution curPredecessorContribution = curOptPredecessorContributon.get();
-			DiscourseRelation curRelation = new DiscourseRelation();
-			curRelation.setSource(curPredecessorContribution);
-			curRelation.setTarget(curContribution);
-			// We assign the parent-child type by adding this DiscourseRelation
-			// to the set of REPLY TYPES
-			Optional<DiscourseRelationType> optCommentType = discourseRelationTypeRepository.findOneByType(DiscourseRelationTypes.REPLY.name());
-			DiscourseRelationType commentType;
-			if (optCommentType.isPresent()) {
-				commentType = optCommentType.get();
-			} else {
-				commentType = new DiscourseRelationType();
-				commentType.setType(DiscourseRelationTypes.REPLY.name());
-			}
-			curRelation.setType(commentType);
-			curRelation = discourseRelationRepository.save(curRelation);
-
-			commentType.addDiscourseRelation(curRelation);
-			commentType = discourseRelationTypeRepository.save(commentType);			
+		Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),dataSetName);
+		if (existingPredecessorContributon.isPresent()) {
+			discourseRelationService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
 		}		
 		
 		logger.trace("Post relation mapping completed.");
