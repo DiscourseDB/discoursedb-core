@@ -96,8 +96,7 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	public void convert(String inFile) throws JsonParseException, JsonProcessingException, IOException {
 		final InputStream in = new FileInputStream(inFile);
 		try {
-			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it
-					.hasNext();) {
+			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it.hasNext();) {
 				logger.debug("Retrieving post number " + postcount++);
 				Post curPost = it.next();
 				map(curPost);
@@ -116,21 +115,24 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 	public void map(Post p) {		
 		logger.trace("Mapping relations for post " + p.getId());
 	
+		//check if a contribution for the given Post already exists in DiscourseDB (imported in Phase1)
 		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
-		Contribution curContribution=existingContribution.get();
-		
-		//If post is not a thread starter then create a DiscourseRelation of DESCENDANT type 
-		//that connects it with the thread starter 
-		Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),dataSetName);
-		if (existingParentContributon.isPresent()) {
-			discourseRelationService.createDiscourseRelation(existingParentContributon.get(), curContribution, DiscourseRelationTypes.DESCENDANT);
-		}
+		if(existingContribution.isPresent()){
+			Contribution curContribution=existingContribution.get();
+			
+			//If post is not a thread starter then create a DiscourseRelation of DESCENDANT type 
+			//that connects it with the thread starter 
+			Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),dataSetName);
+			if (existingParentContributon.isPresent()) {
+				discourseRelationService.createDiscourseRelation(existingParentContributon.get(), curContribution, DiscourseRelationTypes.DESCENDANT);
+			}
 
-		//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
-		Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),dataSetName);
-		if (existingPredecessorContributon.isPresent()) {
-			discourseRelationService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
-		}		
+			//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
+			Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),dataSetName);
+			if (existingPredecessorContributon.isPresent()) {
+				discourseRelationService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
+			}					
+		}
 		
 		logger.trace("Post relation mapping completed.");
 	}
