@@ -176,7 +176,7 @@ public class ProsoloConverter implements CommandLineRunner {
 				if(existingNode.isPresent()){
 					ProsoloNode curNode=existingNode.get();
 					typeSpecificSourceId= curNode.getId()+"";
-					typeSpecificSourceDescription= "Node";
+					typeSpecificSourceDescription= "node.id";
 					typeSpecificDType=curNode.getDtype();
 				}
 			}else if(dtype.equals("PostSocialActivity")){
@@ -184,7 +184,7 @@ public class ProsoloConverter implements CommandLineRunner {
 				if(existingProsoloPost.isPresent()){
 					ProsoloPost curProsoloPost = existingProsoloPost.get();
 					typeSpecificSourceId= curProsoloPost.getId()+"";
-					typeSpecificSourceDescription= "Post";
+					typeSpecificSourceDescription= "post.id";
 					typeSpecificDType=curProsoloPost.getDtype();
 				}
 			}						
@@ -195,7 +195,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			curContent.setAuthor(curUser);
 			curContent.setStartTime(curSocialActivity.getCreated());
 			curContent.setText(curSocialActivity.getText());			
-			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivity.getId()+"","SocialActivity",dataSourceType, dataSetName));
+			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivity.getId()+"","social_activity.id",dataSourceType, dataSetName));
 			
 			Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(typeSpecificDType));
 			curContrib.setCurrentRevision(curContent);
@@ -203,7 +203,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			curContrib.setStartTime(curSocialActivity.getCreated());
 			curContrib.setUpvotes(curSocialActivity.getLike_count());			
 			curContrib.setDownvotes(curSocialActivity.getDislike_count());			
-			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivity.getId()+"","SocialActivity",dataSourceType,dataSetName));
+			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivity.getId()+"","social_activity.id",dataSourceType,dataSetName));
 
 			if(typeSpecificSourceId!=null){
 				dataSourceService.addSource(curContent, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, dataSourceType, dataSetName));				
@@ -226,7 +226,7 @@ public class ProsoloConverter implements CommandLineRunner {
 				if(existingNode.isPresent()){
 					ProsoloNode node = existingNode.get();					
 					//check if a contribution for the given node exists
-					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", "Node", dataSetName);					
+					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", "node.id", dataSetName);					
 					if(nodeContrib.isPresent()){
 						discourseRelationService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
@@ -240,7 +240,7 @@ public class ProsoloConverter implements CommandLineRunner {
 				if(existingParenteNode.isPresent()){
 					ProsoloNode node = existingParenteNode.get();					
 					//check if a contribution for the given node exists
-					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", dataSetName);					
+					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", "node.id", dataSetName);					
 					if(nodeContrib.isPresent()){
 						discourseRelationService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
@@ -257,7 +257,7 @@ public class ProsoloConverter implements CommandLineRunner {
 						if(existingSharedPost.isPresent()){
 							ProsoloPost sharedPost = existingSharedPost.get();
 							//look up the contribution for the shared entity in DiscourseDB
-							Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", dataSetName);
+							Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", "post.id",dataSetName);
 							if(sharedContribution.isPresent()){					
 								//we represent the sharing activity as a relation between the sharing user and the shared contribution
 								userInteractionService.createTypedContributionIteraction(curUser, sharedContribution.get(), ContributionInteractionTypes.SHARE);					
@@ -289,9 +289,9 @@ public class ProsoloConverter implements CommandLineRunner {
 			Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(prosoloUser.getId());
 			if(edXUserName.isPresent()){
 				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(this.discourseName), edXUserName.get());
-				dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"",dataSourceType,dataSetName));
+				dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"","user.id",dataSourceType,dataSetName));
 			}else{
-				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(this.discourseName),"", prosoloUser.getId()+"",dataSourceType,dataSetName);
+				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(this.discourseName),"", prosoloUser.getId()+"","user.id",dataSourceType,dataSetName);
 			}
 
 			//update the real name of the user if necessary
@@ -311,7 +311,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			}
 
 			//add new data source
-			dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"",dataSourceType,dataSetName));
+			dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"","user.id",dataSourceType,dataSetName));
 		}
 		return curUser;		
 	}
