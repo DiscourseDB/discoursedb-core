@@ -170,7 +170,7 @@ public class ProsoloConverter implements CommandLineRunner {
 				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker());
 				if(existingProsoloUser.isPresent()){
 					curUser = addOrUpdateUser(existingProsoloUser.get());
-					//curUser might end up being null for some TwitterPosts that don't have user info				
+					//curUser might end up being null for some PostSocialActivities of the TwitterPost type that don't have user info				
 				}
 			}			
 			
