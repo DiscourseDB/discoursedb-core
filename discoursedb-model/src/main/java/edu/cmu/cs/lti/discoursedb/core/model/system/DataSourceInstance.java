@@ -52,9 +52,9 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 	 * "sourceType".
 	 * 
 	 * @param entitySourceId
-	 *            the id of the entity in the source system
-	 * @param entitySourceId
-	 *            the name/descriptor of the field that was used as sourceId 
+	 *            the id of the entity in the source system (i.e. how is the instance identified in the source)
+	 * @param entitySourceDescriptor
+	 *            the name/descriptor of the field that was used as sourceId (i.e. how can i find the id in the source)
 	 * @param datasetName
 	 *            the name of the dataset, e.g. edx_dalmooc_20150202
 	 */
@@ -71,9 +71,9 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 	 * "sourceType".
 	 * 
 	 * @param entitySourceId
-	 *            the id of the entity in the source system
-	 * @param entitySourceId
-	 *            the name/descriptor of the field that was used as sourceId 
+	 *            the id of the entity in the source system (i.e. how is the instance identified in the source)
+	 * @param entitySourceDescriptor
+	 *            the name/descriptor of the field that was used as sourceId (i.e. how can i find the id in the source)
 	 * @param sourceType
 	 *            the name of the source system (e.g. edX, prosolo, wikipedia)
 	 * @param datasetName

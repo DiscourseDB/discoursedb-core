@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.core.service.system;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.IncorrectResultSetColumnCountException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +25,36 @@ public class DataSourceService {
 	@Autowired
 	private DataSourceInstanceRepository dataSourceInstanceRepo;
 
-	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String dataSetName ){
+	/**
+	 * Retrieves an existing DataSourceInstance
+	 * 
+	 * NOTE: entitySourceIds are not necessarily unique. If you are not sure, please disambiguate using an entitySourceDescriptor.
+	 * The combination of sourceId and sourceDescriptor must be unique for a given dataset. 
+	 * 
+	 * @param entitySourceId
+	 *            the id of the entity in the source system (i.e. how is the instance identified in the source)
+	 * @param datasetName
+	 *            the name of the dataset, e.g. edx_dalmooc_20150202
+	 * @return an optional containing the DataSourceInstance if it exist, empty otherwise
+	 * @throws IncorrectResultSetColumnCountException if more than one DataSource with this entitySourceId was found. In that case, you have to disambiguate with an entitySourceDescriptor using {@link #findDataSource(String, String, String)} 
+	 */
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String dataSetName ) throws IncorrectResultSetColumnCountException{
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
 				DataSourcePredicates.hasDataSetName(dataSetName))));
 	}
 
+	/**
+	 * Retrieves an existing DataSourceInstance
+	 * 
+	 * @param entitySourceId
+	 *            the id of the entity in the source system (i.e. how is the instance identified in the source)
+	 * @param entitySourceDescriptor
+	 *            the name/descriptor of the field that was used as sourceId (i.e. how can i find the id in the source)
+	 * @param datasetName
+	 *            the name of the dataset, e.g. edx_dalmooc_20150202
+	 * @return an optional containing the DataSourceInstance if it exist, empty otherwise
+	 */
 	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
@@ -37,6 +62,39 @@ public class DataSourceService {
 				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor))));
 	}
 
+	/**
+	 * NOTE: entitySourceIds are not necessarily unique. If you are not sure, please disambiguate using an entitySourceDescriptor.
+	 * The combination of sourceId and sourceDescriptor must be unique for a given dataset. 
+	 * 
+	 * @param entitySourceId
+	 *            the id of the entity in the source system (i.e. how is the instance identified in the source)
+	 * @param type
+	 *            the name of the source system (e.g. edX, prosolo, wikipedia)
+	 * @param datasetName
+	 *            the name of the dataset, e.g. edx_dalmooc_20150202
+	 * @return an optional containing the DataSourceInstance if it exist, empty otherwise
+	 * @throws IncorrectResultSetColumnCountException if more than one DataSource with this entitySourceId was found. In that case, you have to disambiguate with an entitySourceDescriptor using {@link #findDataSource(String, String, DataSourceTypes, String)} 
+	 */
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, DataSourceTypes type, String dataSetName ) throws IncorrectResultSetColumnCountException{
+		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
+				DataSourcePredicates.hasSourceId(entitySourceId).and(
+				DataSourcePredicates.hasSourceType(type).and(
+				DataSourcePredicates.hasDataSetName(dataSetName)))));
+	}
+
+	/**
+	 * Retrieves an existing DataSourceInstance
+	 * 
+	 * @param entitySourceId
+	 *            the id of the entity in the source system (i.e. how is the instance identified in the source)
+	 * @param entitySourceDescriptor
+	 *            the name/descriptor of the field that was used as sourceId (i.e. how can i find the id in the source)
+	 * @param type
+	 *            the name of the source system (e.g. edX, prosolo, wikipedia)
+	 * @param datasetName
+	 *            the name of the dataset, e.g. edx_dalmooc_20150202
+	 * @return an optional containing the DataSourceInstance if it exist, empty otherwise
+	 */
 	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, DataSourceTypes type, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
@@ -45,13 +103,13 @@ public class DataSourceService {
 				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor))))));
 	}
 	
-	public Optional<DataSourceInstance> findDataSource(String entitySourceId, DataSourceTypes type, String dataSetName ){
-		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
-				DataSourcePredicates.hasSourceId(entitySourceId).and(
-				DataSourcePredicates.hasSourceType(type).and(
-				DataSourcePredicates.hasDataSetName(dataSetName)))));
-	}
 	
+	/**
+	 * Checks whether a dataset with the given name exists in the DiscourseDB instance
+	 * 
+	 * @param dataSetName the name of the dataset (e.g. file name or dataset name)
+	 * @return true, if any data from that dataset has been imported previously. false, else.
+	 */
 	public boolean dataSourceExists(String dataSetName){		
 		return dataSourceInstanceRepo.count(DataSourcePredicates.hasDataSetName(dataSetName))>0;
 	}
