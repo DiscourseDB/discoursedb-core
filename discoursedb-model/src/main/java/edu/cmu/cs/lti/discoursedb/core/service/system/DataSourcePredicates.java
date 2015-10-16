@@ -34,4 +34,12 @@ public final class DataSourcePredicates {
 			return QDataSourceInstance.dataSourceInstance.datasetName.eq(dataSetName);
 		}
 	}
+	
+	public static BooleanExpression hasEntitySourceDescriptor(String entitySourceDescriptor) {
+		if (entitySourceDescriptor == null||entitySourceDescriptor.isEmpty()) {
+			return QDataSourceInstance.dataSourceInstance.isNull();
+		} else {			
+			return QDataSourceInstance.dataSourceInstance.entitySourceDescriptor.eq(entitySourceDescriptor);
+		}
+	}
 }

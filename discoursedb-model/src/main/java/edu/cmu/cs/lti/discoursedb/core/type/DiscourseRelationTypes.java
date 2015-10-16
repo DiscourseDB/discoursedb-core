@@ -8,6 +8,15 @@ public enum DiscourseRelationTypes {
 	/**
 	 * The target contribution is a descendant of the parent contribution
 	 */
-	DESCENDANT
+	DESCENDANT,
+	/**
+	 * The target contribution is a comment or note on the parent contribution
+	 */
+	COMMENT,
+	/**
+	 * The target contribution is a reshare or retweet of the parent contribution
+	 */	
+	RESHARE
+
 	
 }

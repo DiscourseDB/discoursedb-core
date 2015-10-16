@@ -24,5 +24,9 @@ public enum DiscoursePartTypes {
 	/**
 	 * A Prosolo post with the type GoalNoteSocialActivity 
 	 */
-	PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY
+	PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY,
+	/**
+	 * A Prosolo post with the type NodeSocialActivity 
+	 */
+	PROSOLO_NODE_SOCIAL_ACTIVITY
 }

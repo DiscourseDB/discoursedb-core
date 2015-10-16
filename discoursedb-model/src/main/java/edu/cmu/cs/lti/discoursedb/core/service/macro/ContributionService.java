@@ -84,6 +84,23 @@ public class ContributionService {
 		}
 	}
 	
+	/**
+	 * Retrieves a contribution that has a source which exactly matches the given DataSource parameters.
+	 * 
+	 * @param entitySourceId the source id of the contribution  
+	 * @param type the type of the source
+	 * @param dataSetName the dataset the source id was derived from
+	 * @return an optional contribution that meets the requested parameters
+	 */
+	public Optional<Contribution> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName) {		
+		Optional<DataSourceInstance> dataSource = dataSourceService.findDataSource(entitySourceId, dataSetName);
+		if(dataSource.isPresent()){
+			return Optional.ofNullable(contributionRepo.findOne(
+					ContributionPredicates.contributionHasDataSource(dataSource.get())));			
+		}else{
+			return Optional.empty();
+		}
+	}
 	
 
 }

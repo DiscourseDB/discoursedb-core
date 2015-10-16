@@ -173,6 +173,9 @@ public class UserService {
 	 * @return the user with updated or unchanged realname
 	 */
 	public User setRealname(User user, String firstName, String lastName){
+		if(firstName==null)firstName="";
+		if(lastName==null)lastName="";
+		
 		if(user.getRealname()==null||user.getRealname().isEmpty()){
 			if(firstName.isEmpty()){
 				if(!lastName.isEmpty()){
