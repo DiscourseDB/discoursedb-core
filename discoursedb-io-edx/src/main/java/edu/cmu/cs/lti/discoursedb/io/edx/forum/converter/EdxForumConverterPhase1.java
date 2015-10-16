@@ -152,7 +152,7 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 		
 		logger.trace("Init User entity");
 		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthorUsername());
-		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthorId(),dataSourceType, dataSetName));
+		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthorId(),"authorId",dataSourceType, dataSetName));
 
 		// ---------- Create Contribution and Content -----------
 		//Check if contribution exists already. This could only happen if we import the same dump multiple times.
@@ -166,7 +166,7 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 			curContent.setText(p.getBody());
 			curContent.setStartTime(p.getCreatedAt());
 			curContent.setAuthor(curUser);
-			dataSourceService.addSource(curContent, new DataSourceInstance(p.getId(),dataSourceType,dataSetName));
+			dataSourceService.addSource(curContent, new DataSourceInstance(p.getId(),"id",dataSourceType,dataSetName));
 			
 			logger.trace("Create Contribution entity");
 			curContribution = contributionService.createTypedContribution(mappedType);
@@ -174,7 +174,7 @@ public class EdxForumConverterPhase1 implements CommandLineRunner {
 			curContribution.setFirstRevision(curContent);
 			curContribution.setStartTime(p.getCreatedAt());
 			curContribution.setUpvotes(p.getUpvoteCount());
-			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),dataSourceType,dataSetName));
+			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),"id",dataSourceType,dataSetName));
 
 			//Add contribution to DiscoursePart
 			discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
