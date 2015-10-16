@@ -5,8 +5,7 @@ This project contains the core object model for DiscourseDB which both defines t
 The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/)
 
 ## Informal Description of the Data Model
-[Chris Bogart](http://quetzal.bogarthome.net/) compiled an [informal description](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf) of the data model that illustrates the basic idea of the main DiscourseDB entities. 
-
+[Chris Bogart](http://quetzal.bogarthome.net/) compiled an [informal description](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf) of main DiscourseDB entities.
 
 ## Requirements and Setup
 All DiscourseDB projects require Java 8 and Maven 3.
@@ -49,7 +48,7 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 
 ## DiscourseDB Model Architecture and Components
 ### Architecture Overview
-TBA
+TBA. For now, please refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
 
 ### DiscourseDB Configuration
 TBA
