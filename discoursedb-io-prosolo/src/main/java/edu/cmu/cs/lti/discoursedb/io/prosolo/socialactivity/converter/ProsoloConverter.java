@@ -165,12 +165,13 @@ public class ProsoloConverter implements CommandLineRunner {
 				//We have no prosolo user information, but twitter user account information
 				//The source id will therefore link to the social activity and not to a user entry
 				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivity.getId()+"", "social_activity.id", dataSourceType, dataSetName);
-				curUser.setRealname(curSocialActivity.getName());
-				
-			}else{
-				ProsoloUser curProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker()).get();
-				curUser = addOrUpdateUser(curProsoloUser);
-				//curUser might end up being null for some TwitterPosts that don't have user info				
+				curUser.setRealname(curSocialActivity.getName());				
+			}else{				
+				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker());
+				if(existingProsoloUser.isPresent()){
+					curUser = addOrUpdateUser(existingProsoloUser.get());
+					//curUser might end up being null for some TwitterPosts that don't have user info				
+				}
 			}			
 			
 			/*
