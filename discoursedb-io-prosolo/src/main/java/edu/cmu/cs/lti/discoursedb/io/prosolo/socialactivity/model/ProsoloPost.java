@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model;
 import java.util.Date;
 
 public class ProsoloPost {
+ private String dtype;
  private Long id;
  private Date created;
  private Boolean deleted;
@@ -18,10 +19,11 @@ public class ProsoloPost {
  private Long goal;
  private String post_link;
  
-public ProsoloPost(Long id, Date created, Boolean deleted, String dc_description, String title, String content,
+public ProsoloPost(String dtype, Long id, Date created, Boolean deleted, String dc_description, String title, String content,
 		String link, String visibility, Boolean connect_with_status, Long maker, Long reshare_of, Long rich_content,
 		Long goal, String post_link) {
 	super();
+	this.dtype = dtype;
 	this.id = id;
 	this.created = created;
 	this.deleted = deleted;
@@ -36,6 +38,12 @@ public ProsoloPost(Long id, Date created, Boolean deleted, String dc_description
 	this.rich_content = rich_content;
 	this.goal = goal;
 	this.post_link = post_link;
+}
+public String getDtype() {
+	return dtype;
+}
+public void setDtype(String dtype) {
+	this.dtype = dtype;
 }
 public Long getId() {
 	return id;

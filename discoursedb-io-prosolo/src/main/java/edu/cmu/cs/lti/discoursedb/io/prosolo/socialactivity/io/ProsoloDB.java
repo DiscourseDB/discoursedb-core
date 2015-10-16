@@ -172,7 +172,7 @@ public class ProsoloDB {
 		}
 		Optional<ProsoloNode> post = null;
 		try (Connection c = getConnection()) {
-			String sql = "SELECT * from "+TableConstants.POST+" where id=?";
+			String sql = "SELECT * from "+TableConstants.NODE+" where id=?";
 			try (PreparedStatement stmt = c.prepareStatement(sql)) {
 				stmt.setLong(1, id); 
 				post = SQL.seq(stmt, Unchecked.function(rs -> new ProsoloNode(						
@@ -235,6 +235,7 @@ public class ProsoloDB {
 			try (PreparedStatement stmt = c.prepareStatement(sql)) {
 				stmt.setLong(1, id); 
 				post = SQL.seq(stmt, Unchecked.function(rs -> new ProsoloPost(
+						rs.getString("dtype"),
 						rs.getLong("id"),
 						rs.getTimestamp("created"),
 						rs.getBoolean("deleted"),
