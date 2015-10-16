@@ -26,7 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 @SelectBeforeUpdate 
 @DynamicUpdate
 @DynamicInsert
-@Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id", "source_type","dataset_name" }) )
+@Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id","entity_source_descriptor", "source_type","dataset_name" }) )
 public class DataSourceInstance extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -6293065846688380816L;
@@ -47,37 +47,23 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 
 	/**
 	 * Creates a new DataSourceInstance for the entity with the source id
-	 * "entitySourceId" based on the dataset with the provided name. The type of
-	 * the source has to be defined separately or left blank
-	 * 
-	 * @param entitySourceId
-	 *            the id of the entity in the source system
-	 * @param datasetName
-	 *            the name of the dataset, e.g. edx_dalmooc_20150202
-	 */
-	public DataSourceInstance(String entitySourceId, String datasetName) {
-		setEntitySourceId(entitySourceId);
-		setDatasetName(datasetName);
-	}
-	
-	/**
-	 * Creates a new DataSourceInstance for the entity with the source id
 	 * "entitySourceId" based on the dataset with the provided name
 	 * "datasetName" which is an instance of the source with the provided name
 	 * "sourceType".
 	 * 
 	 * @param entitySourceId
 	 *            the id of the entity in the source system
-	 * @param sourceType
-	 *            the name of the source system (e.g. edX, prosolo, wikipedia)
+	 * @param entitySourceId
+	 *            the name/descriptor of the field that was used as sourceId 
 	 * @param datasetName
 	 *            the name of the dataset, e.g. edx_dalmooc_20150202
 	 */
-	public DataSourceInstance(String entitySourceId, DataSourceTypes sourceType, String datasetName) {
+	public DataSourceInstance(String entitySourceId, String entitySourceDescriptor, String datasetName) {
 		setEntitySourceId(entitySourceId);
-		setSourceType(sourceType);
 		setDatasetName(datasetName);
+		setEntitySourceDescriptor(entitySourceDescriptor);
 	}
+	
 	/**
 	 * Creates a new DataSourceInstance for the entity with the source id
 	 * "entitySourceId" based on the dataset with the provided name

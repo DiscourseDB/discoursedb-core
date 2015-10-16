@@ -47,7 +47,7 @@ public class TestSpringDataJPA implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		Discourse d = discourseService.createOrGetDiscourse("UTArlingtonX/LINK5.10x/3T2014");
 		User u = userService.createOrGetUser(d, "olifer");
-		dataSourceService.addSource(u, new DataSourceInstance("testSourceId",DataSourceTypes.EDX,"edxtestdataset"));
+		dataSourceService.addSource(u, new DataSourceInstance("testSourceId","testSourceIdDescriptor",DataSourceTypes.EDX,"edxtestdataset"));
 		
 //		for(User x:userService.findUsersBySourceIdAndDataSetName("testSourceId","")){
 //			System.out.println(x.getUsername());

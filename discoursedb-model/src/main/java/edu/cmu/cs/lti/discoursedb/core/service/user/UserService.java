@@ -98,12 +98,14 @@ public class UserService {
 	 * 
 	 * @param sourceId
 	 *            the user id assigned by the source system
+	 * @param sourceDescriptor
+	 *            defines where the sourceId is defined in the source data (e.g. "user.id" if it is a user table with field id)
 	 * @param username
 	 *            the username of the requested user
 	 * @return the User object with the given username and source id- either retrieved or
 	 *         newly created
 	 */
-	public User createOrGetUser(Discourse discourse, String username, String sourceId, DataSourceTypes dataSourceType, String dataSetName) {
+	public User createOrGetUser(Discourse discourse, String username, String sourceId, String sourceIdDescriptor, DataSourceTypes dataSourceType, String dataSetName) {
 		Optional<User> existingUser = findUserByDiscourseAndSourceIdAndDataSet(discourse, sourceId, dataSetName);
 		User curUser;
 		if (existingUser.isPresent()) {
@@ -112,7 +114,7 @@ public class UserService {
 			curUser = new User(discourse);
 			curUser.setUsername(username);
 			curUser = userRepo.save(curUser);
-			dataSourceService.addSource(curUser, new DataSourceInstance(sourceId,dataSourceType,dataSetName));	
+			dataSourceService.addSource(curUser, new DataSourceInstance(sourceId,sourceIdDescriptor,dataSourceType,dataSetName));	
 		}
 		return curUser;
 	}

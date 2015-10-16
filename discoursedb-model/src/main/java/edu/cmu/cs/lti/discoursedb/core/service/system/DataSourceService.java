@@ -24,6 +24,12 @@ public class DataSourceService {
 	@Autowired
 	private DataSourceInstanceRepository dataSourceInstanceRepo;
 
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String dataSetName ){
+		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
+				DataSourcePredicates.hasSourceId(entitySourceId).and(
+				DataSourcePredicates.hasDataSetName(dataSetName))));
+	}
+
 	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
@@ -31,10 +37,12 @@ public class DataSourceService {
 				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor))));
 	}
 
-	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String dataSetName ){
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, DataSourceTypes type, String dataSetName ){
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
-				DataSourcePredicates.hasDataSetName(dataSetName))));
+				DataSourcePredicates.hasSourceType(type).and(
+				DataSourcePredicates.hasDataSetName(dataSetName).and(
+				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor))))));
 	}
 	
 	public Optional<DataSourceInstance> findDataSource(String entitySourceId, DataSourceTypes type, String dataSetName ){
