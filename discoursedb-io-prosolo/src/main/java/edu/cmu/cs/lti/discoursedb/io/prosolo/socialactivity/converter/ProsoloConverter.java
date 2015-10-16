@@ -120,6 +120,8 @@ public class ProsoloConverter implements CommandLineRunner {
 		//start with all the creates
 		mapSocialActivities("NodeSocialActivity", "Create");
 		mapSocialActivities("PostSocialActivity", "Post");
+		mapSocialActivities("PostSocialActivity", "TwitterPost");
+		mapSocialActivities("TwitterPostSocialActivity", "TwitterPost");
 		
 		//then proceed with the sharing and commenting
 		mapSocialActivities("GoalNoteSocialActivity", "AddNote"); 
@@ -158,9 +160,18 @@ public class ProsoloConverter implements CommandLineRunner {
 			DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype));		
 
 			// User information
-			ProsoloUser curProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker()).get();
-			User curUser = addOrUpdateUser(curProsoloUser);
-			
+			User curUser = null;
+			if(dtype.equals("TwitterPostSocialActivity")){
+				//We have no prosolo user information, but twitter user account information
+				//The source id will therefore link to the social activity and not to a user entry
+				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivity.getId()+"", "social_activity.id", dataSourceType, dataSetName);
+				curUser.setRealname(curSocialActivity.getName());
+				
+			}else{
+				ProsoloUser curProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker()).get();
+				curUser = addOrUpdateUser(curProsoloUser);
+				//curUser might end up being null for some TwitterPosts that don't have user info				
+			}			
 			
 			/*
 			 * All contributions are related to a social activity 
@@ -192,7 +203,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			//Create DiscourseDB content and contribution entity and add the social activity as a source.
 			//In case the contribution is also associated with a node or post, add this as an additional source
 			Content curContent = contentService.createContent();
-			curContent.setAuthor(curUser);
+			if(curUser!=null){curContent.setAuthor(curUser);} //might be null for some Tweets
 			curContent.setStartTime(curSocialActivity.getCreated());
 			curContent.setText(curSocialActivity.getText());			
 			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivity.getId()+"","social_activity.id",dataSourceType, dataSetName));
