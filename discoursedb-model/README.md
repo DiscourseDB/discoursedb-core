@@ -4,6 +4,10 @@ This project contains the core object model for DiscourseDB which both defines t
 ## Latest JavaDoc
 The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/)
 
+## Informal Description of the Data Model
+[Chris Bogart](http://quetzal.bogarthome.net/) compiled an [informal description](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf) of the data model that illustrates the basic idea of the main DiscourseDB entities. 
+
+
 ## Requirements and Setup
 All DiscourseDB projects require Java 8 and Maven 3.
 
