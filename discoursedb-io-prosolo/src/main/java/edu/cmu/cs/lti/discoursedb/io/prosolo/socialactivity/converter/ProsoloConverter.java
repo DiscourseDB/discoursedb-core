@@ -60,6 +60,11 @@ public class ProsoloConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(ProsoloConverter.class);
 	
+	/**
+	 * List of all social activity "actions" that result in the creation of a DiscourseDB Contribution
+	 */
+	private final List<String> CONTRIB_CREATING_ACTIONS = Arrays.asList(new String[]{"Create","Post","AddNote","Comment","PostShare","TwitterPost"});
+	
 	private String discourseName;
 	private DataSourceTypes dataSourceType;
 	private String dataSetName;
@@ -82,7 +87,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			logger.error("Incorrect number of parameters. USAGE: <DiscourseName> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
 			System.exit(1);
 		}
-
+		
 		//Parse command line parameters		
 		this.discourseName=args[0];			
 		this.dataSourceType = DataSourceTypes.PROSOLO;
@@ -125,14 +130,19 @@ public class ProsoloConverter implements CommandLineRunner {
 
 	
 	/**
-	 * Maps social activities of the given type and the given action to DiscourseDB
-	 * This method covers "post" or "add" actions that create new contributions.
+	 * Maps social activities of the given type and the given action to DiscourseDB.
 	 * 
 	 * @param dtype the type of the SocialActivity
 	 * @param action the create/add action
 	 * @throws SQLException
 	 */
 	private void mapSocialActivities(String dtype, String action) throws SQLException{
+		if(!CONTRIB_CREATING_ACTIONS.contains(action)){
+			logger.warn("Action "+action+" (SocialActivity type "+dtype+") does not create DiscourseDB contributions and is thus not covered by this method.");
+			return;
+		}
+		
+		
 		//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
@@ -153,8 +163,10 @@ public class ProsoloConverter implements CommandLineRunner {
 			
 			
 			/*
-			 * All contributions are related to a social activity but they also have to link back to either 
-			 * a post or a node. We now determine which one of the two it is.
+			 * All contributions are related to a social activity 
+			 * but they might also have to link back to either 
+			 * a post or a node (depending on their type. 
+			 * We now determine which one of the two it is.
 			 */
 			String typeSpecificSourceId = null;
 			String typeSpecificSourceDescription = null;
@@ -177,7 +189,8 @@ public class ProsoloConverter implements CommandLineRunner {
 				}
 			}						
 			
-			//Create DiscourseDB content and contribution entity and add the social activity as a source. 
+			//Create DiscourseDB content and contribution entity and add the social activity as a source.
+			//In case the contribution is also associated with a node or post, add this as an additional source
 			Content curContent = contentService.createContent();
 			curContent.setAuthor(curUser);
 			curContent.setStartTime(curSocialActivity.getCreated());
@@ -198,8 +211,13 @@ public class ProsoloConverter implements CommandLineRunner {
 			}
 			
 			//add contribution to DiscoursePart
-			discoursePartService.addContributionToDiscoursePart(curContrib, postSocialActivityContainer);
+			discoursePartService.addContributionToDiscoursePart(curContrib, postSocialActivityContainer);			
 			
+			
+			/*
+			 * Some social_activities don't just create a contribution, but they relate to 
+			 * existing contributions. These relations are created below.
+			 */
 			
 			//if the action is AddNote, the the previously created contribution is a Note related to an existing Node.
 			//We now establish this relation
@@ -229,7 +247,7 @@ public class ProsoloConverter implements CommandLineRunner {
 				}				
 			}
 			
-			//get the entity was a "reshare"
+			//get the entity was a "reshare" of another post
 			if(action.equalsIgnoreCase("PostShare")){
 				Optional<ProsoloPost> existingPost = prosolo.getProsoloPost(curSocialActivity.getPost_object());				
 				if(existingPost.isPresent()){
