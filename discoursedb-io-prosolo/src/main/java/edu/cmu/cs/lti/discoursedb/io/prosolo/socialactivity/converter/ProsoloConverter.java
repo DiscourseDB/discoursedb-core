@@ -354,17 +354,20 @@ public class ProsoloConverter implements CommandLineRunner {
 	}
 
 	/**
-	 * Maps SocialActivity dtype to an appropriate DiscourseDB DiscoursePartType
+	 * Maps SocialActivity dtype to an appropriate DiscourseDB DiscoursePartType.
+	 * 
+	 * Currently, all types map to PROSOLO_SOCIAL_ACTIVITY
 	 * 
 	 * @param dtype the SocialActivity type
 	 * @return an appropriate DiscoursePartType for the given SocialActivity entity
 	 */
 	private DiscoursePartTypes lookUpDiscoursePartType(String dtype){
 		switch(dtype){
-			case "GoalNoteSocialActivity": return DiscoursePartTypes.PROSOLO_GOAL_NOTE_SOCIAL_ACTIVITY;
-			case "NodeSocialActivity": return DiscoursePartTypes.PROSOLO_NODE_SOCIAL_ACTIVITY;
-			case "NodeComment": return DiscoursePartTypes.PROSOLO_NODE_SOCIAL_ACTIVITY;
-			case "PostSocialActivity": return DiscoursePartTypes.PROSOLO_POST_SOCIAL_ACTIVITY;			
+			case "GoalNoteSocialActivity": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;
+			case "NodeSocialActivity": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;
+			case "NodeComment": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;
+			case "PostSocialActivity": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;			
+			case "TwitterPostSocialActivity": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;			
 			default: throw new IllegalArgumentException("No DiscoursePartType mapping for dtype "+dtype);
 		}
 	}
