@@ -145,7 +145,7 @@ public class ProsoloConverter implements CommandLineRunner {
 		}
 		
 		List<Long> socialActivityIDs = prosolo.getIdsForDtypeAndAction(dtype, action);
-		logger.info("Mapping "+socialActivityIDs.size()+"social activities of type \""+dtype+"\", action \""+action+"\"");				
+		logger.info("Mapping "+socialActivityIDs.size()+" social activities of type \""+dtype+"\", action \""+action+"\"");				
 		
 		//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
