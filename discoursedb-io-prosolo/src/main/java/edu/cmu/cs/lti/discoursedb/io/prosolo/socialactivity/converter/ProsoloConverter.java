@@ -114,14 +114,13 @@ public class ProsoloConverter implements CommandLineRunner {
 	 */
 	private void map() throws SQLException {
 		if(dataSourceService.dataSourceExists(dataSetName)){
-			logger.warn("Dataset "+dataSetName+" has previously already been imported. Terminating...");			
-			return;
+			logger.warn("Dataset "+dataSetName+" has previously already been imported. Previously imported social avitivities will be skipped.");			
 		}
 		//start with all the creates
-		mapSocialActivities("NodeSocialActivity", "Create");
 		mapSocialActivities("PostSocialActivity", "Post");
-		mapSocialActivities("PostSocialActivity", "TwitterPost");
-		mapSocialActivities("TwitterPostSocialActivity", "TwitterPost");
+		mapSocialActivities("NodeSocialActivity", "Create");
+//		mapSocialActivities("PostSocialActivity", "TwitterPost");
+//		mapSocialActivities("TwitterPostSocialActivity", "TwitterPost");
 		
 		//then proceed with the sharing and commenting
 		mapSocialActivities("GoalNoteSocialActivity", "AddNote"); 
@@ -151,12 +150,18 @@ public class ProsoloConverter implements CommandLineRunner {
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
 		
-		for (Long l : socialActivityIDs) {
-			logger.trace("Processing "+dtype+" ("+action+") id:"+l);			
-
+		for (Long curSocialActivityId : socialActivityIDs) {			
+			logger.trace("Processing "+dtype+" ("+action+") id:"+curSocialActivityId);			
+			
+			//check if the current social activity has already been imported at any point in time. if so, skip and proceed with the next
+			if(dataSourceService.dataSourceExists(curSocialActivityId+"","social_activity.id",dataSetName)){
+				logger.warn("Social activity with id "+curSocialActivityId+" ("+dtype+", "+action+") already in database. Skipping...");
+				continue;	
+			}
+			
 			//get data from prosolo database
 			//the social activity is the anchor point for the mapping
-			SocialActivity curSocialActivity = prosolo.getSocialActivity(l).get(); 
+			SocialActivity curSocialActivity = prosolo.getSocialActivity(curSocialActivityId).get();
 			
 			// each social activity translates to a separate DiscoursePart			
 			DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype));		
@@ -166,7 +171,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			if(dtype.equals("TwitterPostSocialActivity")){
 				//We have no prosolo user information, but twitter user account information
 				//The source id will therefore link to the social activity and not to a user entry
-				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivity.getId()+"", "social_activity.id", dataSourceType, dataSetName);
+				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivityId+"", "social_activity.id", dataSourceType, dataSetName);
 				curUser.setRealname(curSocialActivity.getName());				
 			}else{				
 				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker());
@@ -209,7 +214,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			if(curUser!=null){curContent.setAuthor(curUser);} //might be null for some Tweets
 			curContent.setStartTime(curSocialActivity.getCreated());
 			curContent.setText(curSocialActivity.getText());			
-			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivity.getId()+"","social_activity.id",dataSourceType, dataSetName));
+			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivityId+"","social_activity.id",dataSourceType, dataSetName));
 			
 			Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(typeSpecificDType));
 			curContrib.setCurrentRevision(curContent);
@@ -217,7 +222,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			curContrib.setStartTime(curSocialActivity.getCreated());
 			curContrib.setUpvotes(curSocialActivity.getLike_count());			
 			curContrib.setDownvotes(curSocialActivity.getDislike_count());			
-			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivity.getId()+"","social_activity.id",dataSourceType,dataSetName));
+			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivityId+"","social_activity.id",dataSourceType,dataSetName));
 
 			if(typeSpecificSourceId!=null){
 				dataSourceService.addSource(curContent, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, dataSourceType, dataSetName));				
