@@ -52,7 +52,12 @@ TARGET_ACTIVITY,
 /**
  * A ProSolo NodeSocialActivity associated with a UploadAssignmentActivity node
  */
-UPLOAD_ASSIGNMENT_ACTIVITY
+UPLOAD_ASSIGNMENT_ACTIVITY,
+/**
+ * A ProSolo SocialActivityComment
+ */
+SOCIAL_ACTIVITY_COMMENT
+
 
 
 }
