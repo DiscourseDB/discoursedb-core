@@ -144,12 +144,14 @@ public class ProsoloConverter implements CommandLineRunner {
 			return;
 		}
 		
+		List<Long> socialActivityIDs = prosolo.getIdsForDtypeAndAction(dtype, action);
+		logger.info("Mapping "+socialActivityIDs.size()+"social activities of type \""+dtype+"\", action \""+action+"\"");				
 		
 		//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
 		
-		for (Long l : prosolo.getIdsForDtypeAndAction(dtype, action)) {
+		for (Long l : socialActivityIDs) {
 			logger.trace("Processing "+dtype+" ("+action+") id:"+l);			
 
 			//get data from prosolo database
