@@ -105,7 +105,7 @@ public class DataSourceService {
 	
 	
 	/**
-	 * Checks whether a dataset with the given name exists in the DiscourseDB instance
+	 * Checks whether a dataset with the given dataSetName exists in the DiscourseDB instance
 	 * 
 	 * @param dataSetName the name of the dataset (e.g. file name or dataset name)
 	 * @return true, if any data from that dataset has been imported previously. false, else.
@@ -113,6 +113,17 @@ public class DataSourceService {
 	public boolean dataSourceExists(String dataSetName){		
 		return dataSourceInstanceRepo.count(DataSourcePredicates.hasDataSetName(dataSetName))>0;
 	}
+
+	/**
+	 * Checks whether a dataset with the given parameters exists in the DiscourseDB instance
+	 * 
+	 * @param dataSetName the name of the dataset (e.g. file name or dataset name)
+	 * @return true, if any data from that dataset has been imported previously. false, else.
+	 */
+	public boolean dataSourceExists(String sourceId, String sourceIdDescriptor, String dataSetName){		
+		return dataSourceInstanceRepo.count(DataSourcePredicates.hasDataSetName(dataSetName).and(DataSourcePredicates.hasEntitySourceDescriptor(sourceIdDescriptor).and(DataSourcePredicates.hasSourceId(sourceId))))>0;
+	}
+
 	
 	/**
 	 * Checks if the provided DataSourceInstance exists in the database.

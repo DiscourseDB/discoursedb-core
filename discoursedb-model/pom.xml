@@ -78,6 +78,10 @@
 			<groupId>javax.interceptor</groupId>
 			<artifactId>javax.interceptor-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+		</dependency>
 	</dependencies>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>

@@ -14,11 +14,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * DiscourseDB base configuration class.
@@ -38,12 +39,21 @@ public class BaseConfiguration {
 
 	@Bean
 	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
-		dataSource.setUrl(environment.getRequiredProperty("jdbc.url"));
-		dataSource.setUsername(environment.getRequiredProperty("jdbc.username"));
-		dataSource.setPassword(environment.getRequiredProperty("jdbc.password"));
-		return dataSource;
+		try {
+			ComboPooledDataSource ds = new ComboPooledDataSource();
+			ds.setDriverClass(environment.getRequiredProperty("jdbc.driverClassName"));
+			ds.setJdbcUrl(environment.getRequiredProperty("jdbc.url"));
+			ds.setUser(environment.getRequiredProperty("jdbc.username"));
+			ds.setPassword(environment.getRequiredProperty("jdbc.password"));
+			ds.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("c3p0.acquireIncrement").trim()));
+			ds.setIdleConnectionTestPeriod(Integer.parseInt(environment.getRequiredProperty("c3p0.idleConnectionTestPeriod").trim()));
+			ds.setMaxStatements(Integer.parseInt(environment.getRequiredProperty("c3p0.maxStatements").trim()));
+			ds.setMinPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.minPoolSize").trim()));
+			ds.setMaxPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.maxPoolSize").trim()));
+			return ds;
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Bean
