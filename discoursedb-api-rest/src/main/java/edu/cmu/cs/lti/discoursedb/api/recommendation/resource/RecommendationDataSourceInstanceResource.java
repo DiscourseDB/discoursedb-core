@@ -7,11 +7,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 public class RecommendationDataSourceInstanceResource extends ResourceSupport {
 	
 	private String entitySourceId;
+	private String entitySourceDecriptor;
 	private String sourceType;	
 	private String datasetName;	
 	
 	public RecommendationDataSourceInstanceResource(DataSourceInstance dataSource) {
 		setEntitySourceId(dataSource.getEntitySourceId());
+		setEntitySourceDecriptor(dataSource.getEntitySourceDescriptor());
 		setSourceType(dataSource.getSourceType().name());
 		setDatasetName(dataSource.getDatasetName());
 	}
@@ -48,6 +50,14 @@ public class RecommendationDataSourceInstanceResource extends ResourceSupport {
 
 	private String nullCheck(String s){
 		return s==null?"":s;
+	}
+
+	public String getEntitySourceDecriptor() {
+		return entitySourceDecriptor;
+	}
+
+	public void setEntitySourceDecriptor(String entitySourceDecriptor) {
+		this.entitySourceDecriptor = entitySourceDecriptor;
 	}
 
 }

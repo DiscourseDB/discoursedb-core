@@ -29,8 +29,11 @@ public class RecommendationContributionResource extends ResourceSupport {
 		this.setCreationTime(contrib.getStartTime());
 		this.setUpvotes(contrib.getUpvotes());
 		this.add(linkTo(methodOn(RecommendationRestController.class).sourcesForContribution(contrib.getId())).withRel("contributionSources"));
+		if(getContributionType().equals(ContributionTypes.POST.name())||getContributionType().equals(ContributionTypes.GOAL_NOTE.name())||getContributionType().equals(ContributionTypes.NODE_COMMENT.name())){			
+			this.add(linkTo(methodOn(RecommendationRestController.class).contribParent(contrib.getId())).withRel("parentContribution"));
+		}		
 		if(getContributionType().equals(ContributionTypes.POST.name())){			
-			this.add(linkTo(methodOn(RecommendationRestController.class).contribParent(contrib.getId())).withRel("threadStarterContribution"));
+			this.add(linkTo(methodOn(RecommendationRestController.class).threadStarter(contrib.getId())).withRel("threadStarter"));
 		}		
 		this.add(linkTo(methodOn(RecommendationRestController.class).user(contrib.getCurrentRevision().getAuthor().getId())).withRel("author"));
 	}

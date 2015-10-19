@@ -82,19 +82,38 @@ public class RecommendationRestController {
 	@RequestMapping(value = "/contributionParent/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public RecommendationContributionResource contribParent(@PathVariable Long id) {
+		return new RecommendationContributionResource(getParentContribution(id));				
+	}
+	
+	@RequestMapping(value = "/threadStarter/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public RecommendationContributionResource threadStarter(@PathVariable Long id) {
 		return new RecommendationContributionResource(getThreadStarter(id));				
+	}
+	
+	public Contribution getParentContribution(Long contribId){
+		//TODO check if optional is present
+		Contribution contrib= contributionRepository.findOne(contribId);
+		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
+			if(rel.getType().getType().equals(DiscourseRelationTypes.COMMENT.name())){
+				return rel.getSource();
+			}
+			if(rel.getType().getType().equals(DiscourseRelationTypes.REPLY.name())){
+				return rel.getSource();
+			}
+		}
+		return contrib;
 	}
 	
 	public Contribution getThreadStarter(Long contribId){
 		//TODO check if optional is present
 		Contribution contrib= contributionRepository.findOne(contribId);
-		Contribution parent=null;
 		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
 			if(rel.getType().getType().equals(DiscourseRelationTypes.DESCENDANT.name())){
-				parent=rel.getSource();
-			}	
+				return rel.getSource();
+			}
 		}
-		return parent==null?contrib:parent;
+		return contrib;
 	}
 
 	@RequestMapping(value = "/contribution/{id}", method = RequestMethod.GET)
