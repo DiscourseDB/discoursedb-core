@@ -116,19 +116,19 @@ public class EdxForumConverterPhase2 implements CommandLineRunner {
 		logger.trace("Mapping relations for post " + p.getId());
 	
 		//check if a contribution for the given Post already exists in DiscourseDB (imported in Phase1)
-		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
+		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),"id",dataSetName);
 		if(existingContribution.isPresent()){
 			Contribution curContribution=existingContribution.get();
 			
 			//If post is not a thread starter then create a DiscourseRelation of DESCENDANT type 
 			//that connects it with the thread starter 
-			Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),dataSetName);
+			Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),"id",dataSetName);
 			if (existingParentContributon.isPresent()) {
 				discourseRelationService.createDiscourseRelation(existingParentContributon.get(), curContribution, DiscourseRelationTypes.DESCENDANT);
 			}
 
 			//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
-			Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),dataSetName);
+			Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),"id",dataSetName);
 			if (existingPredecessorContributon.isPresent()) {
 				discourseRelationService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
 			}					
