@@ -117,15 +117,16 @@ public class ProsoloConverter implements CommandLineRunner {
 			logger.warn("Dataset "+dataSetName+" has previously already been imported. Previously imported social avitivities will be skipped.");			
 		}
 		//start with all the creates
-		mapSocialActivities("PostSocialActivity", "Post");
-		mapSocialActivities("NodeSocialActivity", "Create");
+//		mapSocialActivities("PostSocialActivity", "Post");
+//		mapSocialActivities("NodeSocialActivity", "Create");
 //		mapSocialActivities("PostSocialActivity", "TwitterPost");
 //		mapSocialActivities("TwitterPostSocialActivity", "TwitterPost");
 		
 		//then proceed with the sharing and commenting
-		mapSocialActivities("GoalNoteSocialActivity", "AddNote"); 
-		mapSocialActivities("NodeComment", "Comment"); 
-		mapSocialActivities("PostSocialActivity","PostShare");	
+//		mapSocialActivities("GoalNoteSocialActivity", "AddNote"); 
+//		mapSocialActivities("NodeComment", "Comment"); 
+//		mapSocialActivities("PostSocialActivity","PostShare");	
+		mapSocialActivities("SocialActivityComment","Comment");	
 	}
 	
 
@@ -252,9 +253,8 @@ public class ProsoloConverter implements CommandLineRunner {
 				}				
 			}
 			
-			//if the action is Comment, the the previously created contribution is a Comment related to an existing Node.
-			//We now establish this relation
-			if(action.equalsIgnoreCase("Comment")){
+			//Establish relations between NodeComment and the node that it comments on
+			if(dtype.equals("NodeComment")&&action.equalsIgnoreCase("Comment")){
 				Optional<ProsoloNode> existingParenteNode = prosolo.getProsoloNode(curSocialActivity.getNode());				
 				if(existingParenteNode.isPresent()){
 					ProsoloNode node = existingParenteNode.get();					
@@ -265,7 +265,20 @@ public class ProsoloConverter implements CommandLineRunner {
 					}
 				}				
 			}
-			
+
+			//Establish relations between SocialActivityComment and the social activity that it comments on
+			if(dtype.equals("SocialActivityComment")&&action.equalsIgnoreCase("Comment")){
+				Optional<SocialActivity> existingSocialActivity = prosolo.getSocialActivity(curSocialActivity.getSocial_activity());				
+				if(existingSocialActivity.isPresent()){
+					SocialActivity parentActivity = existingSocialActivity.get();					
+					//check if a contribution for the given social activity exists
+					Optional<Contribution> parentContrib = contributionService.findOneByDataSource(parentActivity.getId()+"", "social_activity.id", dataSetName);					
+					if(parentContrib.isPresent()){
+						discourseRelationService.createDiscourseRelation(parentContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
+					}
+				}				
+			}
+
 			//get the entity was a "reshare" of another post
 			if(action.equalsIgnoreCase("PostShare")){
 				Optional<ProsoloPost> existingPost = prosolo.getProsoloPost(curSocialActivity.getPost_object());				
@@ -356,6 +369,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			case "Post": return ContributionTypes.POST; 
 			case "GoalNote": return ContributionTypes.GOAL_NOTE; 
 			case "TwitterPost": return ContributionTypes.TWEET; 
+			case "SocialActivityComment": return ContributionTypes.SOCIAL_ACTIVITY_COMMENT; 
 			default: throw new IllegalArgumentException("No ContributionType mapping for dtype "+type); 
 		}
 	}
@@ -375,6 +389,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			case "NodeComment": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;
 			case "PostSocialActivity": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;			
 			case "TwitterPostSocialActivity": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;			
+			case "SocialActivityComment": return DiscoursePartTypes.PROSOLO_SOCIAL_ACTIVITY;			
 			default: throw new IllegalArgumentException("No DiscoursePartType mapping for dtype "+dtype);
 		}
 	}
