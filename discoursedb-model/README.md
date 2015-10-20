@@ -53,12 +53,14 @@ A Discourse is associated to one or more DiscoursePart instances which represent
 A DiscoursePart represents a distinct sub-space within a Discourse. For instance, a DiscoursePart could represent a discussion forum. That is, it acts as a container for interactions that happen in this discussion forum. DiscourseParts are typed entities, i.e. they are associated with a DiscoursePartType which indicates what the DiscoursePart represents, e.g. a FORUM. Furthermore, DiscourseParts can be related to each other with DiscoursePartRelations in order to indicate embedded structures. For instance, a Forum could consist of multiple sub-forums. DiscoursePartRelations are also typed entities, i.e. they are related to a DiscoursePartRelationType indicating what the relation represents, e.g. an EMBEDDING in the case of forum-subforum.
 
 #### Contribution
-A Contribution entity is a representation of a contribution in a discussion space such as a forum post, chat message or equivalent discourse artifact. Contributions only represent meta information about the contribution while the actual content is represented by Content entities (see below). This allows DiscourseDB to capture the revision history of a contribution. A contribution links to its current revision and its first revision. Revisions are Content entities that link to their previous and next revision. Thus, the revision history of a contribution is represented by a doubly linked list of Content instances while the Contribution links to the head and the tail of this list.
+A Contribution entity is a representation of a contribution in a discussion space such as a forum post, chat message or equivalent discourse artifact. Contributions only represent meta information about the contribution while the actual content is represented by Content entities (see below). This allows DiscourseDB to capture the revision history of a contribution. Revisions are Content entities that link to their previous and next revision. Thus, the revision history of a contribution is represented by a doubly linked list of Content instances and the Contribution links to the head and the tail of this list. If not revisions are maintained, both pointers link to the same Content entity.
 
 A Contribution is a typed entity, i.e. it is associated with a ContributionType indiciating what the Contribution instance represents, e.g. a POST.
+
 #### Content
 #### User, Audience, Group
 #### Context
+#### DataSource
 #### User Interactions
 #### Annotations
 
