@@ -41,7 +41,14 @@ Like all DiscourseDB projects, this project depends on the [discoursedb-parent](
 DiscourseDB requires write access to a MySQL database. The access credentials are defined in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials user:user and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters. DiscourseDB will automatically initialize a fresh DiscourseDB instance if none exists yet. Otherwise, it will import data into the existing database.
 
 ## DiscourseDB Model Architecture Overview
-### High Level Overview
+### High Level Overview: An Example
+Assume we want to represent interactions in a simple discussion forum that is part of an online course in DiscourseDB. This discussion Forum consists of a number of tree-like discussion threads. There are no other sub-spaces like sub-forums.
+
+The forum represents a distinct discussion space within the realm of the online course. Therefore, the online course is represented as an DiscourseDB _Discourse_ entity while the forum itself constitutes a _DiscoursePart_. Other discussion spaces, such as a chat would constitute separate DiscourseParts within the same Discourse. 
+
+Since the forum is not organized in several subforums, we only require a single DiscoursePart. Otherwise, we could have represented each subforum as a DiscoursePart which are all related to a parent DiscoursePart with DiscoursePartRelations. This way, we can aggregate multiple sub-spaces to a single discussion space within the discourse.
+
+Once Discourse and DiscoursePart(s) are established, we can 
 
 ### Main Entities 
 Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
