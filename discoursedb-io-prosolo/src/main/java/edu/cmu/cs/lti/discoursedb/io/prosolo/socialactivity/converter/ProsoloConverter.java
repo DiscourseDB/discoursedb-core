@@ -117,15 +117,15 @@ public class ProsoloConverter implements CommandLineRunner {
 			logger.warn("Dataset "+dataSetName+" has previously already been imported. Previously imported social avitivities will be skipped.");			
 		}
 		//start with all the creates
-//		mapSocialActivities("PostSocialActivity", "Post");
-//		mapSocialActivities("NodeSocialActivity", "Create");
-//		mapSocialActivities("PostSocialActivity", "TwitterPost");
+		mapSocialActivities("PostSocialActivity", "Post");
+		mapSocialActivities("NodeSocialActivity", "Create");
+		mapSocialActivities("PostSocialActivity", "TwitterPost");
 //		mapSocialActivities("TwitterPostSocialActivity", "TwitterPost");
 		
 		//then proceed with the sharing and commenting
-//		mapSocialActivities("GoalNoteSocialActivity", "AddNote"); 
-//		mapSocialActivities("NodeComment", "Comment"); 
-//		mapSocialActivities("PostSocialActivity","PostShare");	
+		mapSocialActivities("GoalNoteSocialActivity", "AddNote"); 
+		mapSocialActivities("NodeComment", "Comment"); 
+		mapSocialActivities("PostSocialActivity","PostShare");	
 		mapSocialActivities("SocialActivityComment","Comment");	
 	}
 	
@@ -151,6 +151,8 @@ public class ProsoloConverter implements CommandLineRunner {
 		//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 		Discourse discourse = discourseService.createOrGetDiscourse(this.discourseName);
 		
+		
+		//retrieve list of social activity ids and then process each of them within the loop
 		for (Long curSocialActivityId : socialActivityIDs) {			
 			logger.trace("Processing "+dtype+" ("+action+") id:"+curSocialActivityId);			
 			
@@ -225,6 +227,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			curContrib.setDownvotes(curSocialActivity.getDislike_count());			
 			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivityId+"","social_activity.id",dataSourceType,dataSetName));
 
+			//add the type specific source types for nodes and posts mentioned above
 			if(typeSpecificSourceId!=null){
 				dataSourceService.addSource(curContent, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, dataSourceType, dataSetName));				
 				dataSourceService.addSource(curContrib, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, dataSourceType, dataSetName));

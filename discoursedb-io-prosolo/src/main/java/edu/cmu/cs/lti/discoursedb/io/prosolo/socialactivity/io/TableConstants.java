@@ -1,5 +1,11 @@
 package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io;
 
+/**
+ * Constants that hold the table names. Used by the ProsoloDB class.
+ * 
+ * @author oliverf
+ *
+ */
 public final class TableConstants {
 
 	 public static final String OPENIDACCOUNT = "openidaccount";

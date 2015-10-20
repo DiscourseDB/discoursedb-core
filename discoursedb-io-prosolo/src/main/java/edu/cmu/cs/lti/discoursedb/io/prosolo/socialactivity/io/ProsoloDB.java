@@ -17,6 +17,12 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
+/**
+ * Establishes a JDBC database connection to a prosolo database and provides methods to access ProSolo data using the POJOs in the model package.
+ * 
+ * @author Oliver Ferschke
+ *
+ */
 public class ProsoloDB {
 	
 	private Connection con = null;

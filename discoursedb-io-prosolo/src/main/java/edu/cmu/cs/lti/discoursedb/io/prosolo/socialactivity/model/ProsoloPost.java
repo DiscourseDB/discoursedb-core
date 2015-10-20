@@ -2,6 +2,12 @@ package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model;
 
 import java.util.Date;
 
+/**
+ * Wraps entities form the post table in prosolo
+ * 
+ * @author Oliver Ferschke
+ *
+ */
 public class ProsoloPost {
  private String dtype;
  private Long id;
