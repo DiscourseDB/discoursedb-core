@@ -1,5 +1,10 @@
 package edu.cmu.cs.lti.discoursedb.core.type;
 
+/**
+ * Defines possible values for the type field in DiscoursePartType entities.
+ * 
+ * @author Oliver Ferschke
+ */
 public enum DiscoursePartTypes {
 	/**
 	 * A forum that is not part of another forum

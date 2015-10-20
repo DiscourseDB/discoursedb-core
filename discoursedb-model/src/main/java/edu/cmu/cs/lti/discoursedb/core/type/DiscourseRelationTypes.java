@@ -1,5 +1,10 @@
 package edu.cmu.cs.lti.discoursedb.core.type;
 
+/**
+ * Defines possible values for the type field in DiscourseRelationType entities.
+ * 
+ * @author Oliver Ferschke
+ */
 public enum DiscourseRelationTypes {
 	/**
 	 * The target contribution is a reply to the parent contribution.

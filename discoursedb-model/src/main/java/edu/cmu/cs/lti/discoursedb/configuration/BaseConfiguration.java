@@ -23,7 +23,11 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * DiscourseDB base configuration class.
- * Can be replaced by custom configuration.
+ * Parameters that are most likely to be changed (i.e. for the databse connection) are read from the hibernate.properties file.
+ * 
+ * Fore more information about the Spring JavaConfig, see <a href="http://docs.spring.io/spring-data/jpa/docs/1.4.3.RELEASE/reference/html/jpa.repositories.html">the Spring Data docs</a>.
+ * <br/>
+ * The configuration class be replaced by a custom configuration.
  */
 @Configuration
 @EnableAutoConfiguration

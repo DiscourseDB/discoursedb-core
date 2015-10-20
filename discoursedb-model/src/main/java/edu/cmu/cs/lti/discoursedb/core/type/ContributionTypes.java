@@ -1,5 +1,10 @@
 package edu.cmu.cs.lti.discoursedb.core.type;
 
+/**
+ * Defines possible values for the type field in ContributionType entities.
+ * 
+ * @author Oliver Ferschke
+ */
 public enum ContributionTypes {
 /**
  * A post that starts a new thread

@@ -1,5 +1,5 @@
 /**
- * This package holds enums for recurring types used in DiscourseDB
+ * This package holds enums for recurring types used in DiscourseDB.
  * 
  * @author Oliver Ferschke
  *
