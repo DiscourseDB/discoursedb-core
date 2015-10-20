@@ -22,6 +22,18 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 
+/**
+ * Context is whatever a Contribution is referring to. For example if the
+ * contributions are comments on a Wikipedia talk page, then context might be
+ * version of the wiki page at the point in time the comment was made. Context
+ * entities are associated with Contribution entities via a ContributionContext
+ * entity. Apart from that, Context entities resemble Contribution entities, ie.
+ * the content of a Context entity is represented by one or more Content
+ * instances.
+ * 
+ * @author Oliver Ferschke
+ *
+ */
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate

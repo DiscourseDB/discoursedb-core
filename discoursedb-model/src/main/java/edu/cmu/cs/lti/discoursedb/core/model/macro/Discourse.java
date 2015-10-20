@@ -21,6 +21,23 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 
+/**
+ * <p>A Discourse represents the broad context of interactions that might come from
+ * multiple datasets. For example, a Discourse could represent an installment of
+ * an online course. All interactions in the context of this course -
+ * independent from the source dataset - will be associated with this Discourse
+ * instance. Another installment of the same course would be represented by a
+ * new Discourse instance.</p> 
+ * 
+ * <p>A Discourse is associated to one or more
+ * DiscoursePart instances which represent sub-spaces in the realm of the
+ * Discourse. That is, an online course with a discussion forum and chat would
+ * have two DiscoursePart instances associated with its Discourse instance which
+ * represent these two discussion spaces.</p>
+ * 
+ * @author Oliver Ferschke
+ *
+ */
 @Entity
 @SelectBeforeUpdate
 @DynamicUpdate

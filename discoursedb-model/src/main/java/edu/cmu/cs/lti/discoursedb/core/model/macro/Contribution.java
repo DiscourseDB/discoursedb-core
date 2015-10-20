@@ -23,6 +23,24 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
+/**
+ * 
+ * A Contribution entity is a representation of a contribution in a discussion
+ * space such as a forum post, chat message or equivalent discourse artifact.
+ * Contributions only represent meta information about the contribution while
+ * the actual content is represented by Content entities (see below). This
+ * allows DiscourseDB to capture the revision history of a contribution.
+ * Revisions are Content entities that link to their previous and next revision.
+ * Thus, the revision history of a contribution is represented by a doubly
+ * linked list of Content instances and the Contribution links to the head and
+ * the tail of this list. If not revisions are maintained, both pointers link to
+ * the same Content entity. A Contribution is a typed entity, i.e. it is
+ * associated with a ContributionType indiciating what the Contribution instance
+ * represents, e.g. a {@link edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes#POST}.
+ * 
+ * @author Oliver Ferschke
+ *
+ */
 @Entity
 @SelectBeforeUpdate 
 @DynamicUpdate
