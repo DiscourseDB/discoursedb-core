@@ -52,9 +52,8 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 TBA. For now, please refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
 
 ### DiscourseDB Configuration
-DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The standard configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced by custom configuration (just exclude the BaseConfiguration in your project.
-
-Parameters that most likely need to be changed (i.e. databse credentials) are read from the hibernate.properties file. In most cases, the BaseConfiguration doesn't need to be accessed.
+DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced by custom configuration (just exclude the BaseConfiguration in your project. 
+Parameters that most likely need to be changed (i.e. databse credentials) are read from the hibernate.properties file. In most cases, the BaseConfiguration doesn't need to be accessed. The BaseConfiguration uses uses [c3p0](http://www.mchange.com/projects/c3p0/) for connection pooling.
 
 ### Entity Classes: The DiscourseDB Core Model
 The entity classes define the DiscourseDB Core model. They are annotated with ORM annotations that allow hibernate to dynamically create and update the database schema from these classes.
