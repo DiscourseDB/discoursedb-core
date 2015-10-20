@@ -45,7 +45,7 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 Assume we want to represent interactions in a simple discussion forum that is part of an online course in DiscourseDB. This discussion forum consists of a number of tree-like discussion threads. There are no other sub-spaces like sub-forums. We assume that the forum posts cannot be edited once they have been posted.
 
 The forum represents a distinct discussion space within the realm of the online course. Therefore, the online course is represented as an DiscourseDB _Discourse_ entity while the forum itself constitutes a _DiscoursePart_. Other discussion spaces, such as a chat would constitute separate DiscourseParts within the same Discourse. 
-**STEP 1: CREATE A DISCOURSE ENTITY TO REPRESENT THE BROADER CONTEXT IN WHICH AN INTERACTION HAPPEND (here: a course)**
+**STEP 1:** ```DiscourseService.createOrGetDiscourse(String name)``` creates a new Discourse entity or retrieves an existing one with the same name. In case another dataset from the same course has already been imported, the same Discourse entity should be used.
 
 Since the forum is not organized in several subforums, we only require a single DiscoursePart. Otherwise, we could have represented each subforum as a DiscoursePart which are all related to a parent DiscoursePart with _DiscoursePartRelations_. This way, we can aggregate multiple sub-spaces to a single discussion space within the discourse.
 
