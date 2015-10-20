@@ -64,9 +64,10 @@ Content entities formally represent nodes in a linked list by pointing to a prev
 
 A Content entity is related to a User indicating that this user is the author of the content instance. Other relationships between Users and Content or Contributions can be represented with ContributionInteraction entities (see below).
 
-#### User, Audience, Group
-TBA
 #### Context
+TBA
+
+#### User, Audience, Group
 TBA
 #### DataSource
 TBA
