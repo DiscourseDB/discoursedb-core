@@ -48,7 +48,8 @@ The forum represents a distinct discussion space within the realm of the online 
 **STEP 1: CREATE A DISCOURSE ENTITY TO REPRESENT THE BROADER CONTEXT IN WHICH AN INTERACTION HAPPEND (here: a course)**
 
 Since the forum is not organized in several subforums, we only require a single DiscoursePart. Otherwise, we could have represented each subforum as a DiscoursePart which are all related to a parent DiscoursePart with _DiscoursePartRelations_. This way, we can aggregate multiple sub-spaces to a single discussion space within the discourse.
-**STEP 2: CREATE ONE OR MORE DISCOURSE_PART ENTITIES TO REPRESENT DISCUSSION SPACE WITHIN THE DISCOURSE THAT IN WHICH THE INTERACTIONS HAPPENED (here: a course forum).**
+
+**STEP 2**: ```DiscoursePartService.createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type)``` creates a DiscoursePart, relates it to the provided DiscoursePartType (here: FORUM) and links it to the provided discourse.
 
 Once Discourse and DiscoursePart(s) are created, we can import the forum posts. Each Post translates to a DiscourseDB _Contribution_ which contains the meta information about the post such as creation date and number of up/downvotes or likes. The content of the post, i.e. the text, is not directly stored in the Contribution entity, but in a _Content_ entity. The Contribution related to a Content by means of the _current revision_ and _first revision_ relation. In our case, both relations would point to the same Content entity since we are not keeping track of textual edits. If changes in the texts are supposed to be tracked, multiple content entities would a linked list to represent the revision history and the two pointers in the associated Contribution point to the head and the tail of that list. The User entity associated with the Content indicates the author of the Contribution.
 
