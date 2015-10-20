@@ -43,7 +43,7 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 ## DiscourseDB Model Architecture Overview
 
 ### Description of Main Entities 
-Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf) and to the entity class descriptions in the [Javadoc](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/)
+Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf) and to the entity class descriptions in the [Javadoc](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/). A high level overview can be found [below](https://github.com/DiscourseDB/discoursedb-model#high-level-overview-a-step-by-step-example).
 
 #### Discourse
 A Discourse represents the broad context of interactions that might come from multiple datasets. For example, a Discourse could represent an installment of an online course. All interactions in the context of this course - independent from the source dataset - will be associated with this Discourse instance. Another installment of the same course would be represented by a new Discourse instance.
