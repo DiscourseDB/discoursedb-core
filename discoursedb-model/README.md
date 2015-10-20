@@ -75,7 +75,10 @@ TBA
 #### Interactions
 TBA
 #### Annotations
-TBA
+Annotations attach to almost every entity in the database. They have been designed as a general purpose way of tagging and labeling entities. 
+An annotation can either refer to an entity as a whole (entity annotation) or to a particular span within the text field of a Content entity. The latter resembles the stand-off annotations in [UIMA](https://uima.apache.org/d/uimaj-current/index.html). An AnnotationInstance has an AnnotationType and a set of features associated with it. The AnnotationType identifies what the Annoation is about while the Featuers provide additional information that is necessary to make sense of the annotation.
+
+For example, a part of speech tagger might tokenize the text in a Content entity and produce a set of annotation of the AnnotationType TOKEN. Each of these annotations then has a Feature of the FeatureType POS associated with it the value of which identifies the part of speech of the given token.
 
 ### High Level Overview: A step-by-step Example
 Assume we want to represent the interactions in a simple discussion forum that is part of an online course. This discussion forum consists of a number of tree-like discussion threads. There are no other sub-spaces such as sub-forums. We assume that the forum posts cannot be edited once they have been posted.
