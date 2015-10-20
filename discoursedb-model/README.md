@@ -59,6 +59,10 @@ For many reasons, we might want to keep track of where the data for the newly cr
 The User entity associated with the Content indicates the author of the Contribution. <br/>
 **STEP 5:**: A User can be created and linked to a content entity like this: 	```userService.createOrGetUser(Discourse discourse, String username)```. In most cases, you want to keep track of the source of the user. To automatically associate a user with a DataSourceIntance upon creation, user ```createOrGetUser(Discourse discourse, String username, String sourceId, String sourceIdDescriptor, DataSourceTypes dataSourceType, String dataSetName)```. The additional fields correspond to the fields in the DataSourceInstance description above. Once the user is created, ```content.setAuthor(user)``` establishes a relations between the user and the content they created.
 
+DiscourseRelations: TBA
+
+Relate Contribution to DiscoursePart: TBA
+
 
 ### Main Entities 
 Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
