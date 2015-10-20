@@ -72,7 +72,7 @@ Context entities are associated with Contribution entities via a ContributionCon
 TBA
 #### DataSource
 TBA
-#### User Interactions
+#### Interactions
 TBA
 #### Annotations
 TBA
