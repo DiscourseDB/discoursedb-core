@@ -57,7 +57,7 @@ DiscourseDB is centrally configured using a [Java-based container configuration]
 Parameters that most likely need to be changed (i.e. databse credentials) are read from the hibernate.properties file. In most cases, the BaseConfiguration doesn't need to be accessed. The BaseConfiguration uses [c3p0](http://www.mchange.com/projects/c3p0/) for connection pooling.
 
 ### Entity Classes: The DiscourseDB Core Model
-The entity classes define the DiscourseDB Core model. They are annotated with ORM annotations that allow hibernate to dynamically create and update the database schema from these classes.
+The entity classes are POJOs that define the DiscourseDB Core model. They are annotated with Hibernate 4 ORM annotations that allow hibernate to dynamically create and update the database schema from these classes.
 
 DiscourseDB defines five categories of entities
 
