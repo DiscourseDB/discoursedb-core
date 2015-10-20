@@ -43,15 +43,15 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 ## DiscourseDB Model Architecture Overview
 Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
  
-### Discourse
+#### Discourse
 dsfkmsf
-2. DiscoursePart
-3. Contribution
-4. Content
-5. User, Audience, Group
-6. Context
-7. User Interactions
-8. Annotations
+#### DiscoursePart
+#### Contribution
+#### Content
+#### User, Audience, Group
+#### Context
+#### User Interactions
+#### Annotations
 
 ## DiscourseDB Core Components
 ### DiscourseDB Configuration
