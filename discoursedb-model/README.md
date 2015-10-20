@@ -65,7 +65,7 @@ Content entities formally represent nodes in a linked list by pointing to a prev
 A Content entity is related to a User indicating that this user is the author of the content instance. Other relationships between Users and Content or Contributions can be represented with ContributionInteraction entities (see below).
 
 #### Context
-TBA
+Context is whatever a Contribution is referring to.  For example if the contributions are comments on a Wikipedia talk page, then context might be version of the wiki page at the point in time the comment was made.  Contexts are associated with particular contributions via the contribution_has_context table. Context has not been used yet in any application, so it’s not clear yet exactly how it will be used.  Like contributions, the actual text of context items is held in another table, content, in order to capture revisions.
 
 #### User, Audience, Group
 TBA
