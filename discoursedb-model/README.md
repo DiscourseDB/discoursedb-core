@@ -40,11 +40,10 @@ Like all DiscourseDB projects, this project depends on the [discoursedb-parent](
 
 DiscourseDB requires write access to a MySQL database. The access credentials are defined in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials user:user and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters. DiscourseDB will automatically initialize a fresh DiscourseDB instance if none exists yet. Otherwise, it will import data into the existing database.
 
-## DiscourseDB Model Architecture and Components
-### Architecture Overview
+## DiscourseDB Architecture Overview
 Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
  
-#### Discourse
+### Discourse
 dsfkmsf
 2. DiscoursePart
 3. Contribution
@@ -54,6 +53,7 @@ dsfkmsf
 7. User Interactions
 8. Annotations
 
+## DiscourseDB Core Components
 ### DiscourseDB Configuration
 DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced by custom configuration (just exclude the BaseConfiguration in your project. 
 
