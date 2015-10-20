@@ -74,7 +74,7 @@ TBA
 TBA
 #### Interactions
 TBA
-#### Annotations
+#### Annotation Subsystem
 Annotations attach to almost every entity in the database. They have been designed as a general purpose way of tagging and labeling entities. 
 An annotation can either refer to an entity as a whole (entity annotation) or to a particular span within the text field of a Content entity. The latter resembles the stand-off annotations in [UIMA](https://uima.apache.org/d/uimaj-current/index.html). An AnnotationInstance has an AnnotationType and a set of features associated with it. The AnnotationType identifies what the Annoation is about while the Featuers provide additional information that is necessary to make sense of the annotation.
 
