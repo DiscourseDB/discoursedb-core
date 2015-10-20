@@ -58,11 +58,17 @@ A Contribution entity is a representation of a contribution in a discussion spac
 A Contribution is a typed entity, i.e. it is associated with a ContributionType indiciating what the Contribution instance represents, e.g. a POST.
 
 #### Content
+TBA
 #### User, Audience, Group
+TBA
 #### Context
+TBA
 #### DataSource
+TBA
 #### User Interactions
+TBA
 #### Annotations
+TBA
 
 ### High Level Overview: A step-by-step Example
 Assume we want to represent the interactions in a simple discussion forum that is part of an online course. This discussion forum consists of a number of tree-like discussion threads. There are no other sub-spaces such as sub-forums. We assume that the forum posts cannot be edited once they have been posted.
