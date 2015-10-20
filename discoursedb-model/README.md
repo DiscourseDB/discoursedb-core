@@ -42,7 +42,7 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 
 ## DiscourseDB Model Architecture Overview
 
-### Overview of Main Entities 
+### Description of Main Entities 
 Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
 
 #### Discourse
