@@ -58,8 +58,6 @@ For many reasons, we might want to keep track of where the data for the newly cr
 Addin a data source to the content works similarly.
 	
 
-
-
 The User entity associated with the Content indicates the author of the Contribution.
 
 ### Main Entities 
