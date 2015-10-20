@@ -55,7 +55,7 @@ Please also refer to [this informal overview of the main entities](https://githu
 #### Annotations
 
 ### High Level Overview: A step-by-step Example
-Assume we want to represent the interactions in a simple discussion forum that is part of an online course in DiscourseDB. This discussion forum consists of a number of tree-like discussion threads. There are no other sub-spaces like sub-forums. We assume that the forum posts cannot be edited once they have been posted.
+Assume we want to represent the interactions in a simple discussion forum that is part of an online course. This discussion forum consists of a number of tree-like discussion threads. There are no other sub-spaces like sub-forums. We assume that the forum posts cannot be edited once they have been posted.
 
 The forum represents a distinct discussion space within the realm of the online course. Therefore, the online course is represented as an DiscourseDB _Discourse_ entity while the forum itself constitutes a _DiscoursePart_. Other discussion spaces, such as a chat would constitute separate DiscourseParts within the same Discourse.<br/>
 **STEP 1:** ```DiscourseService#createOrGetDiscourse(String name)``` creates a new Discourse entity or retrieves an existing one with the same name. In case another dataset from the same course have already been imported before, the same Discourse entity should be used.
