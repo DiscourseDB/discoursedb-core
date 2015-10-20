@@ -67,7 +67,6 @@ DiscourseDB defines five categories of entities
 - **Untimed entities with source information** extend ```UntimedBaseEntityWithSource``` and are the same as untimed entities, but they also keep track of what source they were imported from and how they can be identified in that source.
 - **Timed, annotatable entities with source information** extend ```TimedBaseEntityWithSource``` and are the same as timed annotable entities, but they also keep track of what source they were imported from and how they can be identified in that source.
 
-
 ### Spring Data Repositories
 TBA
 
