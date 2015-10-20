@@ -41,6 +41,19 @@ Like all DiscourseDB projects, this project depends on the [discoursedb-parent](
 DiscourseDB requires write access to a MySQL database. The access credentials are defined in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials local:local and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters. DiscourseDB will automatically initialize a fresh DiscourseDB instance if none exists yet. Otherwise, it will import data into the existing database.
 
 ## DiscourseDB Model Architecture Overview
+### Main Entities 
+Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
+
+#### Discourse
+#### DiscoursePart
+#### Contribution
+#### Content
+#### User, Audience, Group
+#### Context
+#### User Interactions
+#### Annotations
+
+
 ### High Level Overview: A step-by-step Example
 Assume we want to represent interactions in a simple discussion forum that is part of an online course in DiscourseDB. This discussion forum consists of a number of tree-like discussion threads. There are no other sub-spaces like sub-forums. We assume that the forum posts cannot be edited once they have been posted.
 
@@ -64,18 +77,6 @@ At this point, the contributions and the immediately related entities are fully 
 
 At this point all contributions, users etc are successfully imported, but we still need to establish relationships between contributions to represent the reply structure of the forum. This can be achieved by establishing _DiscoursRelation_ entities that connect pairs of Contribution entities. Since these entities need to reference existing Contribution entities, we need to assure that the Contributions are in the database before creating the relations. This can e.g. be done by adding relations in a second iteration after importing all contributions.<br/>
 **STEP 7:**: A DiscourseRelation between two Contributions can be created using ```DiscourseRelationService#createDiscourseRelation(Contribution sourceContribution, Contribution targetContribution, DiscourseRelationTypes type)```. In our forum example, a Contribution _reply_ that replies to a Cotribution _parent_ would be linked with ```discourseRelationService.createDiscourseRelation(parent, reply, DiscourseRelationTypes,REPLY)```.
-
-### Main Entities 
-Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
-
-#### Discourse
-#### DiscoursePart
-#### Contribution
-#### Content
-#### User, Audience, Group
-#### Context
-#### User Interactions
-#### Annotations
 
 ## DiscourseDB Core Components
 ### DiscourseDB Configuration
