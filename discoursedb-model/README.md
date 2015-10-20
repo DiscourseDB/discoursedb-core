@@ -46,6 +46,9 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf) and to the entity class descriptions in the [Javadoc](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/)
 
 #### Discourse
+A Discourse represents the broad context of interactions that might come from multiple datasets. For example, a Discourse could represent an installment of an online course. All interactions in the context of this course - independent from the source dataset - will be associated with this Discourse instance. Another installment of the same course would be represented by a new Discourse instance.
+A Discourse is associated to one or more DiscoursePart instances which represent sub-spaces in the realm of the Discourse. That is, an online course with a discussion forum and chat would have two DiscoursePart instances associated with its Discourse instance which represent the two discussion spaces.
+
 #### DiscoursePart
 #### Contribution
 #### Content
