@@ -42,13 +42,15 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 
 ## DiscourseDB Model Architecture Overview
 ### High Level Overview: An Example
-Assume we want to represent interactions in a simple discussion forum that is part of an online course in DiscourseDB. This discussion Forum consists of a number of tree-like discussion threads. There are no other sub-spaces like sub-forums.
+Assume we want to represent interactions in a simple discussion forum that is part of an online course in DiscourseDB. This discussion forum consists of a number of tree-like discussion threads. There are no other sub-spaces like sub-forums. We assume that the forum posts cannot be edited once they have been posted.
 
 The forum represents a distinct discussion space within the realm of the online course. Therefore, the online course is represented as an DiscourseDB _Discourse_ entity while the forum itself constitutes a _DiscoursePart_. Other discussion spaces, such as a chat would constitute separate DiscourseParts within the same Discourse. 
+**STEP 1: CREATE A DISCOURSE ENTITY TO REPRESENT THE BROADER CONTEXT IN WHICH AN INTERACTION HAPPEND (here: a course)**
 
-Since the forum is not organized in several subforums, we only require a single DiscoursePart. Otherwise, we could have represented each subforum as a DiscoursePart which are all related to a parent DiscoursePart with DiscoursePartRelations. This way, we can aggregate multiple sub-spaces to a single discussion space within the discourse.
+Since the forum is not organized in several subforums, we only require a single DiscoursePart. Otherwise, we could have represented each subforum as a DiscoursePart which are all related to a parent DiscoursePart with _DiscoursePartRelations_. This way, we can aggregate multiple sub-spaces to a single discussion space within the discourse.
+**STEP 2: CREATE ONE OR MORE DISCOURSE_PART ENTITIES TO REPRESENT DISCUSSION SPACE WITHIN THE DISCOURSE THAT IN WHICH THE INTERACTIONS HAPPENED (here: a course forum).**
 
-Once Discourse and DiscoursePart(s) are established, we can 
+Once Discourse and DiscoursePart(s) are created, we can import the forum posts. Each Post translates to a DiscourseDB _Contribution_ which contains the meta information about the post such as creation date and number of up/downvotes or likes. The content of the post, i.e. the text, is not directly stored in the Contribution entity, but in a _Content_ entity. The Contribution related to a Content by means of the _current revision_ and _first revision_ relation. In our case, both relations would point to the same Content entity since we are not keeping track of textual edits. If changes in the texts are supposed to be tracked, multiple content entities would a linked list to represent the revision history and the two pointers in the associated Contribution point to the head and the tail of that list. The User entity associated with the Content indicates the author of the Contribution.
 
 ### Main Entities 
 Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
