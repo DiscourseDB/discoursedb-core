@@ -44,6 +44,15 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 ### Architecture Overview
 TBA. For now, please refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf).
 
+1. Discourse
+2. DiscoursePart
+3. Contribution
+4. Content
+5. User, Audience, Group
+6. Context
+7. User Interactions
+8. Annotations
+
 ### DiscourseDB Configuration
 DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced by custom configuration (just exclude the BaseConfiguration in your project. 
 
