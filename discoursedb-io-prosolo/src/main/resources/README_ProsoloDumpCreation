@@ -1,4 +1,0 @@
-Dump social activities to CSV
-
-
-select * from social_activity into outfile "/usr1/databases/social_activity.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\r\n';
