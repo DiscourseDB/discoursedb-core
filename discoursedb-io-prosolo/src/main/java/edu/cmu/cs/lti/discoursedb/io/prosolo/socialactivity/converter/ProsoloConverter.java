@@ -19,21 +19,24 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelation;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseRelationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
-import edu.cmu.cs.lti.discoursedb.core.service.user.UserInteractionService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.UserRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io.ProsoloDB;
+import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloFollowedEntity;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloNode;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
@@ -64,6 +67,7 @@ public class ProsoloConverter implements CommandLineRunner {
 	 * List of all social activity "actions" that result in the creation of a DiscourseDB Contribution
 	 */
 	private final List<String> CONTRIB_CREATING_ACTIONS = Arrays.asList(new String[]{"Create","Post","AddNote","Comment","PostShare","TwitterPost"});
+	private final List<String> FOLLOWED_ENTITY_TYPES = Arrays.asList(new String[]{"FollowedResourceEntity","FollowedUserEntity"});
 	
 	private String discourseName;
 	private DataSourceTypes dataSourceType;
@@ -78,7 +82,6 @@ public class ProsoloConverter implements CommandLineRunner {
 	@Autowired private ContributionService contributionService;
 	@Autowired private DiscoursePartService discoursePartService;
 	@Autowired private DiscourseRelationService discourseRelationService;
-	@Autowired private UserInteractionService userInteractionService;
 	
 	@Override 
 	public void run(String... args) throws Exception {
@@ -120,13 +123,17 @@ public class ProsoloConverter implements CommandLineRunner {
 		mapSocialActivities("PostSocialActivity", "Post");
 		mapSocialActivities("NodeSocialActivity", "Create");
 		mapSocialActivities("PostSocialActivity", "TwitterPost");
-//		mapSocialActivities("TwitterPostSocialActivity", "TwitterPost");
+		mapSocialActivities("TwitterPostSocialActivity", "TwitterPost");
 		
 		//then proceed with the sharing and commenting
 		mapSocialActivities("GoalNoteSocialActivity", "AddNote"); 
 		mapSocialActivities("NodeComment", "Comment"); 
 		mapSocialActivities("PostSocialActivity","PostShare");	
-		mapSocialActivities("SocialActivityComment","Comment");	
+		mapSocialActivities("SocialActivityComment","Comment");
+		
+		//finally proceed with following activities
+		mapFollowedEntities("FollowedResourceEntity");
+		mapFollowedEntities("FollowedUserEntity");
 	}
 	
 
@@ -179,7 +186,7 @@ public class ProsoloConverter implements CommandLineRunner {
 			}else{				
 				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker());
 				if(existingProsoloUser.isPresent()){
-					curUser = addOrUpdateUser(existingProsoloUser.get());
+					curUser = createUpdateOrGetUser(existingProsoloUser.get());
 					//curUser might end up being null for some PostSocialActivities of the TwitterPost type that don't have user info				
 				}
 			}			
@@ -295,7 +302,7 @@ public class ProsoloConverter implements CommandLineRunner {
 							Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", "post.id",dataSetName);
 							if(sharedContribution.isPresent()){					
 								//we represent the sharing activity as a relation between the sharing user and the shared contribution
-								userInteractionService.createTypedContributionIteraction(curUser, sharedContribution.get(), ContributionInteractionTypes.SHARE);					
+								userService.createContributionInteraction(curUser, sharedContribution.get(), ContributionInteractionTypes.SHARE);					
 								//we create a DiscourseRelation between the sharing and the shared contribution
 								discourseRelationService.createDiscourseRelation(sharedContribution.get(), curContrib, DiscourseRelationTypes.RESHARE);
 							}										
@@ -308,20 +315,90 @@ public class ProsoloConverter implements CommandLineRunner {
 
 	
 	/**
+	 * Creates follow relationships from Prosolo followed_entities.
+	 * 
+	 * @param dtype the type of the followed_entity, i.e. "FollowedResourceEntity" or "FollowedUserEntity"
+	 * @throws SQLException
+	 */
+	private void mapFollowedEntities(String dtype) throws SQLException{
+		if(!FOLLOWED_ENTITY_TYPES.contains(dtype)){
+			logger.warn(dtype+" is not a valid followed entity type.");
+			return;
+		}
+		
+		List<Long> followedEntityIDs = prosolo.getIdsForFollowedEntityType(dtype);
+		logger.info("Mapping "+followedEntityIDs.size()+" followed entity if type \""+dtype+"\"");				
+		
+		//retrieve list of social activity ids and then process each of them within the loop
+		for (Long curFollowedEntityId : followedEntityIDs) {			
+			logger.trace("Processing "+dtype+" id:"+curFollowedEntityId);			
+		
+			//check if the current followed_entity has already been imported at any point in time. if so, skip and proceed with the next
+			if(dataSourceService.dataSourceExists(curFollowedEntityId+"","social_activity.id",dataSetName)){
+				logger.warn("Followed entity with id "+curFollowedEntityId+" ("+dtype+") already in database. Skipping...");
+				continue;	
+			}
+			
+			ProsoloFollowedEntity curFollowedEntity = prosolo.getProsoloFollowedEntity(curFollowedEntityId).get();
+			User followingUser = createUpdateOrGetUser(prosolo.getProsoloUser(curFollowedEntity.getUser()).get());			
+			
+			if(dtype.equals("FollowedResourceEntity")){
+				//following a node				
+				Optional<ProsoloNode> existingNode = prosolo.getProsoloNode(curFollowedEntity.getFollowed_node());				
+				if(existingNode.isPresent()){
+					ProsoloNode node = existingNode.get();					
+					//check if a contribution for the given node exists
+					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", "node.id", dataSetName);					
+					if(nodeContrib.isPresent()){
+						//create interaction that indicates the following relation
+						ContributionInteraction followNode = userService.createContributionInteraction(followingUser, nodeContrib.get(), ContributionInteractionTypes.FOLLOW);
+						followNode.setStartTime(curFollowedEntity.getStarted_following());
+					}
+				}							
+			}else if(dtype.equals("FollowedUserEntity")){
+				//following a user
+				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curFollowedEntity.getFollowed_user());				
+				if(existingProsoloUser.isPresent()){
+					User followedUser = createUpdateOrGetUser(existingProsoloUser.get());								
+					UserRelation followUser = userService.createUserRelation(followingUser, followedUser, UserRelationTypes.FOLLOW);
+					followUser.setStartTime(curFollowedEntity.getStarted_following());
+				}				
+			}else{
+				logger.warn("Unsupported dtype: "+dtype);
+				continue;
+			}
+
+			
+		}
+	}
+			
+			
+			
+	
+	/**
 	 * Creates a new DiscourseDB user based on the information in the ProsoloUser object if it doesn't exist
 	 * or updates the contents of an existing DiscourseDB user.
+	 * If a user has previously been updated with a prosoloUser, the User is simply returned.
+	 * 
+	 * Thus, the method can also been used to retrieve DiscourseDB Users using ProsoloUser objects.
 	 * 
 	 * @param prosoloUser the prosolo user to add to discoursedb 
 	 * @return the DiscourseDB user based on or updated with the prosolo user
 	 * @throws SQLException In case of a database access error
 	 */
-	private User addOrUpdateUser(ProsoloUser prosoloUser) throws SQLException{
+	private User createUpdateOrGetUser(ProsoloUser prosoloUser) throws SQLException{
 		User curUser = null; 
 		if(prosoloUser==null){
 			logger.error("Could not find user information for prosolo user in prosolo database");
 		}else{				
+			//Check if we previously ran the addOrUpdate already. If so, just return the User
+			Optional<User> existingUser = userService.findUserByDiscourseAndSourceIdAndDataSet(discourseService.createOrGetDiscourse(this.discourseName), prosoloUser.getId()+"", dataSetName);
+			if(existingUser.isPresent()){
+				return existingUser.get();						
+			}
+			
 			//CHECK IF USER WITH SAME edX username exists in the current Discourse context
-			Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(prosoloUser.getId());
+			Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(prosoloUser.getId());			
 			if(edXUserName.isPresent()){
 				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(this.discourseName), edXUserName.get());
 				dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"","user.id",dataSourceType,dataSetName));

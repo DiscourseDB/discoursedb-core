@@ -14,5 +14,6 @@ public final class TableConstants {
 	 public static final String POST = "post";
 	 public static final String EMAIL = "email";
 	 public static final String NODE = "node";
+	 public static final String FOLLOWEDENTITY = "followed_entity";
 	 
 }

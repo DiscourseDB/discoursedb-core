@@ -12,13 +12,15 @@ import java.util.stream.Collectors;
 import org.jooq.lambda.SQL;
 import org.jooq.lambda.Unchecked;
 
+import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloFollowedEntity;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloNode;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
 /**
- * Establishes a JDBC database connection to a prosolo database and provides methods to access ProSolo data using the POJOs in the model package.
+ * Establishes a JDBC database connection to a prosolo database and provides
+ * methods to access ProSolo data using the POJOs in the model package.
  * 
  * @author Oliver Ferschke
  *
@@ -97,6 +99,31 @@ public class ProsoloDB {
 		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
 			stmt.setString(1, dtype);
 			stmt.setString(2, action);
+			idList = SQL.seq(stmt, Unchecked.function(rs -> rs.getLong("id"))).collect(Collectors.toList());
+		}
+		return idList;
+	}
+	
+	/**
+	 * Returns all ids for followed entities of the given dtype. This idlist can
+	 * then be used to query one followed_entity at a time in a separate
+	 * PreparedStatement. This might be preferred to streaming a whole resultset
+	 * (even though this would have a higher performance), because no other
+	 * statements can be executed before the (streaming) query isn't closed.
+	 * 
+	 * @param dtype
+	 *            the dtype for the followed entity
+	 * @return a list of ids for followed entities of the provided dtype
+	 * @throws SQLException
+	 */
+	public List<Long> getIdsForFollowedEntityType(String dtype) throws SQLException {
+		if(dtype==null||(!dtype.equals("FollowedUserEntity")&&!dtype.equals("FollowedResourceEntity"))){
+			return new ArrayList<Long>();
+		}
+		List<Long> idList = null;
+		String sql = "SELECT id from "+TableConstants.FOLLOWEDENTITY+" where dtype=?";
+		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+			stmt.setString(1, dtype);
 			idList = SQL.seq(stmt, Unchecked.function(rs -> rs.getLong("id"))).collect(Collectors.toList());
 		}
 		return idList;
@@ -262,12 +289,46 @@ public class ProsoloDB {
 		return post;
 	}
 	
+	
+	/**
+	 * Returns a single ProsoloUser object
+	 * 
+	 * @param id the id of the followed entity
+	 * @return an optional ProsoloFollowedEntity that is empty if the id did not exist
+	 * @throws SQLException
+	 */
+	public Optional<ProsoloFollowedEntity> getProsoloFollowedEntity(Long id) throws SQLException {
+		if(id==null){
+			return Optional.empty();
+		}
+		Optional<ProsoloFollowedEntity> pFollowedEntity = null;
+		try (Connection c = getConnection()) {
+			String sql = "SELECT * from "+TableConstants.FOLLOWEDENTITY+" where id=?";
+			try (PreparedStatement stmt = c.prepareStatement(sql)) {
+				stmt.setLong(1, id); 
+				pFollowedEntity = SQL.seq(stmt, Unchecked.function(rs -> new ProsoloFollowedEntity(
+						rs.getString("dtype"),
+						rs.getLong("id"),
+						rs.getTimestamp("created"),
+						rs.getBoolean("deleted"),
+						rs.getString("dc_description"),
+						rs.getString("title"),
+						rs.getTimestamp("started_following"),
+						rs.getLong("user"),
+						rs.getLong("followed_node"),
+						rs.getLong("followed_user")
+		            ))).findFirst();
+			}
+		}
+		return pFollowedEntity;
+	}
+	
 	/**
 	 * Returns a single ProsoloUser object
 	 * 
 	 * @param id
 	 *            the id of the prosolo user
-	 * @return a list of ids for social activities of the provided dtype
+	 * @return an optional ProsoloUser object that is empty if the id did not exist in the database
 	 * @throws SQLException
 	 */
 	public Optional<ProsoloUser> getProsoloUser(Long id) throws SQLException {
