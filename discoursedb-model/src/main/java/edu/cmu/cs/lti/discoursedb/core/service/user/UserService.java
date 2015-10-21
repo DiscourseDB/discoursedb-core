@@ -13,12 +13,17 @@ import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteractionType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelationType;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRelationRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.UserRelationTypes;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
@@ -30,6 +35,12 @@ public class UserService {
 	@Autowired
 	private DataSourceService dataSourceService;
 
+	@Autowired
+	private UserRelationRepository userRelationRepo;
+
+	@Autowired
+	private UserRelationTypeRepository userRelationTypeRepo;
+	
 	@Autowired
 	private ContributionInteractionRepository contribInteractionRepo;
 
@@ -160,6 +171,44 @@ public class UserService {
 		}
 	}
 
+	/**
+	 * Creates a new UserRelation of the provided type and applies
+	 * it to the provided source and target user. 
+	 * 
+	 * @param sourceUser
+	 *            the user that establishes the relation (e.g. follower))
+	 * @param targetUser
+	 *            the user that is the target of the relation (e.g. followee))
+	 * @param type
+	 *            the type of the relation
+	 * @return the UserRelation object after being saved to the
+	 *         database. If it already existed, the existing entity will be retrieved and returned.
+	 */
+	public UserRelation createUserRelation(User sourceUser, User targetUser, UserRelationTypes type) {
+
+		//Retrieve type or create if it doesn't exist in db
+		UserRelationType userRelationType =null;
+		Optional<UserRelationType> existingUserRelationType = userRelationTypeRepo.findOneByType(type.name());
+		if(existingUserRelationType.isPresent()){
+			userRelationType=existingUserRelationType.get();
+		}else{
+			userRelationType = new UserRelationType();
+			userRelationType.setType(type.name());
+			userRelationTypeRepo.save(userRelationType);			
+		}
+
+		//Retrieve UserRelation or create if it doesn't exist in db
+		Optional<UserRelation> existingUserRelation =  userRelationRepo.findOneBySourceAndTargetAndType(sourceUser,targetUser, userRelationType);		
+		if(existingUserRelation.isPresent()){
+			return existingUserRelation.get();
+		}else{
+			UserRelation userRelation = new UserRelation();
+			userRelation.setSource(sourceUser);
+			userRelation.setTarget(targetUser);
+			userRelation.setType(userRelationType);
+			return userRelationRepo.save(userRelation);			
+		}
+	}
 	
 	/**
 	 * This method is a convenience method to build a single real name from a first and a last name (each of which might be empty)
@@ -194,6 +243,9 @@ public class UserService {
 		}
 		return user;
 	}
+	
+	
+	
 	
 	/**
 	 * Calls the save method of the user repository, saves the provided User entity and returns it after the save process
