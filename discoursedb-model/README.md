@@ -68,9 +68,14 @@ A Content entity is related to a User indicating that this user is the author of
 Context is whatever a Contribution is referring to. For example if the contributions are comments on a Wikipedia talk page, then context might be version of the wiki page at the point in time the comment was made.  
 Context entities are associated with Contribution entities via a ContributionContext entity. Apart from that, Context entities resemble Contribution entities, ie. the content of a Context entity is represented by one or more Content instances (see above).
 
-#### User, Audience, Group
-TBA
 #### DataSource
+For many reasons, we might want to keep track of where the data for a DiscourseDB entity came from. This is either relevant in case we need to get details from the original dataset that are not represented in DiscourseDB or is important during the data import phase where we have to refer to ids and primare keys in the original dataset in order to make connections between entities.
+
+DataSourceInstance entities keep track of where data came from. Such entities can be associated with all _entities with source information_ (see [below](https://github.com/DiscourseDB/discoursedb-model#entity-classes-the-discoursedb-core-model)). A single DiscourseDB entity can be associated with one or more DataSourceInstance entities. In most cases, a single DataSourceInstance is sufficient. However, there are cases such as User data that might relate to data points in multiple datasets, so we need to keep track of all its sources. 
+
+A DataSourceInstance consists of four main components. The _dataSourceId_ contains the id of the entity in the source dataset (i.e. how is the instance identified in the source). The _entitySourceDescriptor_ identifies the name/descriptor of the field that was used as the sourceId (i.e. how can i find the id in the source dataset.) The _sourceType_ identifies the category of the data source (e.g. EDX, Wikipedia, PROSOLO) and the _dataSetName_ identifies the particular file or database from which the data was imported.
+
+#### User, Audience, Group
 TBA
 #### Interactions
 TBA
