@@ -20,10 +20,6 @@
 		<url>https://github.com/DiscourseDB/discoursedb-io-tags/issues</url>
 	</issueManagement>
 	<dependencies>
-		<dependency>
-			<groupId>edu.cmu.cs.lti</groupId>
-			<artifactId>discoursedb-model</artifactId>
-		</dependency>
 				<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
 			<artifactId>discoursedb-model</artifactId>
