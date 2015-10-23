@@ -1,8 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.converter;
 
-import javax.transaction.Transactional;
-
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -13,7 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
  * 
  * @author Oliver Ferschke
  */
-@Transactional
+@SpringBootApplication
 @ComponentScan(basePackages = {"edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity"})
 public class ProsoloConverterApplication {
 	
