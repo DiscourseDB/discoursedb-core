@@ -46,6 +46,7 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity
  * 
  * @author Oliver Ferschke
  */
+@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @Service
 public class ProsoloConverterService {
 
@@ -66,7 +67,6 @@ public class ProsoloConverterService {
 	 * @param action the create/add action
 	 * @throws SQLException
 	 */
-	@Transactional(propagation = Propagation.REQUIRED, readOnly=false)
 	public void mapSocialActivity(String dtype, String action, Long curSocialActivityId, ProsoloDB prosolo, String discourseName, String dataSetName) throws SQLException{
 			//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 			//The course details are passed on as a parameter to this converter and are not read from the prosolo database
@@ -229,7 +229,6 @@ public class ProsoloConverterService {
 	 * @param dtype the type of the followed_entity, i.e. "FollowedResourceEntity" or "FollowedUserEntity"
 	 * @throws SQLException
 	 */
-	@Transactional(propagation = Propagation.REQUIRED, readOnly=false)
 	public void mapFollowedEntity(String dtype, Long curFollowedEntityId, ProsoloDB prosolo, String discourseName, String dataSetName) throws SQLException{	
 			//check if the current followed_entity has already been imported at any point in time. if so, skip and proceed with the next
 			if(dataSourceService.dataSourceExists(curFollowedEntityId+"","social_activity.id",dataSetName)){
@@ -281,7 +280,6 @@ public class ProsoloConverterService {
 	 * @return the DiscourseDB user based on or updated with the prosolo user
 	 * @throws SQLException In case of a database access error
 	 */
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly=false)
 	public User createUpdateOrGetUser(ProsoloUser prosoloUser, ProsoloDB prosolo, String discourseName, String dataSetName, DataSourceTypes dataSourceType) throws SQLException{
 		User curUser = null; 
 		if(prosoloUser==null){
