@@ -84,7 +84,6 @@ public class EdxForumConverterService{
 			curContent.setText(p.getBody());
 			curContent.setStartTime(p.getCreatedAt());
 			curContent.setAuthor(curUser);
-			dataSourceService.addSource(curContent, new DataSourceInstance(p.getId(),"id",DataSourceTypes.EDX,dataSetName));
 			
 			logger.trace("Create Contribution entity");
 			curContribution = contributionService.createTypedContribution(mappedType);
