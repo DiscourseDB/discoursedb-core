@@ -22,6 +22,8 @@ import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 
 /**
  * Aggregate entity that aggregates all DataSources of the associated entity.
+ * It serves as a proxy for the entity for the purpose of source management.
+ * A source can only have one entity, but an entity can have multiple sources.
  */
 @Entity
 @SelectBeforeUpdate 
