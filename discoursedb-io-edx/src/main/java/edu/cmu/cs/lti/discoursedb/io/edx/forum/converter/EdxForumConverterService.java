@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
@@ -28,8 +29,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.UserInfo;
 
-/**
- */
+@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @Service
 public class EdxForumConverterService{
 
@@ -52,7 +52,6 @@ public class EdxForumConverterService{
 	 * @param p the post object to map to DiscourseDB
 	 * @param dataSetName the name of the dataset the post was extracted from
 	 */
-	@Transactional
 	public void mapEntities(Post p, String dataSetName) {				
 		if(contributionService.findOneByDataSource(p.getId(),dataSetName).isPresent()){
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
@@ -111,7 +110,6 @@ public class EdxForumConverterService{
 	 * @param p
 	 *            the post object to map to DiscourseDB
 	 */
-	@Transactional
 	public void mapRelations(Post p, String dataSetName) {		
 		logger.trace("Mapping relations for post " + p.getId());
 	
@@ -145,7 +143,6 @@ public class EdxForumConverterService{
 	 * @param u
 	 *            the UserInfo object to map to DiscourseDB
 	 */
-	@Transactional
 	public void mapUser(UserInfo u) {
 		logger.trace("Mapping UserInfo for user" + u.getUsername());
 	
