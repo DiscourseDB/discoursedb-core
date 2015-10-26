@@ -133,7 +133,6 @@ public class ProsoloConverterService {
 			if(curUser!=null){curContent.setAuthor(curUser);} //might be null for some Tweets
 			curContent.setStartTime(curSocialActivity.getCreated());
 			curContent.setText(curSocialActivity.getText());			
-			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivityId+"","social_activity.id",DataSourceTypes.PROSOLO, dataSetName));
 			
 			Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(typeSpecificDType));
 			curContrib.setCurrentRevision(curContent);
@@ -145,7 +144,6 @@ public class ProsoloConverterService {
 
 			//add the type specific source types for nodes and posts mentioned above
 			if(typeSpecificSourceId!=null){
-				dataSourceService.addSource(curContent, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, DataSourceTypes.PROSOLO, dataSetName));				
 				dataSourceService.addSource(curContrib, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, DataSourceTypes.PROSOLO, dataSetName));
 			}
 			
@@ -295,7 +293,6 @@ public class ProsoloConverterService {
 			Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(prosoloUser.getId());			
 			if(edXUserName.isPresent()){
 				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName), edXUserName.get());
-				dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"","user.id",dataSourceType,dataSetName));
 			}else{
 				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName),"", prosoloUser.getId()+"","user.id",dataSourceType,dataSetName);
 			}

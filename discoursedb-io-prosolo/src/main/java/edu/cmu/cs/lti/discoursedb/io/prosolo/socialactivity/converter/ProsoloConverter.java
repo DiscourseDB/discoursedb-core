@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
@@ -29,7 +28,6 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io.ProsoloDB;
  *
  */
 @Component
-@Order(1)
 public class ProsoloConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(ProsoloConverter.class);
@@ -53,13 +51,12 @@ public class ProsoloConverter implements CommandLineRunner {
 
 		if (args.length != 6) {
 			logger.error("Incorrect number of parameters. USAGE: <DiscourseName> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>");
-			System.exit(1);
+			return;
 		}
 		
 		//Parse command line parameters		
 		this.discourseName=args[0];			
 		this.dataSetName=args[1];
-
 		prosolo = new ProsoloDB(args[2],args[3],args[4],args[5]);
 
 		logger.info("Start mapping to DiscourseDB...");
