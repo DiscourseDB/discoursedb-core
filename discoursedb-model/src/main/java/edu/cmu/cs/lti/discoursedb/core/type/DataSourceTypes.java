@@ -16,6 +16,10 @@ public enum DataSourceTypes {
 	 */
 	PROSOLO,
 	/**
+	 * A ProSolo blog dataset
+	 */
+	PROSOLO_BLOG,
+	/**
 	 * A TAGS dataset 
 	 */
 	TAGS

@@ -32,7 +32,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @Configuration
 @EnableAutoConfiguration
 @EnableTransactionManagement
-@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb" })
+@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model","edu.cmu.cs.lti.discoursedb.core.repository","edu.cmu.cs.lti.discoursedb.core.service"})
 @PropertySource(value = { "classpath:hibernate.properties" })
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })

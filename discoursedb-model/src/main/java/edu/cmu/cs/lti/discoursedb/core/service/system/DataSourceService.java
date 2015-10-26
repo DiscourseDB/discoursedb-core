@@ -136,8 +136,7 @@ public class DataSourceService {
 	public DataSourceInstance createIfNotExists(DataSourceInstance source){
 		Optional<DataSourceInstance> instance = Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(source.getEntitySourceId()).and(
-				DataSourcePredicates.hasSourceType(source.getSourceType()).and(
-				DataSourcePredicates.hasDataSetName(source.getDatasetName())))));
+				DataSourcePredicates.hasDataSetName(source.getDatasetName()))));
 		if(instance.isPresent()){
 			return instance.get();
 		}else{

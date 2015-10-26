@@ -25,5 +25,10 @@ public enum DiscoursePartTypes {
 	/**
 	 * A Prosolo Social Activity 
 	 */
-	PROSOLO_SOCIAL_ACTIVITY
+	PROSOLO_SOCIAL_ACTIVITY,
+	/**
+	 * A Prosolo Blog 
+	 */
+	PROSOLO_BLOG
+	
 }
