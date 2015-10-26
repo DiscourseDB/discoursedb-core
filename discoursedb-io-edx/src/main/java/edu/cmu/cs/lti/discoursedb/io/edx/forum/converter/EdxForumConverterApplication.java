@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.io.edx.forum.converter;
 
-import javax.transaction.Transactional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
@@ -9,11 +7,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 /**
  * This starter class launches the components necessary for importing an EdX forum dump into DiscourseDB.
- * In particular, it launches the three phases of the EdxForumConverter.
+ * In particular, it launches the EdxForumConverter which uses the EdxForumConverterService to map data to DiscourseDB.
  * 
  * @author Oliver Ferschke
  */
-@Transactional
 @ComponentScan(basePackages = {"edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.io.edx.forum"})
 public class EdxForumConverterApplication {
 	
@@ -28,7 +25,7 @@ public class EdxForumConverterApplication {
 	public static void main(String[] args) {
 		if(args.length!=3){
 			logger.error("Usage: EdxForumConverterApplication <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>");
-			System.exit(1);
+			return;
 		}
         SpringApplication.run(EdxForumConverterApplication.class, args);       
 	}
