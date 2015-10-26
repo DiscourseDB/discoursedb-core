@@ -47,8 +47,6 @@ public class EdxForumConverterService{
 	/**
 	 * Maps a post to DiscourseDB entities.
 	 * 
-	 * Phase 1 maps everything except for DiscourseRelations (which connect existing Contribtions)
-	 * 
 	 * @param p the post object to map to DiscourseDB
 	 * @param dataSetName the name of the dataset the post was extracted from
 	 */
