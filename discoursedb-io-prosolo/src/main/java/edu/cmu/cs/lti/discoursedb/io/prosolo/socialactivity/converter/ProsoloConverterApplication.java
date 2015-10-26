@@ -6,9 +6,9 @@ import org.springframework.context.annotation.ComponentScan;
 
 /**
  * This starter class launches the components necessary for importing prosolo social activities
- * from a csv dump into DiscourseDB.
+ * from a the Prosolo database into DiscourseDB.
  * 
- * This starter class requires one parameter: a pointer to the csv dump of the social activity table.
+ * This starter class requires six parameters: <DiscourseName> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>
  * 
  * @author Oliver Ferschke
  */

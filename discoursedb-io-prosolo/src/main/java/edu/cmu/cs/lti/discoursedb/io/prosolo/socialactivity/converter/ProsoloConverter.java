@@ -12,7 +12,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
-import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io.ProsoloDB;
 
 /**
@@ -42,7 +41,6 @@ public class ProsoloConverter implements CommandLineRunner {
 	private final List<String> FOLLOWED_ENTITY_TYPES = Arrays.asList(new String[]{"FollowedResourceEntity","FollowedUserEntity"});
 	
 	private String discourseName;
-	private DataSourceTypes dataSourceType;
 	private String dataSetName;
 	
 	private ProsoloDB prosolo = null;
@@ -60,7 +58,6 @@ public class ProsoloConverter implements CommandLineRunner {
 		
 		//Parse command line parameters		
 		this.discourseName=args[0];			
-		this.dataSourceType = DataSourceTypes.PROSOLO;
 		this.dataSetName=args[1];
 
 		prosolo = new ProsoloDB(args[2],args[3],args[4],args[5]);
@@ -114,7 +111,7 @@ public class ProsoloConverter implements CommandLineRunner {
 		//retrieve list of social activity ids and then process each of them within the loop
 		for (Long curSocialActivityId : socialActivityIDs) {			
 			logger.trace("Processing "+dtype+" ("+action+") id:"+curSocialActivityId);			
-			converterService.mapSocialActivity(dtype,action,curSocialActivityId,prosolo, discourseName,dataSetName,dataSourceType);
+			converterService.mapSocialActivity(dtype,action,curSocialActivityId,prosolo, discourseName,dataSetName);
 		}
 	}
 
@@ -137,7 +134,7 @@ public class ProsoloConverter implements CommandLineRunner {
 		//retrieve list of social activity ids and then process each of them within the loop
 		for (Long curFollowedEntityId : followedEntityIDs) {			
 			logger.trace("Processing "+dtype+" id:"+curFollowedEntityId);			
-			converterService.mapFollowedEntity(dtype,curFollowedEntityId,prosolo, discourseName,dataSetName,dataSourceType);
+			converterService.mapFollowedEntity(dtype,curFollowedEntityId,prosolo, discourseName,dataSetName);
 		}
 	}	
 

@@ -39,18 +39,12 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
 /**
- * This converter loads data from a prosolo database and maps it to DiscourseDB.
- * The DiscourseDB configuration is defined in the dicoursedb-model project and
- * Spring/Hibernate are taking care of connections.
- * 
- * The connection to the prosolo database is more lightweight and uses a JDBC
- * connection. The configuration parameters for this connection are passed to
- * the converter as launch parameters in the following order
- * 
- * <DiscourseName> <DataSetName> <prosolo_dbhost> <prosolo_db> <prosolo_dbuser> <prosolo_dbpwd>
+ * This converter service maps Prosolo social activities from a prosolo database
+ * to DiscourseDB. The connection to the prosolo database is established by the
+ * calling class, which has to pass a database access object to the methods in
+ * this service class. Mapping methhods are executed transactionally.
  * 
  * @author Oliver Ferschke
- *
  */
 @Service
 public class ProsoloConverterService {
@@ -72,8 +66,8 @@ public class ProsoloConverterService {
 	 * @param action the create/add action
 	 * @throws SQLException
 	 */
-	@Transactional(propagation = Propagation.REQUIRED)
-	public void mapSocialActivity(String dtype, String action, Long curSocialActivityId, ProsoloDB prosolo, String discourseName, String dataSetName, DataSourceTypes dataSourceType) throws SQLException{
+	@Transactional(propagation = Propagation.REQUIRED, readOnly=false)
+	public void mapSocialActivity(String dtype, String action, Long curSocialActivityId, ProsoloDB prosolo, String discourseName, String dataSetName) throws SQLException{
 			//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 			//The course details are passed on as a parameter to this converter and are not read from the prosolo database
 			Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
@@ -96,12 +90,12 @@ public class ProsoloConverterService {
 			if(dtype.equals("TwitterPostSocialActivity")){
 				//We have no prosolo user information, but twitter user account information
 				//The source id will therefore link to the social activity and not to a user entry
-				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivityId+"", "social_activity.id", dataSourceType, dataSetName);
+				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivityId+"", "social_activity.id", DataSourceTypes.PROSOLO, dataSetName);
 				curUser.setRealname(curSocialActivity.getName());				
 			}else{				
 				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker());
 				if(existingProsoloUser.isPresent()){
-					curUser = createUpdateOrGetUser(existingProsoloUser.get(),prosolo, discourseName,dataSetName,dataSourceType);
+					curUser = createUpdateOrGetUser(existingProsoloUser.get(),prosolo, discourseName,dataSetName,DataSourceTypes.PROSOLO);
 					//curUser might end up being null for some PostSocialActivities of the TwitterPost type that don't have user info				
 				}
 			}			
@@ -139,7 +133,7 @@ public class ProsoloConverterService {
 			if(curUser!=null){curContent.setAuthor(curUser);} //might be null for some Tweets
 			curContent.setStartTime(curSocialActivity.getCreated());
 			curContent.setText(curSocialActivity.getText());			
-			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivityId+"","social_activity.id",dataSourceType, dataSetName));
+			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivityId+"","social_activity.id",DataSourceTypes.PROSOLO, dataSetName));
 			
 			Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(typeSpecificDType));
 			curContrib.setCurrentRevision(curContent);
@@ -147,12 +141,12 @@ public class ProsoloConverterService {
 			curContrib.setStartTime(curSocialActivity.getCreated());
 			curContrib.setUpvotes(curSocialActivity.getLike_count());			
 			curContrib.setDownvotes(curSocialActivity.getDislike_count());			
-			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivityId+"","social_activity.id",dataSourceType,dataSetName));
+			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivityId+"","social_activity.id",DataSourceTypes.PROSOLO,dataSetName));
 
 			//add the type specific source types for nodes and posts mentioned above
 			if(typeSpecificSourceId!=null){
-				dataSourceService.addSource(curContent, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, dataSourceType, dataSetName));				
-				dataSourceService.addSource(curContrib, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, dataSourceType, dataSetName));
+				dataSourceService.addSource(curContent, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, DataSourceTypes.PROSOLO, dataSetName));				
+				dataSourceService.addSource(curContrib, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, DataSourceTypes.PROSOLO, dataSetName));
 			}
 			
 			//add contribution to DiscoursePart
@@ -235,8 +229,8 @@ public class ProsoloConverterService {
 	 * @param dtype the type of the followed_entity, i.e. "FollowedResourceEntity" or "FollowedUserEntity"
 	 * @throws SQLException
 	 */
-	@Transactional(propagation = Propagation.REQUIRED)
-	public void mapFollowedEntity(String dtype, Long curFollowedEntityId, ProsoloDB prosolo, String discourseName, String dataSetName, DataSourceTypes dataSourceType) throws SQLException{	
+	@Transactional(propagation = Propagation.REQUIRED, readOnly=false)
+	public void mapFollowedEntity(String dtype, Long curFollowedEntityId, ProsoloDB prosolo, String discourseName, String dataSetName) throws SQLException{	
 			//check if the current followed_entity has already been imported at any point in time. if so, skip and proceed with the next
 			if(dataSourceService.dataSourceExists(curFollowedEntityId+"","social_activity.id",dataSetName)){
 				logger.warn("Followed entity with id "+curFollowedEntityId+" ("+dtype+") already in database. Skipping...");
@@ -244,7 +238,7 @@ public class ProsoloConverterService {
 			}
 			
 			ProsoloFollowedEntity curFollowedEntity = prosolo.getProsoloFollowedEntity(curFollowedEntityId).get();
-			User followingUser = createUpdateOrGetUser(prosolo.getProsoloUser(curFollowedEntity.getUser()).get(),prosolo, discourseName,dataSetName,dataSourceType);			
+			User followingUser = createUpdateOrGetUser(prosolo.getProsoloUser(curFollowedEntity.getUser()).get(),prosolo, discourseName,dataSetName,DataSourceTypes.PROSOLO);			
 			
 			if(dtype.equals("FollowedResourceEntity")){
 				//following a node				
@@ -263,7 +257,7 @@ public class ProsoloConverterService {
 				//following a user
 				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curFollowedEntity.getFollowed_user());				
 				if(existingProsoloUser.isPresent()){
-					User followedUser = createUpdateOrGetUser(existingProsoloUser.get(),prosolo, discourseName,dataSetName,dataSourceType);								
+					User followedUser = createUpdateOrGetUser(existingProsoloUser.get(),prosolo, discourseName,dataSetName,DataSourceTypes.PROSOLO);								
 					UserRelation followUser = userService.createUserRelation(followingUser, followedUser, UserRelationTypes.FOLLOW);
 					followUser.setStartTime(curFollowedEntity.getStarted_following());
 				}				
@@ -287,7 +281,7 @@ public class ProsoloConverterService {
 	 * @return the DiscourseDB user based on or updated with the prosolo user
 	 * @throws SQLException In case of a database access error
 	 */
-	@Transactional(propagation = Propagation.SUPPORTS)
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly=false)
 	public User createUpdateOrGetUser(ProsoloUser prosoloUser, ProsoloDB prosolo, String discourseName, String dataSetName, DataSourceTypes dataSourceType) throws SQLException{
 		User curUser = null; 
 		if(prosoloUser==null){
