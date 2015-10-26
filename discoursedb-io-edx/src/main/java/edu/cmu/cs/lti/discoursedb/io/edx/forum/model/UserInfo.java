@@ -1,14 +1,11 @@
 package edu.cmu.cs.lti.discoursedb.io.edx.forum.model;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 /**
  * POJO for the user info in *-auth_user-prod-analytics.sql files.
  * 
  * @author oliverf
  *
  */
-@JsonPropertyOrder({"id","username","first_name","last_name","email","password","is_staff","is_active","is_superuser","last_login","date_joined","status","email_key","avatar_type","country","show_country","date_of_birth","interesting_tags","ignored_tags","email_tag_filter_strategy","display_tag_filter_strategy","consecutive_days_visit_count"})
 public class UserInfo {
 	private String id;      
 	private String username;        

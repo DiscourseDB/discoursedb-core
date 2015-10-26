@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,10 +46,7 @@ import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.UserInfo;
 @Order(1)
 public class EdxForumConverter implements CommandLineRunner {
 
-	private static final Logger logger = LogManager.getLogger(EdxForumConverter.class);
-	private static int postcount = 1;
-	
-	private String dataSetName;
+	private static final Logger logger = LogManager.getLogger(EdxForumConverter.class);	
 
 	@Autowired private DataSourceService dataSourceService;
 	@Autowired private EdxForumConverterService converterService;
@@ -59,19 +57,19 @@ public class EdxForumConverter implements CommandLineRunner {
 			logger.error("Usage: EdxForumConverterApplication <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>");
 			throw new RuntimeException("Incorrect number of launch parameters.");
 		}
-		this.dataSetName=args[0];		
+		final String dataSetName=args[0];		
 		if(dataSourceService.dataSourceExists(dataSetName)){
 			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Terminating...");			
 			return;
 		}
 		
-		String forumDumpFileName = args[1];
+		final String forumDumpFileName = args[1];
 		File forumFumpFile = new File(forumDumpFileName);
 		if (!forumFumpFile.exists() || !forumFumpFile.isFile() || !forumFumpFile.canRead()) {
 			logger.error("Forum dump file does not exist or is not readable.");
 			throw new RuntimeException("Can't read file "+forumDumpFileName);
 		}
-		String userMappingFileName = args[2];
+		final String userMappingFileName = args[2];
 		File userMappingFile = new File(userMappingFileName);
 		if (!userMappingFile.exists() || !userMappingFile.isFile() || !userMappingFile.canRead()) {
 			logger.error("User mappiong file does not exist or is not readable.");
@@ -87,43 +85,32 @@ public class EdxForumConverter implements CommandLineRunner {
 		 */
 		
 		//Phase 1: read through input file once and map all entities
+
 		logger.info("Phase 1: Mapping forum posts and related entities to DiscourseDB");
-		InputStream in = new FileInputStream(forumFumpFile);
-		try {
-			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it.hasNext();) {
-				logger.debug("Retrieving post number " + postcount++);
-				converterService.mapEntities(it.next(), dataSetName);
-			}
-		} finally {
-			in.close();
-		}
+		try(InputStream in = new FileInputStream(forumFumpFile)) {
+			Iterator<Post> pit =new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class);	
+			Iterable<Post> iterable = () -> pit;
+			StreamSupport.stream(iterable.spliterator(), false).forEach(p->converterService.mapEntities(p, dataSetName));		
+		}	
 		
 		
 		//Phase 2: read through input file a second time and map all entity relationships
 		logger.info("Phase 2: Mapping DiscourseRelations");
-		in = new FileInputStream(forumFumpFile);
-		try {
-			for (Iterator<Post> it = new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class); it
-					.hasNext();) {
-				logger.debug("Retrieving post number " + postcount++);
-				converterService.mapRelations(it.next(), dataSetName);
-			}
-		} finally {
-			in.close();
+		try(InputStream in = new FileInputStream(forumFumpFile)) {
+				Iterator<Post> pit =new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class);	
+				Iterable<Post> iterable = () -> pit;
+				StreamSupport.stream(iterable.spliterator(), false).forEach(p->converterService.mapRelations(p, dataSetName));		
 		}	
 	
 		//Phase 3: read user mapping file and add map user info
-		logger.info("Phase 3: Adding additional user information");
-		in = new FileInputStream(userMappingFile);
-		try {
+		logger.info("Phase 3: Adding additional user information");		
+		try(InputStream in = new FileInputStream(userMappingFile);) {
 			CsvMapper mapper = new CsvMapper();
-			CsvSchema schema = mapper.schemaFor(UserInfo.class).withColumnSeparator('\t').withHeader();
+			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator('\t');
 			MappingIterator<UserInfo> it = mapper.readerFor(UserInfo.class).with(schema).readValues(in);
 			while (it.hasNextValue()) {
 				converterService.mapUser(it.next());
 			}
-		} finally {
-			in.close();
 		}	
 		
 		logger.info("All done.");
