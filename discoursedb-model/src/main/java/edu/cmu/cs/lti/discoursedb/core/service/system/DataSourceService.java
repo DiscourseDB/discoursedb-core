@@ -179,13 +179,16 @@ public class DataSourceService {
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source
-		if(!findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName()).isPresent()){
+		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName());
+		if(!existingDataSourceInstance.isPresent()){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
-		}else{
-			logger.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");
+			sourceAggregate.addSource(source);
+		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
+			//we tried to create an existing DataSourceInstance but add it to another entity
+			//this is not allowed, a source may only produce a single entity
+			logger.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
 		}
-
 	}
 
 	/**
@@ -205,11 +208,15 @@ public class DataSourceService {
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source
-		if(!findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName()).isPresent()){
+		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName());
+		if(!existingDataSourceInstance.isPresent()){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
-		}else{
-			logger.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");
+			sourceAggregate.addSource(source);
+		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
+			//we tried to create an existing DataSourceInstance but add it to another entity
+			//this is not allowed, a source may only produce a single entity
+			logger.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
 		}
 	}
 	
