@@ -1,7 +1,9 @@
 package edu.cmu.cs.lti.discoursedb.io.prosolo.blog.converter;
 
+import java.util.Date;
 import java.util.Optional;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,7 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model.ProsoloBlogSourceMapping
 @Service
 public class BlogConverterService {
 	private static final Logger logger = LogManager.getLogger(BlogConverterService.class);	
-	
+		
 	@Autowired private DiscourseService discourseService;
 	@Autowired private UserService userService;
 	@Autowired private DataSourceService dataSourceService;
@@ -57,7 +59,7 @@ public class BlogConverterService {
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
 			return;
 		}
-		logger.trace("Mapping post " + p.getId());
+		logger.trace("Mapping blog post " + p.getId());
 		
 		logger.trace("Init Discourse entity");
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
@@ -67,6 +69,7 @@ public class BlogConverterService {
 		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
 		
 		logger.trace("Init User entity");
+		//TODO map to edX user instead of creating new user
 		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthor());
 		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthor(),ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));									
 
@@ -78,7 +81,7 @@ public class BlogConverterService {
 			logger.trace("Create Content entity");
 			Content curContent = contentService.createContent();
 			curContent.setText(p.getText());
-			//curContent.setStartTime(p.getCreatedAt());
+			curContent.setStartTime(parseDate(p.getCreated()));
 			curContent.setAuthor(curUser);
 			dataSourceService.addSource(curContent, new DataSourceInstance(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTENT,DataSourceTypes.PROSOLO_BLOG,dataSetName));
 			
@@ -86,15 +89,30 @@ public class BlogConverterService {
 			curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
 			curContribution.setCurrentRevision(curContent);
 			curContribution.setFirstRevision(curContent);
-			//curContribution.setStartTime(p.getCreatedAt());
+			curContribution.setStartTime(parseDate(p.getCreated()));
 			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTRIBUTION,DataSourceTypes.PROSOLO_BLOG,dataSetName));
 
 			//Add contribution to DiscoursePart
 			discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
+			
+			//TODO recursively map comments
 		}
+	}
 
-		
-		
+	
+	/**
+	 * Parses a date using a set of date patterns. Returns null if String couldn't be parsed
+	 * 
+	 * @param dateString date as String
+	 * @return date from String or null if String is not parseable
+	 */
+	private Date parseDate(String dateString){
+		String[] datePatterns = new String[]{"yyyy-MM-dd'T'HH:mm a","yyyy-MM-dd'T'","yyyy-MM-dd'T'HH:mm:ssXXX"};
+		try{
+			return DateUtils.parseDate(dateString,datePatterns);
+		}catch(Exception e){
+			return null;
+		}
 	}
 	
 }

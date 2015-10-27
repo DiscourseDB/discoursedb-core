@@ -36,5 +36,9 @@
 			<groupId>org.jooq</groupId>
 			<artifactId>jool</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
 	</dependencies>
 </project>
