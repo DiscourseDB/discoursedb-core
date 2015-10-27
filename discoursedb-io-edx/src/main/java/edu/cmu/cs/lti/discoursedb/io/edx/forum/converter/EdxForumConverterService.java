@@ -52,7 +52,7 @@ public class EdxForumConverterService{
 	 * @param dataSetName the name of the dataset the post was extracted from
 	 */
 	public void mapEntities(Post p, String dataSetName) {				
-		if(contributionService.findOneByDataSource(p.getId(),dataSetName).isPresent()){
+		if(contributionService.findOneByDataSource(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).isPresent()){
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
 			return;
 		}
@@ -73,7 +73,7 @@ public class EdxForumConverterService{
 
 		// ---------- Create Contribution and Content -----------
 		//Check if contribution exists already. This could only happen if we import the same dump multiple times.
-		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
+		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION, dataSetName);
 		Contribution curContribution=null;
 		if(!existingContribution.isPresent()){		
 			ContributionTypes mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST:ContributionTypes.THREAD_STARTER;
