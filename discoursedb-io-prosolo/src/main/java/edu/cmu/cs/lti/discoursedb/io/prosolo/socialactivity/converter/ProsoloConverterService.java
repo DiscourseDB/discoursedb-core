@@ -35,6 +35,7 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io.ProsoloDB;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloFollowedEntity;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloNode;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
+import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
 
@@ -73,7 +74,7 @@ public class ProsoloConverterService {
 			Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 	
 			//check if the current social activity has already been imported at any point in time. if so, skip and proceed with the next
-			if(dataSourceService.dataSourceExists(curSocialActivityId+"","social_activity.id",dataSetName)){
+			if(dataSourceService.dataSourceExists(curSocialActivityId+"",ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_CONTRIBUTION,dataSetName)){
 				logger.warn("Social activity with id "+curSocialActivityId+" ("+dtype+", "+action+") already in database. Skipping...");
 				return;	
 			}
@@ -90,7 +91,7 @@ public class ProsoloConverterService {
 			if(dtype.equals("TwitterPostSocialActivity")){
 				//We have no prosolo user information, but twitter user account information
 				//The source id will therefore link to the social activity and not to a user entry
-				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivityId+"", "social_activity.id", DataSourceTypes.PROSOLO, dataSetName);
+				curUser=userService.createOrGetUser(discourse, curSocialActivity.getNickname(), curSocialActivityId+"", ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_USER, DataSourceTypes.PROSOLO, dataSetName);
 				curUser.setRealname(curSocialActivity.getName());				
 			}else{				
 				Optional<ProsoloUser> existingProsoloUser = prosolo.getProsoloUser(curSocialActivity.getMaker());
@@ -107,14 +108,16 @@ public class ProsoloConverterService {
 			 * We now determine which one of the two it is.
 			 */
 			String typeSpecificSourceId = null;
-			String typeSpecificSourceDescription = null;
+			String typeSpecificContentSourceDescription = null;
+			String typeSpecificContribSourceDescription = null;
 			String typeSpecificDType=dtype;
 			if(dtype.equals("NodeSocialActivity")){
 				Optional<ProsoloNode> existingNode = prosolo.getProsoloNode(curSocialActivity.getNode_object());				
 				if(existingNode.isPresent()){
 					ProsoloNode curNode=existingNode.get();
 					typeSpecificSourceId= curNode.getId()+"";
-					typeSpecificSourceDescription= "node.id";
+					typeSpecificContribSourceDescription= ProsoloSourceMapping.NODE_TO_CONTRIBUTION;
+					typeSpecificContentSourceDescription= ProsoloSourceMapping.NODE_TO_CONTENT;
 					typeSpecificDType=curNode.getDtype();
 				}
 			}else if(dtype.equals("PostSocialActivity")){
@@ -122,7 +125,8 @@ public class ProsoloConverterService {
 				if(existingProsoloPost.isPresent()){
 					ProsoloPost curProsoloPost = existingProsoloPost.get();
 					typeSpecificSourceId= curProsoloPost.getId()+"";
-					typeSpecificSourceDescription= "post.id";
+					typeSpecificContribSourceDescription= ProsoloSourceMapping.POST_TO_CONTRIBUTION;
+					typeSpecificContentSourceDescription= ProsoloSourceMapping.POST_TO_CONTENT;
 					typeSpecificDType=curProsoloPost.getDtype();
 				}
 			}						
@@ -133,6 +137,7 @@ public class ProsoloConverterService {
 			if(curUser!=null){curContent.setAuthor(curUser);} //might be null for some Tweets
 			curContent.setStartTime(curSocialActivity.getCreated());
 			curContent.setText(curSocialActivity.getText());			
+			dataSourceService.addSource(curContent, new DataSourceInstance(curSocialActivityId+"",ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_CONTENT,DataSourceTypes.PROSOLO,dataSetName));
 			
 			Contribution curContrib = contributionService.createTypedContribution(lookUpContributionType(typeSpecificDType));
 			curContrib.setCurrentRevision(curContent);
@@ -140,16 +145,16 @@ public class ProsoloConverterService {
 			curContrib.setStartTime(curSocialActivity.getCreated());
 			curContrib.setUpvotes(curSocialActivity.getLike_count());			
 			curContrib.setDownvotes(curSocialActivity.getDislike_count());			
-			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivityId+"","social_activity.id",DataSourceTypes.PROSOLO,dataSetName));
+			dataSourceService.addSource(curContrib, new DataSourceInstance(curSocialActivityId+"",ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_CONTRIBUTION,DataSourceTypes.PROSOLO,dataSetName));
 
 			//add the type specific source types for nodes and posts mentioned above
 			if(typeSpecificSourceId!=null){
-				dataSourceService.addSource(curContrib, new DataSourceInstance(typeSpecificSourceId, typeSpecificSourceDescription, DataSourceTypes.PROSOLO, dataSetName));
+				dataSourceService.addSource(curContrib, new DataSourceInstance(typeSpecificSourceId, typeSpecificContribSourceDescription, DataSourceTypes.PROSOLO, dataSetName));
+				dataSourceService.addSource(curContent, new DataSourceInstance(typeSpecificSourceId, typeSpecificContentSourceDescription, DataSourceTypes.PROSOLO, dataSetName));
 			}
 			
 			//add contribution to DiscoursePart
-			discoursePartService.addContributionToDiscoursePart(curContrib, postSocialActivityContainer);			
-			
+			discoursePartService.addContributionToDiscoursePart(curContrib, postSocialActivityContainer);						
 			
 			/*
 			 * Some social_activities don't just create a contribution, but they relate to 
@@ -163,7 +168,7 @@ public class ProsoloConverterService {
 				if(existingNode.isPresent()){
 					ProsoloNode node = existingNode.get();					
 					//check if a contribution for the given node exists
-					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", "node.id", dataSetName);					
+					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", ProsoloSourceMapping.NODE_TO_CONTRIBUTION, dataSetName);					
 					if(nodeContrib.isPresent()){
 						discourseRelationService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
@@ -176,7 +181,7 @@ public class ProsoloConverterService {
 				if(existingParenteNode.isPresent()){
 					ProsoloNode node = existingParenteNode.get();					
 					//check if a contribution for the given node exists
-					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", "node.id", dataSetName);					
+					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", ProsoloSourceMapping.NODE_TO_CONTRIBUTION, dataSetName);					
 					if(nodeContrib.isPresent()){
 						discourseRelationService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
@@ -189,7 +194,7 @@ public class ProsoloConverterService {
 				if(existingSocialActivity.isPresent()){
 					SocialActivity parentActivity = existingSocialActivity.get();					
 					//check if a contribution for the given social activity exists
-					Optional<Contribution> parentContrib = contributionService.findOneByDataSource(parentActivity.getId()+"", "social_activity.id", dataSetName);					
+					Optional<Contribution> parentContrib = contributionService.findOneByDataSource(parentActivity.getId()+"", ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_CONTRIBUTION, dataSetName);					
 					if(parentContrib.isPresent()){
 						discourseRelationService.createDiscourseRelation(parentContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
@@ -206,7 +211,7 @@ public class ProsoloConverterService {
 						if(existingSharedPost.isPresent()){
 							ProsoloPost sharedPost = existingSharedPost.get();
 							//look up the contribution for the shared entity in DiscourseDB
-							Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", "post.id",dataSetName);
+							Optional<Contribution> sharedContribution = contributionService.findOneByDataSource(sharedPost.getId()+"", ProsoloSourceMapping.POST_TO_CONTRIBUTION,dataSetName);
 							if(sharedContribution.isPresent()){					
 								//we represent the sharing activity as a relation between the sharing user and the shared contribution
 								userService.createContributionInteraction(curUser, sharedContribution.get(), ContributionInteractionTypes.SHARE);					
@@ -243,7 +248,7 @@ public class ProsoloConverterService {
 				if(existingNode.isPresent()){
 					ProsoloNode node = existingNode.get();					
 					//check if a contribution for the given node exists
-					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", "node.id", dataSetName);					
+					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", ProsoloSourceMapping.NODE_TO_CONTRIBUTION, dataSetName);					
 					if(nodeContrib.isPresent()){
 						//create interaction that indicates the following relation
 						ContributionInteraction followNode = userService.createContributionInteraction(followingUser, nodeContrib.get(), ContributionInteractionTypes.FOLLOW);
@@ -293,8 +298,11 @@ public class ProsoloConverterService {
 			Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(prosoloUser.getId());			
 			if(edXUserName.isPresent()){
 				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName), edXUserName.get());
+				dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"",ProsoloSourceMapping.USER_TO_USER, dataSourceType, dataSetName));
 			}else{
-				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName),"", prosoloUser.getId()+"","user.id",dataSourceType,dataSetName);
+				//in this case, we don't have a user name. use prosolo id as username
+				// note: this create already adds a data source
+				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName),prosoloUser.getId()+"", prosoloUser.getId()+"",ProsoloSourceMapping.USER_TO_USER,dataSourceType,dataSetName);
 			}
 
 			//update the real name of the user if necessary
@@ -313,8 +321,6 @@ public class ProsoloConverterService {
 				curUser.setLocation(prosoloUser.getLocation_name());					
 			}
 
-			//add new data source
-			dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"","user.id",dataSourceType,dataSetName));
 		}
 		return curUser;		
 	}

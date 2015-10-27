@@ -18,7 +18,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
-import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseRelationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
@@ -26,6 +25,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model.ProsoloBlogPost;
+import edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model.ProsoloBlogSourceMapping;
 
 /**
  * This Service class maps blog entries to DiscourseDB
@@ -43,7 +43,7 @@ public class BlogConverterService {
 	@Autowired private ContentService contentService;
 	@Autowired private ContributionService contributionService;
 	@Autowired private DiscoursePartService discoursePartService;
-	@Autowired private DiscourseRelationService discourseRelationService;
+//	@Autowired private DiscourseRelationService discourseRelationService;
 	
 	/**
 	 * Maps a prosolo blog post to DiscourseDB.
@@ -53,7 +53,7 @@ public class BlogConverterService {
 	 * @param dataSetName the name of the dataset the post was extracted from
 	 */
 	public void mapPost(ProsoloBlogPost p, String discourseName, String dataSetName) {				
-		if(contributionService.findOneByDataSource(p.getId(),dataSetName).isPresent()){
+		if(contributionService.findOneByDataSource(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTRIBUTION, dataSetName).isPresent()){
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
 			return;
 		}
@@ -68,11 +68,11 @@ public class BlogConverterService {
 		
 		logger.trace("Init User entity");
 		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthor());
-		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthor(),"author",DataSourceTypes.PROSOLO_BLOG,dataSetName));									
+		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthor(),ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));									
 
 		// ---------- Create Contribution and Content -----------
 		//Check if contribution exists already. This could only happen if we import the same dump multiple times.
-		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),dataSetName);
+		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTRIBUTION,dataSetName);
 		Contribution curContribution=null;
 		if(!existingContribution.isPresent()){		
 			logger.trace("Create Content entity");
@@ -80,13 +80,14 @@ public class BlogConverterService {
 			curContent.setText(p.getText());
 			//curContent.setStartTime(p.getCreatedAt());
 			curContent.setAuthor(curUser);
+			dataSourceService.addSource(curContent, new DataSourceInstance(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTENT,DataSourceTypes.PROSOLO_BLOG,dataSetName));
 			
 			logger.trace("Create Contribution entity");
 			curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
 			curContribution.setCurrentRevision(curContent);
 			curContribution.setFirstRevision(curContent);
 			//curContribution.setStartTime(p.getCreatedAt());
-			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),"id",DataSourceTypes.PROSOLO_BLOG,dataSetName));
+			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTRIBUTION,DataSourceTypes.PROSOLO_BLOG,dataSetName));
 
 			//Add contribution to DiscoursePart
 			discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
