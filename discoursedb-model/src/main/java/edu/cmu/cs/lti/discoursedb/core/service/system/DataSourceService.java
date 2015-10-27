@@ -132,7 +132,7 @@ public class DataSourceService {
 		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
 			//we tried to create an existing DataSourceInstance but add it to another entity
 			//this is not allowed, a source may only produce a single entity
-			logger.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
+			logger.warn("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
 		}
 	}
 
