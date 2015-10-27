@@ -26,6 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
+import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.EdxSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.Post;
 import edu.cmu.cs.lti.discoursedb.io.edx.forum.model.UserInfo;
 
@@ -68,7 +69,7 @@ public class EdxForumConverterService{
 		
 		logger.trace("Init User entity");
 		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthorUsername());
-		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthorId(),"authorId",DataSourceTypes.EDX, dataSetName));
+		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthorId(),EdxSourceMapping.AUTHOR_ID_TO_USER,DataSourceTypes.EDX, dataSetName));
 
 		// ---------- Create Contribution and Content -----------
 		//Check if contribution exists already. This could only happen if we import the same dump multiple times.
@@ -89,7 +90,7 @@ public class EdxForumConverterService{
 			curContribution.setFirstRevision(curContent);
 			curContribution.setStartTime(p.getCreatedAt());
 			curContribution.setUpvotes(p.getUpvoteCount());
-			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),"id",DataSourceTypes.EDX,dataSetName));
+			dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,DataSourceTypes.EDX,dataSetName));
 
 			//Add contribution to DiscoursePart
 			discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
@@ -111,19 +112,19 @@ public class EdxForumConverterService{
 		logger.trace("Mapping relations for post " + p.getId());
 	
 		//check if a contribution for the given Post already exists in DiscourseDB (imported in Phase1)
-		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),"id",dataSetName);
+		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName);
 		if(existingContribution.isPresent()){
 			Contribution curContribution=existingContribution.get();
 			
 			//If post is not a thread starter then create a DiscourseRelation of DESCENDANT type 
 			//that connects it with the thread starter 
-			Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),"id",dataSetName);
+			Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName);
 			if (existingParentContributon.isPresent()) {
 				discourseRelationService.createDiscourseRelation(existingParentContributon.get(), curContribution, DiscourseRelationTypes.DESCENDANT);
 			}
 
 			//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
-			Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),"id",dataSetName);
+			Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName);
 			if (existingPredecessorContributon.isPresent()) {
 				discourseRelationService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
 			}					
