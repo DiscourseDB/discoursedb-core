@@ -221,8 +221,7 @@ public class ProsoloConverterService {
 						}
 					}
 				}
-			}			
-		
+			}					
 	}
 
 	
@@ -232,13 +231,7 @@ public class ProsoloConverterService {
 	 * @param dtype the type of the followed_entity, i.e. "FollowedResourceEntity" or "FollowedUserEntity"
 	 * @throws SQLException
 	 */
-	public void mapFollowedEntity(String dtype, Long curFollowedEntityId, ProsoloDB prosolo, String discourseName, String dataSetName) throws SQLException{	
-			//check if the current followed_entity has already been imported at any point in time. if so, skip and proceed with the next
-			if(dataSourceService.dataSourceExists(curFollowedEntityId+"","social_activity.id",dataSetName)){
-				logger.warn("Followed entity with id "+curFollowedEntityId+" ("+dtype+") already in database. Skipping...");
-				return;	
-			}
-			
+	public void mapFollowedEntity(String dtype, Long curFollowedEntityId, ProsoloDB prosolo, String discourseName, String dataSetName) throws SQLException{				
 			ProsoloFollowedEntity curFollowedEntity = prosolo.getProsoloFollowedEntity(curFollowedEntityId).get();
 			User followingUser = createUpdateOrGetUser(prosolo.getProsoloUser(curFollowedEntity.getUser()).get(),prosolo, discourseName,dataSetName,DataSourceTypes.PROSOLO);			
 			
@@ -261,7 +254,7 @@ public class ProsoloConverterService {
 				if(existingProsoloUser.isPresent()){
 					User followedUser = createUpdateOrGetUser(existingProsoloUser.get(),prosolo, discourseName,dataSetName,DataSourceTypes.PROSOLO);								
 					UserRelation followUser = userService.createUserRelation(followingUser, followedUser, UserRelationTypes.FOLLOW);
-					followUser.setStartTime(curFollowedEntity.getStarted_following());
+					followUser.setStartTime(curFollowedEntity.getStarted_following());					
 				}				
 			}else{
 				logger.warn("Unsupported dtype: "+dtype);
