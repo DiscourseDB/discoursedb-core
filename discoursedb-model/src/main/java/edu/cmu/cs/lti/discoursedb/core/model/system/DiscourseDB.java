@@ -9,16 +9,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
-
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 
 @Entity
-@SelectBeforeUpdate 
-@DynamicUpdate
-@DynamicInsert
 @Table(name="discoursedb")
 public class DiscourseDB extends TimedAnnotatableBaseEntity implements Serializable{
 

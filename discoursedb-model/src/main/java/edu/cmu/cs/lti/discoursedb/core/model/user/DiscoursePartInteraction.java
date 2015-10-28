@@ -12,17 +12,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
-
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 
 @Entity
-@SelectBeforeUpdate 
-@DynamicUpdate
-@DynamicInsert
 @Table(name="discourse_part_interaction")
 public class DiscoursePartInteraction extends TimedAnnotatableBaseEntity implements Serializable{
 

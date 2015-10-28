@@ -17,10 +17,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
-
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 
@@ -35,9 +31,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
  *
  */
 @Entity
-@SelectBeforeUpdate
-@DynamicUpdate
-@DynamicInsert
 @Table(name = "user")
 public class User extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 

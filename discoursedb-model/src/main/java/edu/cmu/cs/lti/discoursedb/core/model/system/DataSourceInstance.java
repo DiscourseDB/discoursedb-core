@@ -15,17 +15,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
-
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 @Entity
-@SelectBeforeUpdate 
-@DynamicUpdate
-@DynamicInsert
 @Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id","entity_source_descriptor", "source_type","dataset_name" }) )
 public class DataSourceInstance extends UntimedBaseEntity implements Serializable{
 

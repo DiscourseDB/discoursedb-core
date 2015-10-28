@@ -14,10 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
-
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 
 /**
@@ -26,9 +22,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
  * A source can only have one entity, but an entity can have multiple sources.
  */
 @Entity
-@SelectBeforeUpdate 
-@DynamicUpdate
-@DynamicInsert
 @Table(name="data_sources")
 public class DataSources extends UntimedBaseEntity implements Serializable{
 
