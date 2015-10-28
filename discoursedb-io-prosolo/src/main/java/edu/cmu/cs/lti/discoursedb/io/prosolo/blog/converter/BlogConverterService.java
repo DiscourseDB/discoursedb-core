@@ -26,6 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
+import edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model.ProsoloBlogComment;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model.ProsoloBlogPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model.ProsoloBlogSourceMapping;
 
@@ -65,12 +66,13 @@ public class BlogConverterService {
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
 
 		logger.trace("Init DiscoursePart entity");
-		// in edX, we consider the whole forum to be a single DiscoursePart		
+		// in edX, we consider the whole blog space to be a single DiscoursePart		
 		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
 		
 		logger.trace("Init User entity");
 		//TODO map to edX user instead of creating new user
 		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthor());
+		//add source only if user was new
 		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthor(),ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));									
 
 		// ---------- Create Contribution and Content -----------
@@ -86,7 +88,7 @@ public class BlogConverterService {
 			dataSourceService.addSource(curContent, new DataSourceInstance(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTENT,DataSourceTypes.PROSOLO_BLOG,dataSetName));
 			
 			logger.trace("Create Contribution entity");
-			curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
+			curContribution = contributionService.createTypedContribution(ContributionTypes.THREAD_STARTER);
 			curContribution.setCurrentRevision(curContent);
 			curContribution.setFirstRevision(curContent);
 			curContribution.setStartTime(parseDate(p.getCreated()));
@@ -99,6 +101,37 @@ public class BlogConverterService {
 		}
 	}
 
+	public void mapComment(ProsoloBlogComment c, Contribution parent, Discourse curDiscourse, String dataSetName) {				
+		logger.trace("Init DiscoursePart entity");
+		// in edX, we consider the whole forum to be a single DiscoursePart		
+		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
+		
+		logger.trace("Init User entity");
+		//TODO map to edX user instead of creating new user
+		User curUser  = userService.createOrGetUser(curDiscourse,c.getAuthor());
+		//this will generate a warning in case the user already existed before. we can ignore that warning
+		dataSourceService.addSource(curUser, new DataSourceInstance(c.getAuthor(),ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));									
+
+		// ---------- Create Contribution and Content -----------
+		logger.trace("Create Content entity");
+		Content curContent = contentService.createContent();
+		curContent.setText(c.getContent());
+		curContent.setStartTime(parseDate(c.getDatetime()));
+		curContent.setAuthor(curUser);
+			
+		logger.trace("Create Contribution entity");
+		Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
+		curContribution.setCurrentRevision(curContent);
+		curContribution.setFirstRevision(curContent);
+		curContribution.setStartTime(parseDate(c.getDatetime()));
+		//Add contribution to DiscoursePart
+		discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
+		
+		//TODO create discourserelation to parent
+		
+		//TODO recursively map comments
+	
+	}
 	
 	/**
 	 * Parses a date using a set of date patterns. Returns null if String couldn't be parsed
