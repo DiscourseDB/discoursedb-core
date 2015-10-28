@@ -339,6 +339,7 @@ public class ProsoloConverterService {
 			case "Post": return ContributionTypes.POST; 
 			case "GoalNote": return ContributionTypes.GOAL_NOTE; 
 			case "TwitterPost": return ContributionTypes.TWEET; 
+			case "TwitterPostSocialActivity": return ContributionTypes.TWEET; 
 			case "SocialActivityComment": return ContributionTypes.SOCIAL_ACTIVITY_COMMENT; 
 			default: throw new IllegalArgumentException("No ContributionType mapping for dtype "+type); 
 		}
