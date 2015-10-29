@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -33,7 +34,10 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableAutoConfiguration
 @EnableTransactionManagement
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model","edu.cmu.cs.lti.discoursedb.core.repository","edu.cmu.cs.lti.discoursedb.core.service"})
-@PropertySource(value = { "classpath:hibernate.properties" })
+@PropertySources({
+    @PropertySource("classpath:default.properties"), //default configuration
+    @PropertySource(value = "classpath:discoursedb.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
+})
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
 public class BaseConfiguration {
@@ -46,7 +50,10 @@ public class BaseConfiguration {
 		try {
 			ComboPooledDataSource ds = new ComboPooledDataSource();
 			ds.setDriverClass(environment.getRequiredProperty("jdbc.driverClassName"));
-			ds.setJdbcUrl(environment.getRequiredProperty("jdbc.url"));
+			String host = environment.getRequiredProperty("jdbc.host");
+			String port = environment.getRequiredProperty("jdbc.port");
+			String database = environment.getRequiredProperty("jdbc.database");
+			ds.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database+"?createDatabaseIfNotExist=true");
 			ds.setUser(environment.getRequiredProperty("jdbc.username"));
 			ds.setPassword(environment.getRequiredProperty("jdbc.password"));
 			ds.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("c3p0.acquireIncrement").trim()));
