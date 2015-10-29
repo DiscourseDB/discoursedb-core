@@ -35,8 +35,10 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableTransactionManagement
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model","edu.cmu.cs.lti.discoursedb.core.repository","edu.cmu.cs.lti.discoursedb.core.service"})
 @PropertySources({
-    @PropertySource("classpath:default.properties"), //default configuration
-    @PropertySource(value = "classpath:discoursedb.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
+    @PropertySource("classpath:hibernate.properties"), //default hibernate configuration
+    @PropertySource("classpath:jdbc.properties"), //default database configuration
+    @PropertySource("classpath:c3p0.properties"), //default connection pool configuration
+    @PropertySource(value = "classpath:custom.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
 })
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
@@ -84,7 +86,7 @@ public class BaseConfiguration {
 		jpaProperties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
 		jpaProperties.put("hibernate.format_sql", env.getRequiredProperty("hibernate.format_sql"));
 		jpaProperties.put("hibernate.jdbc.batch_size", env.getRequiredProperty("hibernate.jdbc.batch_size"));
-		jpaProperties.put("hibernate.id.new_generator_mappings", true);
+		jpaProperties.put("hibernate.id.new_generator_mappings", Boolean.parseBoolean(environment.getRequiredProperty("hibernate.id.new_generator_mappings").trim()));
 		factory.setJpaProperties(jpaProperties);
 		factory.afterPropertiesSet();
 
