@@ -43,7 +43,7 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 ## DiscourseDB Configuration
 DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced or extended by custom configuration  if you substantially need to  substantially change the configuration. In most cases, the BaseConfiguration doesn't need to be altered since configuration parameters are read from properties files and thus don't require changes to the class.
 
-Changing configuration parameters such as the credentials for the database connection can be achieved by overriding the default values with a **custom.properties** file that you _provide in the classpath_. The following values are defined by the default configurations. **Any key-value-pair that is provided in a custom.properties file will override the respective default value.** You only need to specify the parameters you want to override.
+Changing configuration parameters such as the credentials for the database connection can be achieved by overriding the default values with a **custom.properties** file that you _provide in the classpath_. The following values are defined by the default properties. **Any key-value-pair that is provided in a custom.properties file will override the respective default value.** You only need to specify the parameters you want to override.
 
 ```
 # Default jdcb.properties
