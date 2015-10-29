@@ -19,7 +19,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 @Entity
-@Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id","entity_source_descriptor", "source_type","dataset_name" }) )
+@Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id", "entity_source_descriptor", "dataset_name" }) )
 public class DataSourceInstance extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -6293065846688380816L;
