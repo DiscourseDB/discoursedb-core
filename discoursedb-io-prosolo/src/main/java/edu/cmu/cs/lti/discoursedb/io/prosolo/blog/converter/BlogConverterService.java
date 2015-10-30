@@ -1,6 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.prosolo.blog.converter;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -56,8 +57,9 @@ public class BlogConverterService {
 	 * @param p the blog post object to map to DiscourseDB
 	 * @param discourseName the name of the discourse the post was part of
 	 * @param dataSetName the name of the dataset the post was extracted from
+	 * @param blogToEdxMap a mapping from blog author names to edx username (possibly empty)
 	 */
-	public void mapPost(ProsoloBlogPost p, String discourseName, String dataSetName) {				
+	public void mapPost(ProsoloBlogPost p, String discourseName, String dataSetName, Map<String, String> blogToEdxMap) {				
 		if(contributionService.findOneByDataSource(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTRIBUTION, dataSetName).isPresent()){
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
 			return;
@@ -72,13 +74,17 @@ public class BlogConverterService {
 		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
 		
 		logger.trace("Init User entity");
-		//TODO map to edX user instead of creating new user
 		//if no user name is available, we cannot create a user instance
-		String authorName = p.getAuthor();
+		//if we can map a user using the provided user name map, we can retrieve the existing user from the db 
+		String edXauthor=blogToEdxMap.get(p.getAuthor());
+		String authorName = edXauthor==null?p.getAuthor():edXauthor;
 		User curUser=null;
 		if(authorName!=null&&!authorName.isEmpty()){
 			curUser  = userService.createOrGetUser(curDiscourse,authorName);
-			dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthor(),ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));												
+			if(edXauthor==null){
+				//we only add this dataset as a datasource if we didn't map it to an edX name
+				dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthor(),ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));																
+			}
 		}
 
 		// ---------- Create Contribution and Content -----------
@@ -105,24 +111,35 @@ public class BlogConverterService {
 			
 			//map the comments to the blog posts		
 			for (ProsoloBlogComment subComment : p.getComments()) {
-				mapComment(subComment, curContribution, curDiscourse, dataSetName);
+				mapComment(subComment, curContribution, curDiscourse, dataSetName, blogToEdxMap);
 			}
 		}
 	}
 
-	public void mapComment(ProsoloBlogComment c, Contribution parent, Discourse curDiscourse, String dataSetName) {				
+	/**
+	 * @param c a comment to a prosolo blog
+	 * @param parent the parent of the comment (either the article or another comment)
+	 * @param curDiscourse the discourse
+	 * @param dataSetName the dataset name
+	 * @param blogToEdxMap a mapping from blog author names to edx username (possibly empty)
+	 */
+	public void mapComment(ProsoloBlogComment c, Contribution parent, Discourse curDiscourse, String dataSetName, Map<String,String> blogToEdxMap) {				
 		logger.trace("Init DiscoursePart entity");
 		// in edX, we consider the whole forum to be a single DiscoursePart		
 		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
 		
 		logger.trace("Init User entity for comment");
-		//TODO map to edX user instead of creating new user
 		//if no user name is available, we cannot create a user instance
-		String authorName = c.getAuthor();
+		//if we can map a user using the provided user name map, we can retrieve the existing user from the db 
+		String edXauthor=blogToEdxMap.get(c.getAuthor());
+		String authorName = edXauthor==null?c.getAuthor():edXauthor;
 		User curUser=null;
 		if(authorName!=null&&!authorName.isEmpty()){
 			curUser  = userService.createOrGetUser(curDiscourse,authorName);
-			dataSourceService.addSource(curUser, new DataSourceInstance(authorName,ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));												
+			if(edXauthor==null){
+				//we only add this dataset as a datasource if we didn't map it to an edX name
+				dataSourceService.addSource(curUser, new DataSourceInstance(c.getAuthor(),ProsoloBlogSourceMapping.AUTHOR_NAME_TO_USER,DataSourceTypes.PROSOLO_BLOG,dataSetName));
+			}
 		}
 		
 		// ---------- Create Contribution and Content -----------
@@ -151,13 +168,13 @@ public class BlogConverterService {
 		
 		//recursively map the comments to the comments (replies)		
 		for(ProsoloBlogComment subComment:c.getComments()){
-			mapComment(subComment, curContribution, curDiscourse, dataSetName);
+			mapComment(subComment, curContribution, curDiscourse, dataSetName, blogToEdxMap);
 		}
 	
 	}
 	
 	/**
-	 * Parses a date using a set of date patterns. Returns null if String couldn't be parsed
+	 * Parses a date using a set of date patterns. Returns null if String couldn't be parsed.
 	 * 
 	 * @param dateString date as String
 	 * @return date from String or null if String is not parseable

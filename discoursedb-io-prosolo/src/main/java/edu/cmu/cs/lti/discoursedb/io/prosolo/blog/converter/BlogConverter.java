@@ -3,10 +3,13 @@ package edu.cmu.cs.lti.discoursedb.io.prosolo.blog.converter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +32,19 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model.ProsoloBlogPost;
 public class BlogConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(BlogConverter.class);	
+	private static final String MAPPING_SEPARATOR = ",";	
 	private boolean dumpWrappedInJsonArray = false;
+	private Map<String,String> blogToedxMap = new HashMap<>();
+	
 	@Autowired private DataSourceService dataSourceService;
 	@Autowired private BlogConverterService converterService;
 
 	@Override
 	public void run(String... args) throws Exception {
-		if(args.length<4){
-			logger.error("Usage: EdxForumConverterApplication <DiscourseName> <DataSetName> <blogDump> <userMapping> <dumpIsWrappedInJsonArray (optional, default=false)");
+		if(args.length<3){
+			logger.error("USAGE: BlogConverterApplication <DiscourseName> <DataSetName> <blogDump> <userMapping (optional)> <dumpIsWrappedInJsonArray (optional, default=false)>");
 			throw new RuntimeException("Incorrect number of launch parameters.");
+
 		}
 		final String discourseName=args[0];		
 
@@ -53,14 +60,48 @@ public class BlogConverter implements CommandLineRunner {
 			logger.error("Forum dump file does not exist or is not readable.");
 			throw new RuntimeException("Can't read file "+forumDumpFileName);
 		}
-		final String userMappingFileName = args[3];
-		File userMappingFile = new File(userMappingFileName);
-		if (!userMappingFile.exists() || !userMappingFile.isFile() || !userMappingFile.canRead()) {
-			logger.error("User mappiong file does not exist or is not readable.");
-			throw new RuntimeException("Can't read file "+userMappingFileName);
+
+
+		//parse the optional fourth and fifth parameter
+		String userMappingFileName=null;
+		String jsonarray=null;
+		if(args.length==4){
+			if(args[3].equalsIgnoreCase("true")||args[3].equalsIgnoreCase("false")){
+				jsonarray=args[3];
+			}else{
+				userMappingFileName=args[3];
+			}
+		}else{
+			if(args[3].equalsIgnoreCase("true")||args[3].equalsIgnoreCase("false")){
+				jsonarray=args[3];
+				userMappingFileName=args[4];
+			}else{
+				jsonarray=args[4];
+				userMappingFileName=args[3];
+			}			
 		}
-		final String jsonarray = args[4];
+		
+		//read the blog author to edX user mapping, if available
+		if(userMappingFileName!=null){
+			logger.trace("Reading user mapping from "+userMappingFileName);
+			File userMappingFile = new File(userMappingFileName);
+			if (!userMappingFile.exists() || !userMappingFile.isFile() || !userMappingFile.canRead()) {
+				logger.error("User mappiong file does not exist or is not readable.");
+				throw new RuntimeException("Can't read file "+userMappingFileName);
+			}
+			List<String> lines = FileUtils.readLines(userMappingFile);
+			lines.remove(0); //remove header
+			for(String line:lines){
+				String[] blogToedx = line.split(MAPPING_SEPARATOR);
+				//if the current line contained a valid mapping, add it to the map
+				if(blogToedx.length==2&&blogToedx[0]!=null&&!blogToedx[0].isEmpty()&&blogToedx[1]!=null&&!blogToedx[1].isEmpty()){
+					blogToedxMap.put(blogToedx[0], blogToedx[1]);					
+				}
+			}
+		}
+				
 		if(jsonarray!=null&&jsonarray.equalsIgnoreCase(("true"))){
+			logger.trace("Set reader to expect a json array rather than regular json input.");
 			this.dumpWrappedInJsonArray=true;			
 		}
 		
@@ -74,12 +115,12 @@ public class BlogConverter implements CommandLineRunner {
 				//if the json dump is wrapped in a top-level array
 				@SuppressWarnings("unchecked")
 				List<ProsoloBlogPost> posts =(List<ProsoloBlogPost>)new ObjectMapper().readValues(new JsonFactory().createParser(in), new TypeReference<List<ProsoloBlogPost>>(){}).next();	
-				posts.stream().forEach(p->converterService.mapPost(p, discourseName, dataSetName));						
+				posts.stream().forEach(p->converterService.mapPost(p, discourseName, dataSetName, blogToedxMap));						
 			}else{
 				//if the json dump is NOT wrapped in a top-level array
 				Iterator<ProsoloBlogPost> pit =new ObjectMapper().readValues(new JsonFactory().createParser(in), ProsoloBlogPost.class);	
 				Iterable<ProsoloBlogPost> iterable = () -> pit;
-				StreamSupport.stream(iterable.spliterator(), false).forEach(p->converterService.mapPost(p, discourseName, dataSetName));	
+				StreamSupport.stream(iterable.spliterator(), false).forEach(p->converterService.mapPost(p, discourseName, dataSetName, blogToedxMap));	
 			}
 		}	
 		
