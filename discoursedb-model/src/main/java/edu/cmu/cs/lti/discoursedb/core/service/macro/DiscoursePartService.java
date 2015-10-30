@@ -83,8 +83,8 @@ public class DiscoursePartService {
 		
 		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
 		Optional<DiscoursePart> existingDiscoursePart = Optional.ofNullable(discoursePartRepo.findOne(
-						DiscoursePartPredicates.discourseHasName(discoursePartName).and(
-						DiscoursePartPredicates.discourseHasType(discoursePartType).and(
+						DiscoursePartPredicates.discoursePartHasName(discoursePartName).and(
+						DiscoursePartPredicates.discoursePartHasType(discoursePartType).and(
 						DiscoursePartPredicates.discoursePartHasDiscourse(discourse)))));
 
 		DiscoursePart dPart;

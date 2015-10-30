@@ -19,7 +19,7 @@ public final class DiscoursePartPredicates {
 		}
 	}
 
-	public static BooleanExpression discourseHasName(String name) {
+	public static BooleanExpression discoursePartHasName(String name) {
 		if (name == null||name.isEmpty()) {
 			return QDiscoursePart.discoursePart.isNull();
 		} else {
@@ -27,7 +27,7 @@ public final class DiscoursePartPredicates {
 		}
 	}
 
-	public static BooleanExpression discourseHasType(DiscoursePartType type) {
+	public static BooleanExpression discoursePartHasType(DiscoursePartType type) {
 		if (type == null) {
 			return QDiscoursePart.discoursePart.isNull();
 		} else {
