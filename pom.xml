@@ -117,7 +117,13 @@
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
-
+			<dependency>
+				<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
+				<artifactId>de.tudarmstadt.ukp.wikipedia</artifactId>
+				<version>1.1.0-SNAPSHOT</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
@@ -131,9 +137,9 @@
 		</dependency>
 	</dependencies>
 
-	<!-- BEGIN NEEDED FOR http://jira.codehaus.org/browse/MCOBERTURA-189 -->
 	<repositories>
 		<repository>
+			<!-- BEGIN NEEDED FOR http://jira.codehaus.org/browse/MCOBERTURA-189 -->
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 			<releases>
@@ -147,7 +153,16 @@
 			<id>spring-releases</id>
 			<url>https://repo.spring.io/libs-release</url>
 		</repository>
-	</repositories>
+		<repository>
+			<!-- BEGIN NEEDED FOR JWPL snapshots -->
+			<id>ukp-oss</id>
+			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-snapshots/</url>
+		</repository>
+		<repository>
+			<id>ukp-oss-model-snapshots</id>
+			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-releases/</url>
+		</repository>
+	</repositories>		
 	<pluginRepositories>
 		<pluginRepository>
 			<id>codehaus-snapshots</id>
