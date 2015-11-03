@@ -611,5 +611,6 @@
 		<module>../discoursedb-io-prosolo</module>
 		<module>../discoursedb-model</module>
 		<module>../discoursedb-api-rest</module>
+		<module>../discoursedb-io-wikipedia</module>
 	</modules>
 </project>
