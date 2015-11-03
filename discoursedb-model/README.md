@@ -40,6 +40,37 @@ Like all DiscourseDB projects, this project depends on the [discoursedb-parent](
 
 DiscourseDB requires write access to a MySQL database. The access credentials are defined in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials local:local and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters. DiscourseDB will automatically initialize a fresh DiscourseDB instance if none exists yet. Otherwise, it will import data into the existing database.
 
+## DiscourseDB Configuration
+DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced or extended by custom configuration  if you substantially need to  substantially change the configuration. In most cases, the BaseConfiguration doesn't need to be altered since configuration parameters are read from properties files and thus don't require changes to the class.
+
+Changing configuration parameters such as the credentials for the database connection can be achieved by overriding the default values with a **custom.properties** file that you _provide in the classpath_. The following values are defined by the default properties. **Any key-value-pair that is provided in a custom.properties file will override the respective default value.** You only need to specify the parameters you want to override.
+
+```
+# Default jdcb.properties
+jdbc.driverClassName = com.mysql.jdbc.Driver
+jdbc.host = localhost
+jdbc.port = 3306
+jdbc.database = discoursedb
+jdbc.username = local
+jdbc.password = local
+
+# Default hibernate.properties
+hibernate.dialect = org.hibernate.dialect.MySQLDialect
+hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy
+hibernate.show_sql = false
+hibernate.format_sql = false
+hibernate.hbm2ddl.auto = update
+hibernate.jdbc.batch_size = 100
+hibernate.id.new_generator_mappings = true
+
+# Default c3p0 properties
+c3p0.acquireIncrement = 5 
+c3p0.idleConnectionTestPeriod = 60
+c3p0.maxStatements = 50
+c3p0.minPoolSize = 1
+c3p0.maxPoolSize = 100
+```
+
 ## DiscourseDB Model Architecture Overview
 
 ### Description of Main Entities 
@@ -110,10 +141,6 @@ At this point all contributions, users etc are successfully imported, but we sti
 **STEP 7:**: A DiscourseRelation between two Contributions can be created using ```DiscourseRelationService#createDiscourseRelation(Contribution sourceContribution, Contribution targetContribution, DiscourseRelationTypes type)```. In our forum example, a Contribution _reply_ that replies to a Cotribution _parent_ would be linked with ```discourseRelationService.createDiscourseRelation(parent, reply, DiscourseRelationTypes,REPLY)```.
 
 ## DiscourseDB Core Components
-### DiscourseDB Configuration
-DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced by custom configuration (just exclude the BaseConfiguration in your project. 
-
-Parameters that most likely need to be changed (i.e. databse credentials) are read from the hibernate.properties file. In most cases, the BaseConfiguration doesn't need to be accessed. The BaseConfiguration uses [c3p0](http://www.mchange.com/projects/c3p0/) for connection pooling.
 
 ### Entity Classes: The DiscourseDB Core Model
 The entity classes are POJOs that define the DiscourseDB Core model. They are annotated with Hibernate 4 ORM annotations that allow hibernate to dynamically create and update the database schema from these classes.
