@@ -14,8 +14,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
