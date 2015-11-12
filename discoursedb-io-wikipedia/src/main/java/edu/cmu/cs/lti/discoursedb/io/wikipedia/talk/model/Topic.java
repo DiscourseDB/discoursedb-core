@@ -15,7 +15,7 @@ import java.util.TreeSet;
  */
 public class Topic {
 	
-	private String name;	// Topic name
+	private String title;	// Topic name
 	private int begin;		// Begin index of the topic
 	private int end;		// End index of the topic
 	private String text;	// Topic text
@@ -49,7 +49,7 @@ public class Topic {
 	 * @return the text
 	 */
 	public String getTextWithName() {
-		return "=="+name+"==\n"+text;
+		return "=="+title+"==\n"+text;
 	}
 
 
@@ -120,14 +120,14 @@ public class Topic {
 	/**
 	 * @return the name
 	 */
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 	/**
 	 * @param name the name to set
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setTitle(String title) {
+		this.title = title.trim();
 	}
 	/**
 	 * @return the begin

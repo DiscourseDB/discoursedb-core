@@ -45,7 +45,7 @@ public class TopicExtractor {
 			for(ExtractedSection section : sections){ // Each section can be a topic
 				if(section.getTitle()!=null&&!section.getTitle().isEmpty()){
 					Topic topic = new Topic();			
-					topic.setName(section.getTitle());
+					topic.setTitle(section.getTitle());
 														
 					for(String curParContent : section.getParagraphs()){
 						TalkPageParagraph par = new TalkPageParagraph();

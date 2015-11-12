@@ -52,8 +52,8 @@ public class WikipediaTalkPageConverterService{
 		DiscoursePart curArticleDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, articleTitle, DiscoursePartTypes.TALK_PAGE);
 		
 		for(Topic topic:tp.getTopics()){
-			DiscoursePart curTopicDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, topic.getName(), DiscoursePartTypes.THREAD);			
-			dataSourceService.addSource(curTopicDP, new DataSourceInstance(tp.getTpBaseRevision().getRevisionID()+"_"+topic.getName(), WikipediaSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
+			DiscoursePart curTopicDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);			
+			dataSourceService.addSource(curTopicDP, new DataSourceInstance(tp.getTpBaseRevision().getRevisionID()+"_"+topic.getTitle(), WikipediaSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
 			discoursePartService.createDiscoursePartRelation(curArticleDP, curTopicDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);			
 			
 			for(Turn turn:topic.getUserTurns()){				
@@ -67,7 +67,7 @@ public class WikipediaTalkPageConverterService{
 				turnContent.setAuthor(curAuthor);
 				//data source of contribution is a combination of topic title and turn number. 
 				//the revision of the talk page is defined in the data source of the discourse part that wraps all turns of a discussion 
-				dataSourceService.addSource(turnContent, new DataSourceInstance(topic.getName()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));
+				dataSourceService.addSource(turnContent, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));
 				
 
 				//the first contribution of a discussion should be a THREAD_STARTER, all others a POST
@@ -80,7 +80,7 @@ public class WikipediaTalkPageConverterService{
 				turnContrib.setFirstRevision(turnContent);
 				//data source of contribution is a combination of topic title and turn number. 
 				//the revision of the talk page is defined in the data source of the discourse part that wraps all turns of a discussion 
-				dataSourceService.addSource(turnContrib, new DataSourceInstance(topic.getName()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName));
+				dataSourceService.addSource(turnContrib, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName));
 			}
 		}
 
