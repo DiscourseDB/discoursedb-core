@@ -21,7 +21,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelation;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
-import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseRelationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
@@ -59,7 +58,6 @@ public class ProsoloConverterService {
 	@Autowired private ContentService contentService;
 	@Autowired private ContributionService contributionService;
 	@Autowired private DiscoursePartService discoursePartService;
-	@Autowired private DiscourseRelationService discourseRelationService;
 	
 	/**
 	 * Maps social activities of the given type and the given action to DiscourseDB.
@@ -170,7 +168,7 @@ public class ProsoloConverterService {
 					//check if a contribution for the given node exists
 					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", ProsoloSourceMapping.NODE_TO_CONTRIBUTION, dataSetName);					
 					if(nodeContrib.isPresent()){
-						discourseRelationService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
+						contributionService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
 				}				
 			}
@@ -183,7 +181,7 @@ public class ProsoloConverterService {
 					//check if a contribution for the given node exists
 					Optional<Contribution> nodeContrib = contributionService.findOneByDataSource(node.getId()+"", ProsoloSourceMapping.NODE_TO_CONTRIBUTION, dataSetName);					
 					if(nodeContrib.isPresent()){
-						discourseRelationService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
+						contributionService.createDiscourseRelation(nodeContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
 				}				
 			}
@@ -196,7 +194,7 @@ public class ProsoloConverterService {
 					//check if a contribution for the given social activity exists
 					Optional<Contribution> parentContrib = contributionService.findOneByDataSource(parentActivity.getId()+"", ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_CONTRIBUTION, dataSetName);					
 					if(parentContrib.isPresent()){
-						discourseRelationService.createDiscourseRelation(parentContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
+						contributionService.createDiscourseRelation(parentContrib.get(), curContrib, DiscourseRelationTypes.COMMENT);
 					}
 				}				
 			}
@@ -216,7 +214,7 @@ public class ProsoloConverterService {
 								//we represent the sharing activity as a relation between the sharing user and the shared contribution
 								userService.createContributionInteraction(curUser, sharedContribution.get(), ContributionInteractionTypes.SHARE);					
 								//we create a DiscourseRelation between the sharing and the shared contribution
-								discourseRelationService.createDiscourseRelation(sharedContribution.get(), curContrib, DiscourseRelationTypes.RESHARE);
+								contributionService.createDiscourseRelation(sharedContribution.get(), curContrib, DiscourseRelationTypes.RESHARE);
 							}										
 						}
 					}
