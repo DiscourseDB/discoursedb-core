@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
+import de.tudarmstadt.ukp.wikipedia.api.hibernate.WikiHibernateUtil;
 import de.tudarmstadt.ukp.wikipedia.api.Wikipedia;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.io.RevisionBasedTalkPageExtractor;
@@ -74,7 +75,9 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 			}
 		}
 		logger.info("Finished mapping Talk pages.");
-		
+
+		//manually close the hibernate session for the Wikipedia connection which is not managed by Spring
+		WikiHibernateUtil.getSessionFactory(dbconf).close();
 	}
 
 }
