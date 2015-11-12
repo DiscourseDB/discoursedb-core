@@ -7,6 +7,13 @@ package edu.cmu.cs.lti.discoursedb.core.type;
  */
 public enum DiscoursePartTypes {
 	/**
+	 * A wiki talk page that contains discussions about an article. 
+	 * Discourse Parts of this type might carry the title of the article to aggregate ALL Talk pages that refer to an article 
+	 * without differentiating between individual archives.
+	 * i.e. a DiscoursePart of this type might represent multiple talk pages that are related to the same article.
+	 */
+	TALK_PAGE,
+	/**
 	 * A forum that is not part of another forum
 	 */
 	FORUM,

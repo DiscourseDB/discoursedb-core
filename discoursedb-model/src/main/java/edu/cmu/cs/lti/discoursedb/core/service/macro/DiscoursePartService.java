@@ -11,12 +11,19 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
@@ -27,7 +34,13 @@ public class DiscoursePartService {
 	private DiscoursePartRepository discoursePartRepo;
 	
 	@Autowired
-	private DiscoursePartTypeRepository discourePartTypeRepo;
+	private DiscoursePartTypeRepository discoursePartTypeRepo;
+	
+	@Autowired
+	private DiscoursePartRelationRepository discoursePartRelationRepo;
+
+	@Autowired
+	private DiscoursePartRelationTypeRepository discoursePartRelationTypeRepo;
 
 	@Autowired
 	private DiscoursePartContributionRepository discoursePartContributionRepo;
@@ -71,14 +84,14 @@ public class DiscoursePartService {
 	 *         connected with its requested type
 	 */
 	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type){		
-		Optional<DiscoursePartType> optDiscoursePartType = discourePartTypeRepo.findOneByType(type.name());
+		Optional<DiscoursePartType> optDiscoursePartType = discoursePartTypeRepo.findOneByType(type.name());
 		DiscoursePartType discoursePartType = null;
 		if(optDiscoursePartType.isPresent()){
 			discoursePartType = optDiscoursePartType.get();
 		}else{
 			discoursePartType = new DiscoursePartType();
 			discoursePartType.setType(type.name());
-			discoursePartType= discourePartTypeRepo.save(discoursePartType);
+			discoursePartType= discoursePartTypeRepo.save(discoursePartType);
 		}		
 		
 		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
@@ -130,6 +143,47 @@ public class DiscoursePartService {
 			contrib.addContributionPartOfDiscourseParts(discoursePartContrib);
 		}	
 	}
+	
+	
+	/**
+	 * Creates a new DiscoursePartRelation of the given type between the two provided DiscourseParts.
+	 * Depending on the type, the relation might be directed or not. This information should be given in the type definition.
+	 * 
+	 * If a DiscoursePartRelation of the given type already exists between the two DiscourseParts (taking into account the direction of the relation),
+	 * then the existing relation is returned. 
+	 * DiscourseDB does not enforce the uniqueness of these relations by default, but enforcing it in this service method will cater to most of the use cases we will see.
+	 * 
+	 * @param sourceDiscoursePart the source or parent DiscoursePart of the relation
+	 * @param targetDiscoursePart the target or child DiscoursePart of the relation
+	 * @param type the DiscoursePartRelationTypes
+	 * @return a DiscoursePartRelation between the two provided DiscourseParts with the given type that has already been saved to the database 
+	 */
+	public DiscoursePartRelation createDiscoursePartRelation(DiscoursePart sourceDiscoursePart, DiscoursePart targetDiscoursePart, DiscoursePartRelationTypes type) {
+		//Retrieve type or create if it doesn't exist in db
+		DiscoursePartRelationType discoursePartRelationType = null;
+		Optional<DiscoursePartRelationType> existingPartDiscourseRelationType = discoursePartRelationTypeRepo.findOneByType(type.name());
+		if(existingPartDiscourseRelationType.isPresent()){
+			discoursePartRelationType=existingPartDiscourseRelationType.get();
+		}else{
+			discoursePartRelationType = new DiscoursePartRelationType();
+			discoursePartRelationType.setType(type.name());
+			discoursePartRelationTypeRepo.save(discoursePartRelationType);			
+		}
+		
+		//check if a relation of the given type already exists between the two DiscourseParts
+		Optional<DiscoursePartRelation> existingRelation = discoursePartRelationRepo.findOneBySourceAndTargetAndType(sourceDiscoursePart, targetDiscoursePart, discoursePartRelationType);
+		if(existingRelation.isPresent()){
+			return existingRelation.get();
+		}
+		
+		//create, save and return the new relation
+		DiscoursePartRelation newRelation = new DiscoursePartRelation();
+		newRelation.setSource(sourceDiscoursePart);
+		newRelation.setTarget(targetDiscoursePart);
+		newRelation.setType(discoursePartRelationType);
+		return discoursePartRelationRepo.save(newRelation);
+	}
+	
 	
 	/**
 	 * Saves the provided entity to the db using the save method of the corresponding repository
