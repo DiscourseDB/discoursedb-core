@@ -18,7 +18,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
-import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseRelationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
@@ -43,7 +42,6 @@ public class EdxForumConverterService{
 	@Autowired private ContentService contentService;
 	@Autowired private ContributionService contributionService;
 	@Autowired private DiscoursePartService discoursePartService;
-	@Autowired private DiscourseRelationService discourseRelationService;
 
 	/**
 	 * Maps a post to DiscourseDB entities.
@@ -120,13 +118,13 @@ public class EdxForumConverterService{
 			//that connects it with the thread starter 
 			Optional<Contribution> existingParentContributon = contributionService.findOneByDataSource(p.getCommentThreadId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName);
 			if (existingParentContributon.isPresent()) {
-				discourseRelationService.createDiscourseRelation(existingParentContributon.get(), curContribution, DiscourseRelationTypes.DESCENDANT);
+				contributionService.createDiscourseRelation(existingParentContributon.get(), curContribution, DiscourseRelationTypes.DESCENDANT);
 			}
 
 			//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent
 			Optional<Contribution> existingPredecessorContributon = contributionService.findOneByDataSource(p.getParentId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName);
 			if (existingPredecessorContributon.isPresent()) {
-				discourseRelationService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
+				contributionService.createDiscourseRelation(existingPredecessorContributon.get(), curContribution, DiscourseRelationTypes.REPLY);			
 			}					
 		}else{
 			logger.warn("No Contribution for Post "+p.getId()+" found in DiscourseDB. It should have been imported in Phase1.");
