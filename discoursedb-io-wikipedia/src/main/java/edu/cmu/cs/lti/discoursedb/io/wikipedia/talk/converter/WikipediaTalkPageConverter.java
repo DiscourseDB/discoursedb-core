@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
@@ -24,7 +23,6 @@ import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.TalkPage;
  *
  */
 @Component
-@Order(1)
 public class WikipediaTalkPageConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(WikipediaTalkPageConverter.class);	
