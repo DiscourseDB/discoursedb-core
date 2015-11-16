@@ -24,14 +24,14 @@ public class ParagraphForwardChecker {
 	
 	public ParagraphForwardChecker(RevisionApi revApi, Revision searchToRevId) throws WikiInitializationException, WikiApiException{
 		parToRevMap = new TreeMap<String,Revision>();
-		TopicExtractor topicExtractor = new TopicExtractor("Talk: "+searchToRevId.getArticleID(),searchToRevId.getRevisionID());
+		TopicExtractor topicExtractor = new TopicExtractor();
 		
 		int firstRevPK = revApi.getFirstRevisionPK(searchToRevId.getArticleID());
 		int lastRevPK = searchToRevId.getPrimaryKey();
 		this.revIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), firstRevPK, lastRevPK);
 		while(revIt.hasNext()){			
 			Revision curRev = revIt.next();		
-			if(curRev.getContributorId()==null||(curRev.getContributorId()!=null)&&curRev.getContributorId()>0&&!revApi.getUserGroups(curRev.getContributorId()).contains("bot")){
+			if(curRev.getContributorId()==null||(curRev.getContributorId()!=null&&curRev.getContributorId()>0&&!revApi.getUserGroups(curRev.getContributorId()).contains("bot"))){
 				for(Topic t:topicExtractor.getTopics(curRev.getRevisionText())){
 					for(TalkPageParagraph tpp:t.getParagraphs()){					
 						if(!parToRevMap.containsKey(tpp.getText())) //we need this check, because we only want the first occurrence and don't want to update the map entry 
@@ -45,15 +45,16 @@ public class ParagraphForwardChecker {
 	}
 	
 	/**
-	 * @param para the paragraph to look for
+	 * @param par the paragraph to look for
 	 * @return true, if meta info was added. false, otherwise
 	 */
-	public boolean addMetaInfo(TalkPageParagraph para) throws WikiApiException{
-		if(parToRevMap.containsKey(para.getText())){
-			Revision rev = parToRevMap.get(para.getText());
-			para.setContributor(rev.getContributorName());
-			para.setTimestamp(rev.getTimeStamp());
-			para.setRevisionId(rev.getRevisionID());
+	public boolean addMetaInfo(RevisionApi revApi, TalkPageParagraph par) throws WikiApiException{
+		if(parToRevMap.containsKey(par.getText())){
+			Revision rev = parToRevMap.get(par.getText());
+			par.setContributor(rev.getContributorName());
+			par.setTimestamp(rev.getTimeStamp());
+			par.setRevisionId(rev.getRevisionID());
+			par.setContributorIsBot(revApi.getUserGroups(rev.getContributorId()).contains("bot"));
 			return true;
 		}
 		return false;

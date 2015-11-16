@@ -84,9 +84,10 @@ public class RevisionBasedTalkPageExtractor {
 				Set<Revision> curTPrevs = getTalkPageRevisions(p);	
 				for(Revision curRev:curTPrevs){
 					try{
-						talkPages.add(new TalkPage(revApi, curRev, false));					
+						talkPages.add(new TalkPage(revApi, curRev, true));					
 					}catch(Exception e){
 						logger.warn("Could not load TalkPage for revision "+curRev.getRevisionID());
+						e.printStackTrace();
 					}
 				}				
 			}catch(Exception e){

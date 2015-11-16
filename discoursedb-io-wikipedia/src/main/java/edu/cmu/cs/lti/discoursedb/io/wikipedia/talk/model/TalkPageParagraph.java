@@ -11,16 +11,17 @@ import java.sql.Timestamp;
  */
 public class TalkPageParagraph {
 	
-	private String text;			// Text of the paragraph
-	private String xmlEscapedText; 	// Text with XML-Escaped chars
-	private int begin;				// Begin index of the paragraph
-	private int end;				// End index of the paragraph
-	private int xmlEscapedBegin;	// Begin index of the paragraph in the XML-Escaped text
-	private int xmlEscapedEnd;		// End index of the paragraph in the XML-Escaped text
-	private int indentAmount;		// Indentation amount of this paragraph
-	private String contributor;		// Contributor of this paragraph
-	private Timestamp timestamp;	// Timestamp when this paragraph was created
-	private long revisionId;    	// id of the revision of origin
+	private String text;				// Text of the paragraph
+	private String xmlEscapedText; 		// Text with XML-Escaped chars
+	private int begin;					// Begin index of the paragraph
+	private int end;					// End index of the paragraph
+	private int xmlEscapedBegin;		// Begin index of the paragraph in the XML-Escaped text
+	private int xmlEscapedEnd;			// End index of the paragraph in the XML-Escaped text
+	private int indentAmount;			// Indentation amount of this paragraph
+	private String contributor;			// Contributor of this paragraph
+	private Timestamp timestamp;		// Timestamp when this paragraph was created
+	private long revisionId;    		// id of the revision of origin
+	private boolean contributorIsBot;   // id of the revision of origin
 	
 	public long getRevisionId() {
 		return revisionId;
@@ -137,5 +138,13 @@ public class TalkPageParagraph {
 	 */
 	public void setXmlEscapedEnd(int xmlEscapedEnd) {
 		this.xmlEscapedEnd = xmlEscapedEnd;
+	}
+
+	public boolean contributorIsBot() {
+		return contributorIsBot;
+	}
+
+	public void setContributorIsBot(boolean contributorIsBot) {
+		this.contributorIsBot = contributorIsBot;
 	}	
 }

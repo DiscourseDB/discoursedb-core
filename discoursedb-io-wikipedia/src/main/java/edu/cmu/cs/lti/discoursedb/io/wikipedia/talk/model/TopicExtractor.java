@@ -5,8 +5,8 @@ import java.util.List;
 
 import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.exception.WikiApiException;
-import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.SwebleParseUtils;
-import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.SwebleSectionWithParagraphExtractor.ExtractedSection;
+import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.ExtractedSection;
+import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.WikitextParseUtils;
 
 /**
  * Extracts topics and its paragraphs from Wikipedia Discussion page
@@ -16,15 +16,7 @@ import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.SwebleSectionWithParagr
  */
 public class TopicExtractor {
 
-	private String title;
-	private long revisionId;
-	/**
-	 * Create TopicExtractor
-	 * @param filterTemplatesAtPageBegin - TRUE: Trim off templates at the beginning of the Topics
-	 */
-	public TopicExtractor(String title, long revId){
-		this.title=title;
-		this.revisionId=revId;
+	public TopicExtractor(){
 	}
 	
 	public List<Topic> getTopics(Page p) throws WikiApiException{
@@ -41,7 +33,9 @@ public class TopicExtractor {
 	public List<Topic> getTopics(String pageText) throws WikiApiException{
 		List<Topic> result = new ArrayList<Topic>();	
 		try{
-			List<ExtractedSection> sections = SwebleParseUtils.getSections(pageText, title, revisionId);
+			List<ExtractedSection> sections = WikitextParseUtils.getSectionsWithJWPL(pageText);
+//			List<ExtractedSection> sections = WikitextParseUtils.getSections(pageText, title, revisionId);
+			
 			for(ExtractedSection section : sections){ // Each section can be a topic
 				if(section.getTitle()!=null&&!section.getTitle().isEmpty()){
 					Topic topic = new Topic();			

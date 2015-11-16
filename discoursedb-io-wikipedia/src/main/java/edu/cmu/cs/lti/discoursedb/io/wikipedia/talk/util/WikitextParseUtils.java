@@ -1,6 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -14,13 +15,34 @@ import org.sweble.wikitext.engine.utils.SimpleWikiConfiguration;
 import org.sweble.wikitext.lazy.LinkTargetException;
 
 import de.fau.cs.osr.ptk.common.AstVisitor;
-import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.SwebleSectionWithParagraphExtractor.ExtractedSection;
+import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
+import de.tudarmstadt.ukp.wikipedia.parser.ParsedPage;
+import de.tudarmstadt.ukp.wikipedia.parser.Section;
+import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParser;
+import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParserFactory;
 
-public class SwebleParseUtils
+public class WikitextParseUtils
 {
     public static final String SWEBLE_CONFIG = "classpath:/org/sweble/wikitext/engine/SimpleWikiConfiguration.xml";
 
-	/**
+
+	public static List<ExtractedSection> getSectionsWithJWPL(String text){
+		List<ExtractedSection> sections = new ArrayList<>();
+		MediaWikiParserFactory pf = new MediaWikiParserFactory();
+		MediaWikiParser parser = pf.createParser();
+		ParsedPage pp = parser.parse(text);
+		for(Section sec: pp.getSections()){
+			List<Paragraph> paragraphs = sec.getParagraphs();
+			List<String> paragraphStrings = new ArrayList<>(paragraphs.size());
+			for(Paragraph p:paragraphs){
+				paragraphStrings.add(p.getText());
+			}
+			sections.add(new ExtractedSection(sec.getTitle(), paragraphStrings));
+		}
+		return sections;		
+	}
+	
+    /**
 	 * Extracts sections (without title) from Wikitext.
 	 *
 	 * @param text article text with wiki markup
@@ -30,7 +52,7 @@ public class SwebleParseUtils
 	 * @throws CompilerException if the wiki page could not be compiled by the parser
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<ExtractedSection> getSections(String text, String title, long revision) throws LinkTargetException, CompilerException, FileNotFoundException, JAXBException{
+	public static List<ExtractedSection> getSectionsWithSweble(String text, String title, long revision) throws LinkTargetException, CompilerException, FileNotFoundException, JAXBException{
 		return (List<ExtractedSection>) parsePage(new SwebleSectionWithParagraphExtractor(), text, title, revision);
 	}
 
