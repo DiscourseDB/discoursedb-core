@@ -208,7 +208,7 @@ public class TalkPage {
 	}
 
 	private String cleanText(String text){
-		return text.replaceAll("center|thumb|", "").trim();
+		return text.replaceAll("center|thumb|", "IMAGE:").replaceAll("||", "IMAGE:").trim();
 	}
 	
 }
