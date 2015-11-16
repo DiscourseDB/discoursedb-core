@@ -18,17 +18,24 @@ import de.fau.cs.osr.ptk.common.AstVisitor;
 import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
 import de.tudarmstadt.ukp.wikipedia.parser.ParsedPage;
 import de.tudarmstadt.ukp.wikipedia.parser.Section;
+import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.FlushTemplates;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParser;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParserFactory;
 
 public class WikitextParseUtils
 {
-    public static final String SWEBLE_CONFIG = "classpath:/org/sweble/wikitext/engine/SimpleWikiConfiguration.xml";
 
-
+	/**
+	 * Parses the Talk page using the JWPL MediaWiki Parser.
+	 * 
+	 * @param text the talk page text with markup
+	 * @return a list of extracted sections that contain each contain a list of paragraphs 
+	 */
 	public static List<ExtractedSection> getSectionsWithJWPL(String text){
 		List<ExtractedSection> sections = new ArrayList<>();
 		MediaWikiParserFactory pf = new MediaWikiParserFactory();
+		pf.setTemplateParserClass(FlushTemplates.class);
+
 		MediaWikiParser parser = pf.createParser();
 		ParsedPage pp = parser.parse(text);
 		for(Section sec: pp.getSections()){
@@ -83,7 +90,7 @@ public class WikitextParseUtils
 	 */
 	private static CompiledPage getCompiledPage(String text, String title, long revision) throws LinkTargetException, CompilerException, FileNotFoundException, JAXBException
 	{
-		SimpleWikiConfiguration config = new SimpleWikiConfiguration(SWEBLE_CONFIG);
+		SimpleWikiConfiguration config = new SimpleWikiConfiguration("classpath:/org/sweble/wikitext/engine/SimpleWikiConfiguration.xml");
 
 		PageTitle pageTitle = PageTitle.make(config, title);
 		PageId pageId = new PageId(pageTitle, revision);

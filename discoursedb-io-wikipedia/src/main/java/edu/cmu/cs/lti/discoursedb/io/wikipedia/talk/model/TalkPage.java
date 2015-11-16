@@ -147,7 +147,9 @@ public class TalkPage {
 							t.addUserTurn(turn); // commit turn to topic							
 						}
 						turn = new Turn(); // Create new user turn
-						curTurnText.append(par.getText());
+						if(!cleanText(par.getText()).isEmpty()){
+							curTurnText.append(cleanText(par.getText()));							
+						}
 						turn.setBegin(par.getBegin());
 						turn.setEnd(par.getEnd());
 						turn.setIndentAmount(par.getIndentAmount());
@@ -156,7 +158,9 @@ public class TalkPage {
 						turn.setTurnNr(curTurnNumInTopic++);
 					} else {
 						turn.setEnd(par.getEnd());
-						curTurnText.append(System.lineSeparator()).append(par.getText());
+						if(!cleanText(par.getText()).isEmpty()){
+							curTurnText.append(System.lineSeparator()).append(cleanText(par.getText()));							
+						}						
 					}
 				}
 			}
@@ -203,4 +207,8 @@ public class TalkPage {
 		return Math.abs(t1.getTime() - t2.getTime()) <= windowSize;
 	}
 
+	private String cleanText(String text){
+		return text.replaceAll("center|thumb|", "").trim();
+	}
+	
 }
