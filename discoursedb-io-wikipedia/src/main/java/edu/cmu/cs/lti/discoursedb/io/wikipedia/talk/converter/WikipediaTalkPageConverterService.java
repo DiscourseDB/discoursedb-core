@@ -72,9 +72,9 @@ public class WikipediaTalkPageConverterService{
 		logger.debug("Mapping "+topics.size()+" threads.");
 		for(Topic topic:topics){
 			logger.trace("Mapping topic "+topic.getTitle());
-			
+			String talkPageRevisionId = tp.getTpBaseRevision().getRevisionID()+"";
 			DiscoursePart curTopicDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);			
-			dataSourceService.addSource(curTopicDP, new DataSourceInstance(tp.getTpBaseRevision().getRevisionID()+"_"+topic.getTitle(), WikipediaSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
+			dataSourceService.addSource(curTopicDP, new DataSourceInstance(talkPageRevisionId+"_"+topic.getTitle(), WikipediaSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
 			discoursePartService.createDiscoursePartRelation(curArticleDP, curTopicDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);			
 
 			List<Turn> turns = topic.getUserTurns();
@@ -92,7 +92,7 @@ public class WikipediaTalkPageConverterService{
 				turnContent.setAuthor(curAuthor);
 				//data source of contribution is a combination of topic title and turn number. 
 				//the revision of the talk page is defined in the data source of the discourse part that wraps all turns of a discussion 
-				dataSourceService.addSource(turnContent, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));									
+				dataSourceService.addSource(turnContent, new DataSourceInstance(talkPageRevisionId+"_"+topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));									
 
 				//the first contribution of a discussion should be a THREAD_STARTER, all others a POST
 				Contribution turnContrib = turn.getTurnNr() == 1
@@ -104,12 +104,12 @@ public class WikipediaTalkPageConverterService{
 				turnContrib.setFirstRevision(turnContent);
 				//data source of contribution is a combination of topic title and turn number. 
 				//the revision of the talk page is defined in the data source of the discourse part that wraps all turns of a discussion 
-				dataSourceService.addSource(turnContrib, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName));
+				dataSourceService.addSource(turnContrib, new DataSourceInstance(talkPageRevisionId+"_"+topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName));
 				
 				//Create DESCENDANT DiscourseRelation to THREAD_STARTER
 				if(turn.getTurnNr() > 1){
 					//retrieve the thread starter using the data source info
-					Optional<Contribution> existingThreadStarter = contributionService.findOneByDataSource(topic.getTitle()+"_"+1, WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName);
+					Optional<Contribution> existingThreadStarter = contributionService.findOneByDataSource(talkPageRevisionId+"_"+topic.getTitle()+"_"+1, WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName);
 					if(existingThreadStarter.isPresent()){
 						contributionService.createDiscourseRelation(existingThreadStarter.get(), turnContrib, DiscourseRelationTypes.DESCENDANT);
 					}					
