@@ -52,9 +52,7 @@ public class TalkPage {
 		try {
 			tpBaseRevision = revApi.getRevision(revId);
 		} catch (WikiApiException e) {
-			System.err.println(
-					"Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API");
-			e.printStackTrace();
+			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
 		}
 		_segmentParagraphs();
 		_buildTurns();
@@ -117,13 +115,11 @@ public class TalkPage {
 			// extract meta information for paragraphs from revision history
 			for (Topic t : topics) {
 				for (TalkPageParagraph tpp : t.getParagraphs()) {
-					checker.addMetaInfo(revApi, tpp);
+					checker.addMetaInfo(tpp);
 				}
 			}
 		} catch (WikiApiException e) {
-			System.err.println(
-					"Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API");
-			e.printStackTrace();
+			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
 		}
 	}
 
@@ -139,10 +135,6 @@ public class TalkPage {
 		for (Topic t : topics) {
 			int curTurnNumInTopic = 1;
 			Set<TalkPageParagraph> pars = t.getParagraphs(); // this is a sorted set of pars
-			for(TalkPageParagraph par:pars){
-				System.out.println(par.getTimestamp().toString()+" :"+par.getText());
-			}
-			System.out.println("***");
 			// heuristically aggregate neighboring paragraphs to turns
 			if (aggregateParagraphs) {
 				Turn turn = null; // Current unsaved Turn
@@ -151,14 +143,13 @@ public class TalkPage {
 					// Check if it is a new turn or we are in the first paragraph
 					if (turn == null || isNewUserTurn(turn, par)) {
 						if (turn != null) {
+							// commit turn to topic and reset
 							turn.setText(curTurnText.toString());
 							curTurnText = new StringBuffer();
-							t.addUserTurn(turn); // commit turn to topic							
+							t.addUserTurn(turn); 							
 						}
 						turn = new Turn(); // Create new user turn
-						if(!cleanText(par.getText()).isEmpty()){
-							curTurnText.append(cleanText(par.getText()));							
-						}
+						curTurnText.append(cleanText(par.getText()));							
 						turn.setBegin(par.getBegin());
 						turn.setEnd(par.getEnd());
 						turn.setIndentAmount(par.getIndentAmount());
@@ -167,14 +158,24 @@ public class TalkPage {
 						turn.setTurnNr(curTurnNumInTopic++);
 					} else {
 						turn.setEnd(par.getEnd());
-						if(!cleanText(par.getText()).isEmpty()){
-							curTurnText.append(System.lineSeparator()).append(cleanText(par.getText()));							
-						}						
+						curTurnText.append(System.lineSeparator()).append(cleanText(par.getText()));							
+						/*
+						 * Segmentation error recovery:
+						 * In case the meta information of the current turn were missing, use the info from the next paragraph.
+						 * This often happens in case of embedded lists or tables.
+						 */
+						if(turn.getContributor()==null||turn.getContributor().isEmpty()||turn.getContributor().equals(TalkPageParagraph.UNKNOWN_AUTHOR)){
+							turn.setContributor(par.getContributor());
+						}
+						if(turn.getTimestamp()==null){
+							turn.setTimestamp(par.getTimestamp());
+						}
+						
 					}
 				}
 				// commit final turn to topic
 				if(turn!=null&&curTurnText.length()>0){
-					turn.setText(curTurnText.toString());
+					turn.setText(curTurnText.toString());					
 					t.addUserTurn(turn); 												
 				}
 			}
@@ -197,7 +198,6 @@ public class TalkPage {
 			// update the newly built turns with reference information
 			// might not make too much sense if we didn't aggregate
 			new ReferenceExtractor().setReferences(topics);
-
 		}
 	}
 
@@ -209,7 +209,10 @@ public class TalkPage {
 	 * @return true, if the paragraph is not part of the current turn and rather starts a new turn
 	 */
 	private boolean isNewUserTurn(Turn currentTurn, TalkPageParagraph par) {
-		if(!par.isValid()||!currentTurn.isValid()){
+		if(!currentTurn.isValid()){
+			return false;	
+		}
+		if(!par.isValid()){
 			return false;	
 		}
 		try{
@@ -219,7 +222,7 @@ public class TalkPage {
 					|| (splitOnIndentation && currentTurn.getIndentAmount() != par.getIndentAmount()) //in case we want to start a new turn whenever a message is indented (usually not)
 			); 			
 		}catch(Exception e){			
-			logger.warn("Corrupt paragraph information. Could not determine whether paragraph is new or not.");
+			logger.warn("Corrupt paragraph information. Could not determine whether paragraph is new or not.",e);
 		}
 		return false;
 

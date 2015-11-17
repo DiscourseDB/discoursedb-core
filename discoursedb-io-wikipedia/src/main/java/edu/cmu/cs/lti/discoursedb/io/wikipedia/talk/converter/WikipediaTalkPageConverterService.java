@@ -1,6 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.converter;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,11 +25,17 @@ import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.TalkPage;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.Topic;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.Turn;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.WikipediaSourceMapping;
 
+/**
+ * This service maps pre-segmented TalkPage objects to DiscourseDB entities 
+ * 
+ * @author Oliver Ferschke
+ */
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @Service
 public class WikipediaTalkPageConverterService{
@@ -42,6 +49,14 @@ public class WikipediaTalkPageConverterService{
 	@Autowired private ContentService contentService;
 	@Autowired private UserService userService;
 	
+	/**
+	 * Maps all threads and turns of a single TalkPage to DiscourseDB entities.
+	 * 
+	 * @param discourseName the name of the discourse
+	 * @param dataSetName the name of the dataset
+	 * @param articleTitle the title of the article
+	 * @param tp the TalkPage to map to DiscourseDB
+	 */
 	public void mapTalkPage(String discourseName, String dataSetName, String articleTitle, TalkPage tp){
 		if(discourseName==null||discourseName.isEmpty()||dataSetName==null||dataSetName.isEmpty()||tp==null||articleTitle==null||articleTitle.isEmpty()){
 			logger.error("Cannot map talk page. Data provided is complete. Skipping ...");
@@ -77,8 +92,7 @@ public class WikipediaTalkPageConverterService{
 				turnContent.setAuthor(curAuthor);
 				//data source of contribution is a combination of topic title and turn number. 
 				//the revision of the talk page is defined in the data source of the discourse part that wraps all turns of a discussion 
-				dataSourceService.addSource(turnContent, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));					
-				
+				dataSourceService.addSource(turnContent, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));									
 
 				//the first contribution of a discussion should be a THREAD_STARTER, all others a POST
 				Contribution turnContrib = turn.getTurnNr() == 1
@@ -91,6 +105,15 @@ public class WikipediaTalkPageConverterService{
 				//data source of contribution is a combination of topic title and turn number. 
 				//the revision of the talk page is defined in the data source of the discourse part that wraps all turns of a discussion 
 				dataSourceService.addSource(turnContrib, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName));
+				
+				//Create DESCENDANT DiscourseRelation to THREAD_STARTER
+				if(turn.getTurnNr() > 1){
+					//retrieve the thread starter using the data source info
+					Optional<Contribution> existingThreadStarter = contributionService.findOneByDataSource(topic.getTitle()+"_"+1, WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName);
+					if(existingThreadStarter.isPresent()){
+						contributionService.createDiscourseRelation(existingThreadStarter.get(), turnContrib, DiscourseRelationTypes.DESCENDANT);
+					}					
+				}
 			}
 		}
 	}

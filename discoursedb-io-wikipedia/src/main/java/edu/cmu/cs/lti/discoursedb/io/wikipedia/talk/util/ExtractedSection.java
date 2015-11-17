@@ -1,8 +1,10 @@
 package edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import de.tudarmstadt.ukp.wikipedia.parser.NestedListContainer;
 import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
 
 /**
@@ -19,6 +21,12 @@ import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
 		public ExtractedSection(String title, List<Paragraph> paragraphs){
 			this.title=title;
 			this.paragraphs=paragraphs;
+
+		}
+		
+		public ExtractedSection(String title, Collection<NestedListContainer> lists){
+			this.title=title;
+			addNestedLists(lists);
 
 		}
 
@@ -42,6 +50,22 @@ import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
 		}
 
 		public void addParagraph(Paragraph par){
+			this.paragraphs.add(par);
+		}
+
+		public void addNestedLists(Collection<NestedListContainer> lists){			
+			for(NestedListContainer list:lists){
+				Paragraph par = new Paragraph();
+				par.setText(list.getText());
+				par.setSrcSpan(list.getSrcSpan());
+				this.paragraphs.add(par);				
+			}
+		}
+
+		public void addNestedList(NestedListContainer list){			
+			Paragraph par = new Paragraph();
+			par.setText(list.getText());
+			par.setSrcSpan(list.getSrcSpan());
 			this.paragraphs.add(par);
 		}
 	}

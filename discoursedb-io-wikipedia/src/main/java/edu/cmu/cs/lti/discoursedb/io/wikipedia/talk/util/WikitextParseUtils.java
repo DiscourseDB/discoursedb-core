@@ -32,12 +32,13 @@ public class WikitextParseUtils
 	public static List<ExtractedSection> getSectionsWithJWPL(String text){
 		List<ExtractedSection> sections = new ArrayList<>();
 		MediaWikiParserFactory pf = new MediaWikiParserFactory();
-		//pf.setTemplateParserClass(FlushTemplates.class);
 		pf.setCalculateSrcSpans(true);
 		MediaWikiParser parser = pf.createParser();
 		ParsedPage pp = parser.parse(text);
 		for(Section sec: pp.getSections()){
-			sections.add(new ExtractedSection(sec.getTitle(), sec.getParagraphs()));
+			ExtractedSection sect = new ExtractedSection(sec.getTitle(), sec.getParagraphs());
+			sect.addNestedLists(sec.getNestedLists());			
+			sections.add(sect);
 		}
 		return sections;		
 	}

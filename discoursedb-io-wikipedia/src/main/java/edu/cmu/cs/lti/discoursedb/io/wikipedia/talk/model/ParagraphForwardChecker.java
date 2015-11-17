@@ -30,36 +30,43 @@ public class ParagraphForwardChecker {
 		int lastRevPK = searchToRevId.getPrimaryKey();
 		this.revIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), firstRevPK, lastRevPK);
 		while(revIt.hasNext()){			
-		Revision curRev = revIt.next();		
-			for(Topic t:topicExtractor.getTopics(curRev.getRevisionText())){
-				for(TalkPageParagraph tpp:t.getParagraphs()){					
-					if(!parToRevMap.containsKey(tpp.getText())) //we need this check, because we only want the first occurrence and don't want to update the map entry 
-					{ 
-						parToRevMap.put(tpp.getText(),curRev);							
-					}
-				}			
-			}						
-		}
+			Revision curRev = revIt.next();		
+			if(curRev.getContributorId()==null||(curRev.getContributorId()!=null&&curRev.getContributorId()>0&&!revApi.getUserGroups(curRev.getContributorId()).contains("bot"))){
+				for(Topic t:topicExtractor.getTopics(curRev.getRevisionText())){
+					for(TalkPageParagraph tpp:t.getParagraphs()){					
+						if(!parToRevMap.containsKey(reduceToChars(tpp.getText()))) 
+						{ 
+							parToRevMap.put(reduceToChars(tpp.getText()),curRev);							
+						}
+					}			
+				}						
+			}
+		}	
 	}
 	
 	/**
 	 * @param par the paragraph to look for
 	 * @return true, if meta info was added. false, otherwise
 	 */
-	public boolean addMetaInfo(RevisionApi revApi, TalkPageParagraph par) throws WikiApiException{
-		if(parToRevMap.containsKey(par.getText())){
-			Revision rev = parToRevMap.get(par.getText());
+	public boolean addMetaInfo(TalkPageParagraph par) throws WikiApiException{
+		if(parToRevMap.containsKey(reduceToChars(par.getText()))){
+			Revision rev = parToRevMap.get(reduceToChars(par.getText()));
 			par.setContributor(rev.getContributorName());
 			par.setTimestamp(rev.getTimeStamp());
 			par.setRevisionId(rev.getRevisionID());
-			try{				
-				par.setContributorIsBot(revApi.getUserGroups(rev.getContributorId()).contains("bot"));				
-			}catch(Exception e){				
-				par.setContributorIsBot(false);
-			}
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Removes all nonalphanumeric characters from a String including whitespaces
+	 * 
+	 * @param input
+	 * @return
+	 */
+	private String reduceToChars(String input){
+		return input.replaceAll("[^A-Za-z0-9]", "");
 	}
 	
 }

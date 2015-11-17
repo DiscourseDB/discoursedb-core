@@ -34,7 +34,6 @@ public class TopicExtractor {
 		List<Topic> result = new ArrayList<Topic>();	
 		try{
 			List<ExtractedSection> sections = WikitextParseUtils.getSectionsWithJWPL(pageText);
-//			List<ExtractedSection> sections = WikitextParseUtils.getSections(pageText, title, revisionId);
 			
 			for(ExtractedSection section : sections){ // Each section can be a topic
 				if(section.getTitle()!=null&&!section.getTitle().isEmpty()){

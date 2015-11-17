@@ -23,7 +23,7 @@ public class TalkPageParagraph {
 	private long revisionId;    		// id of the revision of origin
 	private boolean contributorIsBot;   // id of the revision of origin
 
-	private final String UNK_AUTHOR = "UNKNOWN_CONTRIBUTOR";
+	public static final String UNKNOWN_AUTHOR = "UNKNOWN_CONTRIBUTOR";
 	
 	public long getRevisionId() {
 		return revisionId;
@@ -44,7 +44,7 @@ public class TalkPageParagraph {
 	 */
 	public String getContributor() {
 		if(contributor==null||contributor.isEmpty()){
-			return UNK_AUTHOR;
+			return UNKNOWN_AUTHOR;
 		}else{
 			return contributor;			
 		}
