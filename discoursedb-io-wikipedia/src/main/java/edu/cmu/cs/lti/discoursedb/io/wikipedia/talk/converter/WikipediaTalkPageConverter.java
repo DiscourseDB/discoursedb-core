@@ -62,15 +62,14 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 		Wikipedia wiki = new Wikipedia(dbconf);
 		
 		RevisionBasedTalkPageExtractor extractor = null;
-		logger.info("Start mapping Talk pages for "+titles.size()+" articles to DiscourseDB...");
+		logger.info("Start mapping Talk pages for "+titles.size()+" articles to DiscourseDB...");		
 		int tpNum = 1;
 		for(String title:titles){
-			//the extractor can potentially extract a talk pages for a list of articles, but we are using it page by page here
-			logger.trace("Mapping Talk Pages for article "+title);
-			extractor = new RevisionBasedTalkPageExtractor(wiki, title, false);
+			logger.info("Segmenting Talk Pages for article "+title);
+			extractor = new RevisionBasedTalkPageExtractor(wiki, title, false, true);
 			List<TalkPage> talkPages = extractor.getTalkPages();
 			for(TalkPage tp:talkPages){
-				logger.trace("Mapping Talk Page "+tpNum++);
+				logger.info("Mapping Talk Page #"+tpNum++);
 				converterService.mapTalkPage(discourseName, dataSetName, title, tp);				
 			}
 		}

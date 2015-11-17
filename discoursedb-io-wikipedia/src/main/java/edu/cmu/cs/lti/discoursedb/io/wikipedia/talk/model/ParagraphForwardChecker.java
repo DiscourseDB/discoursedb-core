@@ -30,18 +30,16 @@ public class ParagraphForwardChecker {
 		int lastRevPK = searchToRevId.getPrimaryKey();
 		this.revIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), firstRevPK, lastRevPK);
 		while(revIt.hasNext()){			
-			Revision curRev = revIt.next();		
-			if(curRev.getContributorId()==null||(curRev.getContributorId()!=null&&curRev.getContributorId()>0&&!revApi.getUserGroups(curRev.getContributorId()).contains("bot"))){
-				for(Topic t:topicExtractor.getTopics(curRev.getRevisionText())){
-					for(TalkPageParagraph tpp:t.getParagraphs()){					
-						if(!parToRevMap.containsKey(tpp.getText())) //we need this check, because we only want the first occurrence and don't want to update the map entry 
-						{ 
-							parToRevMap.put(tpp.getText(),curRev);							
-						}
-					}			
-				}						
-			}
-		}	
+		Revision curRev = revIt.next();		
+			for(Topic t:topicExtractor.getTopics(curRev.getRevisionText())){
+				for(TalkPageParagraph tpp:t.getParagraphs()){					
+					if(!parToRevMap.containsKey(tpp.getText())) //we need this check, because we only want the first occurrence and don't want to update the map entry 
+					{ 
+						parToRevMap.put(tpp.getText(),curRev);							
+					}
+				}			
+			}						
+		}
 	}
 	
 	/**
@@ -54,7 +52,11 @@ public class ParagraphForwardChecker {
 			par.setContributor(rev.getContributorName());
 			par.setTimestamp(rev.getTimeStamp());
 			par.setRevisionId(rev.getRevisionID());
-			par.setContributorIsBot(revApi.getUserGroups(rev.getContributorId()).contains("bot"));
+			try{				
+				par.setContributorIsBot(revApi.getUserGroups(rev.getContributorId()).contains("bot"));				
+			}catch(Exception e){				
+				par.setContributorIsBot(false);
+			}
 			return true;
 		}
 		return false;

@@ -6,11 +6,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import de.tudarmstadt.ukp.wikipedia.api.exception.WikiApiException;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.Revision;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.RevisionApi;
 
 public class TalkPage {
+
+	private static final Logger logger = LogManager.getLogger(TalkPage.class);
+
 	private boolean splitOnIndentation = false;
 	private int userTurnTimeWindowSize = 300000; // 5 minutes
 
@@ -133,12 +139,15 @@ public class TalkPage {
 		for (Topic t : topics) {
 			int curTurnNumInTopic = 1;
 			Set<TalkPageParagraph> pars = t.getParagraphs(); // this is a sorted set of pars
-
+			for(TalkPageParagraph par:pars){
+				System.out.println(par.getTimestamp().toString()+" :"+par.getText());
+			}
+			System.out.println("***");
 			// heuristically aggregate neighboring paragraphs to turns
 			if (aggregateParagraphs) {
 				Turn turn = null; // Current unsaved Turn
 				StringBuffer curTurnText = new StringBuffer();
-				for (TalkPageParagraph par : t.getParagraphs()) { // Iterate over paragraphs
+				for (TalkPageParagraph par : pars) { 
 					// Check if it is a new turn or we are in the first paragraph
 					if (turn == null || isNewUserTurn(turn, par)) {
 						if (turn != null) {
@@ -162,6 +171,11 @@ public class TalkPage {
 							curTurnText.append(System.lineSeparator()).append(cleanText(par.getText()));							
 						}						
 					}
+				}
+				// commit final turn to topic
+				if(turn!=null&&curTurnText.length()>0){
+					turn.setText(curTurnText.toString());
+					t.addUserTurn(turn); 												
 				}
 			}
 			// no aggregation. we consider one paragraph = one turn
@@ -195,20 +209,28 @@ public class TalkPage {
 	 * @return true, if the paragraph is not part of the current turn and rather starts a new turn
 	 */
 	private boolean isNewUserTurn(Turn currentTurn, TalkPageParagraph par) {
-		return !par.contributorIsBot()&&( //a bot cannot start a new turn
-						!par.getContributor().equals(currentTurn.getContributor()) //if the user name changes we have a new turn 
-						|| !checkTimeInWindow(currentTurn.getTimestamp(), par.getTimestamp(), userTurnTimeWindowSize) //if we are outside of the allowed time window, we have a new turn
-						|| (splitOnIndentation && currentTurn.getIndentAmount() != par.getIndentAmount()) //in case we want to start a new turn whenever a message is indented (usually not)
-				); 
+		if(!par.isValid()||!currentTurn.isValid()){
+			return false;	
+		}
+		try{
+			return !par.contributorIsBot()&&( //a bot cannot start a new turn
+					!par.getContributor().equals(currentTurn.getContributor()) //if the user name changes we have a new turn 
+					|| !checkTimeInWindow(currentTurn.getTimestamp(), par.getTimestamp(), userTurnTimeWindowSize) //if we are outside of the allowed time window, we have a new turn
+					|| (splitOnIndentation && currentTurn.getIndentAmount() != par.getIndentAmount()) //in case we want to start a new turn whenever a message is indented (usually not)
+			); 			
+		}catch(Exception e){			
+			logger.warn("Corrupt paragraph information. Could not determine whether paragraph is new or not.");
+		}
+		return false;
 
 	}
 
 	private boolean checkTimeInWindow(Timestamp t1, Timestamp t2, long windowSize) {
-		return Math.abs(t1.getTime() - t2.getTime()) <= windowSize;
+		return (t1 == null || t2 == null) ? false : Math.abs(t1.getTime() - t2.getTime()) <= windowSize;
 	}
 
 	private String cleanText(String text){
-		return text.replaceAll("center|thumb|", "IMAGE:").replaceAll("||", "IMAGE:").trim();
+		return text == null ? "" : text.replaceAll("center|thumb|", "").replaceAll("||", "").trim();
 	}
 	
 }

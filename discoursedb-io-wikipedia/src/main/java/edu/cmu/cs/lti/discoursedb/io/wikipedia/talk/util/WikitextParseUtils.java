@@ -15,10 +15,8 @@ import org.sweble.wikitext.engine.utils.SimpleWikiConfiguration;
 import org.sweble.wikitext.lazy.LinkTargetException;
 
 import de.fau.cs.osr.ptk.common.AstVisitor;
-import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
 import de.tudarmstadt.ukp.wikipedia.parser.ParsedPage;
 import de.tudarmstadt.ukp.wikipedia.parser.Section;
-import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.FlushTemplates;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParser;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParserFactory;
 
@@ -34,17 +32,12 @@ public class WikitextParseUtils
 	public static List<ExtractedSection> getSectionsWithJWPL(String text){
 		List<ExtractedSection> sections = new ArrayList<>();
 		MediaWikiParserFactory pf = new MediaWikiParserFactory();
-		pf.setTemplateParserClass(FlushTemplates.class);
-
+		//pf.setTemplateParserClass(FlushTemplates.class);
+		pf.setCalculateSrcSpans(true);
 		MediaWikiParser parser = pf.createParser();
 		ParsedPage pp = parser.parse(text);
 		for(Section sec: pp.getSections()){
-			List<Paragraph> paragraphs = sec.getParagraphs();
-			List<String> paragraphStrings = new ArrayList<>(paragraphs.size());
-			for(Paragraph p:paragraphs){
-				paragraphStrings.add(p.getText());
-			}
-			sections.add(new ExtractedSection(sec.getTitle(), paragraphStrings));
+			sections.add(new ExtractedSection(sec.getTitle(), sec.getParagraphs()));
 		}
 		return sections;		
 	}

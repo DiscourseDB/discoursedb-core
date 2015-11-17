@@ -22,6 +22,8 @@ public class TalkPageParagraph {
 	private Timestamp timestamp;		// Timestamp when this paragraph was created
 	private long revisionId;    		// id of the revision of origin
 	private boolean contributorIsBot;   // id of the revision of origin
+
+	private final String UNK_AUTHOR = "UNKNOWN_CONTRIBUTOR";
 	
 	public long getRevisionId() {
 		return revisionId;
@@ -41,7 +43,11 @@ public class TalkPageParagraph {
 	 * @return the contributor
 	 */
 	public String getContributor() {
-		return contributor;
+		if(contributor==null||contributor.isEmpty()){
+			return UNK_AUTHOR;
+		}else{
+			return contributor;			
+		}
 	}
 	/**
 	 * @param contributor the contributor to set
@@ -146,5 +152,12 @@ public class TalkPageParagraph {
 
 	public void setContributorIsBot(boolean contributorIsBot) {
 		this.contributorIsBot = contributorIsBot;
-	}	
+	}
+	
+	public boolean isValid(){
+		return  getContributor() != null && 
+				getTimestamp() != null && 
+				!getContributor().isEmpty();
+	}
+
 }

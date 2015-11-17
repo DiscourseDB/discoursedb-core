@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.converter;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +53,20 @@ public class WikipediaTalkPageConverterService{
 		//That is, the main talk page and all archives are aggregated in this one DiscoursePart
 		DiscoursePart curArticleDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, articleTitle, DiscoursePartTypes.TALK_PAGE);
 		
-		for(Topic topic:tp.getTopics()){
+		List<Topic> topics = tp.getTopics();
+		logger.debug("Mapping "+topics.size()+" threads.");
+		for(Topic topic:topics){
+			logger.trace("Mapping topic "+topic.getTitle());
+			
 			DiscoursePart curTopicDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);			
 			dataSourceService.addSource(curTopicDP, new DataSourceInstance(tp.getTpBaseRevision().getRevisionID()+"_"+topic.getTitle(), WikipediaSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
 			discoursePartService.createDiscoursePartRelation(curArticleDP, curTopicDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);			
-			
-			for(Turn turn:topic.getUserTurns()){				
+
+			List<Turn> turns = topic.getUserTurns();
+			logger.debug("Mapping "+turns.size()+" turns.");
+			for(Turn turn:turns){				
+				logger.trace("Mapping turn "+turn.getTurnNr());
+				
 				//user information only defined by user name and very likely to re-occur on other discussion pages
 				//so there is no point in adding a data source for users here
 				User curAuthor = userService.createOrGetUser(discourse, turn.getContributor());				
@@ -67,7 +77,7 @@ public class WikipediaTalkPageConverterService{
 				turnContent.setAuthor(curAuthor);
 				//data source of contribution is a combination of topic title and turn number. 
 				//the revision of the talk page is defined in the data source of the discourse part that wraps all turns of a discussion 
-				dataSourceService.addSource(turnContent, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));
+				dataSourceService.addSource(turnContent, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT, dataSetName));					
 				
 
 				//the first contribution of a discussion should be a THREAD_STARTER, all others a POST
@@ -83,7 +93,5 @@ public class WikipediaTalkPageConverterService{
 				dataSourceService.addSource(turnContrib, new DataSourceInstance(topic.getTitle()+"_"+turn.getTurnNr(), WikipediaSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION, dataSetName));
 			}
 		}
-
 	}
-	
 }

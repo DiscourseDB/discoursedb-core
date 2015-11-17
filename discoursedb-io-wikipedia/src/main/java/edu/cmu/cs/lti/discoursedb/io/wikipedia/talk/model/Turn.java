@@ -247,5 +247,10 @@ public class Turn {
 	public void setRevisionId(long revisionId) {
 		this.revisionId = revisionId;
 	}
+	public boolean isValid(){
+		return  getContributor() != null && 
+				getTimestamp() != null && 
+				!getContributor().isEmpty();
+	}
 
 }

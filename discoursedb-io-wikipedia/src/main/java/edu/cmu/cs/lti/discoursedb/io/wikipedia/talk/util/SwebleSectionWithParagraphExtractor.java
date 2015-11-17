@@ -42,6 +42,12 @@ import de.fau.cs.osr.ptk.common.ast.Text;
 
 /**
  * A visitor that extracts sections with paragraphs from an article AST.
+ * 
+ * Note: The paragraph text is stored in JWPL Paragraph objects to make this
+ * parser compatible with the JWPL parser. However, we don't populate the
+ * SrcSpan in the Paragraph, which is necessary to identify start and end index
+ * of the paragraph in the page in order to sort the paragraphs sequentially
+ * (not temporally).
  *
  * @author Oliver Ferschke
  */
@@ -52,7 +58,8 @@ public class SwebleSectionWithParagraphExtractor extends AstVisitor
 	private List<ExtractedSection> sections;
 
 	private StringBuilder parBuilder = new StringBuilder();
-	private List<String> curPars;
+
+	private List<de.tudarmstadt.ukp.wikipedia.parser.Paragraph> curPars;
 
 	// =========================================================================
 
@@ -92,7 +99,7 @@ public class SwebleSectionWithParagraphExtractor extends AstVisitor
 	{
 		// This method is called by go() before visitation starts
 		sections = new ArrayList<ExtractedSection>();
-		curPars = new ArrayList<String>();
+		curPars = new ArrayList<de.tudarmstadt.ukp.wikipedia.parser.Paragraph>();
 		return super.before(node);
 	}
 
@@ -200,7 +207,9 @@ public class SwebleSectionWithParagraphExtractor extends AstVisitor
 		iterate(par);
 		String currentParString = parBuilder.toString().trim(); 
 		if(!currentParString.isEmpty()){
-			curPars.add(currentParString);			
+			de.tudarmstadt.ukp.wikipedia.parser.Paragraph newpar = new de.tudarmstadt.ukp.wikipedia.parser.Paragraph();
+			newpar.setText(currentParString);
+			curPars.add(newpar);			
 		}
 		parBuilder=new StringBuilder();
 	}
@@ -228,7 +237,7 @@ public class SwebleSectionWithParagraphExtractor extends AstVisitor
 		iterate(sect);
 
 		sections.add(new ExtractedSection(title,curPars));
-		curPars = new ArrayList<String>();
+		curPars = new ArrayList<de.tudarmstadt.ukp.wikipedia.parser.Paragraph>();
 	}
 
 	

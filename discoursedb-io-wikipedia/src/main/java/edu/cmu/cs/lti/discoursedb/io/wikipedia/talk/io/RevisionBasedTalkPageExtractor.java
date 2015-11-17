@@ -41,12 +41,23 @@ public class RevisionBasedTalkPageExtractor {
 	private List<Page> sourcePages;
 	private List<TalkPage> talkPages;
 	private boolean includeArchives;
+	private boolean aggregateParagraphsToTurns;
 	
-	public RevisionBasedTalkPageExtractor(Wikipedia wiki, String pageTitle, boolean includeArchives) throws WikiInitializationException, WikiApiException{
+	/**
+	 * Creates a new TalkPageExtractor that segments a single discussion page into threads and turns
+	 * 
+	 * @param wiki the JWPL Wikipedia object with an active database connection
+	 * @param pageTitle a page or talk page title
+	 * @param includeArchives true, if the extractor should attempt to extract discussions from discussion archives (still buggy)
+	 * @param aggregateParagraphsToTurns true, whether paragraphs should heuristically be aggregated to turns
+	 * @throws WikiInitializationException in case the database connection could not be established
+	 * @throws WikiApiException in case the database could not be accessed
+	 */
+	public RevisionBasedTalkPageExtractor(Wikipedia wiki, String pageTitle, boolean includeArchives, boolean aggregateParagraphsToTurns) throws WikiInitializationException, WikiApiException{
 		this.wiki =wiki;
 		this.includeArchives=includeArchives;
+		this.aggregateParagraphsToTurns = aggregateParagraphsToTurns;
 		revApi = new RevisionApi(wiki.getDatabaseConfiguration());
-		
 		sourcePages = new ArrayList<>();
 		talkPages = new ArrayList<>();
 		try {
@@ -58,9 +69,20 @@ public class RevisionBasedTalkPageExtractor {
 		
 	}
 
-	public RevisionBasedTalkPageExtractor(Wikipedia wiki, Collection<String> pageTitles, boolean includeArchives) throws WikiInitializationException, WikiApiException{
+	/**
+	 * Creates a new TalkPageExtractor that segments a collection of discussion pages into threads and turns
+	 * 
+	 * @param wiki the JWPL Wikipedia object with an active database connection
+	 * @param pageTitles a collection of page or talk page ttiles
+	 * @param includeArchives true, if the extractor should attempt to extract discussions from discussion archives (still buggy)
+	 * @param aggregateParagraphsToTurns true, whether paragraphs should heuristically be aggregated to turns
+	 * @throws WikiInitializationException in case the database connection could not be established
+	 * @throws WikiApiException in case the database could not be accessed
+	 */
+	public RevisionBasedTalkPageExtractor(Wikipedia wiki, Collection<String> pageTitles, boolean includeArchives, boolean aggregateParagraphsToTurns) throws WikiInitializationException, WikiApiException{
 		this.wiki =wiki;
 		this.includeArchives=includeArchives;
+		this.aggregateParagraphsToTurns = aggregateParagraphsToTurns;
 		revApi = new RevisionApi(wiki.getDatabaseConfiguration());
 
 		sourcePages = new ArrayList<>();
@@ -84,7 +106,7 @@ public class RevisionBasedTalkPageExtractor {
 				Set<Revision> curTPrevs = getTalkPageRevisions(p);	
 				for(Revision curRev:curTPrevs){
 					try{
-						talkPages.add(new TalkPage(revApi, curRev, true));					
+						talkPages.add(new TalkPage(revApi, curRev, aggregateParagraphsToTurns));					
 					}catch(Exception e){
 						logger.warn("Could not load TalkPage for revision "+curRev.getRevisionID());
 						e.printStackTrace();
@@ -118,7 +140,7 @@ public class RevisionBasedTalkPageExtractor {
 		Set<Revision> preArchiveRevisions = new HashSet<>();
 		Set<Integer> preArchiveRevIds = new HashSet<>();
 
-		logger.info("Identifying pre-archive snapshots of the Talk page for article "+p.getTitle().getPlainTitle());
+		logger.trace("Identifying pre-archive snapshots of the Talk page for article "+p.getTitle().getPlainTitle());
 		Page mainDiscussionPage = wiki.getDiscussionPage(p);
 		int mainDiscussionPageId = mainDiscussionPage.getPageId();
 		Iterable<Page> discArchives = wiki.getDiscussionArchives(p);
@@ -152,7 +174,7 @@ public class RevisionBasedTalkPageExtractor {
 			}
 			archNum++;											
 		}
-		logger.info("Identified "+preArchiveRevisions.size()+" Talk page snapshots for "+archNum+" discussion archives");		
+		logger.trace("Identified "+preArchiveRevisions.size()+" Talk page snapshots for "+archNum+" discussion archives");		
 		return preArchiveRevisions;
 	}
 

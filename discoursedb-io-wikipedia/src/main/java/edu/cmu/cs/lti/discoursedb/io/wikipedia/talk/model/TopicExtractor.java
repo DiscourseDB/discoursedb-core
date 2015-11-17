@@ -5,6 +5,7 @@ import java.util.List;
 
 import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.exception.WikiApiException;
+import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.ExtractedSection;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.WikitextParseUtils;
 
@@ -21,8 +22,7 @@ public class TopicExtractor {
 	
 	public List<Topic> getTopics(Page p) throws WikiApiException{
 		return getTopics(p.getText());
-	}
-	
+	}	
 
 	/**
 	 * Extracts topics and paragraphs from the discussionPage
@@ -41,11 +41,14 @@ public class TopicExtractor {
 					Topic topic = new Topic();			
 					topic.setTitle(section.getTitle());
 														
-					for(String curParContent : section.getParagraphs()){
-						TalkPageParagraph par = new TalkPageParagraph();
-						par.setText(curParContent);
-						par.setIndentAmount(countCharsAtStart(curParContent,':'));
-						topic.addParagraph(par);
+					for(Paragraph curParsedPar : section.getParagraphs()){
+						TalkPageParagraph talkPagePar = new TalkPageParagraph();
+						talkPagePar.setText(curParsedPar.getText());
+						talkPagePar.setBegin(curParsedPar.getSrcSpan().getStart());
+						talkPagePar.setEnd(curParsedPar.getSrcSpan().getEnd());
+						talkPagePar.setIndentAmount(countCharsAtStart(curParsedPar.getText(),':'));
+						topic.addParagraph(talkPagePar);
+						
 					}
 					topic.setText(combinePars(section.getParagraphs()));
 					result.add(topic);					
@@ -74,10 +77,10 @@ public class TopicExtractor {
 		}
 		return 0;
 	}
-	private String combinePars(List<String> parList){
+	private String combinePars(List<Paragraph> parList){
 		StringBuffer buf = new StringBuffer();
-		for(String par:parList){
-			buf.append(par);
+		for(Paragraph par:parList){
+			buf.append(par.getText());
 			buf.append(System.lineSeparator());
 		}
 		return buf.toString();
