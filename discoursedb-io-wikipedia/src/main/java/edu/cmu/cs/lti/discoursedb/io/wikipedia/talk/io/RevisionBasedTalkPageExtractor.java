@@ -47,17 +47,18 @@ public class RevisionBasedTalkPageExtractor {
 	 * Creates a new TalkPageExtractor that segments a single discussion page into threads and turns
 	 * 
 	 * @param wiki the JWPL Wikipedia object with an active database connection
+	 * @param revApi the JWPL RevisionApi object with an active database connection
 	 * @param pageTitle a page or talk page title
 	 * @param includeArchives true, if the extractor should attempt to extract discussions from discussion archives (still buggy)
 	 * @param aggregateParagraphsToTurns true, whether paragraphs should heuristically be aggregated to turns
 	 * @throws WikiInitializationException in case the database connection could not be established
 	 * @throws WikiApiException in case the database could not be accessed
 	 */
-	public RevisionBasedTalkPageExtractor(Wikipedia wiki, String pageTitle, boolean includeArchives, boolean aggregateParagraphsToTurns) throws WikiInitializationException, WikiApiException{
+	public RevisionBasedTalkPageExtractor(Wikipedia wiki, RevisionApi revApi, String pageTitle, boolean includeArchives, boolean aggregateParagraphsToTurns) throws WikiInitializationException, WikiApiException{
 		this.wiki =wiki;
 		this.includeArchives=includeArchives;
 		this.aggregateParagraphsToTurns = aggregateParagraphsToTurns;
-		revApi = new RevisionApi(wiki.getDatabaseConfiguration());
+		this.revApi = revApi;
 		sourcePages = new ArrayList<>();
 		talkPages = new ArrayList<>();
 		try {
@@ -73,17 +74,18 @@ public class RevisionBasedTalkPageExtractor {
 	 * Creates a new TalkPageExtractor that segments a collection of discussion pages into threads and turns
 	 * 
 	 * @param wiki the JWPL Wikipedia object with an active database connection
+	 * @param revApi the JWPL RevisionApi object with an active database connection
 	 * @param pageTitles a collection of page or talk page ttiles
 	 * @param includeArchives true, if the extractor should attempt to extract discussions from discussion archives (still buggy)
 	 * @param aggregateParagraphsToTurns true, whether paragraphs should heuristically be aggregated to turns
 	 * @throws WikiInitializationException in case the database connection could not be established
 	 * @throws WikiApiException in case the database could not be accessed
 	 */
-	public RevisionBasedTalkPageExtractor(Wikipedia wiki, Collection<String> pageTitles, boolean includeArchives, boolean aggregateParagraphsToTurns) throws WikiInitializationException, WikiApiException{
+	public RevisionBasedTalkPageExtractor(Wikipedia wiki, RevisionApi revApi, Collection<String> pageTitles, boolean includeArchives, boolean aggregateParagraphsToTurns) throws WikiInitializationException, WikiApiException{
 		this.wiki =wiki;
 		this.includeArchives=includeArchives;
 		this.aggregateParagraphsToTurns = aggregateParagraphsToTurns;
-		revApi = new RevisionApi(wiki.getDatabaseConfiguration());
+		this.revApi = revApi;
 
 		sourcePages = new ArrayList<>();
 		talkPages=new ArrayList<>();

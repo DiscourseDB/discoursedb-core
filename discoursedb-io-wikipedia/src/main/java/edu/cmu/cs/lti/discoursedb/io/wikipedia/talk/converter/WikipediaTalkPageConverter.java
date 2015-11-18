@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
 
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
-import de.tudarmstadt.ukp.wikipedia.api.hibernate.WikiHibernateUtil;
 import de.tudarmstadt.ukp.wikipedia.api.Wikipedia;
+import de.tudarmstadt.ukp.wikipedia.api.hibernate.WikiHibernateUtil;
+import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.RevisionApi;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.io.RevisionBasedTalkPageExtractor;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.TalkPage;
@@ -60,13 +61,14 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 		dbconf.setPassword(args[6]);
 		dbconf.setLanguage(Language.valueOf(args[7]));
 		Wikipedia wiki = new Wikipedia(dbconf);
+		RevisionApi revApi = new RevisionApi(dbconf);
 		
 		RevisionBasedTalkPageExtractor extractor = null;
 		logger.info("Start mapping Talk pages for "+titles.size()+" articles to DiscourseDB...");		
 		int tpNum = 1;
 		for(String title:titles){
 			logger.info("Segmenting Talk Pages for article "+title);
-			extractor = new RevisionBasedTalkPageExtractor(wiki, title, false, true);
+			extractor = new RevisionBasedTalkPageExtractor(wiki, revApi, title, false, true);
 			List<TalkPage> talkPages = extractor.getTalkPages();
 			for(TalkPage tp:talkPages){
 				logger.info("Mapping Talk Page #"+tpNum++);
