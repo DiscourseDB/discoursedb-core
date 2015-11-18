@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,6 +197,21 @@ public class DiscoursePartService {
 	
 	public Optional<DiscoursePart> findOneByName(String name){
 		return discoursePartRepo.findOneByName(name);		
+	}
+	
+	/**
+	 * Returns all DiscourseParts of the given Type independet from a Discourse
+	 * 
+	 * @param type the type of the discoursepart
+	 * @return a list of discoursepart of the given type that might be empty
+	 */
+	public List<DiscoursePart> findAllByType(DiscoursePartTypes type){
+		Optional<DiscoursePartType> dpType = discoursePartTypeRepo.findOneByType(type.name());
+		if(dpType.isPresent()){
+			return discoursePartRepo.findAllByType(dpType.get());					
+		}else{
+			return new ArrayList<DiscoursePart>(0);
+		}
 	}
 
 }

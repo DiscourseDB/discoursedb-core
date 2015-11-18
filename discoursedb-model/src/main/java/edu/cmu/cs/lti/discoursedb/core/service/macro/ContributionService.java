@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +89,21 @@ public class ContributionService {
 		}
 	}
 	
-
+	/**
+	 * Returns a list of all contributions of a given type independent from a Discourse.
+	 * 
+	 * @param type the contribution type to look for
+	 * @return a list of Contributions of the given type that potentially might be empty
+	 */
+	public List<Contribution> findAllByType(ContributionTypes type){
+		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
+		if(existingType.isPresent()){
+			return contributionRepo.findAllByType(existingType.get());			
+		}else{
+			return new ArrayList<Contribution>(0);
+		}
+	}
+	
 	/**
 	 * Creates a new DiscourseRelation of the given type between the two provided contributions.
 	 * Depending on the type, the relation might be directed or not. This information should be given in the type definition.
