@@ -226,7 +226,7 @@ public class Turn {
 
 
 	/**
-	 * @return the turnNr
+	 * @return the turnNr starting at 1
 	 */
 	public int getTurnNr() {
 		return turnNr;
