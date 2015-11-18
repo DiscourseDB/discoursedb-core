@@ -80,6 +80,7 @@ public class ContributionService {
 	 * @param dataSetName the dataset the source id was derived from
 	 * @return an optional contribution that meets the requested parameters
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Optional<Contribution> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName) {		
 		Optional<DataSourceInstance> dataSource = dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName);
 		if(dataSource.isPresent()){
@@ -96,6 +97,7 @@ public class ContributionService {
 	 * @param type the contribution type to look for
 	 * @return a list of Contributions of the given type that potentially might be empty
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<Contribution> findAllByType(ContributionTypes type){
 		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
 		if(existingType.isPresent()){
@@ -111,6 +113,7 @@ public class ContributionService {
 	 * @param discourse the discourse the contributions need to be associated with
 	 * @return a list of Contributions of the given discourse that potentially might be empty
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Iterable<Contribution> findAllByType(Discourse discourse){
 		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscourse(discourse));			
 	}
@@ -122,6 +125,7 @@ public class ContributionService {
 	 * @param type the contribution type to look for
 	 * @return a list of Contributions of the given type and discourse that potentially might be empty
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Iterable<Contribution> findAllByType(Discourse discourse, ContributionTypes type){
 		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
 		if(existingType.isPresent()){
