@@ -105,13 +105,22 @@ public class ContributionService {
 		}
 	}
 
+	/**
+	 * Returns a list of all contributions for a given discourse
+	 * 
+	 * @param discourse the discourse the contributions need to be associated with
+	 * @return a list of Contributions of the given discourse that potentially might be empty
+	 */
+	public Iterable<Contribution> findAllByType(Discourse discourse){
+		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscourse(discourse));			
+	}
 	
 	/**
 	 * Returns a list of all contributions of a given type that are associated with the given discourse
 	 * 
 	 * @param discourse the discourse the contributions need to be associated with
 	 * @param type the contribution type to look for
-	 * @return a list of Contributions of the given type that potentially might be empty
+	 * @return a list of Contributions of the given type and discourse that potentially might be empty
 	 */
 	public Iterable<Contribution> findAllByType(Discourse discourse, ContributionTypes type){
 		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
