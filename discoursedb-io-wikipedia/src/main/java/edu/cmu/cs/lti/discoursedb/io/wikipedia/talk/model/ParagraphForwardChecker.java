@@ -28,7 +28,7 @@ public class ParagraphForwardChecker {
 		
 		int firstRevPK = revApi.getFirstRevisionPK(searchToRevId.getArticleID());
 		int lastRevPK = searchToRevId.getPrimaryKey();
-		this.revIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), firstRevPK, lastRevPK);
+		this.revIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), firstRevPK, lastRevPK, revApi.getConnection());
 		while(revIt.hasNext()){			
 			Revision curRev = revIt.next();		
 			if(curRev.getContributorId()==null||(curRev.getContributorId()!=null&&curRev.getContributorId()>0&&!revApi.getUserGroups(curRev.getContributorId()).contains("bot"))){
