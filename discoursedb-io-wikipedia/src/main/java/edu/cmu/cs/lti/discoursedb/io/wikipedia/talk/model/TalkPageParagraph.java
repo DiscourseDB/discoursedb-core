@@ -12,11 +12,8 @@ import java.sql.Timestamp;
 public class TalkPageParagraph {
 	
 	private String text;				// Text of the paragraph
-	private String xmlEscapedText; 		// Text with XML-Escaped chars
 	private int begin;					// Begin index of the paragraph
 	private int end;					// End index of the paragraph
-	private int xmlEscapedBegin;		// Begin index of the paragraph in the XML-Escaped text
-	private int xmlEscapedEnd;			// End index of the paragraph in the XML-Escaped text
 	private int indentAmount;			// Indentation amount of this paragraph
 	private String contributor;			// Contributor of this paragraph
 	private Timestamp timestamp;		// Timestamp when this paragraph was created
@@ -85,20 +82,9 @@ public class TalkPageParagraph {
 	public void setText(String text) {
 		this.text = text;
 	}
+
 	/**
-	 * @return the xmlEscapedText
-	 */
-	public String getXmlEscapedText() {
-		return xmlEscapedText;
-	}
-	/**
-	 * @param xmlEscapedText the xmlEscapedText to set
-	 */
-	public void setXmlEscapedText(String xmlEscapedText) {
-		this.xmlEscapedText = xmlEscapedText;
-	}
-	/**
-	 * @return the begin
+	 * @return the start index of that paragraph in the original page
 	 */
 	public int getBegin() {
 		return begin;
@@ -110,7 +96,7 @@ public class TalkPageParagraph {
 		this.begin = begin;
 	}
 	/**
-	 * @return the end
+	 * @return the end index of the paragraph in the original page
 	 */
 	public int getEnd() {
 		return end;
@@ -120,30 +106,6 @@ public class TalkPageParagraph {
 	 */
 	public void setEnd(int end) {
 		this.end = end;
-	}
-	/**
-	 * @return the xmlEscapedBegin
-	 */
-	public int getXmlEscapedBegin() {
-		return xmlEscapedBegin;
-	}
-	/**
-	 * @param xmlEscapedBegin the xmlEscapedBegin to set
-	 */
-	public void setXmlEscapedBegin(int xmlEscapedBegin) {
-		this.xmlEscapedBegin = xmlEscapedBegin;
-	}
-	/**
-	 * @return the xmlEscapedEnd
-	 */
-	public int getXmlEscapedEnd() {
-		return xmlEscapedEnd;
-	}
-	/**
-	 * @param xmlEscapedEnd the xmlEscapedEnd to set
-	 */
-	public void setXmlEscapedEnd(int xmlEscapedEnd) {
-		this.xmlEscapedEnd = xmlEscapedEnd;
 	}
 
 	public boolean contributorIsBot() {

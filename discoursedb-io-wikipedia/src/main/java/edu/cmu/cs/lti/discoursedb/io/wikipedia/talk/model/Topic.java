@@ -20,20 +20,20 @@ public class Topic {
 	private int end;		// End index of the topic
 	private String text;	// Topic text
 	private Set<TalkPageParagraph> paragraphs; // Paragraphs of this topic
-	private List<Turn> userTurns;			 // UserTurns of this topic
+	private List<Turn> turns;			 // Turns of this topic
 	
 	
 	/**
 	 * Creates Wikipedia Discussion topic
 	 */
 	public Topic(){
-		// Paragraphs should be ordered by their begin position 
+		// Paragraphs are ordered by their position in the Talk page (begin index)
 		this.paragraphs = new TreeSet<TalkPageParagraph>(new Comparator<TalkPageParagraph>() {
 			public int compare(TalkPageParagraph o1, TalkPageParagraph o2) {
 				return o1.getBegin() > o2.getBegin()?1:-1;
 			}
 		});
-		this.userTurns = new ArrayList<Turn>();
+		this.turns = new ArrayList<Turn>();
 	}
 	
 
@@ -63,34 +63,34 @@ public class Topic {
 
 
 	/**
-	 * @return the userTurns
+	 * @return a list of turns
 	 */
-	public List<Turn> getUserTurns() {
-		return userTurns;
+	public List<Turn> getTurns() {
+		return turns;
 	}
 
 
 
 	/**
-	 * @param userTurnsPartial the userTurns to set
+	 * @param turn the turn to add
 	 */
-	public void addUserTurn(Turn userTurn) {
-		this.userTurns.add(userTurn);
+	public void addTurn(Turn turn) {
+		this.turns.add(turn);
 	}
 
 	/**
-	 * @param userTurnsPartial the userTurns to set
+	 * @param turn the turn to remove
 	 */
-	public void removeUserTurn(Turn userTurn) {
-		userTurns.remove(userTurn);
+	public void removeTurn(Turn turn) {
+		turns.remove(turn);
 	}
 
 	
 	/**
-	 * @param userTurns the userTurns to set
+	 * @param turns the turns to set
 	 */
-	public void setUserTurns(List<Turn> userTurns) {
-		this.userTurns = userTurns;
+	public void setTurns(List<Turn> turns) {
+		this.turns = turns;
 	}
 
 

@@ -76,6 +76,14 @@ public class TopicExtractor {
 		}
 		return 0;
 	}
+	
+	
+	/**
+	 * Concatenates the provided paragraphs into a single String. 
+	 * 
+	 * @param parList
+	 * @return
+	 */
 	private String combinePars(List<Paragraph> parList){
 		StringBuffer buf = new StringBuffer();
 		for(Paragraph par:parList){

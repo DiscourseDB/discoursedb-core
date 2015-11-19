@@ -20,7 +20,7 @@ public class ReferenceExtractor {
 		for(Topic topic : topics){
 			// Save last user turn for each occured indentation amount 
 			HashMap<Integer, Turn> lastUserTurnAtLevel = new HashMap<Integer, Turn>();
-			for(Turn userTurn : topic.getUserTurns()){				
+			for(Turn userTurn : topic.getTurns()){				
 
 				// Delete from cache all user turns that had bigger indentation amount than current
 				// e.g. :::  <- to delete

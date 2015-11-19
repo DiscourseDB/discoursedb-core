@@ -77,7 +77,7 @@ public class WikipediaTalkPageConverterService{
 			dataSourceService.addSource(curTopicDP, new DataSourceInstance(talkPageRevisionId+"_"+topic.getTitle(), WikipediaSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
 			discoursePartService.createDiscoursePartRelation(curArticleDP, curTopicDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);			
 
-			List<Turn> turns = topic.getUserTurns();
+			List<Turn> turns = topic.getTurns();
 			logger.debug("Mapping "+turns.size()+" turns.");
 			for(Turn turn:turns){				
 				logger.trace("Mapping turn "+turn.getTurnNr());

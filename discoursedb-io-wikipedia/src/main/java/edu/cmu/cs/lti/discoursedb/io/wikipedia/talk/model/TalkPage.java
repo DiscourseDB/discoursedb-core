@@ -17,24 +17,36 @@ public class TalkPage {
 
 	private static final Logger logger = LogManager.getLogger(TalkPage.class);
 
+	/**
+	 * Determines whether to create a new turn whenever a paragraph is indented. Default = false.
+	 */
 	private boolean splitOnIndentation = false;
+
+	/**
+	 * The windows size between two adjacent paragraphs written by the same user
+	 * to be considered part of the same turn.
+	 */
 	private int userTurnTimeWindowSize = 300000; // 5 minutes
 
-	private Revision tpBaseRevision = null;
+	
+	/**
+	 * Defines whether to aggregate multiple paragraphs to turns or to consider
+	 * each paragraph to be a separate turn.
+	 */
+	private boolean aggregateParagraphs;
 
+	private ParagraphForwardChecker checker = null;
+	private RevisionApi revApi = null;
+	private Revision tpBaseRevision = null;
 	public Revision getTpBaseRevision() {
 		return tpBaseRevision;
 	}
 
 	private List<Topic> topics = null;
-
 	public List<Topic> getTopics() {
 		return topics;
 	}
 
-	private ParagraphForwardChecker checker = null;
-	private RevisionApi revApi = null;
-	private boolean aggregateParagraphs;
 
 	/**
 	 * @param revApi
@@ -75,6 +87,11 @@ public class TalkPage {
 		_buildTurns();
 	}
 
+	/**
+	 * Removes all paragraphs that are older than a given Timestamp
+	 * 
+	 * @param ts
+	 */
 	public void removeTurnsBeforeTimestamp(Timestamp ts) {
 		Iterator<Topic> topicIter = topics.iterator();
 		while (topicIter.hasNext()) {
@@ -85,13 +102,13 @@ public class TalkPage {
 				}
 			}
 			List<Turn> turns = new ArrayList<Turn>();
-			turns.addAll(t.getUserTurns());
+			turns.addAll(t.getTurns());
 			for (Turn curTurn : turns) {
 				if (curTurn != null && curTurn.getTimestamp() != null && curTurn.getTimestamp().before(ts)) {
-					t.removeUserTurn(curTurn);
+					t.removeTurn(curTurn);
 				}
 			}
-			if (t.getUserTurns().isEmpty()) {
+			if (t.getTurns().isEmpty()) {
 				topicIter.remove();
 			}
 		}
@@ -135,18 +152,19 @@ public class TalkPage {
 		for (Topic t : topics) {
 			int curTurnNumInTopic = 1;
 			Set<TalkPageParagraph> pars = t.getParagraphs(); // this is a sorted set of pars
+
 			// heuristically aggregate neighboring paragraphs to turns
 			if (aggregateParagraphs) {
 				Turn turn = null; // Current unsaved Turn
 				StringBuffer curTurnText = new StringBuffer();
 				for (TalkPageParagraph par : pars) { 
 					// Check if it is a new turn or we are in the first paragraph
-					if (turn == null || isNewUserTurn(turn, par)) {
+					if (turn == null || isNewTurn(turn, par)) {
 						if (turn != null) {
 							// commit turn to topic and reset
 							turn.setText(curTurnText.toString());
 							curTurnText = new StringBuffer();
-							t.addUserTurn(turn); 							
+							t.addTurn(turn); 							
 						}
 						turn = new Turn(); // Create new user turn
 						curTurnText.append(cleanText(par.getText()));							
@@ -176,7 +194,7 @@ public class TalkPage {
 				// commit final turn to topic
 				if(turn!=null&&curTurnText.length()>0){
 					turn.setText(curTurnText.toString());					
-					t.addUserTurn(turn); 												
+					t.addTurn(turn); 												
 				}
 			}
 			// no aggregation. we consider one paragraph = one turn
@@ -191,7 +209,7 @@ public class TalkPage {
 					curTurn.setText(curPar.getText());
 					curTurn.setTimestamp(curPar.getTimestamp());
 					curTurn.setTurnNr(curTurnNumInTopic++);
-					t.addUserTurn(curTurn);
+					t.addTurn(curTurn);
 				}
 			}
 
@@ -202,13 +220,13 @@ public class TalkPage {
 	}
 
 	/**
-	 * Checks if new paragraph belongs to new user turn
+	 * Checks if the given paragraphs is part of the given turn or rather should start a new turn.
 	 * 
 	 * @param currentTurn the current turn
 	 * @param par the paragraph we want to check whether it's part of the current turn
 	 * @return true, if the paragraph is not part of the current turn and rather starts a new turn
 	 */
-	private boolean isNewUserTurn(Turn currentTurn, TalkPageParagraph par) {
+	private boolean isNewTurn(Turn currentTurn, TalkPageParagraph par) {
 		if(!currentTurn.isValid()){
 			return false;	
 		}
@@ -228,10 +246,24 @@ public class TalkPage {
 
 	}
 
+	/**
+	 * Checks whether the two given timestamps are within the specified time window.
+	 * 
+	 * @param t1 first timestamp
+	 * @param t2 second timestamp
+	 * @param windowSize allowed time window size between the two timestamps
+	 * @return true, if the two provided timestamp are within the allowed time window
+	 */
 	private boolean checkTimeInWindow(Timestamp t1, Timestamp t2, long windowSize) {
 		return (t1 == null || t2 == null) ? false : Math.abs(t1.getTime() - t2.getTime()) <= windowSize;
 	}
 
+	/**
+	 * Performs basic cleaning of a given String 
+	 * 
+	 * @param text the text to clean
+	 * @return the cleaned text
+	 */
 	private String cleanText(String text){
 		return text == null ? "" : text.replaceAll("center|thumb|", "").replaceAll("||", "").trim();
 	}
