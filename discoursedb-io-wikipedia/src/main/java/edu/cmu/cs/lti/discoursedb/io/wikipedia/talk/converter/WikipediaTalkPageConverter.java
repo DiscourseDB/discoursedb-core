@@ -41,8 +41,7 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 
 		final String dataSetName=args[1];		
 		if(dataSourceService.dataSourceExists(dataSetName)){
-			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Terminating...");			
-			return;
+			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Existing pages will be skipped.");			
 		}
 		
 		final String titleListFilename=args[2];
