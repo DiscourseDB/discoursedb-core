@@ -31,7 +31,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
  * linked list of Content instances and the Contribution links to the head and
  * the tail of this list. If not revisions are maintained, both pointers link to
  * the same Content entity. A Contribution is a typed entity, i.e. it is
- * associated with a ContributionType indiciating what the Contribution instance
+ * associated with a ContributionType indicating what the Contribution instance
  * represents, e.g. a {@link edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes#POST}.
  * 
  * @author Oliver Ferschke
@@ -76,10 +76,10 @@ public class Contribution extends TimedAnnotatableBaseEntityWithSource implement
 		return id;
 	}
 
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
 	}
-
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_first_revision")
 	public Content getFirstRevision() {

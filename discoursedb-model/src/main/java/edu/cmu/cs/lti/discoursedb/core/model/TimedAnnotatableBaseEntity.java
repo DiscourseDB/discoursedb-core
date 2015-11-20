@@ -25,30 +25,28 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 @MappedSuperclass
 public abstract class TimedAnnotatableBaseEntity{
 
-	private Date createDate;
-	private Long version;
-	
+	private Long version;	
 	@Version
 	public Long getVersion() {
 		return version;
 	}
-	public void setVersion(Long version) {
+	@SuppressWarnings("unused")
+	private void setVersion(Long version) {
 		this.version = version;
 	}
 	
+	private Date createDate;
 	@CreationTimestamp
 	@Column(name = "created")
 	public Date getCreateDate() {
 	    return this.createDate;
 	}
-
-	public void setCreateDate(Date createDate) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setCreateDate(Date createDate) {
 	    this.createDate = createDate;
 	}
 	
-    private Date startTime;
-    
-    
+    private Date startTime;   
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getStartTime() {

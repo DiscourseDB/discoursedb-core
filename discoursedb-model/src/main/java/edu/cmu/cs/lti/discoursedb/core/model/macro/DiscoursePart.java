@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -35,7 +36,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSourc
  *
  */
 @Entity
-@Table(name="discourse_part")
+@Table(name="discourse_part", indexes = { @Index(name = "discoursePartNameIndex", columnList = "name") })
 public class DiscoursePart extends TimedAnnotatableBaseEntityWithSource implements Serializable{
 
 	private static final long serialVersionUID = -7341483666466458901L;
@@ -63,10 +64,10 @@ public class DiscoursePart extends TimedAnnotatableBaseEntityWithSource implemen
 		return id;
 	}
 
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
 	}
-
 	public String getName() {
 		return name;
 	}

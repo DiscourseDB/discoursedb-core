@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -35,7 +36,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
  *
  */
 @Entity
-@Table(name = "discourse")
+@Table(name = "discourse", indexes = { @Index(name = "discourseNameIndex", columnList = "name") })
 public class Discourse extends UntimedBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -3736157436274230022L;
@@ -61,10 +62,10 @@ public class Discourse extends UntimedBaseEntity implements Serializable {
 		return id;
 	}
 
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
 	}
-
 	@Column(updatable=false, unique=true)
 	public String getName() {
 		return name;

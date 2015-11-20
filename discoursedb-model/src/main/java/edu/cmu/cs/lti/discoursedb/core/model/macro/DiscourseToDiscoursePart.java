@@ -36,10 +36,10 @@ public class DiscourseToDiscoursePart extends TimedAnnotatableBaseEntity impleme
 		return id;
 	}
 
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
 	}
-
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_discourse")  
     public Discourse getDiscourse() {

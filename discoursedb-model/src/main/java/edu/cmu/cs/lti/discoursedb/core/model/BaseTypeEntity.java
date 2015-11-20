@@ -17,24 +17,24 @@ import org.hibernate.annotations.CreationTimestamp;
 @MappedSuperclass
 public abstract class BaseTypeEntity{
 
-	private Date createDate;
-	private Long version;
-	
+	private Long version;	
 	@Version
 	public Long getVersion() {
 		return version;
 	}
-	public void setVersion(Long version) {
+	@SuppressWarnings("unused")
+	private void setVersion(Long version) {
 		this.version = version;
 	}
 	
+	private Date createDate;
 	@CreationTimestamp
 	@Column(name = "created")
 	public Date getCreateDate() {
 	    return this.createDate;
 	}
-
-	public void setCreateDate(Date createDate) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setCreateDate(Date createDate) {
 	    this.createDate = createDate;
 	}
 	

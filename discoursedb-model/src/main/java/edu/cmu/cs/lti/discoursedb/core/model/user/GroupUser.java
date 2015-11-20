@@ -38,10 +38,10 @@ public class GroupUser extends TimedAnnotatableBaseEntity implements Serializabl
 		return id;
 	}
 
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
 	}
-
 	@RestResource(rel="groupHasUser",path="groupHasUser")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_group")

@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -19,7 +20,11 @@ import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 @Entity
-@Table(name="data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id", "entity_source_descriptor", "dataset_name" }) )
+@Table(name = "data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id",
+		"entity_source_descriptor", "dataset_name" }) , indexes = {
+				@Index(name = "sourceId_descriptor_Index", columnList = "entity_source_id,entity_source_descriptor"),
+				@Index(name = "sourceDescriptorIndex", columnList = "entity_source_descriptor"),
+				@Index(name = "sourceIdIndex", columnList = "entity_source_id") })
 public class DataSourceInstance extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -6293065846688380816L;
@@ -86,10 +91,10 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 		return id;
 	}
 	
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
-	}
-	
+	}	
 	@Column(name="entity_source_id", nullable=false, updatable=false)
 	public String getEntitySourceId() {
 		return entitySourceId;

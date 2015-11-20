@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -31,7 +32,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
  *
  */
 @Entity
-@Table(name = "user")
+@Table(name = "user", indexes = { @Index(name = "userNameIndex", columnList = "username") })
 public class User extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = 5989078859132072475L;
@@ -75,10 +76,10 @@ public class User extends TimedAnnotatableBaseEntityWithSource implements Serial
 		return id;
 	}
 
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
 	}
-
 	public String getRealname() {
 		return realname;
 	}

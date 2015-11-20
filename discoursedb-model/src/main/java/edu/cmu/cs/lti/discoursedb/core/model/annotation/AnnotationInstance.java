@@ -47,10 +47,10 @@ public class AnnotationInstance extends UntimedBaseEntityWithSource implements S
 		return id;
 	}
 
-	public void setId(long id) {
+	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
+	private void setId(long id) {
 		this.id = id;
 	}
-
 	@Column(name="begin_offset")
 	public int getBeginOffset() {
 		return beginOffset;
