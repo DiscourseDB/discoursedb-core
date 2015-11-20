@@ -15,7 +15,10 @@ import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
 import de.tudarmstadt.ukp.wikipedia.api.Wikipedia;
 import de.tudarmstadt.ukp.wikipedia.api.hibernate.WikiHibernateUtil;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.RevisionApi;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.io.RevisionBasedTalkPageExtractor;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.TalkPage;
 
@@ -30,6 +33,8 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 	private static final Logger logger = LogManager.getLogger(WikipediaTalkPageConverter.class);	
 
 	@Autowired private DataSourceService dataSourceService;
+	@Autowired private DiscoursePartService discoursePartService;
+	@Autowired private DiscourseService discourseService;
 	@Autowired private WikipediaTalkPageConverterService converterService;
 
 	@Override
@@ -66,6 +71,12 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 		logger.info("Start mapping Talk pages for "+titles.size()+" articles to DiscourseDB...");		
 		int tpNum = 1;
 		for(String title:titles){
+			//first check if we alrady have the discussions from this article from a previous import
+			if(discoursePartService.findOne(discourseService.createOrGetDiscourse(discourseName), title, DiscoursePartTypes.TALK_PAGE).isPresent()){
+				logger.warn("Discussions for article "+title+ "have already been imported. Skipping ...");
+				continue;			
+			}			
+
 			logger.info("Segmenting Talk Pages for article "+title);
 			extractor = new RevisionBasedTalkPageExtractor(wiki, revApi, title, false, true);
 			List<TalkPage> talkPages = extractor.getTalkPages();

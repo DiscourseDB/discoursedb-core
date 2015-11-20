@@ -67,12 +67,6 @@ public class WikipediaTalkPageConverterService{
 		//we create ONE discourse part for ALL the discussion activity in the context of a single article.
 		//That is, the main talk page and all archives are aggregated in this one DiscoursePart
 
-		//first check if we alrady have the discussions from this article from a previous import
-		if(discoursePartService.findOne(discourse, articleTitle, DiscoursePartTypes.TALK_PAGE).isPresent()){
-			logger.warn("Discussions for article "+articleTitle+ "have already been imported. Skipping ...");
-			return;			
-		}
-		
 		DiscoursePart curArticleDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, articleTitle, DiscoursePartTypes.TALK_PAGE);
 		
 		List<Topic> topics = tp.getTopics();
