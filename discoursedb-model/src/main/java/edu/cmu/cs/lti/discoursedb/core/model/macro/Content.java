@@ -12,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -103,7 +102,7 @@ public class Content extends TimedAnnotatableBaseEntityWithSource implements Ser
 		this.nextRevision = nextRevision;
 	}
 
-	@Column(columnDefinition="TEXT")
+	@Column(columnDefinition="LONGTEXT")
 	public String getText() {
 		return text;
 	}
@@ -112,7 +111,7 @@ public class Content extends TimedAnnotatableBaseEntityWithSource implements Ser
 		this.text = text;
 	}
 
-	@Lob
+	@Column(columnDefinition="LONGBLOB")
 	public Blob getData() {
 		return data;
 	}
