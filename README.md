@@ -1,7 +1,7 @@
 # DiscourseDB Parent Project
 This is the parent project for all DiscourseDB projects. It manages dependency versions and configures necessary Maven plugins.
 
-## Build DiscourseDB
+## Build and Run DiscourseDB
 The following command builds all DiscourseDB projects, creates .jar files and creates a ```*-dist``` folder in the target folder of each DiscourseDB module which contains all external libraries necessary to run that module. 
 
 ```
