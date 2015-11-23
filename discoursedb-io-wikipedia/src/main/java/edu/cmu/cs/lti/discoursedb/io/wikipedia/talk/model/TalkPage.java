@@ -35,8 +35,9 @@ public class TalkPage {
 	 */
 	private boolean aggregateParagraphs;
 
+	private String title=null;
+
 	private ParagraphForwardChecker checker = null;
-	private RevisionApi revApi = null;
 	private Revision tpBaseRevision = null;
 	public Revision getTpBaseRevision() {
 		return tpBaseRevision;
@@ -47,19 +48,20 @@ public class TalkPage {
 		return topics;
 	}
 
-
 	/**
 	 * @param revApi
 	 *            RevisionApi instance
 	 * @param rev
 	 *            talk page revision to process
+	 * @param title
+	 *            the title of the Talk page
 	 * @param aggregateParagraphs
 	 *            whether to aggregate paragraphs to turns (true) or to consider
 	 *            paragraphs as turns on their own (false)
 	 */
-	public TalkPage(RevisionApi revApi, int revId, boolean aggregateParagraphs) {
-		this.revApi = revApi;
+	public TalkPage(RevisionApi revApi, int revId, String title,  boolean aggregateParagraphs) {
 		this.aggregateParagraphs = aggregateParagraphs;
+		this.title = title;
 
 		try {
 			tpBaseRevision = revApi.getRevision(revId);
@@ -79,9 +81,49 @@ public class TalkPage {
 	 *            whether to aggregate paragraphs to turns (true) or to consider
 	 *            paragraphs as turns on their own (false)
 	 */
-	public TalkPage(RevisionApi revApi, Revision rev, boolean aggregateParagraphs) {
+	public TalkPage(RevisionApi revApi, int revId, boolean aggregateParagraphs) {
+		this.aggregateParagraphs = aggregateParagraphs;
+
+		try {
+			tpBaseRevision = revApi.getRevision(revId);
+		} catch (WikiApiException e) {
+			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
+		}
+		_segmentParagraphs();
+		_buildTurns();
+	}
+
+	/**
+	 * @param revApi
+	 *            RevisionApi instance
+	 * @param rev
+	 *            talk page revision to process
+	 * @param title
+	 *            the title of the Talk page
+	 * @param aggregateParagraphs
+	 *            whether to aggregate paragraphs to turns (true) or to consider
+	 *            paragraphs as turns on their own (false)
+	 */
+	public TalkPage(Revision rev,String title,  boolean aggregateParagraphs) {
 		this.tpBaseRevision = rev;
-		this.revApi = revApi;
+		this.title = title;
+
+		this.aggregateParagraphs = aggregateParagraphs;
+		_segmentParagraphs();
+		_buildTurns();
+	}
+	
+	/**
+	 * @param revApi
+	 *            RevisionApi instance
+	 * @param rev
+	 *            talk page revision to process
+	 * @param aggregateParagraphs
+	 *            whether to aggregate paragraphs to turns (true) or to consider
+	 *            paragraphs as turns on their own (false)
+	 */
+	public TalkPage(Revision rev, boolean aggregateParagraphs) {
+		this.tpBaseRevision = rev;
 		this.aggregateParagraphs = aggregateParagraphs;
 		_segmentParagraphs();
 		_buildTurns();
@@ -123,7 +165,8 @@ public class TalkPage {
 			// create a new forward checker for the given revision.
 			// this takes a while, because it builds up a revision cache from
 			// the database
-			checker = new ParagraphForwardChecker(revApi, tpBaseRevision);
+//			checker = new ParagraphForwardChecker(revApi, tpBaseRevision);
+			checker = new ParagraphForwardChecker(title);				
 
 			// segment pages into topics and paragraphs
 			TopicExtractor tExt = new TopicExtractor();
@@ -137,6 +180,8 @@ public class TalkPage {
 			}
 		} catch (WikiApiException e) {
 			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
+		} catch (Exception e) {
+			logger.error("Error checking revisions of origin for paragraphs. Could not read Wikipedia data from API.",e);
 		}
 	}
 
