@@ -6,8 +6,8 @@ import java.util.List;
 import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.exception.WikiApiException;
 import de.tudarmstadt.ukp.wikipedia.parser.Paragraph;
-import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.ExtractedSection;
-import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.WikitextParseUtils;
+import edu.cmu.cs.lti.discoursedb.io.wikipedia.util.ExtractedSection;
+import edu.cmu.cs.lti.discoursedb.io.wikipedia.util.WikitextParseUtils;
 
 /**
  * Extracts topics and its paragraphs from Wikipedia Discussion page

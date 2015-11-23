@@ -18,7 +18,7 @@ import de.tudarmstadt.ukp.wikipedia.api.exception.WikiPageNotFoundException;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.Revision;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.RevisionApi;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model.TalkPage;
-import edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util.RevisionUtils;
+import edu.cmu.cs.lti.discoursedb.io.wikipedia.util.RevisionUtils;
 
 /**
  * Retrieves and segments Talk page discussions for a given list of articles.

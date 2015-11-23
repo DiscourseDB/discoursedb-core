@@ -1,6 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.model;
 
-public class WikipediaSourceMapping {
+public class WikipediaTalkPageSourceMapping {
 
 	
 

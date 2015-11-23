@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util;
+package edu.cmu.cs.lti.discoursedb.io.wikipedia.util;
 
 import java.util.ArrayList;
 import java.util.Collection;

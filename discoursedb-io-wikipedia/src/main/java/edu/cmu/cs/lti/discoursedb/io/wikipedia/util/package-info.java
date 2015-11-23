@@ -3,4 +3,4 @@
  * 
  * @author Oliver Ferschke
  */
-package edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.util;
+package edu.cmu.cs.lti.discoursedb.io.wikipedia.util;
