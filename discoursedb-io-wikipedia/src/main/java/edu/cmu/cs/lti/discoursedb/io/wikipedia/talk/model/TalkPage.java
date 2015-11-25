@@ -35,8 +35,7 @@ public class TalkPage {
 	 */
 	private boolean aggregateParagraphs;
 
-	private String title=null;
-
+	private RevisionApi revApi = null;
 	private ParagraphForwardChecker checker = null;
 	private Revision tpBaseRevision = null;
 	public Revision getTpBaseRevision() {
@@ -53,37 +52,13 @@ public class TalkPage {
 	 *            RevisionApi instance
 	 * @param rev
 	 *            talk page revision to process
-	 * @param title
-	 *            the title of the Talk page
-	 * @param aggregateParagraphs
-	 *            whether to aggregate paragraphs to turns (true) or to consider
-	 *            paragraphs as turns on their own (false)
-	 */
-	public TalkPage(RevisionApi revApi, int revId, String title,  boolean aggregateParagraphs) {
-		this.aggregateParagraphs = aggregateParagraphs;
-		this.title = title;
-
-		try {
-			tpBaseRevision = revApi.getRevision(revId);
-		} catch (WikiApiException e) {
-			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
-		}
-		_segmentParagraphs();
-		_buildTurns();
-	}
-
-	/**
-	 * @param revApi
-	 *            RevisionApi instance
-	 * @param rev
-	 *            talk page revision to process
 	 * @param aggregateParagraphs
 	 *            whether to aggregate paragraphs to turns (true) or to consider
 	 *            paragraphs as turns on their own (false)
 	 */
 	public TalkPage(RevisionApi revApi, int revId, boolean aggregateParagraphs) {
 		this.aggregateParagraphs = aggregateParagraphs;
-
+		this.revApi=revApi;
 		try {
 			tpBaseRevision = revApi.getRevision(revId);
 		} catch (WikiApiException e) {
@@ -104,30 +79,14 @@ public class TalkPage {
 	 *            whether to aggregate paragraphs to turns (true) or to consider
 	 *            paragraphs as turns on their own (false)
 	 */
-	public TalkPage(Revision rev,String title,  boolean aggregateParagraphs) {
+	public TalkPage(RevisionApi revApi, Revision rev, boolean aggregateParagraphs) {
 		this.tpBaseRevision = rev;
-		this.title = title;
+		this.revApi=revApi;
+		this.aggregateParagraphs = aggregateParagraphs;
+		_segmentParagraphs();
+		_buildTurns();
+	}
 
-		this.aggregateParagraphs = aggregateParagraphs;
-		_segmentParagraphs();
-		_buildTurns();
-	}
-	
-	/**
-	 * @param revApi
-	 *            RevisionApi instance
-	 * @param rev
-	 *            talk page revision to process
-	 * @param aggregateParagraphs
-	 *            whether to aggregate paragraphs to turns (true) or to consider
-	 *            paragraphs as turns on their own (false)
-	 */
-	public TalkPage(Revision rev, boolean aggregateParagraphs) {
-		this.tpBaseRevision = rev;
-		this.aggregateParagraphs = aggregateParagraphs;
-		_segmentParagraphs();
-		_buildTurns();
-	}
 
 	/**
 	 * Removes all paragraphs that are older than a given Timestamp
@@ -165,8 +124,7 @@ public class TalkPage {
 			// create a new forward checker for the given revision.
 			// this takes a while, because it builds up a revision cache from
 			// the database
-//			checker = new ParagraphForwardChecker(revApi, tpBaseRevision);
-			checker = new ParagraphForwardChecker(title);				
+			checker = new ParagraphForwardChecker(revApi, tpBaseRevision);
 
 			// segment pages into topics and paragraphs
 			TopicExtractor tExt = new TopicExtractor();
