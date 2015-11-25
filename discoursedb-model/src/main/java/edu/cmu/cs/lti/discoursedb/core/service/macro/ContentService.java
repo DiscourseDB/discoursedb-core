@@ -19,5 +19,13 @@ public class ContentService {
 		return contentRepo.save(new Content());
 	}
 	
+	public Content findOne(long id){
+		return contentRepo.findOne(id);
+	}
+	
+	public Content save(Content content){
+		return contentRepo.save(content);
+	}
+
 
 }

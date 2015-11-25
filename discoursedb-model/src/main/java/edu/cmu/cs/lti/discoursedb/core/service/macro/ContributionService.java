@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
@@ -114,8 +115,19 @@ public class ContributionService {
 	 * @return a list of Contributions of the given discourse that potentially might be empty
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Iterable<Contribution> findAllByType(Discourse discourse){
+	public Iterable<Contribution> findAllByDiscourse(Discourse discourse){
 		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscourse(discourse));			
+	}
+	
+	/**
+	 * Returns a list of all contributions for a given DiscoursePart
+	 * 
+	 * @param discoursePart the discoursePart the contributions need to be associated with
+	 * @return a list of Contributions of the given discoursePart that potentially might be empty
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<Contribution> findAllByDiscoursePart(DiscoursePart discoursePart){
+		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscoursePart(discoursePart));			
 	}
 	
 	/**

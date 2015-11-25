@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.core.service.macro;
 import com.mysema.query.types.expr.BooleanExpression;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.QContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
@@ -42,4 +43,13 @@ public final class ContributionPredicates {
 			return QContribution.contribution.type.type.eq(type.name());
 		}
 	}
+
+	public static BooleanExpression contributionHasDiscoursePart(DiscoursePart discoursePart) {
+		if (discoursePart == null) {
+			return QContribution.contribution.isNull();
+		} else {
+			return QContribution.contribution.contributionPartOfDiscourseParts.any().discoursePart.eq(discoursePart);
+		}
+	}
+
 }

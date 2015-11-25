@@ -187,6 +187,36 @@ public class DiscoursePartService {
 	
 	
 	/**
+	 * Retrieves DiscourseParts that are related to the given DiscoursePart with a DiscoursePartRelation of the given type.
+	 * The provided DiscoursePart is the parent or source in this relation.
+	 * 
+	 * @param sourceDiscoursePart the source or parent DiscoursePart of the relation
+	 * @param type the DiscoursePartRelationTypes 
+	 * @return a DiscoursePartRelation between the two provided DiscourseParts with the given type that has already been saved to the database 
+	 */
+	public List<DiscoursePart> findChildDiscourseParts(DiscoursePart sourceDiscoursePart, DiscoursePartRelationTypes type) {
+		List<DiscoursePart> returnList = new ArrayList<>();
+		
+		//Retrieve type or create if it doesn't exist in db
+		DiscoursePartRelationType discoursePartRelationType = null;
+		Optional<DiscoursePartRelationType> existingPartDiscourseRelationType = discoursePartRelationTypeRepo.findOneByType(type.name());
+		if(existingPartDiscourseRelationType.isPresent()){
+			discoursePartRelationType=existingPartDiscourseRelationType.get();
+		}else{
+			return returnList;
+		}
+		
+		//check if a relation of the given type already exists between the two DiscourseParts
+		List<DiscoursePartRelation> existingRelations = discoursePartRelationRepo.findAllBySourceAndType(sourceDiscoursePart, discoursePartRelationType);
+		for(DiscoursePartRelation relation:existingRelations){
+			returnList.add(relation.getTarget());
+		}
+		
+		return returnList;
+	}
+	
+	
+	/**
 	 * Saves the provided entity to the db using the save method of the corresponding repository
 	 * 
 	 * @param part the entity to save

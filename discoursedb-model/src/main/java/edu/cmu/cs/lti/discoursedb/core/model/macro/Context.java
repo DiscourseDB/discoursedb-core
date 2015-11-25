@@ -98,4 +98,8 @@ public class Context extends TimedAnnotatableBaseEntityWithSource implements Ser
 		this.contextContributions = contextContributions;
 	}
 
+	public void addContextContributions(ContributionContext contextContribution) {
+		this.contextContributions.add(contextContribution);
+	}
+
 }
