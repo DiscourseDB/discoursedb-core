@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,13 +21,21 @@ public class ContentService {
 		return contentRepo.save(new Content());
 	}
 	
-	public Content findOne(long id){
-		return contentRepo.findOne(id);
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public List<Content> findAll(List<Long> ids){
+		return contentRepo.findByIdIn(ids);
 	}
 	
 	public Content save(Content content){
 		return contentRepo.save(content);
 	}
+	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Content findOne(Long id){
+		return contentRepo.findOne(id);
+	}
+	
+	
 
 
 }
