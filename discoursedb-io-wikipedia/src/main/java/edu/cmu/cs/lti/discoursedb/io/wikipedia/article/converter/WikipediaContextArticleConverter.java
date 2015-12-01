@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.wikipedia.article.converter;
 
 import java.sql.Timestamp;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +27,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.ContextService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
+import edu.cmu.cs.lti.discoursedb.io.wikipedia.article.model.ContextTransactionData;
 
 /**
  * 
@@ -69,7 +70,7 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 		logger.info("Start mapping context articles for " + talkPageDPs.size() + " existing Talk pages");
 
 		for (DiscoursePart curTalkPageDP : talkPageDPs) {
-			Object[] contextTransactionData =  converterService.mapContext(curTalkPageDP); //TODO contextTransactionData contains dates of the first/last content and the id of the created context
+			ContextTransactionData contextTransactionData =  converterService.mapContext(curTalkPageDP);
 
 			//retrieve the discourse for the provided TalkPage
 			Optional<Discourse> discourse = discourseService.findOne(curTalkPageDP);
@@ -83,9 +84,7 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 			int articleId = article.getPageId();
 
 			// get primary keys for first and last revision in the window
-			Date startWindow = (Date)contextTransactionData[0];
-			Date endWindow = (Date)contextTransactionData[1];			
-			List<Timestamp> revTimestamps = revApi.getRevisionTimestampsBetweenTimestamps(articleId, new Timestamp(startWindow.getTime()), new Timestamp(endWindow.getTime()));
+			List<Timestamp> revTimestamps = revApi.getRevisionTimestampsBetweenTimestamps(articleId, new Timestamp(contextTransactionData.getFirstContent().getTime()), new Timestamp(contextTransactionData.getLastContent().getTime()));
 			int firstRevCounter = revApi.getRevision(articleId, revTimestamps.get(0)).getRevisionCounter();
 			int lastRevPK = revApi.getRevision(articleId, revTimestamps.get(revTimestamps.size() - 1)).getPrimaryKey();
 
@@ -96,7 +95,7 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 
 			//Process revisions and create content objects.
 			//The content objects will represent a doubly linked list and they are eventually associated with the same context
-			Long[] ids = {null,null}; //keeps track of the previous and first revision 
+			List<Long> ids = new ArrayList<>(); //keeps track of the previous and first revision 
 			while(articleRevIt.hasNext()){
 				Revision curArticleRev = articleRevIt.next();
 				if(curArticleRev.getRevisionCounter()<firstRevCounter){
@@ -104,16 +103,19 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 					// not an in-between revision, so we have to skip the revisions
 					// until the revisioncounter fits the beginning of our target window
 					// since we set the iterator to not reconstruct revisions automatically,
-					// this shouldn't be too expensive
+					// this shouldn't be expensive
 					continue;
 				}
-				ids = converterService.mapRevision(discourse.get().getId(),curArticleRev,article.getTitle().getPlainTitle(), ids[0], ids[1]);
+				ids.add(converterService.mapRevision(discourse.get().getId(),curArticleRev,article.getTitle().getPlainTitle()));
 			}		
 			
+//TODO		linking the content entities causes problems
+//			converterService.linkRevisions(ids);
+			
 			//update reference to first and last content element
-			Context ctx = contextService.findOne((Long)(contextTransactionData[2]));
-			ctx.setFirstRevision(contentService.findOne(ids[1]));
-			ctx.setCurrentRevision(contentService.findOne(ids[0]));
+			Context ctx = contextService.findOne(contextTransactionData.getContextId());
+			ctx.setFirstRevision(contentService.findOne(ids.get(0)));
+			ctx.setCurrentRevision(contentService.findOne(ids.get(ids.size()-1)));
 		}
 
 		logger.info("Finished mapping context articles.");
@@ -122,6 +124,4 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 		// which is not managed by Spring
 		WikiHibernateUtil.getSessionFactory(dbconf).close();
 	}
-
-
 }
