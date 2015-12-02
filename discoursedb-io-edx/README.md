@@ -8,6 +8,11 @@ The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8
 You can simply add any DiscourseDB project as a dependency to your Maven project. The following configuration needs to be added to your project pom.xml or settings.xml.
 
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd" xmlns="http://maven.apache.org/SETTINGS/1.1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <profiles>
+    <profile>
       <repositories>
         <repository>
           <snapshots>
@@ -24,6 +29,13 @@ You can simply add any DiscourseDB project as a dependency to your Maven project
           <url>http://moon.lti.cs.cmu.edu:8081/artifactory/libs-snapshot</url>
         </repository>
       </repositories>
+      <id>artifactory</id>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>artifactory</activeProfile>
+  </activeProfiles>
+</settings>
 ```
 
 ### Check out projects
