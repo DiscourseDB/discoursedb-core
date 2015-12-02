@@ -90,6 +90,28 @@ public class DataSourceService {
 			return dataSourceInstanceRepo.save(source);
 		}
 	}	
+
+	/**
+	 * Finds the datasource with the given descriptor for the given entity 
+	 * 
+	 * @param entity the entity to retrieve the datasource for
+	 * @param entitySourceDescriptor the descriptor of the datasource to be retrieved
+	 * @return a DataSourceInstance with the given descriptor for the given entity
+	 */
+	public <T extends TimedAnnotatableBaseEntityWithSource> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
+		return entity.getDataSourceAggregate().getSources().stream().filter(e -> e.getEntitySourceDescriptor().equals(entitySourceDescriptor)).findAny();
+	}
+
+	/**
+	 * Finds the datasource with the given descriptor for the given entity 
+	 * 
+	 * @param entity the entity to retrieve the datasource for
+	 * @param entitySourceDescriptor the descriptor of the datasource to be retrieved
+	 * @return a DataSourceInstance with the given descriptor for the given entity
+	 */
+	public <T extends UntimedBaseEntityWithSource> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
+		return entity.getDataSourceAggregate().getSources().stream().filter(e -> e.getEntitySourceDescriptor().equals(entitySourceDescriptor)).findAny();
+	}
 	
 	public <T extends TimedAnnotatableBaseEntityWithSource> boolean hasSourceId(T entity, String sourceId) {
 		return entity.getDataSourceAggregate().getSources().stream()

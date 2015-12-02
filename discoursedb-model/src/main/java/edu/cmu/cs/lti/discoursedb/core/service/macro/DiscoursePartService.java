@@ -47,6 +47,7 @@ public class DiscoursePartService {
 
 	@Autowired
 	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepo;
+
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,
@@ -121,6 +122,65 @@ public class DiscoursePartService {
 		return dPart;
 	}		
 
+	
+	
+	
+	/**
+	 * Creates a new DiscoursePart with the provided parameters even if a DiscoursePart with the same name already exists.
+ 	 * The discoursePartName is constructed like this: <code>discourseName_DiscoursePartType</code>.<br/>
+	 * Use {@link #createTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type)} to explicitly set the discoursePartName. 
+	 * 
+	 * If duplicate discoursePartNames should be avoided, use {@link #createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type)}. 
+	 * This only creates a DiscoursePart if none with the same name exists and retrieves the existing one otherwise.. 
+	 * Duplicate names make sense if the DiscoursePart is further disambiguated with DataSources or through relations with other DiscourseParts.
+	 * 
+	 * @param discourse
+	 *            the discourse of which the new DiscoursePart is a part of
+	 * @param type
+	 *            the value for the DiscoursePartType
+	 * @return a new empty DiscoursePart that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public DiscoursePart createTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
+		return createTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
+	}
+	/**
+	 * Creates a new DiscoursePart with the provided parameters even if a DiscoursePart with the same name already exists.
+	 * If duplicate discoursePartNames should be avoided, use {@link #createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type)}. This only creates a DiscoursePart if none with the same name exists and retrieves the existing one otherwise.. 
+	 * Duplicate names make sense if the DiscoursePart is further disambiguated with DataSources or through relations with other DiscourseParts.
+	 * 
+	 * @param discourse
+	 *            the discourse of which the new DiscoursePart is a part of
+	 * @param discoursePartName
+	 *            the name of the discoursePart that should be retrieved or created
+	 * @param type
+	 *            the value for the DiscoursePartType
+	 * @return a new empty DiscoursePart that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public DiscoursePart createTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type){		
+		Optional<DiscoursePartType> optDiscoursePartType = discoursePartTypeRepo.findOneByType(type.name());
+		DiscoursePartType discoursePartType = null;
+		if(optDiscoursePartType.isPresent()){
+			discoursePartType = optDiscoursePartType.get();
+		}else{
+			discoursePartType = new DiscoursePartType();
+			discoursePartType.setType(type.name());
+			discoursePartType= discoursePartTypeRepo.save(discoursePartType);
+		}		
+		
+		DiscoursePart dPart=new DiscoursePart();
+		dPart.setType(discoursePartType);
+		dPart.setName(discoursePartName);
+		dPart = discoursePartRepo.save(dPart);
+		
+		DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();			
+		discourseToDiscoursePart.setDiscourse(discourse);
+		discourseToDiscoursePart.setDiscoursePart(dPart);
+		discourseToDiscoursePartRepo.save(discourseToDiscoursePart);			
+		
+		return dPart;
+	}	
 	
 		
 	/**
@@ -226,29 +286,25 @@ public class DiscoursePartService {
 		return discoursePartRepo.save(part);
 	}
 	
-	public Optional<DiscoursePart> findOneByName(String name){
-		return discoursePartRepo.findOneByName(name);		
-	}
-	
 	/**
-	 * Finds one DiscoursePart of the given type, with the given name and associated with the given discourse
+	 * Determines whether a DiscoursePart with the provided parameters exists
 	 *  
 	 * @param discourse the associated discourse
 	 * @param discoursePartName the name of the discourse part
 	 * @param type the DiscoursePartType
-	 * @return and Optional that contains a DiscoursePart if it exists
+	 * @return true, if the DiscoursePart exists. False, otherwise
 	 */
-	public Optional<DiscoursePart> findOne(Discourse discourse, String discoursePartName, DiscoursePartTypes type){
+	public boolean exists(Discourse discourse, String discoursePartName, DiscoursePartTypes type){
 		
 		Optional<DiscoursePartType> discoursePartType = discoursePartTypeRepo.findOneByType(type.name());
 		if(!discoursePartType.isPresent()){
-			return Optional.empty();
+			return false;
 		}		
 
-		return Optional.ofNullable(discoursePartRepo.findOne(
+		return discoursePartRepo.count(
 				DiscoursePartPredicates.discoursePartHasName(discoursePartName).and(
 				DiscoursePartPredicates.discoursePartHasType(discoursePartType.get()).and(
-				DiscoursePartPredicates.discoursePartHasDiscourse(discourse)))));
+				DiscoursePartPredicates.discoursePartHasDiscourse(discourse))))>0;
 	}
 	
 	/**

@@ -149,6 +149,16 @@ public class ContributionService {
 	}
 	
 	/**
+	 * Returns a list of all contributions in the database no matter what type they or what discourse they are part of
+	 * 
+	 * @return a list of all contributions in the database
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<Contribution> findAll(){
+			return contributionRepo.findAll();
+	}
+	
+	/**
 	 * Creates a new DiscourseRelation of the given type between the two provided contributions.
 	 * Depending on the type, the relation might be directed or not. This information should be given in the type definition.
 	 * e.g. a REPLY relation would be interpreted as the target(child) being the reply to the source(parent).

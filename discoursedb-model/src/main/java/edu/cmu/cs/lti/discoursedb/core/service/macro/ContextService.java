@@ -78,6 +78,9 @@ public class ContextService {
 	public Context findOne(long id){
 		return contextRepo.findOne(id);
 	}
+	public Context save(Context ctx){
+		return contextRepo.save(ctx);
+	}
 	
 
 }
