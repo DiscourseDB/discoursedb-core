@@ -35,17 +35,12 @@ import edu.cmu.cs.lti.discoursedb.io.wikipedia.article.model.ContextTransactionD
 @Service
 public class WikipediaContextArticleConverterService{
 
-//	private static final Logger logger = LogManager.getLogger(WikipediaContextArticleConverterService.class);
-	
 	@Autowired private ContentService contentService;
 	@Autowired private DiscourseService discourseService;
 	@Autowired private DiscoursePartService discoursePartService;
 	@Autowired private ContributionService contributionService;
 	@Autowired private UserService userService;
 	@Autowired private ContextService contextService;
-	
-	
-	
 	
 	public ContextTransactionData mapContext(DiscoursePart curTalkPageDP) throws WikiApiException{
 		/*
@@ -119,6 +114,20 @@ public class WikipediaContextArticleConverterService{
 			}
 			previous=current;
 		}
+	}
+	
+	/**
+	 * Update references to first and last element 
+	 */
+	public Context updateContext(Long contextId, Long firstContentId, Long lastContentId){
+		Context ctx = contextService.findOne(contextId);
+		Content first = contentService.findOne(firstContentId);
+		Content last = contentService.findOne(lastContentId);
+		ctx.setFirstRevision(first);
+		ctx.setCurrentRevision(last);
+		ctx.setStartTime(first.getStartTime());
+		ctx.setEndTime(last.getEndTime());
+		return contextService.save(ctx);
 	}
 
 }

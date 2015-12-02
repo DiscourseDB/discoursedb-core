@@ -74,7 +74,8 @@ public class WikipediaTalkPageConverterService{
 		for(Topic topic:topics){
 			logger.trace("Mapping topic "+topic.getTitle());
 			String talkPageRevisionId = tp.getTpBaseRevision().getRevisionID()+"";
-			DiscoursePart curTopicDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);			
+			//Several Topics/Threads with the same title might occur, so we need to use createTypedDiscoursePart instead of createOrGetTypedDiscoursePart to allow duplicate names
+			DiscoursePart curTopicDP = discoursePartService.createTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);		
 			dataSourceService.addSource(curTopicDP, new DataSourceInstance(talkPageRevisionId+"_"+topic.getTitle(), WikipediaTalkPageSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
 			discoursePartService.createDiscoursePartRelation(curArticleDP, curTopicDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);			
 

@@ -112,10 +112,14 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 //TODO		linking the content entities causes problems
 //			converterService.linkRevisions(ids);
 			
-			//update reference to first and last content element
+			//update reference to first and last content element 
+			//start and end time are already created
 			Context ctx = contextService.findOne(contextTransactionData.getContextId());
 			ctx.setFirstRevision(contentService.findOne(ids.get(0)));
 			ctx.setCurrentRevision(contentService.findOne(ids.get(ids.size()-1)));
+			ctx = contextService.save(ctx);
+			
+			//TODO the FKs are passed correctly but not stored in the db
 		}
 
 		logger.info("Finished mapping context articles.");
