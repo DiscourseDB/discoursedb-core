@@ -2,7 +2,7 @@ package edu.cmu.cs.lti.discoursedb.io.tags.model;
 /**
  * POJO for the tweet info in DALMOOC tweets 11-5-2014.csv file.
  * 
- * @author haitiang
+ * @author Haitian Gong
  *
  */
 public class TweetInfo {

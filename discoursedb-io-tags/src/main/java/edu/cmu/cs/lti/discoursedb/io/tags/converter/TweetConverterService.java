@@ -29,6 +29,10 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.tags.model.TweetInfo;
 import edu.cmu.cs.lti.discoursedb.io.tags.model.TweetSourceMapping;
 
+/**
+ * @author Haitian Gong
+ *
+ */
 @Service
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
 public class TweetConverterService {
@@ -45,26 +49,22 @@ public class TweetConverterService {
 	private ContributionService contributionService;
 	private static final Logger logger = LogManager.getLogger(TweetConverterService.class);
 
+	private final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm:ss '+0000' YYYY");
 	
 	public void map(TweetInfo t, String dataSetName, String discourseName) throws ParseException {		
 		if (contributionService.findOneByDataSource(t.getId_str(), TweetSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).isPresent()) {
 			logger.warn("Tweet " + t.getId_str() + " already in database. Skipping Tweet");
 			return;
 		}
-		
-		//System.out.println(discourseName);
-		
+				
 		//create user entity and add it to user table of DiscourseDB
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
-		User curUser = userService.createOrGetUser(curDiscourse, t.getFrom_user_id_str());
+		User curUser = userService.createOrGetUser(curDiscourse, t.getFrom_user());
 		curUser.setLanguage(t.getUser_lang());
-		curUser.setUsername(t.getFrom_user());
-		dataSourceService.addSource(curUser,
-				new DataSourceInstance(t.getFrom_user_id_str(), TweetSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.TAGS, dataSetName));
+		dataSourceService.addSource(curUser, new DataSourceInstance(t.getFrom_user_id_str(), TweetSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.TAGS, dataSetName));
 		
 		
-		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(t.getId_str(),TweetSourceMapping.ID_STR_TO_CONTRIBUTION,
-				dataSetName);
+		Optional<Contribution> existingContribution = contributionService.findOneByDataSource(t.getId_str(),TweetSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName);
 		Contribution curContribution = null;
 		if (!existingContribution.isPresent()) {
 			ContributionTypes mappedType = ContributionTypes.TWEET;
@@ -73,7 +73,6 @@ public class TweetConverterService {
 			Content curContent = contentService.createContent();
 			curContent.setText(t.getText());
 			if(t.getCreated_at()!=null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm:ss '+0000' YYYY");
 				java.util.Date date = sdf.parse(t.getCreated_at());
 				java.sql.Date sdate = new java.sql.Date(date.getTime());
 				curContent.setStartTime(sdate);
@@ -85,16 +84,13 @@ public class TweetConverterService {
 			curContribution = contributionService.createTypedContribution(mappedType);
 			curContribution.setCurrentRevision(curContent);
 			if(t.getCreated_at()!=null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm:ss '+0000' YYYY");
 				java.util.Date date = sdf.parse(t.getCreated_at());
 				java.sql.Date sdate = new java.sql.Date(date.getTime());
 				curContribution.setStartTime(sdate);
 			}
 			curContribution.setFirstRevision(curContent);
 			
-			dataSourceService.addSource(curContribution,
-					new DataSourceInstance(t.getId_str(), TweetSourceMapping.ID_STR_TO_CONTRIBUTION, DataSourceTypes.TAGS, dataSetName));
-
+			dataSourceService.addSource(curContribution, new DataSourceInstance(t.getId_str(), TweetSourceMapping.ID_STR_TO_CONTRIBUTION, DataSourceTypes.TAGS, dataSetName));
 		}
 	}
 	
@@ -132,9 +128,6 @@ public class TweetConverterService {
 				}
 			}
 		}
-		
-		
 	}
-
 	
 }

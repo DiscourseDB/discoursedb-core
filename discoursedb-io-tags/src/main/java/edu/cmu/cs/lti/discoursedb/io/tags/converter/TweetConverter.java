@@ -19,6 +19,10 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.cmu.cs.lti.discoursedb.io.tags.model.TweetInfo;
 
+/**
+ * @author Haitian Gong
+ *
+ */
 @Component
 public class TweetConverter implements CommandLineRunner {
 
