@@ -9,20 +9,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteractionType;
+import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
+import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteractionType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelationType;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionTypeRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartInteractionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.UserRelationTypes;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -43,9 +49,15 @@ public class UserService {
 	
 	@Autowired
 	private ContributionInteractionRepository contribInteractionRepo;
-
+	
+	@Autowired
+	private DiscoursePartInteractionRepository discoursePartInteractionRepo;
+	
 	@Autowired
 	private ContributionInteractionTypeRepository contribInteractionTypeRepo;
+
+	@Autowired
+	private DiscoursePartInteractionTypeRepository discoursePartInteractionTypeRepo;
 
     public Optional<User> findUserByDiscourseAndSourceIdAndSourceType(Discourse discourse, String sourceId, DataSourceTypes type) {
 		return Optional.ofNullable(userRepo.findOne(
@@ -168,6 +180,45 @@ public class UserService {
 			contribInteraction.setUser(user);
 			contribInteraction.setType(contribInteractionType);
 			return contribInteractionRepo.save(contribInteraction);			
+		}
+	}
+	
+	/**
+	 * Creates a new DiscoursePartInteraction of the provided type and applies
+	 * it to the provided user and discoursepart. 
+	 * 
+	 * @param user
+	 *            the user to interact with the provided contribution
+	 * @param dp
+	 *            the discoursepart the provided user interacts with
+	 * @param type
+	 *            the type of the interaction
+	 * @return the DiscoursePartInteraction object after being saved to the
+	 *         database. If it already existed, the existing entity will be retrieved and returned.
+	 */
+	public DiscoursePartInteraction createDiscoursePartInteraction(User user, DiscoursePart dp, DiscoursePartInteractionTypes type) {
+
+		//Retrieve type or create if it doesn't exist in db
+		DiscoursePartInteractionType dpInteractionType =null;
+		Optional<DiscoursePartInteractionType> existingDpInteractionType = discoursePartInteractionTypeRepo.findOneByType(type.name());
+		if(existingDpInteractionType.isPresent()){
+			dpInteractionType=existingDpInteractionType.get();
+		}else{
+			dpInteractionType = new DiscoursePartInteractionType();
+			dpInteractionType.setType(type.name());
+			discoursePartInteractionTypeRepo.save(dpInteractionType);			
+		}
+
+		//Retrieve ContributionInteraction or create if it doesn't exist in db
+		Optional<DiscoursePartInteraction> existingDPInteraction =  discoursePartInteractionRepo.findOneByUserAndDiscoursePartAndType(user, dp, dpInteractionType);		
+		if(existingDPInteraction.isPresent()){
+			return existingDPInteraction.get();
+		}else{
+			DiscoursePartInteraction dpInteraction = new DiscoursePartInteraction();
+			dpInteraction.setDiscoursePart(dp);
+			dpInteraction.setUser(user);
+			dpInteraction.setType(dpInteractionType);
+			return discoursePartInteractionRepo.save(dpInteraction);			
 		}
 	}
 
