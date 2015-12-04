@@ -60,7 +60,7 @@ public class Context extends TimedAnnotatableBaseEntityWithSource implements Ser
 		this.id = id;
 	}
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_first_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_first_revision")
 	public Content getFirstRevision() {
 		return firstRevision;
 	}
@@ -70,7 +70,7 @@ public class Context extends TimedAnnotatableBaseEntityWithSource implements Ser
 	}
 
 	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_current_revision",insertable=false,updatable=false)
+	@JoinColumn(name = "fk_current_revision")
 	public Content getCurrentRevision() {
 		return currentRevision;
 	}
@@ -96,6 +96,10 @@ public class Context extends TimedAnnotatableBaseEntityWithSource implements Ser
 
 	public void setContextContributions(Set<ContributionContext> contextContributions) {
 		this.contextContributions = contextContributions;
+	}
+
+	public void addContextContributions(ContributionContext contextContribution) {
+		this.contextContributions.add(contextContribution);
 	}
 
 }
