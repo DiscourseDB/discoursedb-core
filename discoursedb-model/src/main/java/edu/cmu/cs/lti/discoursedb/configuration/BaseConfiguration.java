@@ -82,10 +82,14 @@ public class BaseConfiguration {
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
 		jpaProperties.put("hibernate.hbm2ddl.auto", env.getRequiredProperty("hibernate.hbm2ddl.auto"));
+		jpaProperties.put("hibernate.connection.useUnicode", true);
+		jpaProperties.put("hibernate.connection.characterEncoding", "UTF-8");
 		jpaProperties.put("hibernate.ejb.naming_strategy", env.getRequiredProperty("hibernate.ejb.naming_strategy"));
 		jpaProperties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
 		jpaProperties.put("hibernate.format_sql", env.getRequiredProperty("hibernate.format_sql"));
 		jpaProperties.put("hibernate.jdbc.batch_size", env.getRequiredProperty("hibernate.jdbc.batch_size"));
+		jpaProperties.put("hibernate.order_inserts", true);
+		jpaProperties.put("hibernate.order_updates", true);
 		jpaProperties.put("hibernate.id.new_generator_mappings", Boolean.parseBoolean(environment.getRequiredProperty("hibernate.id.new_generator_mappings").trim()));
 		factory.setJpaProperties(jpaProperties);
 		factory.afterPropertiesSet();
