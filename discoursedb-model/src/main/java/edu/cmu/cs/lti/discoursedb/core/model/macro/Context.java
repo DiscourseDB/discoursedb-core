@@ -60,7 +60,7 @@ public class Context extends TimedAnnotatableBaseEntityWithSource implements Ser
 	private void setId(long id) {
 		this.id = id;
 	}
-	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
+	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_first_revision")
 	public Content getFirstRevision() {
 		return firstRevision;
@@ -70,7 +70,7 @@ public class Context extends TimedAnnotatableBaseEntityWithSource implements Ser
 		this.firstRevision = firstRevision;
 	}
 
-	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
+	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_current_revision")
 	public Content getCurrentRevision() {
 		return currentRevision;
