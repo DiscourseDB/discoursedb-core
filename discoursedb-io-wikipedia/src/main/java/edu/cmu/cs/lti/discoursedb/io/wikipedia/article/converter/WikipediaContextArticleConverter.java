@@ -90,33 +90,61 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 				// get primary keys for first and last revision in the window
 				List<Timestamp> revTimestamps = revApi.getRevisionTimestampsBetweenTimestamps(articleId, new Timestamp(contextTransactionData.getFirstContent().getTime()), new Timestamp(contextTransactionData.getLastContent().getTime()));
 				if(revTimestamps.isEmpty()){
-					continue;
-				}
-				int firstRevCounter = revApi.getRevision(articleId, revTimestamps.get(0)).getRevisionCounter();
-				int lastRevPK = revApi.getRevision(articleId, revTimestamps.get(revTimestamps.size() - 1)).getPrimaryKey();
+					int firstRevCounter = revApi.getRevision(articleId, revTimestamps.get(0)).getRevisionCounter();
+					int lastRevPK = revApi.getRevision(articleId, revTimestamps.get(revTimestamps.size() - 1)).getPrimaryKey();
 
-				// create revision iterator that iterates over the article revisions
-				// between the two provided contribution timestamps
-				RevisionIterator articleRevIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), revApi.getFirstRevisionPK(articleId), lastRevPK, revApi.getConnection());
-				articleRevIt.setShouldLoadRevisionText(false); //we need to skip ahead several revs, so don't load text by default
+					// create revision iterator that iterates over the article revisions
+					// between the two provided contribution timestamps
+					RevisionIterator articleRevIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), revApi.getFirstRevisionPK(articleId), lastRevPK, revApi.getConnection());
+					articleRevIt.setShouldLoadRevisionText(false); //we need to skip ahead several revs, so don't load text by default
 
-				//Process revisions and create content objects.
-				//The content objects will represent a doubly linked list and they are eventually associated with the same context
-				List<Long> ids = new ArrayList<>(); //keeps track of the (order of) revision ids 
-				while(articleRevIt.hasNext()){
-					Revision curArticleRev = articleRevIt.next();
-					if(curArticleRev.getRevisionCounter()<firstRevCounter){continue;}
-					ids.add(converterService.mapRevision(discourse.get().getId(),curArticleRev,article.getTitle().getPlainTitle(),ids.size()>1?ids.get(ids.size()-1):null));
-				}					
-				
-				//update reference to first and last content element 
-				//start and end time are already created
-				if(!ids.isEmpty()){
-					Context ctx = contextService.findOne(contextTransactionData.getContextId());
-					ctx.setFirstRevision(contentService.findOne(ids.get(0)));
-					ctx.setCurrentRevision(contentService.findOne(ids.get(ids.size()-1)));
-					contextService.save(ctx);						
-				}
+					//Process revisions and create content objects.
+					//The content objects will represent a doubly linked list and they are eventually associated with the same context
+					List<Long> ids = new ArrayList<>(); //keeps track of the (order of) revision ids 
+					Revision previousArticleRev=null;
+					Revision curArticleRev=null;
+					boolean mappingStarted=false;
+					while(articleRevIt.hasNext()){
+						previousArticleRev = curArticleRev;
+						curArticleRev = articleRevIt.next();
+						if(curArticleRev.getRevisionCounter()<firstRevCounter){continue;}
+						if(!mappingStarted){
+							//we want to include one article revision before the time window of the discussion activity
+							//this happens one per mapping cycle - i.e. once per article
+							if(previousArticleRev!=null){
+								ids.add(converterService.mapRevision(discourse.get().getId(),previousArticleRev,article.getTitle().getPlainTitle(),ids.size()>1?ids.get(ids.size()-1):null));
+							}
+							mappingStarted=true;
+						}
+						ids.add(converterService.mapRevision(discourse.get().getId(),curArticleRev,article.getTitle().getPlainTitle(),ids.size()>1?ids.get(ids.size()-1):null));
+					}
+					
+					//update reference to first and last content element 
+					//start and end time are already created
+					if(!ids.isEmpty()){
+						Context ctx = contextService.findOne(contextTransactionData.getContextId());
+						ctx.setFirstRevision(contentService.findOne(ids.get(0)));
+						ctx.setCurrentRevision(contentService.findOne(ids.get(ids.size()-1)));
+						contextService.save(ctx);						
+					}
+
+				}else{
+					//in this case, there is no article revision activity during the time window of the discussion
+					//we then retrieve the single revision that was current throughout the discussion
+					Timestamp prevTs = null;
+					for(Timestamp ts:revApi.getRevisionTimestamps(articleId)){
+						if(prevTs!=null&&(ts.after(prevTs)||ts.equals(prevTs))){
+							Revision lastestArticleRev = revApi.getRevision(articleId,prevTs);
+							Long contentId = converterService.mapRevision(discourse.get().getId(),lastestArticleRev,article.getTitle().getPlainTitle(),null);
+							Context ctx = contextService.findOne(contextTransactionData.getContextId());
+							ctx.setFirstRevision(contentService.findOne(contentId));
+							ctx.setCurrentRevision(contentService.findOne(contentId));
+							contextService.save(ctx);						
+							break;
+						}
+						prevTs=ts;
+					}
+				}				
 			}			
 		}
 
