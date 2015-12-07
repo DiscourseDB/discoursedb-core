@@ -68,8 +68,10 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 
 		List<DiscoursePart> talkPageDPs = discoursePartService.findAllByType(DiscoursePartTypes.TALK_PAGE);
 		logger.info("Start mapping context articles for " + talkPageDPs.size() + " existing Talk pages");
-
+		int curContextNumber = 1;
 		for (DiscoursePart curTalkPageDP : talkPageDPs) {
+			logger.info("Mapping context "+(curContextNumber++)+" of "+talkPageDPs.size()+" for " + curTalkPageDP.getName());
+
 			ContextTransactionData contextTransactionData =  converterService.mapContext(curTalkPageDP);
 
 			//retrieve the discourse for the provided TalkPage
@@ -91,32 +93,23 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 			// create revision iterator that iterates over the article revisions
 			// between the two provided contribution timestamps
 			RevisionIterator articleRevIt = new RevisionIterator(revApi.getRevisionApiConfiguration(), revApi.getFirstRevisionPK(articleId), lastRevPK, revApi.getConnection());
-			articleRevIt.setShouldLoadRevisionText(false);
+			articleRevIt.setShouldLoadRevisionText(false); //we need to skip ahead several revs, so don't load text by default
 
 			//Process revisions and create content objects.
 			//The content objects will represent a doubly linked list and they are eventually associated with the same context
-			List<Long> ids = new ArrayList<>(); //keeps track of the previous and first revision 
+			List<Long> ids = new ArrayList<>(); //keeps track of the (order of) revision ids 
 			while(articleRevIt.hasNext()){
 				Revision curArticleRev = articleRevIt.next();
-				if(curArticleRev.getRevisionCounter()<firstRevCounter){
-					// the RevisionIterator can only begin at the first revision and
-					// not an in-between revision, so we have to skip the revisions
-					// until the revisioncounter fits the beginning of our target window
-					// since we set the iterator to not reconstruct revisions automatically,
-					// this shouldn't be expensive
-					continue;
-				}
-				ids.add(converterService.mapRevision(discourse.get().getId(),curArticleRev,article.getTitle().getPlainTitle()));
-			}		
-			
-//TODO		linking the content entities causes problems
-			converterService.linkRevisions(ids);
+				if(curArticleRev.getRevisionCounter()<firstRevCounter){continue;}
+				ids.add(converterService.mapRevision(discourse.get().getId(),curArticleRev,article.getTitle().getPlainTitle(),ids.size()>1?ids.get(ids.size()-1):null));
+			}					
 			
 			//update reference to first and last content element 
 			//start and end time are already created
 			Context ctx = contextService.findOne(contextTransactionData.getContextId());
 			ctx.setFirstRevision(contentService.findOne(ids.get(0)));
 			ctx.setCurrentRevision(contentService.findOne(ids.get(ids.size()-1)));
+			contextService.save(ctx);
 			
 		}
 

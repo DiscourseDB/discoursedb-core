@@ -19,6 +19,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Context;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContextService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
@@ -40,6 +41,7 @@ public class WikipediaContextArticleConverterService{
 
 	@PersistenceContext private EntityManager entityManager;
 	@Autowired private ContentService contentService;
+	@Autowired private ContentRepository contentRepo;
 	@Autowired private DiscourseService discourseService;
 	@Autowired private DiscoursePartService discoursePartService;
 	@Autowired private ContributionService contributionService;
@@ -93,7 +95,7 @@ public class WikipediaContextArticleConverterService{
 	 * @param curArticleRev the revision to map
 	 * @param articleTitle the title of the article the talk page belongs to
 	 */
-	public Long mapRevision(Long discourseId, Revision curArticleRev, String articleTitle){
+	public Long mapRevision(Long discourseId, Revision curArticleRev, String articleTitle, Long prevRevId){
 		User curUser = userService.createOrGetUser(discourseService.findOne(discourseId), curArticleRev.getContributorName());			
 				
 		Content curRev = contentService.createContent();
@@ -101,22 +103,32 @@ public class WikipediaContextArticleConverterService{
 		curRev.setAuthor(curUser);
 		curRev.setStartTime(curArticleRev.getTimeStamp());
 		curRev.setTitle(articleTitle);
-		
+
+		if(prevRevId!=null){
+			Content prev = contentService.findOne(prevRevId);
+			prev.setNextRevision(curRev);
+			prev.setEndTime(curRev.getStartTime());
+			curRev.setPreviousRevision(prev);
+			contentService.save(prev);
+		}
+		contentService.save(curRev);
+
 		return curRev.getId();
 	}
 	
 	/**
-	 * Links all content 
+	 * Links all content entities 
+	 * 
+	 * FIXME does not work for larger numbers of content entities
+	 * 
 	 */
+	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
 	public void linkRevisions(List<Long> ids){
-		Content previous = null;
-		for(Content current:contentService.findAll(ids)){  //TODO make sure the order of Content objects is correct
+		Long previous = null;
+		for(Long current:ids){ 
 			if(previous!=null){
-				previous.setNextRevision(current);
-				current.setPreviousRevision(previous);
-				previous.setEndTime(current.getStartTime());				
-   		        entityManager.flush(); //FIXME There must be a better way than flushing for every update. Doesn't work for long lists
-			    entityManager.clear();
+				contentRepo.setNextRevisionId(previous, current);
+				contentRepo.setPreviousRevisionId(current, previous);					
 			}
 			previous=current;
 		}
