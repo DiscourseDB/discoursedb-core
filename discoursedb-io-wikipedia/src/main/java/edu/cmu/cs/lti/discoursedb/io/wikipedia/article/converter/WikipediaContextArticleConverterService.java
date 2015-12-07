@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,7 +16,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Context;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContentRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContextService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
@@ -39,9 +35,7 @@ import edu.cmu.cs.lti.discoursedb.io.wikipedia.article.model.ContextTransactionD
 @Service
 public class WikipediaContextArticleConverterService{
 
-	@PersistenceContext private EntityManager entityManager;
 	@Autowired private ContentService contentService;
-	@Autowired private ContentRepository contentRepo;
 	@Autowired private DiscourseService discourseService;
 	@Autowired private DiscoursePartService discoursePartService;
 	@Autowired private ContributionService contributionService;
@@ -59,6 +53,7 @@ public class WikipediaContextArticleConverterService{
 		//we need references to all contributions anyway, so we can determine the time of first/last contrib in TP 
 		//while we load the contributions rather than making an extra query
 		for(DiscoursePart curDiscussionDP:discoursePartService.findChildDiscourseParts(curTalkPageDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION)){
+			System.out.println(curDiscussionDP.getName());
 			for(Contribution contrib:contributionService.findAllByDiscoursePart(curDiscussionDP)){
 				if(timeOfFirstContrib==null&&timeOfLastContrib==null){
 					timeOfFirstContrib=contrib.getStartTime();
@@ -115,25 +110,7 @@ public class WikipediaContextArticleConverterService{
 
 		return curRev.getId();
 	}
-	
-	/**
-	 * Links all content entities 
-	 * 
-	 * FIXME does not work for larger numbers of content entities
-	 * 
-	 */
-	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
-	public void linkRevisions(List<Long> ids){
-		Long previous = null;
-		for(Long current:ids){ 
-			if(previous!=null){
-				contentRepo.setNextRevisionId(previous, current);
-				contentRepo.setPreviousRevisionId(current, previous);					
-			}
-			previous=current;
-		}
-	}
-	
+		
 	/**
 	 * Update references to first and last element 
 	 */
