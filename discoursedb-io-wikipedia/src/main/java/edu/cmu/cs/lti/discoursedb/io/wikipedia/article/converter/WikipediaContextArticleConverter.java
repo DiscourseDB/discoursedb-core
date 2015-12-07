@@ -79,6 +79,16 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 		for (DiscoursePart curTalkPageDP : talkPageDPs) {
 			logger.info("Mapping context "+(curContextNumber++)+" of "+talkPageDPs.size()+" for " + curTalkPageDP.getName());
 
+			// get reference to the article for the given Talk page
+			Page article = null;
+			try{
+				article=wiki.getPage(curTalkPageDP.getName());				
+			}catch(Exception e){
+				logger.error("Error retrieving article "+curTalkPageDP.getName());
+				continue;
+			}
+			int articleId = article.getPageId();
+
 			ContextTransactionData contextTransactionData =  converterService.mapContext(curTalkPageDP);
 			
 			//only perform mapping if we actually have discussions, i.e. have valid ContextTransactionData
@@ -90,9 +100,6 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 					continue;
 				}
 				
-				// get reference to the article for the given Talk page
-				Page article = wiki.getPage(curTalkPageDP.getName());
-				int articleId = article.getPageId();
 
 				// get primary keys for first and last revision in the window
 				List<Timestamp> revTimestamps = revApi.getRevisionTimestampsBetweenTimestamps(articleId, new Timestamp(contextTransactionData.getFirstContent().getTime()), new Timestamp(contextTransactionData.getLastContent().getTime()));
