@@ -53,17 +53,18 @@ public class WikipediaContextArticleConverterService{
 		//we need references to all contributions anyway, so we can determine the time of first/last contrib in TP 
 		//while we load the contributions rather than making an extra query
 		for(DiscoursePart curDiscussionDP:discoursePartService.findChildDiscourseParts(curTalkPageDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION)){
-			System.out.println(curDiscussionDP.getName());
 			for(Contribution contrib:contributionService.findAllByDiscoursePart(curDiscussionDP)){
-				if(timeOfFirstContrib==null&&timeOfLastContrib==null){
-					timeOfFirstContrib=contrib.getStartTime();
-					timeOfLastContrib=contrib.getStartTime();
-				}else{
-					if(contrib.getStartTime().before(timeOfFirstContrib)){
+				if(contrib.getStartTime()!=null){
+					if(timeOfFirstContrib==null&&timeOfLastContrib==null){
 						timeOfFirstContrib=contrib.getStartTime();
-					}
-					if(contrib.getStartTime().after(timeOfLastContrib)){
-						timeOfLastContrib=contrib.getStartTime();						
+						timeOfLastContrib=contrib.getStartTime();
+					}else{
+						if(contrib.getStartTime().before(timeOfFirstContrib)){
+							timeOfFirstContrib=contrib.getStartTime();
+						}
+						if(contrib.getStartTime().after(timeOfLastContrib)){
+							timeOfLastContrib=contrib.getStartTime();						
+						}					
 					}					
 				}
 				tpContribs.add(contrib);

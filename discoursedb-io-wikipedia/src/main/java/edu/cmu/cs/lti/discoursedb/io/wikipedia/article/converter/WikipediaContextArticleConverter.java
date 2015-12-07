@@ -89,6 +89,9 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 
 				// get primary keys for first and last revision in the window
 				List<Timestamp> revTimestamps = revApi.getRevisionTimestampsBetweenTimestamps(articleId, new Timestamp(contextTransactionData.getFirstContent().getTime()), new Timestamp(contextTransactionData.getLastContent().getTime()));
+				if(revTimestamps.isEmpty()){
+					continue;
+				}
 				int firstRevCounter = revApi.getRevision(articleId, revTimestamps.get(0)).getRevisionCounter();
 				int lastRevPK = revApi.getRevision(articleId, revTimestamps.get(revTimestamps.size() - 1)).getPrimaryKey();
 
