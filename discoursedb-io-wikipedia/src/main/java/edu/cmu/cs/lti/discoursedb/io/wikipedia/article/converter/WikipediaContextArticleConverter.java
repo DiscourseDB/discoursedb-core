@@ -30,6 +30,13 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.wikipedia.article.model.ContextTransactionData;
 
 /**
+ * This converter tetrieves all DiscourseParts of TALK_PAGE type.
+ * For each TALK PAGE DP, it determines the time of the first and last discussion that is associated with the Talk page.
+ * It then retrieves all revisions of the associated article within this time window. These article revisions are mapped as content entities associated with a context entity.
+ * Each contribution to the discussion is linked to the context entity.
+ * 
+ * In case no revision activity was recorded within the discussion window, the singe latest article revision is retrieved that was current when the discussion were going on.
+ * No context is created for TALK PAGE entities without any contributions.  
  * 
  * @author Oliver Ferschke
  *

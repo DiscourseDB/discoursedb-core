@@ -7,11 +7,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * This starter class launches the components necessary for importing an Wikipedia articles that constitute the context for existing Talk page discussions.
+ * This converter tetrieves all DiscourseParts of TALK_PAGE type.
+ * For each TALK PAGE DP, it determines the time of the first and last discussion that is associated with the Talk page.
+ * It then retrieves all revisions of the associated article within this time window. These article revisions are mapped as content entities associated with a context entity.
+ * Each contribution to the discussion is linked to the context entity.
  * 
- * That is , the converter retrieves Talk page discussions, retrieves the corresponding article from the provided JWPL database and stores the article revisions as the context to the discussion.
+ * In case no revision activity was recorded within the discussion window, the singe latest article revision is retrieved that was current when the discussion were going on.
+ * No context is created for TALK PAGE entities without any contributions.
+ * 
+ * Usage: WikipediaContextArticleConverterApplication <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>
  * 
  * @author Oliver Ferschke
+ *
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {"edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.io.wikipedia.article"})
