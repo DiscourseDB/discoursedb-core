@@ -72,15 +72,20 @@ public class WikipediaContextArticleConverterService{
 		}
 
 		//create context entity for the previously created content entities
-		Context curTPContext = contextService.createTypedContext(ContextTypes.ARTICLE);
-		curTPContext.setStartTime(timeOfFirstContrib);
-		curTPContext.setEndTime(timeOfLastContrib);		
-		
-		//connect context with all contributions of the corresponding Talk page
-		for(Contribution contrib:tpContribs){
-			contextService.addContributionToContext(curTPContext, contrib);
+		if(timeOfFirstContrib!=null&&timeOfLastContrib!=null){
+			Context curTPContext = contextService.createTypedContext(ContextTypes.ARTICLE);
+			curTPContext.setStartTime(timeOfFirstContrib);
+			curTPContext.setEndTime(timeOfLastContrib);		
+			
+			//connect context with all contributions of the corresponding Talk page
+			for(Contribution contrib:tpContribs){
+				contextService.addContributionToContext(curTPContext, contrib);
+			}			
+			return new ContextTransactionData(timeOfFirstContrib, timeOfLastContrib, curTPContext.getId());
+		}else{
+			return new ContextTransactionData();
+			
 		}
-		return new ContextTransactionData(timeOfFirstContrib, timeOfLastContrib, curTPContext.getId());
 	}
 
 	

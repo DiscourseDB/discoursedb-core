@@ -7,6 +7,12 @@ public class ContextTransactionData{
 	private Date lastContent;
 	private Long contextId;
 	
+	public ContextTransactionData() {
+		super();
+		this.firstContent = null;
+		this.lastContent = null;
+		this.contextId = null;
+	}
 	public ContextTransactionData(Date firstContent, Date lastContent, Long contextId) {
 		super();
 		this.firstContent = firstContent;
