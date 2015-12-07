@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -80,7 +81,7 @@ public class Contribution extends TimedAnnotatableBaseEntityWithSource implement
 	private void setId(long id) {
 		this.id = id;
 	}
-	@OneToOne(cascade=CascadeType.ALL) 
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_first_revision")
 	public Content getFirstRevision() {
 		return firstRevision;
@@ -90,7 +91,7 @@ public class Contribution extends TimedAnnotatableBaseEntityWithSource implement
 		this.firstRevision = firstRevision;
 	}
 
-	@OneToOne(cascade=CascadeType.ALL) 
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_current_revision")
 	public Content getCurrentRevision() {
 		return currentRevision;
