@@ -111,10 +111,12 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 				
 				//update reference to first and last content element 
 				//start and end time are already created
-				Context ctx = contextService.findOne(contextTransactionData.getContextId());
-				ctx.setFirstRevision(contentService.findOne(ids.get(0)));
-				ctx.setCurrentRevision(contentService.findOne(ids.get(ids.size()-1)));
-				contextService.save(ctx);	
+				if(!ids.isEmpty()){
+					Context ctx = contextService.findOne(contextTransactionData.getContextId());
+					ctx.setFirstRevision(contentService.findOne(ids.get(0)));
+					ctx.setCurrentRevision(contentService.findOne(ids.get(ids.size()-1)));
+					contextService.save(ctx);						
+				}
 			}			
 		}
 
