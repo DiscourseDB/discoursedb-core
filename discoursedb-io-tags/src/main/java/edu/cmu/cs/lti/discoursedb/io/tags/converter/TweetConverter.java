@@ -20,7 +20,19 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import edu.cmu.cs.lti.discoursedb.io.tags.model.TweetInfo;
 
 /**
+ * The TweetConverter loads a csv field with data produced by TAGS v6, maps each
+ * Tweet to TweetInfo objects and then passes the TweetInfos to the
+ * TweetConverterService which stores the data in DiscourseDB.
+ * 
+ * The expected input file is a csv version of the Google sheets produced by see
+ * <a href="https://tags.hawksey.info">TAGS v6</a>. Field delimiters should be
+ * commas and the encoding should be UTF-8.
+ * 
+ * Usage: TweetConverterApplication <DataSourceType> <DataSetName> </path/to/tags.csv>
+ * 
+ * 
  * @author Haitian Gong
+ * @author Oliver Ferschke
  *
  */
 @Component
@@ -35,9 +47,9 @@ public class TweetConverter implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (args.length < 3) {
-			logger.error("Usage: TweetConverterApplication <DataSourceType> <DataSetName> </path/to/*-prod.mongo>");
-			System.exit(1);
+		if (args.length != 3) {
+			logger.error("Usage: TweetConverterApplication <DataSourceType> <DataSetName> </path/to/tags.csv>");
+			return;
 		}
 		this.dataSetName = args[0];
 		String inFileName = args[1];
@@ -46,7 +58,7 @@ public class TweetConverter implements CommandLineRunner {
 		File infile = new File(inFileName);
 		if (!infile.exists() || !infile.isFile() || !infile.canRead()) {
 			logger.error("Input file does not exist or is not readable.");
-			System.exit(1);
+			return;
 		}
 
 		logger.info("Starting twitter conversion");
@@ -63,21 +75,22 @@ public class TweetConverter implements CommandLineRunner {
 			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator(',');
 			MappingIterator<TweetInfo> it = mapper.readerFor(TweetInfo.class).with(schema).readValues(in);
 			while (it.hasNextValue()) {
-				TweetInfo t = it.next();
-				converterService.map(t,dataSetName,discourseName);
+				TweetInfo tweet = it.next();
+				converterService.mapTweet(tweet,dataSetName,discourseName);
+
 				//create hashmap to build relation between contribution Id and contribution content
-				if(idContributionMap.containsKey(t.getText())) {
+				if(idContributionMap.containsKey(tweet.getText())) {
 					String[] origInfo = new String[2];
-					origInfo[0] = t.getId_str();
-					origInfo[1] = t.getFrom_user();
-					idContributionMap.get(t.getText()).add(origInfo);
+					origInfo[0] = tweet.getId_str();
+					origInfo[1] = tweet.getFrom_user();
+					idContributionMap.get(tweet.getText()).add(origInfo);
 				}
 				else {
-					idContributionMap.put(t.getText(), new ArrayList<String[]>());
+					idContributionMap.put(tweet.getText(), new ArrayList<String[]>());
 					String[] origInfo = new String[2];
-					origInfo[0] = t.getId_str();
-					origInfo[1] = t.getFrom_user();
-					idContributionMap.get(t.getText()).add(origInfo);
+					origInfo[0] = tweet.getId_str();
+					origInfo[1] = tweet.getFrom_user();
+					idContributionMap.get(tweet.getText()).add(origInfo);
 				}
 			}
 		}
@@ -92,5 +105,4 @@ public class TweetConverter implements CommandLineRunner {
 			}
 		}
 	}	
-
 }
