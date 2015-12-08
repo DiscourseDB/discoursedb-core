@@ -22,14 +22,14 @@
 		<maven.surefire.heap>512m</maven.surefire.heap>
 		<maven.surefire.argLine />
 		<jackson.version>2.6.1</jackson.version>
-		<querydsl.version>3.6.0</querydsl.version>
+		<querydsl.version>3.6.2</querydsl.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>io.spring.platform</groupId>
 				<artifactId>platform-bom</artifactId>
-				<version>1.1.4.RELEASE</version>
+				<version>2.0.0.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
