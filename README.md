@@ -20,7 +20,9 @@ DiscourseDB requires a database server. The BaseConfiguration is configured for 
 DiscourseDB is configured to create a new database in case the database provided in the configuration does not exist. The database will be created with the default character encoding defined in the server configuration. We recommend either to (1) manually create an empty database the database with UTF8 encoding and have DiscourseDB use this database or (2) change the configuration of MySQL to use UTF8 by default so newly created databases will use this encoding.
 
 (1) ```CREATE DATABASE `discoursedb` CHARACTER SET utf8 COLLATE utf8_general_ci;```
+
 or
+
 (2) in my.cnf, add the following configuration
 ```character-set-server=utf8
 collation-server=utf8_general_ci
