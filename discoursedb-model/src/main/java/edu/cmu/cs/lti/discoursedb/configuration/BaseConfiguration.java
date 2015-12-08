@@ -55,7 +55,7 @@ public class BaseConfiguration {
 			String host = environment.getRequiredProperty("jdbc.host");
 			String port = environment.getRequiredProperty("jdbc.port");
 			String database = environment.getRequiredProperty("jdbc.database");
-			ds.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database+"?createDatabaseIfNotExist=true");
+			ds.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database+"?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
 			ds.setUser(environment.getRequiredProperty("jdbc.username"));
 			ds.setPassword(environment.getRequiredProperty("jdbc.password"));
 			ds.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("c3p0.acquireIncrement").trim()));
