@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscourse;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -28,6 +31,8 @@ public class DiscourseService {
 	 *         newly created
 	 */
 	public Discourse createOrGetDiscourse(String name) {
+		Assert.hasText(name);
+
 		Optional<Discourse> curOptDiscourse = discourseRepository.findOneByName(name);
 		Discourse curDiscourse;
 		if (curOptDiscourse.isPresent()) {
@@ -40,6 +45,26 @@ public class DiscourseService {
 	}
 
 	/**
+	 * Finds one DiscoursePart of the given type, with the given name and associated with the given discourse
+	 *  
+	 * @param discoursePart the DiscoursePart for which the discourse should be retrieved
+	 * @return and Optional that contains a Discourse if it exists
+	 */
+	public Optional<Discourse> findOne(DiscoursePart discoursePart){
+		Assert.notNull(discoursePart);
+
+		return Optional.ofNullable(discourseRepository
+				.findOne(QDiscourse.discourse.discourseToDiscourseParts.any().discoursePart.eq(discoursePart)));
+	}
+	
+	public Discourse findOne(Long id){
+		Assert.notNull(id);
+		Assert.isTrue(id>0);
+
+		return discourseRepository.findOne(id);
+	}
+	
+	/**
 	 * Calls the save method of the Discourse repository to save the given
 	 * Discourse object to the DB. Returns the Discourse object after the save
 	 * process.
@@ -50,7 +75,11 @@ public class DiscourseService {
 	 *         the save process
 	 */
 	public Discourse save(Discourse discourse) {
+		Assert.notNull(discourse);
+
 		return discourseRepository.save(discourse);
 	}
+	
+	
 
 }

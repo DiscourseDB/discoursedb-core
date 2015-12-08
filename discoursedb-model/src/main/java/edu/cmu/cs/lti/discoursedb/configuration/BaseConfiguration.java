@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -44,7 +45,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
 public class BaseConfiguration {
 
-	@Autowired
+	@Autowired 
 	private Environment environment;
 
 	@Bean
@@ -55,28 +56,29 @@ public class BaseConfiguration {
 			String host = environment.getRequiredProperty("jdbc.host");
 			String port = environment.getRequiredProperty("jdbc.port");
 			String database = environment.getRequiredProperty("jdbc.database");
-			ds.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database+"?createDatabaseIfNotExist=true");
+			ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database+ "?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
 			ds.setUser(environment.getRequiredProperty("jdbc.username"));
 			ds.setPassword(environment.getRequiredProperty("jdbc.password"));
 			ds.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("c3p0.acquireIncrement").trim()));
-			ds.setIdleConnectionTestPeriod(Integer.parseInt(environment.getRequiredProperty("c3p0.idleConnectionTestPeriod").trim()));
+			ds.setIdleConnectionTestPeriod(
+					Integer.parseInt(environment.getRequiredProperty("c3p0.idleConnectionTestPeriod").trim()));
 			ds.setMaxStatements(Integer.parseInt(environment.getRequiredProperty("c3p0.maxStatements").trim()));
 			ds.setMinPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.minPoolSize").trim()));
 			ds.setMaxPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.maxPoolSize").trim()));
 			return ds;
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Bean
-	EntityManagerFactory entityManagerFactory(DataSource dataSource, Environment env) {
+	LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, Environment env) {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-	    vendorAdapter.setGenerateDdl(true);
-		    
+		vendorAdapter.setGenerateDdl(true);
+
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setDataSource(dataSource);
-	    factory.setJpaVendorAdapter(vendorAdapter);
+		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan("edu.cmu.cs.lti.discoursedb");
 
 		Properties jpaProperties = new Properties();
@@ -94,11 +96,12 @@ public class BaseConfiguration {
 		factory.setJpaProperties(jpaProperties);
 		factory.afterPropertiesSet();
 
-		return factory.getObject();
+		return factory;
 	}
 
+
 	@Bean
-	JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+	PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
 		JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(entityManagerFactory);
 		return transactionManager;
