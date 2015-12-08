@@ -24,6 +24,7 @@ DiscourseDB is configured to create a new database in case the database provided
 or
 
 (2) in my.cnf, add the following configuration
-```character-set-server=utf8
+```
+character-set-server=utf8
 collation-server=utf8_general_ci
 ```
