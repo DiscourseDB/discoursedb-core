@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -60,6 +61,10 @@ public class UserService {
 	private DiscoursePartInteractionTypeRepository discoursePartInteractionTypeRepo;
 
     public Optional<User> findUserByDiscourseAndSourceIdAndSourceType(Discourse discourse, String sourceId, DataSourceTypes type) {
+		Assert.notNull(discourse);
+		Assert.hasText(sourceId);
+		Assert.notNull(type);
+
 		return Optional.ofNullable(userRepo.findOne(
 						UserPredicates.hasDiscourse(discourse).and(
 						UserPredicates.hasSourceId(sourceId)).and(
@@ -67,6 +72,10 @@ public class UserService {
     }
 
     public Optional<User> findUserByDiscourseAndSourceIdAndDataSet(Discourse discourse, String sourceId, String dataSetName) {
+		Assert.notNull(discourse);
+		Assert.hasText(sourceId);
+		Assert.hasText(dataSetName);
+
 		return Optional.ofNullable(userRepo.findOne(
 						UserPredicates.hasDiscourse(discourse).and(
 						UserPredicates.hasSourceId(sourceId)).and(
@@ -74,18 +83,26 @@ public class UserService {
     }
 
     public Optional<User> findUserByDiscourseAndSourceId(Discourse discourse, String sourceId) {
+		Assert.notNull(discourse);
+		Assert.hasText(sourceId);
+
 		return Optional.ofNullable(userRepo.findOne(
 						UserPredicates.hasDiscourse(discourse).and(
 						UserPredicates.hasSourceId(sourceId))));
     }
 
     public Optional<User> findUserBySourceIdAndUsername(String sourceId, String username) {
+		Assert.hasText(sourceId);
+		Assert.hasText(username);
+
 		return Optional.ofNullable(userRepo.findOne(
 						UserPredicates.hasSourceId(sourceId).and(
 						UserPredicates.hasUserName(username))));
     }
 
     public Iterable<User> findUsersBySourceId(String sourceId) {
+		Assert.hasText(sourceId);
+		
 		return userRepo.findAll(UserPredicates.hasSourceId(sourceId));
     }
 	
@@ -101,6 +118,9 @@ public class UserService {
 	 *         newly created
 	 */
 	public User createOrGetUser(Discourse discourse, String username) {
+		Assert.notNull(discourse);
+		Assert.hasText(username);
+
 		Optional<User> existingUser = Optional.ofNullable(userRepo.findOne(
 				UserPredicates.hasDiscourse(discourse).and(
 				UserPredicates.hasUserName(username))));	
@@ -129,6 +149,13 @@ public class UserService {
 	 *         newly created
 	 */
 	public User createOrGetUser(Discourse discourse, String username, String sourceId, String sourceIdDescriptor, DataSourceTypes dataSourceType, String dataSetName) {
+		Assert.notNull(discourse);
+		Assert.hasText(username);
+		Assert.hasText(sourceId);
+		Assert.hasText(sourceIdDescriptor);
+		Assert.notNull(dataSourceType);
+		Assert.hasText(dataSetName);
+
 		Optional<User> existingUser = findUserByDiscourseAndSourceIdAndDataSet(discourse, sourceId, dataSetName);
 		User curUser;
 		if (existingUser.isPresent()) {
@@ -158,6 +185,9 @@ public class UserService {
 	 *         database. If it already existed, the existing entity will be retrieved and returned.
 	 */
 	public ContributionInteraction createContributionInteraction(User user, Contribution contrib, ContributionInteractionTypes type) {
+		Assert.notNull(user);
+		Assert.notNull(contrib);
+		Assert.notNull(type);
 
 		//Retrieve type or create if it doesn't exist in db
 		ContributionInteractionType contribInteractionType =null;
@@ -197,6 +227,9 @@ public class UserService {
 	 *         database. If it already existed, the existing entity will be retrieved and returned.
 	 */
 	public DiscoursePartInteraction createDiscoursePartInteraction(User user, DiscoursePart dp, DiscoursePartInteractionTypes type) {
+		Assert.notNull(user);
+		Assert.notNull(dp);
+		Assert.notNull(type);
 
 		//Retrieve type or create if it doesn't exist in db
 		DiscoursePartInteractionType dpInteractionType =null;
@@ -236,6 +269,9 @@ public class UserService {
 	 *         database. If it already existed, the existing entity will be retrieved and returned.
 	 */
 	public UserRelation createUserRelation(User sourceUser, User targetUser, UserRelationTypes type) {
+		Assert.notNull(sourceUser);
+		Assert.notNull(targetUser);
+		Assert.notNull(type);
 
 		//Retrieve type or create if it doesn't exist in db
 		UserRelationType userRelationType =null;
@@ -275,6 +311,8 @@ public class UserService {
 	 * @return the user with updated or unchanged realname
 	 */
 	public User setRealname(User user, String firstName, String lastName){
+		Assert.notNull(user);
+
 		if(firstName==null)firstName="";
 		if(lastName==null)lastName="";
 		
@@ -304,6 +342,8 @@ public class UserService {
 	 * @return the user entity after the save process
 	 */
 	public User save(User user){
+		Assert.notNull(user);
+
 		return userRepo.save(user);
 	}
 
@@ -314,6 +354,8 @@ public class UserService {
 	 * @param user the user entity to delete
 	 */
 	public void delete(User user){				
+		Assert.notNull(user);
+		
 		for(Discourse d:user.getDiscourses()){
 			user.removeDiscourse(d);
 		}
