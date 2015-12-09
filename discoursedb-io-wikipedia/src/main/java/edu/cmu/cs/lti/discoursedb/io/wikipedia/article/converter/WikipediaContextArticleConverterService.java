@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import de.tudarmstadt.ukp.wikipedia.api.exception.WikiApiException;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.Revision;
@@ -43,6 +44,8 @@ public class WikipediaContextArticleConverterService{
 	@Autowired private ContextService contextService;
 	
 	public ContextTransactionData mapContext(DiscoursePart curTalkPageDP) throws WikiApiException{
+		Assert.notNull(curTalkPageDP);
+		
 		/*
 		 * Load Contributions for the given Talk page and determine the time of
 		 * the first and the last contribution.
@@ -95,8 +98,14 @@ public class WikipediaContextArticleConverterService{
 	 * @param discourse the discourse the content is part of (for user generation) 
 	 * @param curArticleRev the revision to map
 	 * @param articleTitle the title of the article the talk page belongs to
+	 * @param prevRevId the id of the previous revision. Might be null if there was no previous revision.
 	 */
 	public Long mapRevision(Long discourseId, Revision curArticleRev, String articleTitle, Long prevRevId){
+		Assert.notNull(discourseId);
+		Assert.isTrue(discourseId>0);
+		Assert.notNull(curArticleRev);
+		Assert.hasText(articleTitle);
+
 		User curUser = userService.createOrGetUser(discourseService.findOne(discourseId), curArticleRev.getContributorName());			
 				
 		Content curRev = contentService.createContent();
@@ -121,6 +130,9 @@ public class WikipediaContextArticleConverterService{
 	 * Update references to first and last element 
 	 */
 	public Context updateContext(Long contextId, Long firstContentId, Long lastContentId){
+		Assert.notNull(contextId);
+		Assert.isTrue(contextId>0);
+
 		Context ctx = contextService.findOne(contextId);
 		Content first = contentService.findOne(firstContentId);
 		Content last = contentService.findOne(lastContentId);

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -58,10 +59,10 @@ public class WikipediaTalkPageConverterService{
 	 * @param tp the TalkPage to map to DiscourseDB
 	 */
 	public void mapTalkPage(String discourseName, String dataSetName, String articleTitle, TalkPage tp){
-		if(discourseName==null||discourseName.isEmpty()||dataSetName==null||dataSetName.isEmpty()||tp==null||articleTitle==null||articleTitle.isEmpty()){
-			logger.error("Cannot map talk page. Data provided is complete. Skipping ...");
-			return;
-		}
+		Assert.hasText(discourseName,"Cannot map talk page. No discourse name provided.");
+		Assert.hasText(dataSetName,"Cannot map talk page. No dataset name provided.");
+		Assert.hasText(articleTitle,"Cannot map talk page. Article title missing.");
+		Assert.notNull(tp,"Cannot map talk page. Talk paage object is missing.");
 		
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 		//we create ONE discourse part for ALL the discussion activity in the context of a single article.
@@ -74,7 +75,8 @@ public class WikipediaTalkPageConverterService{
 		for(Topic topic:topics){
 			logger.trace("Mapping topic "+topic.getTitle());
 			String talkPageRevisionId = tp.getTpBaseRevision().getRevisionID()+"";
-			DiscoursePart curTopicDP = discoursePartService.createOrGetTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);			
+			//Several Topics/Threads with the same title might occur, so we need to use createTypedDiscoursePart instead of createOrGetTypedDiscoursePart to allow duplicate names
+			DiscoursePart curTopicDP = discoursePartService.createTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);		
 			dataSourceService.addSource(curTopicDP, new DataSourceInstance(talkPageRevisionId+"_"+topic.getTitle(), WikipediaTalkPageSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
 			discoursePartService.createDiscoursePartRelation(curArticleDP, curTopicDP, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);			
 
