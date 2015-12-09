@@ -13,7 +13,7 @@ It is then possible to run a particular class in any DiscourseDB module by calli
 ```
 java -cp ".:PATH/TO/MODULE/discoursedb-io-edx-0.5-SNAPSHOT.jar:PATH/TO/MODULE/discoursedb-io-edx-0.5-SNAPSHOT-dist/*" edu.cmu.cs.lti.discoursedb.io.edx.forum.converter.EdxForumConverterApplication utarlingtonx-2015-03-22 /path/to/forum.json /path/to/usermapping.tsv
 ```
-If you provide a ```custom.properties``` file on the classpath, e.g. the folder in which the above command is executed, the configuration provided in this properties file will override the standard configuration. This way, you can e.g. define different database access credentials for the DiscourseDB database. More information about this can be found in the [discoursedb-model project](https://github.com/DiscourseDB/discoursedb-model/blob/master/README.md).
+If you provide a ```custom.properties``` file on the classpath, e.g. the folder in which the above command is executed, the configuration provided in this properties file will override the standard configuration. This way, you can e.g. define different database access credentials for the DiscourseDB database. More information about this can be found [here](https://github.com/DiscourseDB/discoursedb-model/blob/master/README.md#discoursedb-configuration) in the discoursedb-model project.
 
 
 ## Database Server
