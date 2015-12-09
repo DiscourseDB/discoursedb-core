@@ -75,11 +75,12 @@ public class WikipediaContextArticleConverter implements CommandLineRunner {
 
 		List<DiscoursePart> talkPageDPs = discoursePartService.findAllByType(DiscoursePartTypes.TALK_PAGE);
 		logger.info("Start mapping context articles for " + talkPageDPs.size() + " existing Talk pages");
-		int curContextNumber = 1;
+		int curContextNumber = 1;		
 		for (DiscoursePart curTalkPageDP : talkPageDPs) {
 			logger.info("Mapping context "+(curContextNumber++)+" of "+talkPageDPs.size()+" for " + curTalkPageDP.getName());
 
-			// get reference to the article for the given Talk page
+			// Get reference to the article for the given Talk page
+			// Move on to the next Talk page if the article cannot be retrieved.
 			Page article = null;
 			try{
 				article=wiki.getPage(curTalkPageDP.getName());				
