@@ -94,7 +94,6 @@ public class BaseConfiguration {
 		jpaProperties.put("hibernate.order_updates", true);
 		jpaProperties.put("hibernate.id.new_generator_mappings", Boolean.parseBoolean(environment.getRequiredProperty("hibernate.id.new_generator_mappings").trim()));
 		factory.setJpaProperties(jpaProperties);
-		factory.afterPropertiesSet();
 
 		return factory;
 	}
