@@ -11,8 +11,10 @@ mvn clean install -Passemble
 It is then possible to run a particular class in any DiscourseDB module by calling the following command in a terminal (in this example, we call the edX Forum converter)
 
 ```
-java -cp "PATH/TO/MODULE/discoursedb-io-edx-0.5-SNAPSHOT.jar:PATH/TO/MODULE/discoursedb-io-edx-0.5-SNAPSHOT-dist/*" edu.cmu.cs.lti.discoursedb.io.edx.forum.converter.EdxForumConverterApplication utarlingtonx-2015-03-22 /path/to/forum.json /path/to/usermapping.tsv
+java -cp ".:PATH/TO/MODULE/discoursedb-io-edx-0.5-SNAPSHOT.jar:PATH/TO/MODULE/discoursedb-io-edx-0.5-SNAPSHOT-dist/*" edu.cmu.cs.lti.discoursedb.io.edx.forum.converter.EdxForumConverterApplication utarlingtonx-2015-03-22 /path/to/forum.json /path/to/usermapping.tsv
 ```
+If you provide a ```custom.properties``` file on the classpath, e.g. the folder in which the above command is executed, the configuration provided in this properties file will override the standard configuration. This way, you can e.g. define different database access credentials for the DiscourseDB database. More information about this can be found [here](https://github.com/DiscourseDB/discoursedb-model/blob/master/README.md#discoursedb-configuration) in the discoursedb-model project.
+
 
 ## Database Server
 DiscourseDB requires a database server. The BaseConfiguration is configured for MySQL, but you can use other relations DBMS and adapt the configuration accordingly. The following instruction will assume a MySQL setup.
