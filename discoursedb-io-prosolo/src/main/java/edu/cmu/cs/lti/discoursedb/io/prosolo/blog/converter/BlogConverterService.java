@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -58,6 +59,11 @@ public class BlogConverterService {
 	 * @param blogToEdxMap a mapping from blog author names to edx username (possibly empty)
 	 */
 	public void mapPost(ProsoloBlogPost p, String discourseName, String dataSetName, Map<String, String> blogToEdxMap) {				
+		Assert.notNull(p,"Cannot map post. Post data was null.");
+		Assert.hasText(discourseName,"Cannot map post. Discourse name not specified.");
+		Assert.hasText(dataSetName,"Cannot map post. DataSetName not specified.");
+
+		
 		if(contributionService.findOneByDataSource(p.getId(),ProsoloBlogSourceMapping.BLOG_ID_TO_CONTRIBUTION, dataSetName).isPresent()){
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
 			return;
@@ -122,6 +128,11 @@ public class BlogConverterService {
 	 * @param blogToEdxMap a mapping from blog author names to edx username (possibly empty)
 	 */
 	public void mapComment(ProsoloBlogComment c, Contribution parent, Discourse curDiscourse, String dataSetName, Map<String,String> blogToEdxMap) {				
+		Assert.notNull(c,"Cannot map comment. Comment data was null.");
+		Assert.notNull(parent,"Cannot map comment. Parent contribution was null.");
+		Assert.notNull(curDiscourse,"Cannot map comment. Discourse data was null.");
+		Assert.hasText(dataSetName,"Cannot map post. DataSetName not specified.");
+
 		logger.trace("Init DiscoursePart entity");
 		// in edX, we consider the whole forum to be a single DiscoursePart		
 		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
