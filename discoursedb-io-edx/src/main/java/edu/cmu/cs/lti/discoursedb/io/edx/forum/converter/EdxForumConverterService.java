@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -50,6 +51,9 @@ public class EdxForumConverterService{
 	 * @param dataSetName the name of the dataset the post was extracted from
 	 */
 	public void mapEntities(Post p, String dataSetName) {				
+		Assert.notNull(p,"Cannot map relations for post. Post data was null.");
+		Assert.hasText(dataSetName,"Cannot map post. DataSetName not specified.");
+
 		if(contributionService.findOneByDataSource(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).isPresent()){
 			logger.warn("Post " + p.getId()+" already in database. Skipping Post");
 			return;
@@ -107,6 +111,9 @@ public class EdxForumConverterService{
 	 *            the post object to map to DiscourseDB
 	 */
 	public void mapRelations(Post p, String dataSetName) {		
+		Assert.notNull(p,"Cannot map relations for post. Post data was null.");
+		Assert.hasText(dataSetName,"Cannot map post. DataSetName not specified.");
+
 		logger.trace("Mapping relations for post " + p.getId());
 	
 		//check if a contribution for the given Post already exists in DiscourseDB (imported in Phase1)
@@ -140,6 +147,8 @@ public class EdxForumConverterService{
 	 *            the UserInfo object to map to DiscourseDB
 	 */
 	public void mapUser(UserInfo u) {
+		Assert.notNull(u,"Cannot map user. UserInfo was null.");
+		
 		logger.trace("Mapping UserInfo for user" + u.getUsername());
 	
 		Optional<User> existingUser = userService.findUserBySourceIdAndUsername(u.getId()+"", u.getUsername());
