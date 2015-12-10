@@ -43,6 +43,12 @@
 				<artifactId>discoursedb-io-edx</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- Override querydsl versions defined in platform-bom, since we need to be consitent with our maven plugin -->			
+			<dependency>
+				<groupId>com.mysema.querydsl</groupId>
+				<artifactId>querydsl-apt</artifactId>
+				<version>${querydsl.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.mysema.querydsl</groupId>
 				<artifactId>querydsl-collections</artifactId>
@@ -50,7 +56,22 @@
 			</dependency>
 			<dependency>
 				<groupId>com.mysema.querydsl</groupId>
+				<artifactId>querydsl-core</artifactId>
+				<version>${querydsl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.mysema.querydsl</groupId>
 				<artifactId>querydsl-jpa</artifactId>
+				<version>${querydsl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.mysema.querydsl</groupId>
+				<artifactId>querydsl-lucene3</artifactId>
+				<version>${querydsl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.mysema.querydsl</groupId>
+				<artifactId>querydsl-mongodb</artifactId>
 				<version>${querydsl.version}</version>
 			</dependency>
 			<dependency>
@@ -86,6 +107,11 @@
 				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-csv</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-bazaar</artifactId>
 				<version>${project.version}</version>
@@ -101,21 +127,9 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.fasterxml.jackson.dataformat</groupId>
-				<artifactId>jackson-dataformat-csv</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.jooq</groupId>
 				<artifactId>jool</artifactId>
 				<version>0.9.7</version>
-			</dependency>
-			<dependency>
-				<groupId>c3p0</groupId>
-				<artifactId>c3p0</artifactId>
-				<version>0.9.1.2</version>
-				<type>jar</type>
-				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
@@ -137,12 +151,6 @@
 				<version>1.7.0</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.16.6</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
