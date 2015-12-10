@@ -23,6 +23,10 @@
 			<artifactId>hibernate-entitymanager</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
@@ -77,10 +81,6 @@
 		<dependency>
 			<groupId>javax.interceptor</groupId>
 			<artifactId>javax.interceptor-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>c3p0</groupId>
-			<artifactId>c3p0</artifactId>
 		</dependency>
 	</dependencies>
 	<parent>
