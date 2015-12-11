@@ -50,6 +50,7 @@ public class DiscourseService {
 	 * @param discoursePart the DiscoursePart for which the discourse should be retrieved
 	 * @return and Optional that contains a Discourse if it exists
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Optional<Discourse> findOne(DiscoursePart discoursePart){
 		Assert.notNull(discoursePart);
 
@@ -57,6 +58,7 @@ public class DiscourseService {
 				.findOne(QDiscourse.discourse.discourseToDiscourseParts.any().discoursePart.eq(discoursePart)));
 	}
 	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Discourse findOne(Long id){
 		Assert.notNull(id);
 		Assert.isTrue(id>0);

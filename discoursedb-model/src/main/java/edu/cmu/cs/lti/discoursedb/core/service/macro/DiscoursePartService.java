@@ -276,6 +276,7 @@ public class DiscoursePartService {
 	 * @param type the DiscoursePartRelationTypes 
 	 * @return a DiscoursePartRelation between the two provided DiscourseParts with the given type that has already been saved to the database 
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<DiscoursePart> findChildDiscourseParts(DiscoursePart sourceDiscoursePart, DiscoursePartRelationTypes type) {
 		Assert.notNull(sourceDiscoursePart);
 		Assert.notNull(type);
@@ -321,6 +322,7 @@ public class DiscoursePartService {
 	 * @param type the DiscoursePartType
 	 * @return true, if the DiscoursePart exists. False, otherwise
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public boolean exists(Discourse discourse, String discoursePartName, DiscoursePartTypes type){
 		Assert.notNull(discourse);
 		Assert.notNull(discoursePartName);
@@ -343,6 +345,7 @@ public class DiscoursePartService {
 	 * @param type the type of the discoursepart
 	 * @return a list of discoursepart of the given type that might be empty
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<DiscoursePart> findAllByType(DiscoursePartTypes type){
 		Assert.notNull(type);
 		

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
@@ -37,7 +38,12 @@ public class DataSourceService {
 	 *            the name of the dataset, e.g. edx_dalmooc_20150202
 	 * @return an optional containing the DataSourceInstance if it exist, empty otherwise
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName ){
+		Assert.hasText(entitySourceId);
+		Assert.hasText(entitySourceDescriptor);
+		Assert.hasText(dataSetName);
+
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
 				DataSourcePredicates.hasDataSetName(dataSetName)).and(
@@ -50,7 +56,10 @@ public class DataSourceService {
 	 * @param dataSetName the name of the dataset (e.g. file name or dataset name)
 	 * @return true, if any data from that dataset has been imported previously. false, else.
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public boolean dataSourceExists(String dataSetName){		
+		Assert.hasText(dataSetName);
+
 		return dataSourceInstanceRepo.count(DataSourcePredicates.hasDataSetName(dataSetName))>0;
 	}
 
@@ -60,7 +69,12 @@ public class DataSourceService {
 	 * @param dataSetName the name of the dataset (e.g. file name or dataset name)
 	 * @return true, if any data from that dataset has been imported previously. false, else.
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public boolean dataSourceExists(String sourceId, String sourceIdDescriptor, String dataSetName){		
+		Assert.hasText(sourceId);
+		Assert.hasText(sourceIdDescriptor);
+		Assert.hasText(dataSetName);
+
 		return dataSourceInstanceRepo.count(
 				DataSourcePredicates.hasDataSetName(dataSetName).and(
 				DataSourcePredicates.hasEntitySourceDescriptor(sourceIdDescriptor).and(
@@ -77,6 +91,8 @@ public class DataSourceService {
 	 * @return the DataSourceInstance that has been committed to DiscourseDB 
 	 */
 	public DataSourceInstance createIfNotExists(DataSourceInstance source){
+		Assert.notNull(source);
+
 		String sourceId = source.getEntitySourceId();
 		String sourceDescriptor = source.getEntitySourceDescriptor();
 		String dataSetName = source.getDatasetName();
@@ -90,13 +106,51 @@ public class DataSourceService {
 			return dataSourceInstanceRepo.save(source);
 		}
 	}	
+
+	/**
+	 * Finds the datasource with the given descriptor for the given entity 
+	 * 
+	 * @param entity the entity to retrieve the datasource for
+	 * @param entitySourceDescriptor the descriptor of the datasource to be retrieved
+	 * @return a DataSourceInstance with the given descriptor for the given entity
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public <T extends TimedAnnotatableBaseEntityWithSource> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
+		Assert.notNull(entity);
+		Assert.hasText(entitySourceDescriptor);
+		
+		return entity.getDataSourceAggregate().getSources().stream().filter(e -> e.getEntitySourceDescriptor().equals(entitySourceDescriptor)).findAny();
+	}
+
+	/**
+	 * Finds the datasource with the given descriptor for the given entity 
+	 * 
+	 * @param entity the entity to retrieve the datasource for
+	 * @param entitySourceDescriptor the descriptor of the datasource to be retrieved
+	 * @return a DataSourceInstance with the given descriptor for the given entity
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public <T extends UntimedBaseEntityWithSource> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
+		Assert.notNull(entity);
+		Assert.hasText(entitySourceDescriptor);
+
+		return entity.getDataSourceAggregate().getSources().stream().filter(e -> e.getEntitySourceDescriptor().equals(entitySourceDescriptor)).findAny();
+	}
 	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public <T extends TimedAnnotatableBaseEntityWithSource> boolean hasSourceId(T entity, String sourceId) {
+		Assert.notNull(entity);
+		Assert.hasText(sourceId);
+
 		return entity.getDataSourceAggregate().getSources().stream()
 				.anyMatch(e -> e.getEntitySourceId().equals(sourceId));
 	}
 
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public <T extends UntimedBaseEntityWithSource> boolean hasSourceId(T entity, String sourceId) {
+		Assert.notNull(entity);
+		Assert.hasText(sourceId);
+
 		return entity.getDataSourceAggregate().getSources().stream()
 				.anyMatch(e -> e.getEntitySourceId().equals(sourceId));
 	}
@@ -116,6 +170,9 @@ public class DataSourceService {
 	 *            the source to add to the entity
 	 */
 	public <T extends TimedAnnotatableBaseEntityWithSource> void addSource(T entity, DataSourceInstance source) {		
+		Assert.notNull(entity);
+		Assert.notNull(source);
+
 		//the source aggregate is a proxy for the entity
 		DataSources sourceAggregate = entity.getDataSourceAggregate();
 		if (sourceAggregate == null) {
@@ -150,6 +207,9 @@ public class DataSourceService {
 	 *            the source to add to the entity
 	 */
 	public <T extends UntimedBaseEntityWithSource> void addSource(T entity, DataSourceInstance source) {
+		Assert.notNull(entity);
+		Assert.notNull(source);
+
 		//the source aggregate is a proxy for the entity
 		DataSources sourceAggregate = entity.getDataSourceAggregate();
 		if (sourceAggregate == null) {

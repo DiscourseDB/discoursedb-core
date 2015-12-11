@@ -79,6 +79,7 @@ public class ContextService {
 		}	
 	}
 	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Context findOne(long id){
 		Assert.isTrue(id>0);
 		return contextRepo.findOne(id);
