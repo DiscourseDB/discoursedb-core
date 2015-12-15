@@ -7,7 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * This converter tetrieves all DiscourseParts of TALK_PAGE type.
+ * This converter imports discussion contexts, i.e. the changes in the articles while discussions where happening.
+ * NOTE: The database might get really big since every revision is stored in full.
+ * 
+ * To achieve this, you have to have a DiscourseDB database with imported Talk pages.
+ * The converter then retrieves all DiscourseParts of the TALK_PAGE type.
  * For each TALK PAGE DP, it determines the time of the first and last discussion that is associated with the Talk page.
  * It then retrieves all revisions of the associated article within this time window. These article revisions are mapped as content entities associated with a context entity.
  * Each contribution to the discussion is linked to the context entity.
