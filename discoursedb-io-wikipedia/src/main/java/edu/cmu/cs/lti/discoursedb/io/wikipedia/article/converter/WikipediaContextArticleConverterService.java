@@ -113,15 +113,22 @@ public class WikipediaContextArticleConverterService{
 		Assert.isTrue(discourseId>0);
 		Assert.notNull(curArticleRev);
 		Assert.hasText(articleTitle);
-
-		User curUser = userService.createOrGetUser(discourseService.findOne(discourseId), curArticleRev.getContributorName());			
+		//Note: prevRevId is allowed to be null (in case of the first revision)
+		
+		
 				
 		Content curRev = contentService.createContent();
 		curRev.setText(curArticleRev.getRevisionText());
-		curRev.setAuthor(curUser);
 		curRev.setStartTime(curArticleRev.getTimeStamp());
 		curRev.setTitle(articleTitle);
 
+		//there seem to be cases where the user name is null, so we can only assign a user if we have the name
+		String curUserName = curArticleRev.getContributorName();
+		if(curUserName!=null&&!curUserName.isEmpty()){
+			curRev.setAuthor(userService.createOrGetUser(discourseService.findOne(discourseId), curArticleRev.getContributorName()));
+		}
+
+		//in case there was a previous revision, retrieve it and connect the Content entity
 		if(prevRevId!=null){
 			Content prev = contentService.findOne(prevRevId);
 			prev.setNextRevision(curRev);
