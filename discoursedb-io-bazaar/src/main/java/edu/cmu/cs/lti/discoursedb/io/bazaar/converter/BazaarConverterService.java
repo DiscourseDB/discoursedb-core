@@ -32,6 +32,11 @@ import edu.cmu.cs.lti.discoursedb.io.bazaar.model.BazaarSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Message;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Room;
 
+/**
+ * @author Haitian Gong
+ * @author Oliver Ferschke
+ *
+ */
 @Service
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
 public class BazaarConverterService {
@@ -73,7 +78,7 @@ public class BazaarConverterService {
 			else if(m.getType().equals("image"))
 				mappedType = ContributionTypes.BAZAAR_IMAGE;
 			else if(m.getType().equals("private"))
-				mappedType = ContributionTypes.BAZAAR_PRIVATE;
+				mappedType = ContributionTypes.PRIVATE_MESSAGE;
 				
 			//add content entity to database
 			logger.trace("Create Content entity");
@@ -111,7 +116,7 @@ public class BazaarConverterService {
 			//map relation between contribution and discoursepart
 			DiscoursePart curDiscoursePart = 
 					discoursepartService.createOrGetTypedDiscoursePart(
-							curDiscourse, map.get(m.getRoomid()), DiscoursePartTypes.BAZAAR_ROOM);
+							curDiscourse, map.get(m.getRoomid()), DiscoursePartTypes.CHATROOM);
 			discoursepartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
 			
 		}
@@ -126,7 +131,7 @@ public class BazaarConverterService {
 		//add discoursepartType entity to database
 		DiscoursePart curDiscoursePart = 
 				discoursepartService.createOrGetTypedDiscoursePart(
-						curDiscourse, r.getName(), DiscoursePartTypes.BAZAAR_ROOM);
+						curDiscourse, r.getName(), DiscoursePartTypes.CHATROOM);
 		if(r.getCreated_time()!=null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			java.util.Date date = sdf.parse(r.getCreated_time());
@@ -148,7 +153,7 @@ public class BazaarConverterService {
 				new DataSourceInstance(m.getUsername(), BazaarSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.BAZAAR, dataSetName));
 		DiscoursePart curDiscoursePart = 
 				discoursepartService.createOrGetTypedDiscoursePart(
-						curDiscourse, map.get(m.getRoomid()), DiscoursePartTypes.BAZAAR_ROOM);
+						curDiscourse, map.get(m.getRoomid()), DiscoursePartTypes.CHATROOM);
 		if(m.getContent().equals("join"))
 			userService.createDiscoursePartInteraction(curUser, curDiscoursePart, DiscoursePartInteractionTypes.JOIN);
 		if(m.getContent().equals("ready"))

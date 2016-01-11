@@ -25,6 +25,11 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Message;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Room;
 
+/**
+ * @author Haitian Gong
+ * @author Oliver Ferschke
+ *
+ */
 @Component
 public class BazaarConverter implements CommandLineRunner {
 	
