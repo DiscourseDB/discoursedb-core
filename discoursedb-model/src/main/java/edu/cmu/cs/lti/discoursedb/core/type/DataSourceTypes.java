@@ -22,6 +22,11 @@ public enum DataSourceTypes {
 	/**
 	 * A TAGS dataset 
 	 */
-	TAGS
+	TAGS,
+	/**
+	 * A Bazaar chat dataset
+	 */
+	BAZAAR
+
 
 }
