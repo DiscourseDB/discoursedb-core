@@ -53,8 +53,8 @@ public class EdxForumConverter implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if(args.length!=3){
-			logger.error("Usage: EdxForumConverterApplication <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>");
+		if(args.length<2){
+			logger.error("Usage: EdxForumConverterApplication <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql> (optional)");
 			throw new RuntimeException("Incorrect number of launch parameters.");
 		}
 		final String dataSetName=args[0];		
@@ -64,16 +64,21 @@ public class EdxForumConverter implements CommandLineRunner {
 		}
 		
 		final String forumDumpFileName = args[1];
-		File forumFumpFile = new File(forumDumpFileName);
-		if (!forumFumpFile.exists() || !forumFumpFile.isFile() || !forumFumpFile.canRead()) {
+		File forumDumpFile = new File(forumDumpFileName);
+		if (!forumDumpFile.exists() || !forumDumpFile.isFile() || !forumDumpFile.canRead()) {
 			logger.error("Forum dump file does not exist or is not readable.");
 			throw new RuntimeException("Can't read file "+forumDumpFileName);
 		}
-		final String userMappingFileName = args[2];
-		File userMappingFile = new File(userMappingFileName);
-		if (!userMappingFile.exists() || !userMappingFile.isFile() || !userMappingFile.canRead()) {
-			logger.error("User mappiong file does not exist or is not readable.");
-			throw new RuntimeException("Can't read file "+userMappingFileName);
+		
+		//optionally read user mapping file
+		File userMappingFile = null;
+		if(args.length>2){
+			final String userMappingFileName = args[2];
+			userMappingFile = new File(userMappingFileName);
+			if (!userMappingFile.exists() || !userMappingFile.isFile() || !userMappingFile.canRead()) {
+				logger.error("User mappiong file does not exist or is not readable.");
+				throw new RuntimeException("Can't read file "+userMappingFileName);
+			}			
 		}
 		
 		/*
@@ -87,7 +92,7 @@ public class EdxForumConverter implements CommandLineRunner {
 		//Phase 1: read through input file once and map all entities
 
 		logger.info("Phase 1: Mapping forum posts and related entities to DiscourseDB");
-		try(InputStream in = new FileInputStream(forumFumpFile)) {
+		try(InputStream in = new FileInputStream(forumDumpFile)) {
 			Iterator<Post> pit =new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class);	
 			Iterable<Post> iterable = () -> pit;
 			StreamSupport.stream(iterable.spliterator(), false).forEach(p->converterService.mapEntities(p, dataSetName));		
@@ -96,22 +101,24 @@ public class EdxForumConverter implements CommandLineRunner {
 		
 		//Phase 2: read through input file a second time and map all entity relationships
 		logger.info("Phase 2: Mapping DiscourseRelations");
-		try(InputStream in = new FileInputStream(forumFumpFile)) {
+		try(InputStream in = new FileInputStream(forumDumpFile)) {
 				Iterator<Post> pit =new ObjectMapper().readValues(new JsonFactory().createParser(in), Post.class);	
 				Iterable<Post> iterable = () -> pit;
 				StreamSupport.stream(iterable.spliterator(), false).forEach(p->converterService.mapRelations(p, dataSetName));		
 		}	
 	
-		//Phase 3: read user mapping file and add map user info
-		logger.info("Phase 3: Adding additional user information");		
-		try(InputStream in = new FileInputStream(userMappingFile);) {
-			CsvMapper mapper = new CsvMapper();
-			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator('\t');
-			MappingIterator<UserInfo> it = mapper.readerFor(UserInfo.class).with(schema).readValues(in);
-			while (it.hasNextValue()) {
-				converterService.mapUser(it.next());
-			}
-		}	
+		//Optional Phase 3: read user mapping file and add map user info
+		if(userMappingFile!=null){			
+			logger.info("Phase 3: Adding additional user information");		
+			try(InputStream in = new FileInputStream(userMappingFile);) {
+				CsvMapper mapper = new CsvMapper();
+				CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator('\t');
+				MappingIterator<UserInfo> it = mapper.readerFor(UserInfo.class).with(schema).readValues(in);
+				while (it.hasNextValue()) {
+					converterService.mapUser(it.next());
+				}
+			}	
+		}
 		
 		logger.info("All done.");
 	}
