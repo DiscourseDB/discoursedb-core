@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mysema.query.annotations.Config;
 
 /**
  * Represents a Content item in a Piazza dump.
@@ -25,6 +24,8 @@ public class Content {
 	private String type;
 
 	private int nr;
+
+	private Config config;
 	
 	@JsonProperty("unique_views")
 	private long uniqueViews;
@@ -46,9 +47,7 @@ public class Content {
 
 	@JsonProperty("change-log")
 	private List<ChangeLog> changeLog;	
-	
-	private List<Config> config;
-	
+		
 	private List<Child> children;
 
 	public Date getCreated() {
@@ -155,14 +154,6 @@ public class Content {
 		this.changeLog = changeLog;
 	}
 
-	public List<Config> getConfig() {
-		return config;
-	}
-
-	public void setConfig(List<Config> config) {
-		this.config = config;
-	}
-
 	public List<Child> getChildren() {
 		return children;
 	}
@@ -170,5 +161,12 @@ public class Content {
 	public void setChildren(List<Child> children) {
 		this.children = children;
 	}
-	
+
+	public Config getConfig() {
+		return config;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
+	}
 }

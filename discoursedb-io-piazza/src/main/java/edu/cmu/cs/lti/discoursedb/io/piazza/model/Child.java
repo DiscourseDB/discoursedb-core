@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mysema.query.annotations.Config;
 
 /**
  * Represents a Content.Child in a Piazza dump.
@@ -28,8 +27,6 @@ public class Child {
 	
 	private String subject;
 
-	private String data;
-	
 	private String type;
 
 	@JsonProperty("no_upvotes")
@@ -54,7 +51,7 @@ public class Child {
 	
 	private List<History> history;
 	
-	private List<Config> config;
+	private Config config;
 	
 	private List<Child> children;
 
@@ -104,14 +101,6 @@ public class Child {
 
 	public void setSubject(String subject) {
 		this.subject = subject;
-	}
-
-	public String getData() {
-		return data;
-	}
-
-	public void setData(String data) {
-		this.data = data;
 	}
 
 	public String getType() {
@@ -186,14 +175,6 @@ public class Child {
 		this.history = history;
 	}
 
-	public List<Config> getConfig() {
-		return config;
-	}
-
-	public void setConfig(List<Config> config) {
-		this.config = config;
-	}
-
 	public List<Child> getChildren() {
 		return children;
 	}
@@ -201,5 +182,12 @@ public class Child {
 	public void setChildren(List<Child> children) {
 		this.children = children;
 	}
-	
+
+	public Config getConfig() {
+		return config;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
+	}	
 }
