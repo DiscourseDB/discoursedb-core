@@ -26,7 +26,11 @@ public enum DataSourceTypes {
 	/**
 	 * A Bazaar chat dataset
 	 */
-	BAZAAR
+	BAZAAR,
+	/**
+	 * A Coursera dataset
+	 */
+	COURSERA
 
 
 }
