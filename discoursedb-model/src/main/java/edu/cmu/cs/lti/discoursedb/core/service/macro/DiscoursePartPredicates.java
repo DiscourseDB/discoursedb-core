@@ -4,7 +4,6 @@ import com.mysema.query.types.expr.BooleanExpression;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.QContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 
