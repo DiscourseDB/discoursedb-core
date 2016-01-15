@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
-import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.io.coursera.io.CourseraDB;
 
 @Component
@@ -21,8 +19,6 @@ public class CourseraConverter implements CommandLineRunner{
 	
 	@Autowired 
 	CourseraConverterService converterService;
-	@Autowired
-	private DiscourseService discourseService;
 	
 	@Override
 	public void run(String... args) throws Exception {	

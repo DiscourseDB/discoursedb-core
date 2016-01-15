@@ -3,7 +3,6 @@ package edu.cmu.cs.lti.discoursedb.io.coursera.converter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -59,59 +58,86 @@ public class CourseraConverterService {
 	
 	public void mapForum(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
+		//initialize discourse the forums belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 		
+		//get the list of all forum ids in the source database
 		ArrayList<Integer> forumIds = (ArrayList<Integer>) database.getIds("forum");
 		
+		System.out.println("<<<<<<Start importing forum data>>>>>>");
+		
 		for(int i=0;i<forumIds.size();i++) {
-			System.out.println(i);
+			
 			int forumid = forumIds.get(i);
 			Forum curForum = (Forum) database.getDbEntity("forum", (long) forumid);
-			discoursepartService.createOrGetTypedDiscoursePart(discourse, curForum.getName(), DiscoursePartTypes.FORUM);
+			//System.out.println(i);
 			
 			DiscoursePart forum = 
-					discoursepartService.createOrGetTypedDiscoursePart(
-							discourse, curForum.getName(), DiscoursePartTypes.FORUM);
+					discoursepartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.FORUM);
 			Date d = new Date(curForum.getOpentime()*1000L);
 			forum.setStartTime(d);
+			
+			//If a forum has no name, set "NoNameForum" as its name
+			if(curForum.getName().length()==0)
+				curForum.setName("NoNameForum");
+			forum.setName(curForum.getName());
+			
+			dataSourceService.addSource(forum, new DataSourceInstance(
+					String.valueOf(curForum.getId()), 
+					CourseraSourceMapping.ID_STR_TO_DISCOURSEPART, 
+					DataSourceTypes.COURSERA, 
+					dataSetName));
+			
 		}
 		
 	}
 	
 	public void mapThread(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
-		ArrayList<Integer> threadIds = (ArrayList<Integer>) database.getIds("thread");
+		//initialize the discourse the threads belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		
+		//get the list of all thread ids in the source database
+	    ArrayList<Integer> threadIds = (ArrayList<Integer>) database.getIds("thread");
+	    
+	    System.out.println("<<<<<<Start importing thread data>>>>>>");
+		
 		for(int i=0;i<threadIds.size();i++) {
-			System.out.println(i);
 			int threadid = threadIds.get(i);
 			Thread curThread = (Thread) database.getDbEntity("thread", (long) threadid);
-			
-			//A few threads have very long title (longer than varchar(255))
+			//System.out.println(i);
+			//A few threads have very long title (longer than 255)
 			//These threads are skipped
 			if(curThread.getTitle().length()>=255)
-				continue;
+				continue;			
 			
-			Forum curForum = (Forum) database.getDbEntity("forum", (long) curThread.getForum_id());
-			discoursepartService.createOrGetTypedDiscoursePart(
-					discourse, curThread.getTitle(), DiscoursePartTypes.THREAD);
-			//System.out.println(curThread.getTitle());
-			DiscoursePart forum = 
-					discoursepartService.createOrGetTypedDiscoursePart(
-							discourse, curForum.getName(), DiscoursePartTypes.FORUM);
 			DiscoursePart thread = 
-					discoursepartService.createOrGetTypedDiscoursePart(
-							discourse, curThread.getTitle(), DiscoursePartTypes.THREAD);
-			
-			//set time
+					discoursepartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.THREAD);
+						
+			//set time and name
 			Date start = new Date(curThread.getPosted_time()*1000L);
 			Date last_update = new Date(curThread.getLast_updated_time()*1000L);
 			thread.setStartTime(start);
 			thread.setEndTime(last_update);
+			thread.setName(curThread.getTitle());
+			
+			//add discoursepart to database
+			dataSourceService.addSource(thread, new DataSourceInstance(
+					String.valueOf(curThread.getId()), 
+					CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, 
+					DataSourceTypes.COURSERA, 
+					dataSetName));
 			
 			//build relation between a thread and the forum it belongs to
-			discoursepartService.createDiscoursePartRelation(
-					forum, thread, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);			
+			Optional<DiscoursePart> existingForum = 
+					discoursepartService.findOneByDataSource(
+							String.valueOf(curThread.getForum_id()),
+							CourseraSourceMapping.ID_STR_TO_DISCOURSEPART, 
+							dataSetName);
+			
+			if(existingForum.isPresent())
+				discoursepartService.createDiscoursePartRelation(
+						existingForum.get(), thread, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);
 			
 		}
 		
@@ -119,101 +145,99 @@ public class CourseraConverterService {
 	
 	public void mapPost(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
-		ArrayList<Integer> postIds = (ArrayList<Integer>) database.getIds("post");
+		//initialize the discourse the threads belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
-		for(int i=0;i<100;i++) {
-			System.out.println(i);
+		
+		//get the list of all post ids in the source database
+		ArrayList<Integer> postIds = (ArrayList<Integer>) database.getIds("post");
+		
+		System.out.println("<<<<<<Start importing post data>>>>>>");
+		for(int i=0;i<postIds.size();i++) {
+			//System.out.println(i);
 			int postid = postIds.get(i);
 			Post curPost = (Post) database.getDbEntity("post", (long) postid);
-			Thread curThread = (Thread) database.getDbEntity("thread", (long) curPost.getThread_id());
 			
-			DiscoursePart thread = null;
-			if(curThread.getTitle().length()<255) 
-				thread = discoursepartService.createOrGetTypedDiscoursePart(discourse, curThread.getTitle(), DiscoursePartTypes.THREAD);
-			
-			/*
+			//if a post is already in discoursedb, then it is skipped
 			Optional<Contribution> existingContribution = 
 					contributionService.findOneByDataSource(
-							String.valueOf(curPost.getId()),
-							CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
-							dataSetName);
-			*/
+						String.valueOf(curPost.getId()),
+						CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
+						dataSetName);
+			if(existingContribution.isPresent())
+				continue;
 			
-			if(true) {
+			Date strat = new Date(curPost.getPost_time()*1000L);
 				
-				Date strat = new Date(curPost.getPost_time()*1000L);
+			//add content entity to database
+			logger.trace("Create Content entity");
+			User curUser = userService.createOrGetUser(discourse, String.valueOf(curPost.getUser_id()));
+			Content curContent = contentService.createContent();
+			curContent.setText(curPost.getPost_text());
+			curContent.setAuthor(curUser);
+			curContent.setStartTime(strat); 
+			dataSourceService.addSource(
+					curContent, new DataSourceInstance(
+							String.valueOf(curPost.getId()), 
+							CourseraSourceMapping.ID_STR_TO_CONTENT, 
+							DataSourceTypes.COURSERA, dataSetName));
 				
-				//add content entity to database
-				logger.trace("Create Content entity");
-				User curUser = userService.createOrGetUser(discourse, String.valueOf(curPost.getUser_id()));
-				Content curContent = contentService.createContent();
-				curContent.setText(curPost.getPost_text());
-				curContent.setAuthor(curUser);
-				curContent.setStartTime(strat); 
-				dataSourceService.addSource(
-						curContent, new DataSourceInstance(
-								String.valueOf(curPost.getId()), 
-								CourseraSourceMapping.ID_STR_TO_CONTENT, 
-								DataSourceTypes.COURSERA, dataSetName));
+			//add post contribution entity to database
+			logger.trace("Create Contribution entity");
+			ContributionTypes mappedType = null;
+			if(curPost.getOriginal()==0)
+				mappedType = ContributionTypes.POST;
+			else
+				mappedType = ContributionTypes.THREAD_STARTER;
 				
-				//add post contribution entity to database
-				logger.trace("Create Contribution entity");
-				ContributionTypes mappedType = null;
-				if(curPost.getOriginal()==0)
-					mappedType = ContributionTypes.POST;
-				else
-					mappedType = ContributionTypes.THREAD_STARTER;
+			Contribution curContribution = contributionService.createTypedContribution(mappedType);
+			curContribution.setStartTime(strat);
+			curContribution.setCurrentRevision(curContent);
+			if(curPost.getVotes()>0)
+				curContribution.setUpvotes((int) curPost.getVotes());
+			else
+				curContribution.setDownvotes((int) Math.abs(curPost.getVotes()));
 				
-				Contribution curContribution = contributionService.createTypedContribution(mappedType);
-				curContribution.setStartTime(strat);
-				curContribution.setCurrentRevision(curContent);
-				
-				if(curPost.getVotes()>0)
-					curContribution.setUpvotes((int) curPost.getVotes());
-				else
-					curContribution.setDownvotes((int) Math.abs(curPost.getVotes()));
-				
-				dataSourceService.addSource(curContribution,
-						new DataSourceInstance(
-								String.valueOf(curPost.getId()), 
-								CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
-								DataSourceTypes.BAZAAR, dataSetName));
-				
-				if(curThread.getTitle().length()<255)
-					discoursepartService.addContributionToDiscoursePart(curContribution, thread);
-			}
-		}
+			dataSourceService.addSource(curContribution,
+					new DataSourceInstance(
+						String.valueOf(curPost.getId()), 
+						CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
+						DataSourceTypes.BAZAAR, dataSetName));
 			
-		
+			//build relation between a post and the thread it belongs to
+			Optional<DiscoursePart> existingThread = 
+					discoursepartService.findOneByDataSource(
+						String.valueOf(curPost.getThread_id()),
+						CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, 
+						dataSetName);
+			
+			if(existingThread.isPresent())
+				discoursepartService.addContributionToDiscoursePart(curContribution, existingThread.get());
+		}			
 	}
 	
 	public void mapComment(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
-		ArrayList<Integer> commentIds = (ArrayList<Integer>) database.getIds("comment");
+		//initialize the discourse the comments belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		
+		//get the list of all comment ids in the source database
+		ArrayList<Integer> commentIds = (ArrayList<Integer>) database.getIds("comment");
+		
+		System.out.println("<<<<<<Start importing comment data>>>>>>");
+		
 		for(int i=0;i<commentIds.size();i++) {
-			System.out.println(i);
+			//System.out.println(i);
 			int commentid = commentIds.get(i);
 			Comment curComment = (Comment) database.getDbEntity("comment", (long) commentid);
-			Date start = new Date(curComment.getPost_time()*1000L);
-			
-			Thread curThread = (Thread) database.getDbEntity("thread", (long) curComment.getThread_id());
-			
-			Optional<Contribution> post = contributionService.findOneByDataSource(
-					String.valueOf(curComment.getPost_id()), 
-					CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
-					dataSetName);
 			
 			Optional<Contribution> existingContribution = 
 					contributionService.findOneByDataSource(
 							String.valueOf(curComment.getId()),
-							CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
+							CourseraSourceMapping.ID_STR_TO_CONTRIBUTION_COMMENT, 
 							dataSetName);
 			
 			if(!existingContribution.isPresent()) {
-				
-				System.out.println("TESTTEST");
-				
+				Date start = new Date(curComment.getPost_time()*1000L);
 				//add content entity to database
 				logger.trace("Create Content entity");
 				Content curContent = contentService.createContent();
@@ -224,13 +248,14 @@ public class CourseraConverterService {
 				dataSourceService.addSource(
 						curContent, new DataSourceInstance(
 								String.valueOf(curComment.getId()), 
-								CourseraSourceMapping.ID_STR_TO_CONTENT, 
+								CourseraSourceMapping.ID_STR_TO_CONTENT_COMMENT, 
 								DataSourceTypes.COURSERA, 
 								dataSetName));
 				
+				
 				//add contribution entity to database
 				logger.trace("Create Contribution entity");
-				Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.COMMENT);
+				Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
 				curContribution.setCurrentRevision(curContent);
 				curContribution.setFirstRevision(curContent);
 				curContribution.setStartTime(start);
@@ -242,17 +267,27 @@ public class CourseraConverterService {
 				dataSourceService.addSource(curContribution,
 						new DataSourceInstance(
 								String.valueOf(curComment.getId()), 
-								CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
+								CourseraSourceMapping.ID_STR_TO_CONTRIBUTION_COMMENT, 
 								DataSourceTypes.COURSERA, 
 								dataSetName));
+				
+				//build relation between a comment and the post it belongs to
+				Optional<Contribution> post = contributionService.findOneByDataSource(
+						String.valueOf(curComment.getPost_id()), 
+						CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
+						dataSetName);				
 				if(post.isPresent()) 
 					contributionService.createDiscourseRelation(
 							post.get(), curContribution, DiscourseRelationTypes.COMMENT);
 				
-				if(curThread.getTitle().length()<255) {
-					DiscoursePart thread = discoursepartService.createOrGetTypedDiscoursePart(
-							discourse, curThread.getTitle(), DiscoursePartTypes.THREAD);
-					discoursepartService.addContributionToDiscoursePart(curContribution, thread);
+				//build relation between a comment and the thread it belongs to
+				Optional<DiscoursePart> existingThread = 
+						discoursepartService.findOneByDataSource(
+								String.valueOf(curComment.getThread_id()),
+								CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, 
+								dataSetName);
+				if(existingThread.isPresent()) {
+					discoursepartService.addContributionToDiscoursePart(curContribution, existingThread.get());
 				}
 			}
 		}
