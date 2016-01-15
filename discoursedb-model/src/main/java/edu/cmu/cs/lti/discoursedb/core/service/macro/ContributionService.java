@@ -4,16 +4,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import com.mysema.query.jpa.JPQLQuery;
+import com.mysema.query.jpa.impl.JPAQuery;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.QContribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscoursePartContribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
@@ -32,7 +45,8 @@ public class ContributionService {
 	@Autowired private ContributionTypeRepository contribTypeRepo;
 	@Autowired private DiscourseRelationTypeRepository discRelationTypeRepo;
 	@Autowired private DiscourseRelationRepository discourseRelationRepo;
-
+	@PersistenceContext private EntityManager entityManager; 
+	
 	/**
 	 * Retrieves existing or creates a new ContributionType entity with the
 	 * provided type. It then creates a new empty Contribution entity and
@@ -45,7 +59,8 @@ public class ContributionService {
 	 * @return a new empty Contribution that is already saved to the db and
 	 *         connected with its requested type
 	 */
-	public Contribution createTypedContribution(ContributionTypes type){		
+	public Contribution createTypedContribution(ContributionTypes type){
+		Assert.notNull(type);
 		Optional<ContributionType> optContribType = contribTypeRepo.findOneByType(type.name());
 		ContributionType contribType = null;
 		if(optContribType.isPresent()){
@@ -68,6 +83,7 @@ public class ContributionService {
 	 * @return the possibly altered entity after the save process 
 	 */
 	public Contribution save(Contribution contrib){
+		Assert.notNull(contrib);
 		return contributionRepo.save(contrib);
 	}
 
@@ -81,7 +97,11 @@ public class ContributionService {
 	 * @return an optional contribution that meets the requested parameters
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Optional<Contribution> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName) {		
+	public Optional<Contribution> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName) {
+		Assert.hasText(entitySourceId);
+		Assert.hasText(entitySourceDescriptor);
+		Assert.hasText(dataSetName);
+
 		Optional<DataSourceInstance> dataSource = dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName);
 		if(dataSource.isPresent()){
 			return Optional.ofNullable(contributionRepo.findOne(
@@ -99,6 +119,7 @@ public class ContributionService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<Contribution> findAllByType(ContributionTypes type){
+		Assert.notNull(type);
 		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
 		if(existingType.isPresent()){
 			return contributionRepo.findAllByType(existingType.get());			
@@ -107,6 +128,18 @@ public class ContributionService {
 		}
 	}
 
+//	/**
+//	 * Returns a list of all contributions for a given discourse
+//	 * 
+//	 * @param discourse the discourse the contributions need to be associated with
+//	 * @return a list of Contributions of the given discourse that potentially might be empty
+//	 */
+//	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+//	public Iterable<Contribution> findAllByDiscourse(Discourse discourse){
+//		Assert.notNull(discourse);
+//		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscourse(discourse));			
+//	}
+	
 	/**
 	 * Returns a list of all contributions for a given discourse
 	 * 
@@ -114,8 +147,39 @@ public class ContributionService {
 	 * @return a list of Contributions of the given discourse that potentially might be empty
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Iterable<Contribution> findAllByType(Discourse discourse){
-		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscourse(discourse));			
+	public List<Contribution> findAllByDiscourse(Discourse curDiscourse){
+		Assert.notNull(curDiscourse);
+				
+		QDiscourse discourse = QDiscourse.discourse; 
+		QDiscoursePart discoursePart = QDiscoursePart.discoursePart;
+		QContribution contribution = QContribution.contribution;
+		QDiscoursePartContribution dpContrib = QDiscoursePartContribution.discoursePartContribution;
+		QDiscourseToDiscoursePart dDp = QDiscourseToDiscoursePart.discourseToDiscoursePart;
+
+		//TODO we shouldn't explicitly join on the ids, but make use of the query abstraction
+		
+		JPQLQuery query = new JPAQuery(entityManager);
+		List<Contribution> contribs = 
+				query.from(contribution, discourse, discoursePart, dpContrib, dDp)
+				.where(contribution.id.eq(dpContrib.contribution.id)
+				.and(dpContrib.discoursePart.id.eq(discoursePart.id)
+				.and(dDp.discoursePart.id.eq(discoursePart.id)
+				.and(dDp.discourse.eq(curDiscourse))))).list(contribution);				
+		
+		return contribs;			
+	}
+	
+	/**
+	 * Returns a list of all contributions for a given DiscoursePart
+	 * 
+	 * @param discoursePart the discoursePart the contributions need to be associated with
+	 * @return a list of Contributions of the given discoursePart that potentially might be empty
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<Contribution> findAllByDiscoursePart(DiscoursePart discoursePart){
+		Assert.notNull(discoursePart);
+
+		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscoursePart(discoursePart));			
 	}
 	
 	/**
@@ -127,6 +191,9 @@ public class ContributionService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Iterable<Contribution> findAllByType(Discourse discourse, ContributionTypes type){
+		Assert.notNull(discourse);
+		Assert.notNull(type);
+		
 		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
 		if(existingType.isPresent()){
 			return contributionRepo.findAll(
@@ -134,6 +201,16 @@ public class ContributionService {
 		}else{
 			return new ArrayList<Contribution>(0);
 		}
+	}
+	
+	/**
+	 * Returns a list of all contributions in the database no matter what type they or what discourse they are part of
+	 * 
+	 * @return a list of all contributions in the database
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<Contribution> findAll(){
+			return contributionRepo.findAll();
 	}
 	
 	/**
@@ -151,6 +228,10 @@ public class ContributionService {
 	 * @return a DiscourseRelation between the two provided contributions with the given type that has already been saved to the database 
 	 */
 	public DiscourseRelation createDiscourseRelation(Contribution sourceContribution, Contribution targetContribution, DiscourseRelationTypes type) {
+		Assert.notNull(sourceContribution);
+		Assert.notNull(targetContribution);
+		Assert.notNull(type);
+
 		//Retrieve type or create if it doesn't exist in db
 		DiscourseRelationType discourseRelationType = null;
 		Optional<DiscourseRelationType> existingDiscourseRelationType = discRelationTypeRepo.findOneByType(type.name());
