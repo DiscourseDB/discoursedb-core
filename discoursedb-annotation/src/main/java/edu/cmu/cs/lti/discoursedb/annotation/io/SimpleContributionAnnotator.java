@@ -27,9 +27,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 
 /**
- * This class exports annotations on Contribution entities for a given discourse. The
- * annotations in the json can be edited offline or by a third party software
- * and then be imported back into the DiscourseDB database.
+ * Sample Spring Boot application that shows how to retrieve and add annotations (to Contributions and Content)
  * 
  * @author Oliver Ferschke
  */
@@ -91,9 +89,11 @@ public class SimpleContributionAnnotator implements CommandLineRunner {
 			 */
 			//for contribution
 			AnnotationInstance newContribAnno = new AnnotationInstance();
-
+			//TODO add annotation content here
+			
 			//for content
 			AnnotationInstance newContentAnno = new AnnotationInstance();
+			//TODO add annotation content here
 			
 			
 			/*
