@@ -11,9 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 
 /**
- * This class exports annotations on Contribution entities for a given discourse. The
- * annotations in the json can be edited offline or by a third party software
- * and then be imported back into the DiscourseDB database.
+ * This class imports annotations on Contribution entities for a given discourse. 
  * 
  * @author Oliver Ferschke
  */

@@ -1,11 +1,9 @@
 package edu.cmu.cs.lti.discoursedb.annotation.io;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.persistence.Table;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,10 +16,10 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.cmu.cs.lti.discoursedb.annotation.model.AnnotationInterchange;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
@@ -41,10 +39,10 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 				useDefaultFilters = false, 
 				includeFilters = {@ComponentScan.Filter(
 						type = FilterType.ASSIGNABLE_TYPE, 
-						value = {SimpleJSONContributionAnnotationExporter.class, BaseConfiguration.class })})
-public class SimpleJSONContributionAnnotationExporter implements CommandLineRunner {
+						value = {SimpleContributionAnnotator.class, BaseConfiguration.class })})
+public class SimpleContributionAnnotator implements CommandLineRunner {
 
-	private static final Logger logger = LogManager.getLogger(SimpleJSONContributionAnnotationExporter.class);	
+	private static final Logger logger = LogManager.getLogger(SimpleContributionAnnotator.class);	
 	
 	@Autowired private DiscourseService discourseService;
 	@Autowired private ContributionService contribService;
@@ -59,12 +57,11 @@ public class SimpleJSONContributionAnnotationExporter implements CommandLineRunn
 	 * @param args 
 	 */
 	public static void main(String[] args) {
-		if(args.length!=2){
-        	throw new IllegalArgumentException("USAGE: SimpleJSONContentAnnotationExporter <DiscourseName> <outputFile>");
+		if(args.length!=1){
+        	throw new IllegalArgumentException("USAGE: SimpleContributionAnnotator <DiscourseName>");
 		}
 		discourseName = args[0];
-		outputFileName=args[1];
-        SpringApplication.run(SimpleJSONContributionAnnotationExporter.class, args);       
+        SpringApplication.run(SimpleContributionAnnotator.class, args);       
 	}
 	
 	@Override
@@ -72,21 +69,39 @@ public class SimpleJSONContributionAnnotationExporter implements CommandLineRunn
 	public void run(String... args) throws Exception {
 		List<AnnotationInterchange> output = new ArrayList<>();		
 		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);
-		ObjectMapper mapper = new ObjectMapper();
 		if(!existingDiscourse.isPresent()){
 			logger.warn("Discourse with name "+discourseName+" does not exist.");
 			return;
 		}		
 
-		for(Contribution contrib: contribService.findAllByDiscourse(existingDiscourse.get())){
-			AnnotationInterchange curAnnoExport = new AnnotationInterchange();			
-			curAnnoExport.setTable(contrib.getClass().getAnnotation(Table.class).name()); //table name automatically determined
-			curAnnoExport.setId(contrib.getId());
-			curAnnoExport.setAnnotations(annoService.findAnnotations(contrib));
-			output.add(curAnnoExport);
-		}
+		for(Contribution curContrib: contribService.findAllByDiscourse(existingDiscourse.get())){
+			Content curContent = curContrib.getCurrentRevision();
+			
+			/*
+			 * Get existing annotations
+			 */
+			Set<AnnotationInstance> existingContribAnnos = annoService.findAnnotations(curContrib);
+			logger.info(existingContribAnnos.size()+" annotations on contribution");
+			
+			Set<AnnotationInstance> existingContentAnnos = annoService.findAnnotations(curContent);
+			logger.info(existingContentAnnos.size()+" annotations on content");
+			
+			/*
+			 * Create new annotations
+			 */
+			//for contribution
+			AnnotationInstance newContribAnno = new AnnotationInstance();
 
-		mapper.writeValue(new File(outputFileName),output);
-		
+			//for content
+			AnnotationInstance newContentAnno = new AnnotationInstance();
+			
+			
+			/*
+			 * Annotate: save annotations and link to entities 
+			 */
+			annoService.addAnnotation(curContrib,newContribAnno);
+			annoService.addAnnotation(curContent,newContentAnno);
+			
+		}		
 	}
 }

@@ -1,6 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.annotation.model;
 
-import java.util.List;
+import java.util.Set;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 
@@ -10,7 +10,7 @@ public class AnnotationInterchange {
 	
 	private long id;
 	
-	private List<AnnotationInstance> annotations;
+	private Set<AnnotationInstance> annotations;
 	
 	public String getTable() {
 		return table;
@@ -24,10 +24,10 @@ public class AnnotationInterchange {
 	public void setId(long id) {
 		this.id = id;
 	}
-	public List<AnnotationInstance> getAnnotations() {
+	public Set<AnnotationInstance> getAnnotations() {
 		return annotations;
 	}
-	public void setAnnotations(List<AnnotationInstance> annotations) {
+	public void setAnnotations(Set<AnnotationInstance> annotations) {
 		this.annotations = annotations;
 	}
 	
