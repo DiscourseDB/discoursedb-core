@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.annotation.io;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,7 +14,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.cmu.cs.lti.discoursedb.annotation.model.AnnotationInterchange;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
@@ -47,7 +44,6 @@ public class SimpleContributionAnnotator implements CommandLineRunner {
 	@Autowired private AnnotationService annoService;
 	
 	private static String discourseName;
-	private static String outputFileName;
 	
 	/**
 	 * Launches the SpringBoot application 
@@ -65,7 +61,6 @@ public class SimpleContributionAnnotator implements CommandLineRunner {
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
-		List<AnnotationInterchange> output = new ArrayList<>();		
 		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);
 		if(!existingDiscourse.isPresent()){
 			logger.warn("Discourse with name "+discourseName+" does not exist.");
@@ -88,13 +83,13 @@ public class SimpleContributionAnnotator implements CommandLineRunner {
 			 * Create new annotations
 			 */
 			//for contribution
-			AnnotationInstance newContribAnno = new AnnotationInstance();
-			//TODO add annotation content here
+			AnnotationInstance newContribAnno = annoService.createTypedAnnotation("SampleContributionAnnotation");
+			annoService.addFeature(newContribAnno, annoService.createTypedFeature("Feature Value1","Feature Type1")); //feature with value and type
 			
 			//for content
-			AnnotationInstance newContentAnno = new AnnotationInstance();
-			//TODO add annotation content here
-			
+			AnnotationInstance newContentAnno = annoService.createTypedAnnotation("SampleContentAnnotation");
+			annoService.addFeature(newContentAnno,annoService.createTypedFeature("Feature Type2")); // feature with type but no value
+			annoService.addFeature(newContentAnno,annoService.createFeature("Feature Value2")); //feature with value but no type			
 			
 			/*
 			 * Annotate: save annotations and link to entities 
