@@ -22,7 +22,7 @@ public class Feature extends UntimedBaseEntity implements Serializable{
 
 	private long id;
 	
-	private String text;
+	private String value;
 	
 	private FeatureType type;
 	
@@ -41,12 +41,12 @@ public class Feature extends UntimedBaseEntity implements Serializable{
 	private void setId(long id) {
 		this.id = id;
 	}
-	public String getText() {
-		return text;
+	public String getValue() {
+		return value;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	@ManyToOne(cascade=CascadeType.ALL) 

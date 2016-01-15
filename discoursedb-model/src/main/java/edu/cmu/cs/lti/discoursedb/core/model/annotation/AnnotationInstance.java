@@ -106,6 +106,10 @@ public class AnnotationInstance extends UntimedBaseEntityWithSource implements S
 	public void setAnnotationAggregate(Annotations annotationAggregate) {
 		this.annotationAggregate = annotationAggregate;
 	}
+	
+	public void addFeature(Feature feature) {
+		this.features.add(feature);
+	}
 
 	
 	
