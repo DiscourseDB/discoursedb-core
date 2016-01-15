@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 
 @Entity
@@ -24,7 +26,8 @@ public class Annotations extends UntimedBaseEntity implements Serializable{
 
 	private long id;
 	
-    private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
+	@JsonIgnore
+	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
     
 	public Annotations(){}
 	
@@ -48,4 +51,7 @@ public class Annotations extends UntimedBaseEntity implements Serializable{
 		this.annotations = annotations;
 	}
 
+	public void addAnnotation(AnnotationInstance annotation) {
+		this.annotations.add(annotation);
+	}
 }
