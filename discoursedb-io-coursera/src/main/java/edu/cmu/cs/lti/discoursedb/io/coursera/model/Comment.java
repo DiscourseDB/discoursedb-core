@@ -1,5 +1,12 @@
 package edu.cmu.cs.lti.discoursedb.io.coursera.model;
 
+/**
+ * Wraps entities form the forum_comments table in coursera database
+ * 
+ * @author Haitian Gong
+ *
+ */
+
 public class Comment {
 	
 	private long id;

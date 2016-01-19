@@ -1,5 +1,11 @@
 package edu.cmu.cs.lti.discoursedb.io.coursera.model;
 
+/**
+ * Wraps entities form the _coursera_user table in coursera database
+ * 
+ * @author Haitian Gong
+ *
+ */
 public class User {
 	
 	private long courseraId;

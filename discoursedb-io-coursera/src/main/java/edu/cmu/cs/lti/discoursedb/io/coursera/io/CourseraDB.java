@@ -22,7 +22,7 @@ import edu.cmu.cs.lti.discoursedb.io.coursera.model.User;
  * Establishes a JDBC database connection to a coursera database and provides
  * methods to access Coursera data using the POJOs in the model package.
  * 
- * @author haitian
+ * @author Haitian Gong
  *
  */
 
@@ -39,7 +39,7 @@ public class CourseraDB {
 	 * 
 	 * @param host host of the coursera db
 	 * @param db coursera database
-	 * @param user username with read access to the coursera db
+	 * @param usr username with read access to the coursera db
 	 * @param pwd user password
 	 */
 	public CourseraDB(String host, String db, String usr, String pwd) {
@@ -48,6 +48,18 @@ public class CourseraDB {
 		this.user = usr;
 		this.pwd = pwd;
 	}
+	
+	/**
+	 * Returns ids of all entities of a given table in the designated coursera database. 
+	 * An id in an idlist can be used to query one entity in the corresponding table at a time 
+	 * in a separate PreparedStatement. 
+	 * 
+	 * @param table
+	 *            the name of a table in coursera database
+	 *            for example, "thread", "post" or "comment"
+	 * @return a list of ids for all the entities in the provided table of coursera databse
+	 * @throws SQLException
+	 */
 	
 	public List<Integer> getIds(String table) throws SQLException {
 		ArrayList<Integer> ids = new ArrayList<Integer>();
@@ -75,6 +87,19 @@ public class CourseraDB {
 		}
 		return ids;
 	}
+	
+	/**
+	 * Returns a single User/Forum/Thread/Post/Comment object.
+	 * 
+	 * @param table 
+	 *           the name of a table in coursera database
+	 *           for example, "thread", "post" or "comment"
+	 * @param id 
+	 *           the id of an entity in a table 
+	 *           for example, id of a forum, thread or post     
+	 * @return a POJO object that is null if the id doesn't exist in the table.
+	 * @throws SQLException
+	 */
 	
 	public Object getDbEntity(String table, long id) throws SQLException {
 		Object o = null;

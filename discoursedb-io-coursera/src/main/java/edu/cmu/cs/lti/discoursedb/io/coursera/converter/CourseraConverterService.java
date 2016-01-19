@@ -37,6 +37,14 @@ import edu.cmu.cs.lti.discoursedb.io.coursera.model.Thread;
 
 import org.springframework.transaction.annotation.Propagation;
 
+/**
+ * This converter service maps Coursera forum data from a coursera database
+ * to DiscourseDB. The connection to the coursera database is established by the
+ * calling class, which has to pass a database access object to the methods in
+ * this service class. Mapping methods are executed transactionally.
+ * 
+ * @author Haitian Gong
+ */
 @Service
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
 public class CourseraConverterService {
@@ -55,6 +63,17 @@ public class CourseraConverterService {
 	private DiscourseService discourseService;
 	
 	private static final Logger logger = LogManager.getLogger(CourseraConverterService.class);
+	
+	/**
+	 * Maps all forum entities in forum table of the coursera database to DiscourseDB.
+	 * Each forum entity is mapped to DiscourseDB as a DiscoursePart entity.
+	 * 
+	 * @param database
+	 *          a coursera database access object, which is used to query the coursera database
+	 * @param dataSetName
+	 * @param discourseName
+	 * @throws SQLException
+	 */
 	
 	public void mapForum(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
@@ -91,6 +110,17 @@ public class CourseraConverterService {
 		}
 		
 	}
+	
+	/**
+	 * Maps all thread entities in thread table of the coursera database to DiscourseDB.
+	 * Each thread entity is mapped to DiscourseDB as a DiscoursePart entity.
+	 * 
+	 * @param database
+	 *          a coursera database access object, which is used to query the coursera database
+	 * @param dataSetName
+	 * @param discourseName
+	 * @throws SQLException
+	 */
 	
 	public void mapThread(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
@@ -142,6 +172,18 @@ public class CourseraConverterService {
 		}
 		
 	}
+	
+	/**
+	 * Maps all post entities in post table of the coursera database to DiscourseDB.
+	 * Each post entity is mapped to DiscourseDB as a Contribution entity.
+	 * The content of each post entity is mapped to DiscourseDB as a Content entity.
+	 * 
+	 * @param database
+	 *          a coursera database access object, which is used to query the coursera database
+	 * @param dataSetName
+	 * @param discourseName
+	 * @throws SQLException
+	 */
 	
 	public void mapPost(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
@@ -214,6 +256,18 @@ public class CourseraConverterService {
 				discoursepartService.addContributionToDiscoursePart(curContribution, existingThread.get());
 		}			
 	}
+	
+	/**
+	 * Maps all comment entities in comment table of the coursera database to DiscourseDB.
+	 * Each comment entity is mapped to DiscourseDB as a Contribution entity.
+	 * The content of each comment entity is mapped to DiscourseDB as a Content entity.
+	 * 
+	 * @param database
+	 *          a coursera database access object, which is used to query the coursera database
+	 * @param dataSetName
+	 * @param discourseName
+	 * @throws SQLException
+	 */
 	
 	public void mapComment(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
 		
