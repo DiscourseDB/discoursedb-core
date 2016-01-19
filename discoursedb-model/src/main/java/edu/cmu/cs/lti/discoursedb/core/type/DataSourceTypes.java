@@ -30,7 +30,12 @@ public enum DataSourceTypes {
 	/**
 	 * A Coursera dataset
 	 */
-	COURSERA
+	COURSERA,
+	/**
+	 * A Piazza dataset
+	 */
+	PIAZZA
+
 
 
 }

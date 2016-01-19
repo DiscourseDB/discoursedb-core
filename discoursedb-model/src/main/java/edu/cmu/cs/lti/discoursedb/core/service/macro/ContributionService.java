@@ -141,10 +141,20 @@ public class ContributionService {
 //	}
 	
 	/**
-	 * Returns a list of all contributions for a given discourse
+	 * Returns a list of all contributions for a given discourse.<br/>
+	 * <br/>
+	 * This is a hotfix for an issue with the any()-handler in QueryDSL 3.7.0 and earlier as
+	 * described <a href="https://groups.google.com/forum/#!topic/querydsl/uoJ63ZdXPog">here</a>.<br/>
+	 * The error has now been fixed as of
+	 * <a href="https://github.com/querydsl/querydsl/pull/1754">this revision</a>. <br/>
+	 * Once a new version of QueryDSL becomes available, the predicate
+	 * <code>ContributionPredicates.contributionHasDiscourse(discourse)</code>
+	 * can be used again with Spring Data.
 	 * 
-	 * @param discourse the discourse the contributions need to be associated with
-	 * @return a list of Contributions of the given discourse that potentially might be empty
+	 * @param discourse
+	 *            the discourse the contributions need to be associated with
+	 * @return a list of Contributions of the given discourse that potentially
+	 *         might be empty
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<Contribution> findAllByDiscourse(Discourse curDiscourse){
