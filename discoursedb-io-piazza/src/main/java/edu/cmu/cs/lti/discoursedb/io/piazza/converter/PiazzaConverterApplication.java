@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.util.Assert;
 
 
 /**
@@ -17,7 +18,8 @@ public class PiazzaConverterApplication {
 
 	private static final Logger logger = LogManager.getLogger(PiazzaConverterApplication.class);
 	
-	public static void main(String[] args) {		
+	public static void main(String... args) {
+		Assert.isTrue(args.length==2, "Usage: PiazzaConverterApplication <DiscourseName> <piazza json dump>");		
 		SpringApplication.run(PiazzaConverterApplication.class, args);		
 	}
 
