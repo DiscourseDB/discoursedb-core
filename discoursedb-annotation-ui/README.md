@@ -6,4 +6,4 @@ The project uses the [Frontend Maven Plugin](https://github.com/eirslett/fronten
 
 The UI is based on [ReactJS](https://facebook.github.io/react/) and connects to DiscourseDB via [Spring Data REST](http://projects.spring.io/spring-data-rest/).
 
-In case the ```npm install``` step fails, try to clear your ~/.npm folder. This triggers a redownload of libraries which should fix the issue.
+In case the ```npm install``` step fails, try to empty your ~/.npm folder. This triggers a redownload of libraries which should fix the issue.
