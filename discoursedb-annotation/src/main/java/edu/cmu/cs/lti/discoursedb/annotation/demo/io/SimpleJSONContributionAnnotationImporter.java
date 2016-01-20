@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.annotation.io;
+package edu.cmu.cs.lti.discoursedb.annotation.demo.io;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,7 +17,7 @@ import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
  */
 @Component
 @SpringBootApplication
-@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.io" }, 
+@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.demo.io" }, 
 useDefaultFilters = false, 
 includeFilters = {@ComponentScan.Filter(
 		type = FilterType.ASSIGNABLE_TYPE, 

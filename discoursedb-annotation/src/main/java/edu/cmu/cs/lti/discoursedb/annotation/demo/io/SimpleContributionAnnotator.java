@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.annotation.io;
+package edu.cmu.cs.lti.discoursedb.annotation.demo.io;
 
 import java.util.Optional;
 import java.util.Set;

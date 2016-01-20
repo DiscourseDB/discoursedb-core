@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.annotation.io;
+package edu.cmu.cs.lti.discoursedb.annotation.demo.io;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cmu.cs.lti.discoursedb.annotation.model.AnnotationInterchange;
+import edu.cmu.cs.lti.discoursedb.annotation.demo.model.AnnotationInterchange;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -37,7 +37,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
  */
 @Component
 @SpringBootApplication
-@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.io" }, 
+@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.demo.io" }, 
 				useDefaultFilters = false, 
 				includeFilters = {@ComponentScan.Filter(
 						type = FilterType.ASSIGNABLE_TYPE, 
