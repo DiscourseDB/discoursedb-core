@@ -29,3 +29,5 @@ hs_err_pid*
 # maven-webfrontend folders
 node
 node_modules
+built
+npm-debug.log
