@@ -33,11 +33,6 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.38</version>
-			</dependency>
-			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-edx</artifactId>
 				<version>${project.version}</version>
@@ -156,7 +151,6 @@
 			<artifactId>log4j-core</artifactId>
 		</dependency>
 	</dependencies>
-
 	<repositories>
 		<repository>
 			<!-- BEGIN NEEDED FOR http://jira.codehaus.org/browse/MCOBERTURA-189 -->
