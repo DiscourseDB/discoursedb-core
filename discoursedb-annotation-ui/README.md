@@ -1,4 +1,4 @@
-# Web UI for DIscourseDB annotation
+# Web UI for DiscourseDB annotation
 
 This user interface showcases the capabilities of DiscourseDB's annotation subsystem and allows a user to retrieve data and annotate it and save it back to DiscourseDB.
 
@@ -6,3 +6,4 @@ The project uses the [Frontend Maven Plugin](https://github.com/eirslett/fronten
 
 The UI is based on [ReactJS](https://facebook.github.io/react/) and connects to DiscourseDB via [Spring Data REST](http://projects.spring.io/spring-data-rest/).
 
+In case the ```npm install``` step fails, try to clear your ~/.npm folder. This triggers a redownload of libraries which should fix the issue.
