@@ -1,3 +1,5 @@
+// This is a Promise compliant instance of rest.js
+
 'use strict';
 
 var rest = require('rest');
