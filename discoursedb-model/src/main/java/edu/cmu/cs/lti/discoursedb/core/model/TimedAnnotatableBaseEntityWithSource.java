@@ -6,6 +6,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSources;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Adds source information to to regular timed entities
@@ -13,19 +15,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.system.DataSources;
  * @author Oliver Ferschke
  *
  */
+@Data
+@EqualsAndHashCode(callSuper=true)
 @MappedSuperclass
 public abstract class TimedAnnotatableBaseEntityWithSource extends TimedAnnotatableBaseEntity{
 
-	private DataSources dataSourceAggregate;
-
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_data_sources")
-	public DataSources getDataSourceAggregate() {
-		return dataSourceAggregate;
-	}
-	
-	public void setDataSourceAggregate(DataSources dataSources) {
-		this.dataSourceAggregate = dataSources;
-	}
+	private DataSources dataSourceAggregate;
 		
 }

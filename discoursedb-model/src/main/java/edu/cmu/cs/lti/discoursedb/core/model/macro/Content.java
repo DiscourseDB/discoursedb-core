@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,6 +20,8 @@ import javax.persistence.Table;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Content entities represent the content of Contribution and Context entities.
@@ -37,104 +40,40 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
  * @author Oliver Ferschke
  *
  */
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="content")
 public class Content extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -1465025480150664388L;
 
-	private long id;
+	@Id
+	@Column(name="id_content", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 	
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
+	@JoinColumn(name = "fk_previous_revision")
 	private Content previousRevision;
 	
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
+	@JoinColumn(name = "fk_next_revision")
 	private Content nextRevision;
 
 	private String title;
 
+	@Column(columnDefinition="LONGTEXT")
 	private String text;
 	
+	@Column(columnDefinition="LONGBLOB")
 	private Blob data;
 	
-	private User author;
-
-	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
-	
-	public Content(){}
-
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_user_id")
-	public User getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(User author) {
-		this.author = author;
-	}
-	
-	@Id
-	@Column(name="id_content", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_previous_revision")
-	public Content getPreviousRevision() {
-		return previousRevision;
-	}
-
-	public void setPreviousRevision(Content previousRevision) {
-		this.previousRevision = previousRevision;
-	}
-
-	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_next_revision")
-	public Content getNextRevision() {
-		return nextRevision;
-	}
-
-	public void setNextRevision(Content nextRevision) {
-		this.nextRevision = nextRevision;
-	}
-
-	@Column(columnDefinition="LONGTEXT")
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	@Column(columnDefinition="LONGBLOB")
-	public Blob getData() {
-		return data;
-	}
-
-	public void setData(Blob data) {
-		this.data = data;
-	}
+	private User author;
 
     @OneToMany(mappedBy = "content")
-	public Set<ContributionInteraction> getContributionInteractions() {
-		return contributionInteractions;
-	}
-
-	public void setContributionInteractions(Set<ContributionInteraction> contributionInteractions) {
-		this.contributionInteractions = contributionInteractions;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
+	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
+		
 }

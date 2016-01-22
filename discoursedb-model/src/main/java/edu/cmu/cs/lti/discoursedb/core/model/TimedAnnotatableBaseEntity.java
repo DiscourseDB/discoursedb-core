@@ -14,6 +14,9 @@ import javax.persistence.Version;
 import org.hibernate.annotations.CreationTimestamp;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 
 /**
  * Adds basic fields to entities that keep track of their lifetime (Version,
@@ -22,65 +25,28 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
  * @author Oliver Ferschke
  *
  */
+@Data
 @MappedSuperclass
 public abstract class TimedAnnotatableBaseEntity{
 
-	private Long version;	
 	@Version
-	public Long getVersion() {
-		return version;
-	}
-	@SuppressWarnings("unused")
-	private void setVersion(Long version) {
-		this.version = version;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long version;	
 	
-	private Date createDate;
 	@CreationTimestamp
 	@Column(name = "created")
-	public Date getCreateDate() {
-	    return this.createDate;
-	}
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setCreateDate(Date createDate) {
-	    this.createDate = createDate;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Date createDate;
 	
-    private Date startTime;   
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)
-	public Date getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-
-    private Date endTime;
+    private Date startTime;   
 
 	@Column(name = "end_time")
 	@Temporal(TemporalType.TIMESTAMP)
-	public Date getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
+    private Date endTime;
 	
-	private Annotations annotations;
-
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Annotations annotations) {
-		this.annotations = annotations;
-	}
-
-
-
+	private Annotations annotations;
 }
