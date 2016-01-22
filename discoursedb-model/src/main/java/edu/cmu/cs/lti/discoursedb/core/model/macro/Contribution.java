@@ -19,8 +19,10 @@ import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
 /**
  * 
@@ -51,6 +53,7 @@ public class Contribution extends TimedAnnotatableBaseEntityWithSource implement
 	@Id
 	@Column(name="id_contribution", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
+	@Setter(AccessLevel.PRIVATE)
 	private Long id;
 	
 	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, fetch=FetchType.LAZY) 

@@ -20,8 +20,10 @@ import javax.persistence.Table;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
 /**
  * Content entities represent the content of Contribution and Context entities.
@@ -51,6 +53,7 @@ public class Content extends TimedAnnotatableBaseEntityWithSource implements Ser
 	@Id
 	@Column(name="id_content", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
+	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
 	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
