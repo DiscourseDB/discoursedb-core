@@ -400,6 +400,8 @@
 							<goal>delombok</goal>
 						</goals>
 						<configuration>
+							<addOutputDirectory>false</addOutputDirectory>
+							<sourceDirectory>src/main/java</sourceDirectory>
 							<formatPreferences>
 								<javaLangAsFQN>skip</javaLangAsFQN>
 							</formatPreferences>
@@ -411,6 +413,10 @@
 						<goals>
 							<goal>testDelombok</goal>
 						</goals>
+						<configuration>
+							<addOutputDirectory>false</addOutputDirectory>
+							<sourceDirectory>src/test/java</sourceDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
