@@ -206,8 +206,6 @@
 		</pluginRepository>
 	</pluginRepositories>
 	<build>
-		<sourceDirectory>target/generated-sources/delombok</sourceDirectory>
-		<testSourceDirectory>target/generated-test-sources/delombok</testSourceDirectory>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -426,6 +424,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<configuration>
+					<defaultVersion>${project.version}</defaultVersion>
+					<sourcepath>target/generated-sources/delombok</sourcepath>
 					<additionalparam>-Xdoclint:none</additionalparam>
 				</configuration>
 			</plugin>
