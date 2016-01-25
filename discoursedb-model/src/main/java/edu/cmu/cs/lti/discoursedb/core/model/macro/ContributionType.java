@@ -15,36 +15,26 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="contribution_type")
 public class ContributionType extends BaseTypeEntity implements Serializable {
 
 	private static final long serialVersionUID = -4187467243916373251L;
 
-	private long id;
-		
-	private Set<Contribution> contributions = new HashSet<Contribution>();
-
-	public ContributionType(){}
-		
 	@Id
 	@Column(name="id_contribution_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+		
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<Contribution> getContributions() {
-		return contributions;
-	}
+	private Set<Contribution> contributions = new HashSet<Contribution>();
 
-	public void setContributions(Set<Contribution> contributions) {
-		this.contributions = contributions;
-	}
 }

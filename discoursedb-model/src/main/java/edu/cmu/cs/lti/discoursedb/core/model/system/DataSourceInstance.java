@@ -18,7 +18,13 @@ import javax.persistence.UniqueConstraint;
 
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name = "data_source_instance", uniqueConstraints = @UniqueConstraint(columnNames = { "entity_source_id",
 		"entity_source_descriptor", "dataset_name" }) , indexes = {
@@ -29,16 +35,27 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 
 	private static final long serialVersionUID = -6293065846688380816L;
 
-	private long id;
+	@Id
+	@Column(name="id_data_source_instance", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
 	
+	@Column(name="entity_source_id", nullable=false, updatable=false)
 	private String entitySourceId;
 	
+	@Column(name="entity_source_descriptor", nullable=true, updatable=false)
 	private String entitySourceDescriptor;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(name="source_type")
 	private DataSourceTypes sourceType;	
 	
+	@Column(name="dataset_name")
 	private String datasetName;	
 	
+	@ManyToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "fk_sources")
 	private DataSources sourceAggregate;
 	
 	DataSourceInstance(){}
@@ -82,64 +99,6 @@ public class DataSourceInstance extends UntimedBaseEntity implements Serializabl
 		setSourceType(sourceType);
 		setDatasetName(datasetName);
 		setEntitySourceDescriptor(entitySourceDescriptor);
-	}
-	
-	@Id
-	@Column(name="id_data_source_instance", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-	
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}	
-	@Column(name="entity_source_id", nullable=false, updatable=false)
-	public String getEntitySourceId() {
-		return entitySourceId;
-	}
-
-	public void setEntitySourceId(String entitySourceId) {
-		this.entitySourceId = entitySourceId;
-	}
-	
-	@Column(name="entity_source_descriptor", nullable=true, updatable=false)
-	public String getEntitySourceDescriptor() {
-		return entitySourceDescriptor;
-	}
-
-	public void setEntitySourceDescriptor(String entitySourceDescriptor) {
-		this.entitySourceDescriptor = entitySourceDescriptor;
-	}
-
-	@Enumerated(EnumType.STRING)
-	@Column(name="source_type")
-	public DataSourceTypes getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(DataSourceTypes sourceType) {
-		this.sourceType = sourceType;
-	}
-
-	@Column(name="dataset_name")
-	public String getDatasetName() {
-		return datasetName;
-	}
-
-	public void setDatasetName(String datasetName) {
-		this.datasetName = datasetName;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_sources")
-	public DataSources getSourceAggregate() {
-		return sourceAggregate;
-	}
-
-	public void setSourceAggregate(DataSources sourceAggregate) {
-		this.sourceAggregate = sourceAggregate;
 	}
 	
 }

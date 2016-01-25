@@ -15,36 +15,26 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_part_interaction_type")
 public class DiscoursePartInteractionType extends BaseTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = -4161973201397061713L;
 
-	private long id;
-	
-	private Set<DiscoursePartInteraction> discoursePartInteractions = new HashSet<DiscoursePartInteraction>();
-	
 	@Id
 	@Column(name="id_discourse_part_interaction_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public DiscoursePartInteractionType(){}
-
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<DiscoursePartInteraction> getContentInteractions() {
-		return discoursePartInteractions;
-	}
-
-	public void setContentInteractions(Set<DiscoursePartInteraction> discoursePartInteractions) {
-		this.discoursePartInteractions = discoursePartInteractions;
-	}
+	private Set<DiscoursePartInteraction> discoursePartInteractions = new HashSet<DiscoursePartInteraction>();
+	
 }

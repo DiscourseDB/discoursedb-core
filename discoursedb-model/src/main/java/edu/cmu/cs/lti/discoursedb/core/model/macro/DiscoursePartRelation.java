@@ -14,62 +14,35 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_part_relation")
 public class DiscoursePartRelation extends TimedAnnotatableBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1914547709687781470L;
 
-	private long id;
-	
-	private DiscoursePart source;
-	
-	private DiscoursePart target;
-	
-	private DiscoursePartRelationType type;
-	
-	public DiscoursePartRelation(){}
-	
 	@Id
 	@Column(name="id_discourse_part_relation", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_source")
-	public DiscoursePart getSource() {
-		return source;
-	}
-
-	public void setSource(DiscoursePart source) {
-		this.source = source;
-	}
-
+	private DiscoursePart source;
+	
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_target")
-	public DiscoursePart getTarget() {
-		return target;
-	}
-
-	public void setTarget(DiscoursePart target) {
-		this.target = target;
-	}
-
+	private DiscoursePart target;
+	
 	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "fk_discourse_part_relation_type")
-	public DiscoursePartRelationType getType() {
-		return type;
-	}
-
-	public void setType(DiscoursePartRelationType type) {
-		this.type = type;
-	}
+	private DiscoursePartRelationType type;
 	
 }

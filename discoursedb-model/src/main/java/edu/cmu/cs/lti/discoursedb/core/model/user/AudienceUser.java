@@ -13,51 +13,31 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="audience_has_user")
 public class AudienceUser extends TimedAnnotatableBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -6740377434969542427L;
 
-	private long id;
-	
-    private User user;
-    
-    private Audience audience;
-    
-	public AudienceUser() {}
-
 	@Id
 	@Column(name="id_audience_user", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "fk_audience")
-	public Audience getAudience() {
-		return audience;
-	}
-
-	public void setAudience(Audience audience) {
-		this.audience = audience;
-	}
-
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_user")
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
+    private User user;
     
-	
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "fk_audience")
+    private Audience audience;
+    
 }

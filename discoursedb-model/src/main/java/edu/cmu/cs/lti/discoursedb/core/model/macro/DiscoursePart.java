@@ -17,6 +17,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
 /**
  * A DiscoursePart represents a distinct sub-space within a Discourse. For
@@ -35,97 +39,39 @@ import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSourc
  * @author Oliver Ferschke
  *
  */
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_part", indexes = { @Index(name = "discoursePartNameIndex", columnList = "name") })
 public class DiscoursePart extends TimedAnnotatableBaseEntityWithSource implements Serializable{
 
 	private static final long serialVersionUID = -7341483666466458901L;
 
-	private long id;
-	
-	private String name;
-	
-	private DiscoursePartType type;
-	
-	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
-
-	private Set<DiscoursePartContribution> discoursePartContributions = new HashSet<DiscoursePartContribution>();
-	
-	private Set<DiscoursePartRelation> sourceOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
-
-	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
-	
-	public DiscoursePart(){}
-	
 	@Id
 	@Column(name="id_discourse_part", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
+	private String name;
+	
 	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "fk_discourse_part_type")
-	public DiscoursePartType getType() {
-		return type;
-	}
-
-	public void setType(DiscoursePartType type) {
-		this.type = type;
-	}
+	private DiscoursePartType type;
 	
     @OneToMany(mappedBy = "discoursePart")
-	public Set<DiscourseToDiscoursePart> getDiscourseToDiscourseParts() {
-		return discourseToDiscourseParts;
-	}
-
-    public void setDiscourseToDiscourseParts(Set<DiscourseToDiscoursePart> discourseToDiscourseParts) {
-		this.discourseToDiscourseParts = discourseToDiscourseParts;
-	}
+	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
     @OneToMany(mappedBy = "discoursePart")
-	public Set<DiscoursePartContribution> getDiscoursePartContributions() {
-		return discoursePartContributions;
-	}
-
-	public void setDiscoursePartContributions(Set<DiscoursePartContribution> discoursePartContributions) {
-		this.discoursePartContributions = discoursePartContributions;
-	}
-
-	public void addDiscoursePartContribution(DiscoursePartContribution discoursePartContribution) {
-		discoursePartContributions.add(discoursePartContribution);
-	}
-
+	private Set<DiscoursePartContribution> discoursePartContributions = new HashSet<DiscoursePartContribution>();
 	
     @OneToMany(mappedBy="source")
-	public Set<DiscoursePartRelation> getSourceOfDiscoursePartRelations() {
-		return sourceOfDiscoursePartRelations;
-	}
-
-	public void setSourceOfDiscoursePartRelations(Set<DiscoursePartRelation> sourceOfDiscoursePartRelations) {
-		this.sourceOfDiscoursePartRelations = sourceOfDiscoursePartRelations;
-	}
+	private Set<DiscoursePartRelation> sourceOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 
     @OneToMany(mappedBy="target")
-	public Set<DiscoursePartRelation> getTargetOfDiscoursePartRelations() {
-		return targetOfDiscoursePartRelations;
-	}
-
-	public void setTargetOfDiscoursePartRelations(Set<DiscoursePartRelation> targetOfDiscoursePartRelations) {
-		this.targetOfDiscoursePartRelations = targetOfDiscoursePartRelations;
-	}
+	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 	
+	public void addDiscoursePartContribution(DiscoursePartContribution discoursePartContribution) {
+		discoursePartContributions.add(discoursePartContribution);
+	}		
 }

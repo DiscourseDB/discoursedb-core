@@ -15,36 +15,26 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="audience_type")
 public class AudienceType extends BaseTypeEntity implements Serializable {
 
 	private static final long serialVersionUID = 2596255302608073060L;
 
-	private long id;
-	
-	private Set<Audience> audiences = new HashSet<Audience>();
-	
 	@Id
 	@Column(name="id_audience_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public AudienceType(){}
-
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<Audience> getAudiences() {
-		return audiences;
-	}
-
-	public void setAudiences(Set<Audience> audiences) {
-		this.audiences = audiences;
-	}
+	private Set<Audience> audiences = new HashSet<Audience>();
+	
 }

@@ -17,40 +17,29 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="annotation")
 public class Annotations extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -4654984158138436217L;
 
-	private long id;
-	
-	@JsonIgnore
-	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
-    
-	public Annotations(){}
-	
 	@Id
 	@Column(name="id_annotation", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="annotationAggregate")
-	public Set<AnnotationInstance> getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Set<AnnotationInstance> annotations) {
-		this.annotations = annotations;
-	}
-
+	@JsonIgnore
+	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
+    
 	public void addAnnotation(AnnotationInstance annotation) {
 		this.annotations.add(annotation);
 	}

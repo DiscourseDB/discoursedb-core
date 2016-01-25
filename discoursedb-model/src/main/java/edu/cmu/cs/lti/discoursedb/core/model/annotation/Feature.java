@@ -13,60 +13,33 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="feature")
 public class Feature extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -5462337134833586687L;
 
-	private long id;
-	
-	private String value;
-	
-	private FeatureType type;
-	
-	private AnnotationInstance annotation;
-	
-	public Feature(){}
-
 	@Id
 	@Column(name="id_feature", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
+	private String value;
+	
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_feature_type")
-	public FeatureType getType() {
-		return type;
-	}
-
-	public void setType(FeatureType type) {
-		this.type = type;
-	}
-
+	private FeatureType type;
+	
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_annotation_instance")
-	public AnnotationInstance getAnnotation() {
-		return annotation;
-	}
-
-	public void setAnnotation(AnnotationInstance annotation) {
-		this.annotation = annotation;
-	}
+	private AnnotationInstance annotation;
 	
 }

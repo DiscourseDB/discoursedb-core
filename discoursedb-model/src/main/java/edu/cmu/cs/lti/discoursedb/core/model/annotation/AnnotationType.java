@@ -15,59 +15,31 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="annotation_type")
 public class AnnotationType extends BaseTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = 9194247332380412321L;
 
-	private long id;
-	
-	
-	private String description;
-	
-	private boolean isEntityAnnotation;
-	
-    private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
-
-	public AnnotationType(){}
-
 	@Id
 	@Column(name="id_annotation_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@Column(name="is_entity_annotation")
-	public boolean isEntityAnnotation() {
-		return isEntityAnnotation;
-	}
-
-	public void setEntityAnnotation(boolean isEntityAnnotation) {
-		this.isEntityAnnotation = isEntityAnnotation;
-	}
-
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<AnnotationInstance> getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Set<AnnotationInstance> annotations) {
-		this.annotations = annotations;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
 	
+	private String description;
+	
+	@Column(name="is_entity_annotation")
+	private boolean isEntityAnnotation;
+	
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+    private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
+
 }

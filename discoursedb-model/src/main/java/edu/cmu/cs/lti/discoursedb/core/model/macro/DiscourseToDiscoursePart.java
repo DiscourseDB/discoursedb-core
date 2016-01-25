@@ -14,50 +14,31 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_has_discourse_part", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_discourse", "fk_discourse_part" }) )
 public class DiscourseToDiscoursePart extends TimedAnnotatableBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = 6916868753034800946L;
 	
-	private long id;
-	
-    private Discourse discourse;
-    
-    private DiscoursePart discoursePart;
-    
-	public DiscourseToDiscoursePart() {}
-	
 	@Id
 	@Column(name="id_discourse_has_discourse_part", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_discourse")  
-    public Discourse getDiscourse() {
-		return discourse;
-	}
-
-	public void setDiscourse(Discourse discourse) {
-		this.discourse = discourse;
-	}
-
+    private Discourse discourse;
+    
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_discourse_part")
-	public DiscoursePart getDiscoursePart() {
-		return discoursePart;
-	}
-
-	public void setDiscoursePart(DiscoursePart discoursePart) {
-		this.discoursePart = discoursePart;
-	}
-	
+    private DiscoursePart discoursePart;
+    
 }

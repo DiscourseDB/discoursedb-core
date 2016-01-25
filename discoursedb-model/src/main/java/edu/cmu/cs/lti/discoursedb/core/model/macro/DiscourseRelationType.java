@@ -15,38 +15,27 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_relation_type")
 public class DiscourseRelationType extends BaseTypeEntity implements Serializable {
 
 	private static final long serialVersionUID = -6905270877949246079L;
 
-	private long id;
-	
-	private Set<DiscourseRelation> discourseRelations = new HashSet<DiscourseRelation>();
-
-	public DiscourseRelationType(){}
-	
 	@Id
 	@Column(name="id_discourse_relation_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<DiscourseRelation> getDiscourseRelations() {
-		return discourseRelations;
-	}
-
-	public void setDiscourseRelations(Set<DiscourseRelation> discourseRelations) {
-		this.discourseRelations = discourseRelations;
-	}
+	private Set<DiscourseRelation> discourseRelations = new HashSet<DiscourseRelation>();
 
 	public void addDiscourseRelation(DiscourseRelation discourseRelation) {
 		this.discourseRelations.add(discourseRelation);

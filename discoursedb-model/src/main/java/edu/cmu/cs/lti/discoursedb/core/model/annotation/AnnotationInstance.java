@@ -17,101 +17,47 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="annotation_instance")
 public class AnnotationInstance extends UntimedBaseEntityWithSource implements Serializable{
 
 	private static final long serialVersionUID = 6699029374236146557L;
     
-    private long id;
-	
-	private int beginOffset;
-	
-	private int endOffset;
-	
-	private String coveredText;
-	
-	private AnnotationType type;	
-	
-	private Annotations annotationAggregate;
-	
-	private Set<Feature> features = new HashSet<Feature>();
-		
-	public AnnotationInstance(){}
-
 	@Id
 	@Column(name="id_annotation_instance", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@Column(name="begin_offset")
-	public int getBeginOffset() {
-		return beginOffset;
-	}
-
-	public void setBeginOffset(int beginOffset) {
-		this.beginOffset = beginOffset;
-	}
-
+	private int beginOffset;
+	
 	@Column(name="end_offset")
-	public int getEndOffset() {
-		return endOffset;
-	}
-
-	public void setEndOffset(int endOffset) {
-		this.endOffset = endOffset;
-	}
-
+	private int endOffset;
+	
 	@Column(name="covered_text")
-	public String getCoveredText() {
-		return coveredText;
-	}
-
-	public void setCoveredText(String coveredText) {
-		this.coveredText = coveredText;
-	}
-
+	private String coveredText;
+	
 	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "fk_annotation_type")
-	public AnnotationType getType() {
-		return type;
-	}
-
-	public void setType(AnnotationType type) {
-		this.type = type;
-	}
-
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="annotation")
-	public Set<Feature> getFeatures() {
-		return features;
-	}
-
-	public void setFeatures(Set<Feature> features) {
-		this.features = features;
-	}
-
+	private AnnotationType type;	
+	
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_annotation")
-	public Annotations getAnnotationAggregate() {
-		return annotationAggregate;
-	}
-
-	public void setAnnotationAggregate(Annotations annotationAggregate) {
-		this.annotationAggregate = annotationAggregate;
-	}
+	private Annotations annotationAggregate;
 	
+	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="annotation")
+	private Set<Feature> features = new HashSet<Feature>();
+		
 	public void addFeature(Feature feature) {
 		this.features.add(feature);
 	}
-
-	
-	
 	
 }

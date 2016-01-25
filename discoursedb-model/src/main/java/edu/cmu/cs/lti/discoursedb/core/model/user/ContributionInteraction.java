@@ -16,7 +16,13 @@ import javax.persistence.UniqueConstraint;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name = "contribution_interaction", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_contribution" }),
@@ -25,67 +31,26 @@ public class ContributionInteraction extends TimedAnnotatableBaseEntity implemen
 
 	private static final long serialVersionUID = 3846201435729013318L;
 
-	private long id;
-	
-	private User user;
-	
-	private Contribution contribution;
-
-	private Content content;
-	
-	private ContributionInteractionType type;
-	
-	public ContributionInteraction(){}
-	
 	@Id
 	@Column(name="id_contribution_interaction", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	 @ManyToOne(cascade = CascadeType.ALL)
-	 @JoinColumn(name = "fk_user")
-	 public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "fk_user")
+	private User user;
+	
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_contribution")
-	public Contribution getContribution() {
-		return contribution;
-	}
-
-	public void setContribution(Contribution contribution) {
-		this.contribution = contribution;
-	}
-
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_contribution_interaction_type")
-	public ContributionInteractionType getType() {
-		return type;
-	}
-
-	public void setType(ContributionInteractionType type) {
-		this.type = type;
-	}
+	private Contribution contribution;
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_content")
-	public Content getContent() {
-		return content;
-	}
+	private Content content;
 	
-	public void setContent(Content content) {
-		this.content = content;
-	}
-
+	@ManyToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name = "fk_contribution_interaction_type")
+	private ContributionInteractionType type;
+	
 }
