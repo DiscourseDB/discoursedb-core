@@ -1,6 +1,8 @@
 # DiscourseDB Parent Project
 This is the parent project for all DiscourseDB projects. It manages dependency versions and configures necessary Maven plugins.
 
+All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to be configured to support [Lombok (see below)](https://github.com/DiscourseDB/discoursedb-model#setting-up-eclipse-to-support-project-lombok) for full DiscourseDB compatibility.
+
 ## Build and Run DiscourseDB
 The following command builds all DiscourseDB projects, creates .jar files and creates a ```*-dist``` folder in the target folder of each DiscourseDB module which contains all external libraries necessary to run that module. 
 
