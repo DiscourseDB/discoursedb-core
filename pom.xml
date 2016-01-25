@@ -206,12 +206,14 @@
 		</pluginRepository>
 	</pluginRepositories>
 	<build>
+		<sourceDirectory>target/generated-sources/delombok</sourceDirectory>
+		<testSourceDirectory>target/generated-test-sources/delombok</testSourceDirectory>
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.projectlombok</groupId>
 					<artifactId>lombok-maven-plugin</artifactId>
-					<version>1.16.6.1</version>					
+					<version>1.16.6.1</version>
 				</plugin>
 
 				<plugin>
@@ -354,7 +356,8 @@
 						</dependency>
 					</dependencies>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -399,10 +402,11 @@
 							<goal>delombok</goal>
 						</goals>
 						<configuration>
+							<addOutputDirectory>false</addOutputDirectory>
+							<sourceDirectory>src/main/java</sourceDirectory>
 							<formatPreferences>
 								<javaLangAsFQN>skip</javaLangAsFQN>
 							</formatPreferences>
-							<verbose>true</verbose>
 						</configuration>
 					</execution>
 					<execution>
@@ -412,7 +416,8 @@
 							<goal>testDelombok</goal>
 						</goals>
 						<configuration>
-							<verbose>true</verbose>
+							<addOutputDirectory>false</addOutputDirectory>
+							<sourceDirectory>src/test/java</sourceDirectory>
 						</configuration>
 					</execution>
 				</executions>
