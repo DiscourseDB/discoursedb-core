@@ -8,33 +8,26 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
+
 /**
  * Adds basic fields to entities that do not keep track of their lifetime (version, entity creation date)
  * 
- * @author oliverf
+ * @author Oliver Ferschke
  *
  */
+@Data
 @MappedSuperclass
 public abstract class UntimedBaseEntity{
 
-	private Long version;	
 	@Version
-	public Long getVersion() {
-		return version;
-	}
-	@SuppressWarnings("unused")
-	private void setVersion(Long version) {
-		this.version = version;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long version;	
 	
-	private Date createDate;
 	@CreationTimestamp
 	@Column(name = "created")
-	public Date getCreateDate() {
-	    return this.createDate;
-	}
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setCreateDate(Date createDate) {
-	    this.createDate = createDate;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Date createDate;
 }

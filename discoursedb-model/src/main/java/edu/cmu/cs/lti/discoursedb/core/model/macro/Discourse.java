@@ -15,8 +15,16 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.springframework.util.Assert;
+
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * <p>A Discourse represents the broad context of interactions that might come from
@@ -35,62 +43,34 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
  * @author Oliver Ferschke
  *
  */
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper=true, exclude={"discourseToDiscourseParts","users"})
+@ToString(callSuper=true, exclude={"discourseToDiscourseParts","users"})
 @Entity
 @Table(name = "discourse", indexes = { @Index(name = "discourseNameIndex", columnList = "name") })
 public class Discourse extends UntimedBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -3736157436274230022L;
 
-	private long id;
-
-	private String name;
-
-	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
-
-	private Set<User> users;
-
-	Discourse() {}
-
 	public Discourse(String name){
-		this.setName(name);
+		Assert.hasText(name);
+		this.name=name;
 	}
-	
+
 	@Id
 	@Column(name = "id_discourse", nullable = false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
 
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
 	@Column(updatable=false, unique=true)
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+	private String name;
 
 	@OneToMany(mappedBy = "discourse")
-	public Set<DiscourseToDiscoursePart> getDiscourseToDiscourseParts() {
-		return discourseToDiscourseParts;
-	}
-
-	public void setDiscourseToDiscourseParts(Set<DiscourseToDiscoursePart> discourseToDiscourseParts) {
-		this.discourseToDiscourseParts = discourseToDiscourseParts;
-	}
+	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "discourses")
-	public Set<User> getUsers() {
-		return users;
-	}
-
-	public void setUsers(Set<User> users) {
-		this.users = users;
-	}
-
+	private Set<User> users;
+	
 }
