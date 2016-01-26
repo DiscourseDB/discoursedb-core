@@ -40,3 +40,5 @@ DiscourseDB uses [Project Lombok](https://projectlombok.org) as a code generator
 You have two options to set up your eclipse:
 (1) simply go to any DiscourseDB Project you have checked out, expand the "Maven Dependencies" tab, find lombok.jar, right-click the jar and select Run as > Java Application. This will open a window where you can select the location of your eclipse and have Lombok set it up to recognize the auto-generated code.
 (2) Download the [lombok.jar](https://search.maven.org/remotecontent?filepath=org/projectlombok/lombok/1.16.6/lombok-1.16.6.jar) manually, execute it (doubleclick it, or run java -jar lombok.jar) and then follow instructions.
+
+After this setup, if eclipse reports that your project definitions are outdated, rightclick any project, select Maven > Update Project and select all DiscourseDB projects to trigger a Maven update.
