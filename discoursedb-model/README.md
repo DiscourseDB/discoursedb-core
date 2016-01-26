@@ -76,6 +76,8 @@ You have two options to set up your eclipse:
 (1) simply go to any DiscourseDB Project you have checked out, expand the "Maven Dependencies" tab, find lombok.jar, right-click the jar and select Run as > Java Application. This will open a window where you can select the location of your eclipse and have Lombok set it up to recognize the auto-generated code.
 (2) Download the [lombok.jar](https://search.maven.org/remotecontent?filepath=org/projectlombok/lombok/1.16.6/lombok-1.16.6.jar) manually, execute it (doubleclick it, or run java -jar lombok.jar) and then follow instructions.
 
+After this setup, if eclipse reports that your project definitions are outdated, rightclick any project, select Maven > Update Project and select all DiscourseDB projects to trigger a Maven update.
+
 ## DiscourseDB Configuration
 DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced or extended by custom configuration  if you substantially need to  substantially change the configuration. In most cases, the BaseConfiguration doesn't need to be altered since configuration parameters are read from properties files and thus don't require changes to the class.
 
