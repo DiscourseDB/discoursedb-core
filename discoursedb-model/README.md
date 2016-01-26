@@ -2,12 +2,34 @@
 This project contains the core object model for DiscourseDB which both defines the database schema and constitutes as an access layer to the the database. discoursedb-model is based on the [Spring Framework](http://projects.spring.io/spring-framework/) and [Spring Data JPA](http://projects.spring.io/spring-data-jpa/) with [Hibernate ORM](http://hibernate.org/orm/) as its JPA Provider. Query abstraction is provided by [QueryDSL-JPA](http://www.querydsl.com/).
 
 ## Requirements and Setup
-All DiscourseDB projects require Java 8 and Maven 3.
+All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to be configured to support [Lombok (see below)](https://github.com/DiscourseDB/discoursedb-model#setting-up-eclipse-to-support-project-lombok) for full DiscourseDB compatibility.
+
+### Database Server
+DiscourseDB requires a database server. The BaseConfiguration is configured for MySQL, but you can use other relations DBMS and adapt the configuration accordingly. The following instruction will assume a MySQL setup.
+
+DiscourseDB is configured to create a new database in case the database provided in the configuration does not exist. The database will be created with the default character encoding defined in the server configuration. We recommend either to (1) manually create an empty database the database with UTF8 encoding and have DiscourseDB use this database or (2) change the configuration of MySQL to use UTF8 by default so newly created databases will use this encoding.
+
+(1) ```CREATE DATABASE discoursedb
+  DEFAULT CHARACTER SET utf8
+  DEFAULT COLLATE utf8_general_ci;```
+  
+or
+
+(2) in my.cnf, add the following configuration
+```
+character-set-server=utf8
+collation-server=utf8_general_ci
+```
 
 ### Configuring Maven repository
 You can simply add any DiscourseDB project as a dependency to your Maven project. The following configuration needs to be added to your project pom.xml or settings.xml.
 
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd" xmlns="http://maven.apache.org/SETTINGS/1.1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <profiles>
+    <profile>
       <repositories>
         <repository>
           <snapshots>
@@ -24,6 +46,13 @@ You can simply add any DiscourseDB project as a dependency to your Maven project
           <url>http://moon.lti.cs.cmu.edu:8081/artifactory/libs-snapshot</url>
         </repository>
       </repositories>
+      <id>artifactory</id>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>artifactory</activeProfile>
+  </activeProfiles>
+</settings>
 ```
 
 ### Check out projects
@@ -40,6 +69,13 @@ Like all DiscourseDB projects, this project depends on the [discoursedb-parent](
 
 DiscourseDB requires write access to a MySQL database. The access credentials are defined in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials local:local and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters. DiscourseDB will automatically initialize a fresh DiscourseDB instance if none exists yet. Otherwise, it will import data into the existing database.
 
+### Setting up eclipse to support Project Lombok
+DiscourseDB uses [Project Lombok](https://projectlombok.org) as a code generator for boiler plate code. Maven already takes care that Lombok generates its code during a regular build, but in order to get Eclipse to recognize the auto-generated code, you need to set up Lombok in your eclipse environment.
+
+You have two options to set up your eclipse:
+(1) simply go to any DiscourseDB Project you have checked out, expand the "Maven Dependencies" tab, find lombok.jar, right-click the jar and select Run as > Java Application. This will open a window where you can select the location of your eclipse and have Lombok set it up to recognize the auto-generated code.
+(2) Download the [lombok.jar](https://search.maven.org/remotecontent?filepath=org/projectlombok/lombok/1.16.6/lombok-1.16.6.jar) manually, execute it (doubleclick it, or run java -jar lombok.jar) and then follow instructions.
+
 ## DiscourseDB Configuration
 DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-model/blob/master/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class which can be replaced or extended by custom configuration  if you substantially need to  substantially change the configuration. In most cases, the BaseConfiguration doesn't need to be altered since configuration parameters are read from properties files and thus don't require changes to the class.
 
@@ -55,13 +91,13 @@ jdbc.username = local
 jdbc.password = local
 
 # Default hibernate.properties
-hibernate.dialect = org.hibernate.dialect.MySQLDialect
+hibernate.dialect = edu.cmu.cs.lti.discoursedb.configuration.DiscourseDBMysqlDialect
 hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy
 hibernate.show_sql = false
 hibernate.format_sql = false
 hibernate.hbm2ddl.auto = update
 hibernate.jdbc.batch_size = 100
-hibernate.id.new_generator_mappings = true
+hibernate.id.new_generator_mappings = false
 
 # Default c3p0 properties
 c3p0.acquireIncrement = 5 
@@ -102,9 +138,13 @@ Context entities are associated with Contribution entities via a ContributionCon
 #### DataSource
 For many reasons, we might want to keep track of where the data for a DiscourseDB entity came from. This is either relevant in case we need to get details from the original dataset that are not represented in DiscourseDB or is important during the data import phase where we have to refer to ids and primare keys in the original dataset in order to make connections between entities.
 
-DataSourceInstance entities keep track of where data came from. Such entities can be associated with all _entities with source information_ (see [below](https://github.com/DiscourseDB/discoursedb-model#entity-classes-the-discoursedb-core-model)). A single DiscourseDB entity can be associated with one or more DataSourceInstance entities. In most cases, a single DataSourceInstance is sufficient. However, there are cases such as User data that might relate to data points in multiple datasets, so we need to keep track of all its sources. 
+DataSourceInstance entities keep track of where data came from. Such entities can be associated with all _entities with source information_ (see [below](https://github.com/DiscourseDB/discoursedb-model#entity-classes-the-discoursedb-core-model)). A single DiscourseDB entity can be associated with one or more DataSourceInstance entities. In most cases, a single DataSourceInstance is sufficient. However, there are cases (such as User data) that might relate to data points in multiple datasets, so we need to keep track of all its sources. In turn, a single DataSourceInstance can only be related to a single DiscourseDB entity.
 
-A DataSourceInstance consists of four main components. The _dataSourceId_ contains the id of the entity in the source dataset (i.e. how is the instance identified in the source). The _entitySourceDescriptor_ identifies the name/descriptor of the field that was used as the sourceId (i.e. how can i find the id in the source dataset.) The _sourceType_ identifies the category of the data source (e.g. EDX, Wikipedia, PROSOLO) and the _dataSetName_ identifies the particular file or database from which the data was imported.
+A DataSourceInstance consists of four main components. 
+- The _dataSourceId_ contains the id of the entity in the source dataset (i.e. how is the instance identified in the source). 
+- The _entitySourceDescriptor_ identifies the name/descriptor of the field that was used as the sourceId (i.e. how can i find the id in the source dataset.)..) Even though this descriptor can be any arbitrary String, it is good practice to use the format "_DiscourseDbEntity_#_idIdentifier_". That is, the descriptor identifies the type of entity that the source relates to and the identifier of the source id in the dataset. For example, if you create a contribution from a row in a database identified by the primary key post.id, a good value for the _entitySourceDescriptor_ would be _contribution#post.id_. If the same row in the dataset is also supposed to be associated with a DiscourseDB content, then the corresponding descriptor would be _content#post.id_
+- The _sourceType_ identifies the category of the data source (e.g. EDX, Wikipedia, PROSOLO).)
+- The _dataSetName_ identifies the particular file or database from which the data was imported.
 
 #### User, Audience, Group
 TBA
