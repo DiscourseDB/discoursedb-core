@@ -44,8 +44,8 @@ import lombok.ToString;
  *
  */
 @Data
-@EqualsAndHashCode(callSuper=true, exclude={"contributionInteractions"})
-@ToString(callSuper=true, exclude={"contributionInteractions"})
+@EqualsAndHashCode(callSuper=true, exclude={"contributionInteractions","previousRevision","nextRevision"})
+@ToString(callSuper=true, exclude={"contributionInteractions","previousRevision","nextRevision"})
 @Entity
 @Table(name="content")
 public class Content extends TimedAnnotatableBaseEntityWithSource implements Serializable {
