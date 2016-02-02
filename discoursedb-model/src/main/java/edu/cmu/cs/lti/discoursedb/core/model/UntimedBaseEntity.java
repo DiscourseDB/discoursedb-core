@@ -8,6 +8,8 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -22,10 +24,12 @@ import lombok.Setter;
 @MappedSuperclass
 public abstract class UntimedBaseEntity{
 
+	@JsonIgnore
 	@Version
 	@Setter(AccessLevel.PRIVATE) 
 	private Long version;	
 	
+	@JsonIgnore
 	@CreationTimestamp
 	@Column(name = "created")
 	@Setter(AccessLevel.PRIVATE) 

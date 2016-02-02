@@ -13,6 +13,8 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -33,10 +35,12 @@ import lombok.ToString;
 @MappedSuperclass
 public abstract class TimedAnnotatableBaseEntity{
 
+	@JsonIgnore
 	@Version
 	@Setter(AccessLevel.PRIVATE) 
 	private Long version;	
 	
+	@JsonIgnore
 	@CreationTimestamp
 	@Column(name = "created")
 	@Setter(AccessLevel.PRIVATE) 
