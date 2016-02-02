@@ -142,7 +142,6 @@ public class ContributionService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Iterable<Contribution> findAllByDiscoursePart(DiscoursePart discoursePart){
 		Assert.notNull(discoursePart);
-
 		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscoursePart(discoursePart));			
 	}
 	
@@ -221,5 +220,21 @@ public class ContributionService {
 		return discourseRelationRepo.save(newRelation);
 	}
 	
-
+	/**
+	 * Returns a Contribution given it's primary key
+	 * 
+	 * @param Long id the primary key of the contribution
+	 * @return an Optional that contains the contribution if it exists
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Optional<Contribution> findOne(Long id){
+		Assert.notNull(id);
+		Contribution contrib = contributionRepo.findOne(id);
+		if(contrib==null){
+			return Optional.empty();
+		}else{
+			return Optional.of(contrib);
+		}
+		
+	}
 }
