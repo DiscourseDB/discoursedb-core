@@ -1,14 +1,17 @@
 package edu.cmu.cs.lti.discoursedb.annotation.demo.io;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.Table;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,8 +22,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
-import edu.cmu.cs.lti.discoursedb.annotation.demo.model.BinaryLabelInterchange;
 import edu.cmu.cs.lti.discoursedb.annotation.demo.model.BinaryLabeledContributionInterchange;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
@@ -29,6 +32,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import lombok.extern.log4j.Log4j;
 
 /**
  * This class exports annotations on Contribution entities for a given discourse. The
@@ -37,6 +41,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
  * 
  * @author Oliver Ferschke
  */
+@Log4j
 @Component
 @SpringBootApplication
 @ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.demo.io" }, 
@@ -45,16 +50,11 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 						type = FilterType.ASSIGNABLE_TYPE, 
 						value = {ContributionBinaryLabelExporter.class, BaseConfiguration.class })})
 public class ContributionBinaryLabelExporter implements CommandLineRunner {
-
-	private static final Logger logger = LogManager.getLogger(ContributionBinaryLabelExporter.class);	
 	
 	@Autowired private DiscourseService discourseService;
 	@Autowired private ContributionService contribService;
 	@Autowired private AnnotationService annoService;
-	
-	private static String discourseName;
-	private static String outputFileName;
-	
+		
 	/**
 	 * Launches the SpringBoot application 
 	 * 
@@ -62,25 +62,33 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 	 */
 	public static void main(String[] args) {
 		if(args.length!=2){
-        	throw new IllegalArgumentException("USAGE: SimpleJSONContentAnnotationExporter <DiscourseName> <outputFile>");
+        	throw new IllegalArgumentException("USAGE: SimpleJSONContentAnnotationExporter <DiscourseName> <outputFile> <csv>(optional)");
 		}
-		discourseName = args[0];
-		outputFileName=args[1];
         SpringApplication.run(ContributionBinaryLabelExporter.class, args);       
 	}
 	
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
-		List<BinaryLabelInterchange> output = new ArrayList<>();		
-		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);
-		ObjectMapper mapper = new ObjectMapper();
+		String discourseName = args[0];
+		String outputFileName=args[1];
+		boolean csv = false;
+		if(outputFileName.toLowerCase().endsWith("csv")){
+			csv=true;
+		}
+
+		List<BinaryLabeledContributionInterchange> output = new ArrayList<>();		
+		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);		
+		
 		if(!existingDiscourse.isPresent()){
-			logger.warn("Discourse with name "+discourseName+" does not exist.");
+			log.warn("Discourse with name "+discourseName+" does not exist.");
 			return;
 		}		
 
+		//retrieve all contributions for the given discourse
 		for(Contribution contrib: contribService.findAllByDiscourse(existingDiscourse.get())){
+			
+			//wrap all relevant information about the given contribution in an interchange object
 			BinaryLabeledContributionInterchange curAnnoExport = new BinaryLabeledContributionInterchange();			
 			curAnnoExport.setTable(contrib.getClass().getAnnotation(Table.class).name()); //table name automatically determined
 			curAnnoExport.setId(contrib.getId());
@@ -90,10 +98,30 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 					curAnnoExport.addLabel(anno.getType().getType());					
 				}
 			}
+			//add interchange object to export list
 			output.add(curAnnoExport);
 		}
 
-		mapper.writeValue(new File(outputFileName),output);
-		
+		//write all interchange objects to output file
+		if(csv){
+			toCSV(output,outputFileName);
+		}else{
+			toJSON(output,outputFileName);
+		}
+
+	}
+
+	private void toJSON(Collection<?> data, String outputFileName) throws IOException{
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.writeValue(new File(outputFileName),data);
+	}
+	
+	private void toCSV(Collection<?> data, String outputFileName) throws IOException{
+		CsvMapper mapper = new CsvMapper();
+		try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileName)))) {
+			for(Object a:data){
+				out.write(mapper.writerWithSchemaFor(a.getClass()).writeValueAsString(a));
+			}	    	
+	    }		
 	}
 }
