@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -41,6 +43,7 @@ public class AnnotationType extends BaseTypeEntity implements Serializable{
 	@Column(name="is_entity_annotation")
 	private boolean isEntityAnnotation;
 	
+	@JsonIgnore
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
     private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
 

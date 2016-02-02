@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -40,6 +42,7 @@ public class Feature extends UntimedBaseEntity implements Serializable{
 	@JoinColumn(name = "fk_feature_type")
 	private FeatureType type;
 	
+	@JsonIgnore
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_annotation_instance")
 	private AnnotationInstance annotation;

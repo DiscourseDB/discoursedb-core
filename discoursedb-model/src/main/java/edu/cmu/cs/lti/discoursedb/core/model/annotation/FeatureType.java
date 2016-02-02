@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -40,6 +42,7 @@ public class FeatureType extends BaseTypeEntity implements Serializable{
 	
 	private String description;
 	
+	@JsonIgnore
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
 	private Set<Feature> features = new HashSet<Feature>();
 	
