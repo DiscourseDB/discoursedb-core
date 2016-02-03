@@ -24,6 +24,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.cmu.cs.lti.discoursedb.annotation.demo.model.BinaryLabeledContributionInterchange;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
@@ -82,8 +83,21 @@ public class ContributionBinaryLabelImporter implements CommandLineRunner {
 				log.error("Contribution with id "+item.getId()+" not found. Skipping.");
 				continue;
 			}else{
+				Contribution contrib = existingContrib.get();
+
+				//delete removed labels
+				List<AnnotationInstance> toDelete = new ArrayList<>();
+				if(contrib.getAnnotations()!=null){
+					for(AnnotationInstance anno: contrib.getAnnotations().getAnnotations()){
+						if(anno.getType()!=null&&!item.getLabels().contains(anno.getType().getType())){
+							toDelete.add(anno);							
+						}
+					}					
+				}				
+				annoService.deleteAnnotations(toDelete);
+
+				//add new labels
 				for(String label:item.getLabels()){
-					Contribution contrib = existingContrib.get();
 					//add label as new annotation if it doesn't exist yet
 					if(!annoService.hasAnnotationType(contrib, label)){
 						annoService.addAnnotation(contrib, annoService.createTypedAnnotation(label));						
