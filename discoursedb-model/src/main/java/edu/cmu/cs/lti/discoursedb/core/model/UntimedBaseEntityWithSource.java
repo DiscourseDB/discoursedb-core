@@ -22,7 +22,7 @@ import lombok.ToString;
 @MappedSuperclass
 public abstract class UntimedBaseEntityWithSource extends UntimedBaseEntity{
 
-	@ManyToOne(cascade=CascadeType.ALL) 
+	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_data_sources")
 	private DataSources dataSourceAggregate;
 	

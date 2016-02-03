@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -43,7 +42,7 @@ public class FeatureType extends BaseTypeEntity implements Serializable{
 	private String description;
 	
 	@JsonIgnore
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="type")
 	private Set<Feature> features = new HashSet<Feature>();
 	
 }

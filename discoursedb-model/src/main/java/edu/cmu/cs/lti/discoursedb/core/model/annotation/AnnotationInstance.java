@@ -47,19 +47,23 @@ public class AnnotationInstance extends UntimedBaseEntityWithSource implements S
 	@Column(name="covered_text")
 	private String coveredText;
 	
-	@ManyToOne(cascade=CascadeType.ALL)
+	@ManyToOne
 	@JoinColumn(name = "fk_annotation_type")
 	private AnnotationType type;	
 	
-	@ManyToOne(cascade=CascadeType.ALL) 
+	@ManyToOne 
 	@JoinColumn(name = "fk_annotation")
 	private Annotations annotationAggregate;
 	
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="annotation")
+	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH},mappedBy="annotation")
 	private Set<Feature> features = new HashSet<Feature>();
 		
 	public void addFeature(Feature feature) {
 		this.features.add(feature);
+	}
+
+	public void removeAllFeatures() {
+		this.features.clear();
 	}
 	
 }

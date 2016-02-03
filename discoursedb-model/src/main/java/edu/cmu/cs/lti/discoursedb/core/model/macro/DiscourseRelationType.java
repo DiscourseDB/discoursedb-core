@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,7 +35,7 @@ public class DiscourseRelationType extends BaseTypeEntity implements Serializabl
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="type")
 	private Set<DiscourseRelation> discourseRelations = new HashSet<DiscourseRelation>();
 
 	public void addDiscourseRelation(DiscourseRelation discourseRelation) {

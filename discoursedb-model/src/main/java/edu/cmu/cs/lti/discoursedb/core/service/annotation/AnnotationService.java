@@ -1,6 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.core.service.annotation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -178,6 +180,43 @@ public class AnnotationService {
 		annotation.setAnnotationAggregate(annoAggregate);
 		annotation = annoInstanceRepo.save(annotation);
 		annoAggregate.addAnnotation(annotation);
+	}
+	
+	/**
+	 * Deletes an annotation from DiscourseDB
+	 * 
+	 * @param annotation
+	 *            the annotation instance to add to delete
+	 */
+	public <T extends TimedAnnotatableBaseEntity> void deleteAnnotation(AnnotationInstance annotation) {		
+		Assert.notNull(annotation);
+		annotation.getAnnotationAggregate().removeAnnotation(annotation);		
+		Set<Feature> features = annotation.getFeatures();
+		if(features!=null&&!features.isEmpty()){
+			featureRepo.delete(annotation.getFeatures());			
+		}
+		annoInstanceRepo.delete(annotation);
+	}
+
+	/**
+	 * Deletes an annotation from DiscourseDB
+	 * 
+	 * @param annotation
+	 *            the annotation instance to add to delete
+	 */
+	public <T extends TimedAnnotatableBaseEntity> void deleteAnnotations(Iterable<AnnotationInstance> annotations) {		
+		Assert.notNull(annotations);
+
+		List<Feature> featuresToDelete = new ArrayList<>();
+		for(AnnotationInstance anno:annotations){
+			anno.getAnnotationAggregate().removeAnnotation(anno);
+			Set<Feature> features = anno.getFeatures();
+			if(features!=null&&!features.isEmpty()){
+				featuresToDelete.addAll(features);
+			}
+		}
+		featureRepo.delete(featuresToDelete);
+		annoInstanceRepo.delete(annotations);
 	}
 	
 	/**

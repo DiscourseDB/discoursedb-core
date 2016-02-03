@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -41,7 +40,7 @@ public class DataSources extends UntimedBaseEntity implements Serializable{
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL, mappedBy="sourceAggregate")
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="sourceAggregate")
     private Set<DataSourceInstance> sources = new HashSet<DataSourceInstance>();
 	
 	public void addSource(DataSourceInstance source) {

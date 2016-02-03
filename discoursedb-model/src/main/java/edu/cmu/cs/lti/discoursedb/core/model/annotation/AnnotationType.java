@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -44,7 +43,7 @@ public class AnnotationType extends BaseTypeEntity implements Serializable{
 	private boolean isEntityAnnotation;
 	
 	@JsonIgnore
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="type")
     private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
 
 }

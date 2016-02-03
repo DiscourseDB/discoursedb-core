@@ -38,11 +38,15 @@ public class Annotations extends UntimedBaseEntity implements Serializable{
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@OneToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL,mappedBy="annotationAggregate")
+	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}, mappedBy="annotationAggregate")
 	@JsonIgnore
 	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
     
 	public void addAnnotation(AnnotationInstance annotation) {
 		this.annotations.add(annotation);
+	}
+
+	public void removeAnnotation(AnnotationInstance annotation) {
+		this.annotations.remove(annotation);
 	}
 }

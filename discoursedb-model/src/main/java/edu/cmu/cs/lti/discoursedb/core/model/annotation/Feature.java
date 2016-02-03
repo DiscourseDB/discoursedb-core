@@ -43,7 +43,7 @@ public class Feature extends UntimedBaseEntity implements Serializable{
 	private FeatureType type;
 	
 	@JsonIgnore
-	@ManyToOne(cascade=CascadeType.ALL) 
+	@ManyToOne
 	@JoinColumn(name = "fk_annotation_instance")
 	private AnnotationInstance annotation;
 	

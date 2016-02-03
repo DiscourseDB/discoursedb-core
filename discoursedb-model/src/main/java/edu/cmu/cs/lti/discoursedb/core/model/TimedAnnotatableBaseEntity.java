@@ -54,7 +54,7 @@ public abstract class TimedAnnotatableBaseEntity{
 	@Temporal(TemporalType.TIMESTAMP)
     private Date endTime;
 	
-	@ManyToOne(cascade=CascadeType.ALL) 
+	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_annotation")
 	private Annotations annotations;
 }
