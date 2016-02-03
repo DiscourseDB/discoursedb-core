@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
@@ -34,8 +33,7 @@ import edu.cmu.cs.lti.discoursedb.io.coursera.model.CourseraSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.coursera.model.Forum;
 import edu.cmu.cs.lti.discoursedb.io.coursera.model.Post;
 import edu.cmu.cs.lti.discoursedb.io.coursera.model.Thread;
-
-import org.springframework.transaction.annotation.Propagation;
+import lombok.extern.log4j.Log4j;
 
 /**
  * This converter service maps Coursera forum data from a coursera database
@@ -44,7 +42,9 @@ import org.springframework.transaction.annotation.Propagation;
  * this service class. Mapping methods are executed transactionally.
  * 
  * @author Haitian Gong
+ * @author Oliver Ferschke
  */
+@Log4j
 @Service
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
 public class CourseraConverterService {
@@ -61,9 +61,7 @@ public class CourseraConverterService {
 	private DiscoursePartService discoursepartService;
 	@Autowired
 	private DiscourseService discourseService;
-	
-	private static final Logger logger = LogManager.getLogger(CourseraConverterService.class);
-	
+		
 	/**
 	 * Maps all forum entities in forum table of the coursera database to DiscourseDB.
 	 * Each forum entity is mapped to DiscourseDB as a DiscoursePart entity.
@@ -83,13 +81,12 @@ public class CourseraConverterService {
 		//get the list of all forum ids in the source database
 		ArrayList<Integer> forumIds = (ArrayList<Integer>) database.getIds("forum");
 		
-		System.out.println("<<<<<<Start importing forum data>>>>>>");
+		log.info("Importing forum data");
 		
 		for(int i=0;i<forumIds.size();i++) {
 			
 			int forumid = forumIds.get(i);
 			Forum curForum = (Forum) database.getDbEntity("forum", (long) forumid);
-			//System.out.println(i);
 			
 			DiscoursePart forum = 
 					discoursepartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.FORUM);
@@ -130,14 +127,15 @@ public class CourseraConverterService {
 		//get the list of all thread ids in the source database
 	    ArrayList<Integer> threadIds = (ArrayList<Integer>) database.getIds("thread");
 	    
-	    System.out.println("<<<<<<Start importing thread data>>>>>>");
+	    log.info("Importing thread data");
 		
 		for(int i=0;i<threadIds.size();i++) {
 			int threadid = threadIds.get(i);
 			Thread curThread = (Thread) database.getDbEntity("thread", (long) threadid);
-			//System.out.println(i);
+
 			//A few threads have very long title (longer than 255)
 			//These threads are skipped
+			//TODO OF: check if we should do that. maybe the range of the title field should be extended 
 			if(curThread.getTitle().length()>=255)
 				continue;			
 			
@@ -193,9 +191,9 @@ public class CourseraConverterService {
 		//get the list of all post ids in the source database
 		ArrayList<Integer> postIds = (ArrayList<Integer>) database.getIds("post");
 		
-		System.out.println("<<<<<<Start importing post data>>>>>>");
+		log.info("Importing post data");
+		
 		for(int i=0;i<postIds.size();i++) {
-			//System.out.println(i);
 			int postid = postIds.get(i);
 			Post curPost = (Post) database.getDbEntity("post", (long) postid);
 			
@@ -211,7 +209,7 @@ public class CourseraConverterService {
 			Date strat = new Date(curPost.getPost_time()*1000L);
 				
 			//add content entity to database
-			logger.trace("Create Content entity");
+			log.trace("Create Content entity");
 			User curUser = userService.createOrGetUser(discourse, String.valueOf(curPost.getUser_id()));
 			Content curContent = contentService.createContent();
 			curContent.setText(curPost.getPost_text());
@@ -224,7 +222,7 @@ public class CourseraConverterService {
 							DataSourceTypes.COURSERA, dataSetName));
 				
 			//add post contribution entity to database
-			logger.trace("Create Contribution entity");
+			log.trace("Create Contribution entity");
 			ContributionTypes mappedType = null;
 			if(curPost.getOriginal()==0)
 				mappedType = ContributionTypes.POST;
@@ -277,10 +275,9 @@ public class CourseraConverterService {
 		//get the list of all comment ids in the source database
 		ArrayList<Integer> commentIds = (ArrayList<Integer>) database.getIds("comment");
 		
-		System.out.println("<<<<<<Start importing comment data>>>>>>");
+		log.info("Importing comment data");
 		
 		for(int i=0;i<commentIds.size();i++) {
-			//System.out.println(i);
 			int commentid = commentIds.get(i);
 			Comment curComment = (Comment) database.getDbEntity("comment", (long) commentid);
 			
@@ -293,7 +290,7 @@ public class CourseraConverterService {
 			if(!existingContribution.isPresent()) {
 				Date start = new Date(curComment.getPost_time()*1000L);
 				//add content entity to database
-				logger.trace("Create Content entity");
+				log.trace("Create Content entity");
 				Content curContent = contentService.createContent();
 				curContent.setText(curComment.getText());
 				User curUser = userService.createOrGetUser(discourse, String.valueOf(curComment.getUser_id()));
@@ -308,7 +305,7 @@ public class CourseraConverterService {
 				
 				
 				//add contribution entity to database
-				logger.trace("Create Contribution entity");
+				log.trace("Create Contribution entity");
 				Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
 				curContribution.setCurrentRevision(curContent);
 				curContribution.setFirstRevision(curContent);

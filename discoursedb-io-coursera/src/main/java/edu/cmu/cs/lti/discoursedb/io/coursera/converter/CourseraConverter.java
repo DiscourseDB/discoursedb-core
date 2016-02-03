@@ -2,13 +2,13 @@ package edu.cmu.cs.lti.discoursedb.io.coursera.converter;
 
 import java.sql.SQLException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.io.coursera.io.CourseraDB;
+import lombok.extern.log4j.Log4j;
 
 /**
  * This converter loads data from a coursera database and maps all entities to DiscourseDB.
@@ -22,10 +22,10 @@ import edu.cmu.cs.lti.discoursedb.io.coursera.io.CourseraDB;
  * @author Haitian Gong
  *
  */
+@Log4j
 @Component
 public class CourseraConverter implements CommandLineRunner{
 	
-	private static final Logger logger = LogManager.getLogger(CourseraConverter.class);
 	private String dataSetName;
 	private String discourseName;
 	private String dbhost;
@@ -38,10 +38,8 @@ public class CourseraConverter implements CommandLineRunner{
 	
 	@Override
 	public void run(String... args) throws Exception {	
-		if (args.length < 6) {
-			logger.error("Usage: CourseraConverterApplication <DataSourceType> <DataSetName> </path/to/*-prod.mongo>");
-			System.exit(1);
-		}
+		Assert.isTrue(args.length==6,"Usage: CourseraConverterApplication <DataSetName> <DiscourseName> <coursera_dbhost> <coursera_db> <coursera_dbuser> <coursera_dbpwd>");
+		
 		this.dataSetName = args[0];
 		this.discourseName = args[1];
 		this.dbhost = args[2];
@@ -49,9 +47,9 @@ public class CourseraConverter implements CommandLineRunner{
 		this.dbuser = args[4];
 		this.dbpwd = args[5];
 
-		logger.info("Starting coursera conversion");
+		log.info("Starting coursera conversion");
 		convert();
-		logger.info("Coursera conversion completed");
+		log.info("Coursera conversion completed");
 	}
 	
 	private void convert() throws SQLException {
