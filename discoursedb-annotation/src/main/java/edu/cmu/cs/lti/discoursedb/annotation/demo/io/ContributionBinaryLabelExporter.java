@@ -20,6 +20,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -35,9 +36,9 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import lombok.extern.log4j.Log4j;
 
 /**
- * This class exports annotations on Contribution entities for a given discourse. The
- * annotations in the json can be edited offline or by a third party software
- * and then be imported back into the DiscourseDB database.
+ * This class exports annotations on Contribution entities for a given discourse. 
+ * The annotations in the json/csv can be edited offline or by a third party software
+ * and then be imported back into the DiscourseDB database using the importer class.
  * 
  * @author Oliver Ferschke
  */
@@ -61,9 +62,7 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 	 * @param args 
 	 */
 	public static void main(String[] args) {
-		if(args.length!=2){
-        	throw new IllegalArgumentException("USAGE: SimpleJSONContentAnnotationExporter <DiscourseName> <outputFile> <csv>(optional)");
-		}
+		Assert.isTrue(args.length==2,"USAGE: SimpleJSONContentAnnotationExporter <DiscourseName> <outputFile> <csv>(optional)");
         SpringApplication.run(ContributionBinaryLabelExporter.class, args);       
 	}
 	
@@ -92,7 +91,7 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 			BinaryLabeledContributionInterchange curAnnoExport = new BinaryLabeledContributionInterchange();			
 			curAnnoExport.setTable(contrib.getClass().getAnnotation(Table.class).name()); //table name automatically determined
 			curAnnoExport.setId(contrib.getId());
-			curAnnoExport.setText(contrib.getFirstRevision().getText());
+			curAnnoExport.setText(contrib.getCurrentRevision().getText());
 			for(AnnotationInstance anno:annoService.findAnnotations(contrib)){
 				if(anno.getType()!=null){
 					curAnnoExport.addLabel(anno.getType().getType());					

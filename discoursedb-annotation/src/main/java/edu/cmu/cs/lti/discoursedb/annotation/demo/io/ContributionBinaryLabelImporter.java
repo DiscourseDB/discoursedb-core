@@ -15,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -32,7 +33,7 @@ import lombok.extern.log4j.Log4j;
 
 /**
  * Imports the BinaryLabeledContribution interchange format produced by the Exporter.
- * Allows to create annotations (binary labels) from this import file.  
+ * Allows to create and delete annotations (binary labels) from this import file. 
  * 
  * @author Oliver Ferschke
  */
@@ -55,9 +56,7 @@ public class ContributionBinaryLabelImporter implements CommandLineRunner {
 	 * @param args 
 	 */
 	public static void main(String[] args) {
-		if(args.length!=1){
-        	throw new IllegalArgumentException("USAGE: ContributionBinaryLabelImporter <inputFile>");
-		}
+		Assert.isTrue(args.length==1,"USAGE: ContributionBinaryLabelImporter <inputFile>");
 		SpringApplication.run(ContributionBinaryLabelImporter.class, args);       
 	}
 	
