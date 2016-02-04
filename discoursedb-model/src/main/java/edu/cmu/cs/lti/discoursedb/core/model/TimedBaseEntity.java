@@ -11,6 +11,7 @@ import javax.persistence.Version;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -24,6 +25,7 @@ import lombok.Setter;
  */
 @Data
 @MappedSuperclass
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public abstract class TimedBaseEntity{
 
 	@JsonIgnore
