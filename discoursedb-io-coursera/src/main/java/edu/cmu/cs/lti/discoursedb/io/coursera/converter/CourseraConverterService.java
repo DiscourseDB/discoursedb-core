@@ -231,6 +231,7 @@ public class CourseraConverterService {
 				
 			Contribution curContribution = contributionService.createTypedContribution(mappedType);
 			curContribution.setStartTime(strat);
+			curContribution.setFirstRevision(curContent);
 			curContribution.setCurrentRevision(curContent);
 			if(curPost.getVotes()>0)
 				curContribution.setUpvotes((int) curPost.getVotes());
