@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.springframework.data.rest.core.annotation.RestResource;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
@@ -38,6 +40,7 @@ public class Annotations extends UntimedBaseEntity implements Serializable{
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
+	@RestResource(rel="annotationInstances",path="annotationInstances")
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}, mappedBy="annotationAggregate")
 	@JsonIgnore
 	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();

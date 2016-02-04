@@ -78,7 +78,7 @@ public class User extends TimedAnnotatableBaseEntityWithSource implements Serial
 
 	@OneToMany(mappedBy = "user")
 	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
-
+	
 	@OneToMany(mappedBy = "user")
 	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
 

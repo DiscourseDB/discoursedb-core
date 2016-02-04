@@ -1,25 +1,15 @@
 package edu.cmu.cs.lti.discoursedb.core.model;
 
-import java.util.Date;
-
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
-import org.hibernate.annotations.CreationTimestamp;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -30,30 +20,12 @@ import lombok.ToString;
  *
  */
 @Data
-@EqualsAndHashCode(exclude={"annotations"})
-@ToString(exclude={"annotations"})
+@EqualsAndHashCode(callSuper=true, exclude={"annotations"})
+@ToString(callSuper=true, exclude={"annotations"})
 @MappedSuperclass
-public abstract class TimedAnnotatableBaseEntity{
-
-	@JsonIgnore
-	@Version
-	@Setter(AccessLevel.PRIVATE) 
-	private Long version;	
+public abstract class TimedAnnotatableBaseEntity extends TimedBaseEntity{
 	
-	@JsonIgnore
-	@CreationTimestamp
-	@Column(name = "created")
-	@Setter(AccessLevel.PRIVATE) 
-	private Date createDate;
-	
-	@Column(name = "start_time")
-	@Temporal(TemporalType.TIMESTAMP)
-    private Date startTime;   
-
-	@Column(name = "end_time")
-	@Temporal(TemporalType.TIMESTAMP)
-    private Date endTime;
-	
+	@RestResource(rel="annotationAggregate",path="annotationAggregate")
 	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_annotation")
 	private Annotations annotations;
