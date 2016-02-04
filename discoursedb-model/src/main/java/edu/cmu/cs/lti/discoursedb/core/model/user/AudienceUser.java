@@ -34,12 +34,12 @@ public class AudienceUser extends TimedBaseEntity implements Serializable{
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@RestResource(rel="userMemberOfAudience",path="userMemberOfAudience")
+	@RestResource(rel="userMemberOfAudiences",path="userMemberOfAudiences")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_user")
     private User user;
     
-	@RestResource(rel="audienceHasUser",path="audienceHasUser")
+	@RestResource(rel="audienceHasUsers",path="audienceHasUsers")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_audience")
     private Audience audience;

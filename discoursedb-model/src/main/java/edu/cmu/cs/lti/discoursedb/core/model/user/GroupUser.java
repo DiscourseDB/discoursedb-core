@@ -35,12 +35,12 @@ public class GroupUser extends TimedBaseEntity implements Serializable{
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@RestResource(rel="groupHasUser",path="groupHasUser")
+	@RestResource(rel="groupHasUsers",path="groupHasUsers")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_group")
     private Group group;
     
-	@RestResource(rel="userMemberOfGroup",path="userMemberOfGroup")
+	@RestResource(rel="userMemberOfGroups",path="userMemberOfGroups")
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_user")
     private User user;

@@ -18,6 +18,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import lombok.AccessLevel;
@@ -76,9 +78,11 @@ public class User extends TimedAnnotatableBaseEntityWithSource implements Serial
 	@OneToMany(mappedBy = "user")
 	private Set<ContributionInteraction> contentInteractions = new HashSet<ContributionInteraction>();
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
 
