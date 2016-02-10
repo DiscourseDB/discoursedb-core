@@ -25,7 +25,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="contribution_has_audience")
-@Description("A relation entity that associates a contribution with an audience.")
+@Description("A relation that associates a contribution with an audience.")
 public class ContributionAudience extends TimedBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -2668707116929576568L;
