@@ -8,4 +8,4 @@
  * @author Oliver Ferschke
  *
  */
-package edu.cmu.cs.lti.discoursedb.core.projection;
+package edu.cmu.cs.lti.discoursedb.core.model.user.projection;
