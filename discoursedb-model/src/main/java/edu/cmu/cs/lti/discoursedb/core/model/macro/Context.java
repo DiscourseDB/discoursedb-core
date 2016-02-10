@@ -17,6 +17,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.rest.core.annotation.Description;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -41,6 +43,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"contextContributions"})
 @Entity
 @Table(name="context")
+@Description("The context of one or more contributions.")
 public class Context extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = 6013322457584994562L;
@@ -49,21 +52,26 @@ public class Context extends TimedAnnotatableBaseEntityWithSource implements Ser
 	@Column(name="id_context", nullable=false)
 	@Setter(AccessLevel.PRIVATE)
     @GeneratedValue(strategy = GenerationType.AUTO)
+	@Description("The primary key.")
 	private Long id;
 	
 	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_first_revision")
+	@Description("The content entity that represents the first revision of this context entity.")
 	private Content firstRevision;
 	
 	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH}, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_current_revision")
+	@Description("The content entity that represents the most current revision of this context entity.")
 	private Content currentRevision;
 	
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_context_type")
+	@Description("The type of this context.")
 	private ContextType type;
 	
     @OneToMany(mappedBy = "context")
+	@Description("A set of relations that associate this content to contributions.")
 	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
 
 	public void addContextContributions(ContributionContext contextContribution) {
