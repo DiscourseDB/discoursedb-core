@@ -17,6 +17,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.rest.core.annotation.Description;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
@@ -48,6 +50,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"contributionInteractions","previousRevision","nextRevision"})
 @Entity
 @Table(name="content")
+@Description("The content of a Contribution or Context")
 public class Content extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -1465025480150664388L;
@@ -56,29 +59,37 @@ public class Content extends TimedAnnotatableBaseEntityWithSource implements Ser
 	@Column(name="id_content", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
 	@Setter(AccessLevel.PRIVATE) 
+	@Description("The primary key of a content")
 	private Long id;
 	
 	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_previous_revision")
+	@Description("The content that represents the previous revision of this contribution or context.")
 	private Content previousRevision;
 	
 	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_next_revision")
+	@Description("The content that represents the next revision of this contribution or context.")
 	private Content nextRevision;
 
+	@Description("The title of the content.")
 	private String title;
 
 	@Column(columnDefinition="LONGTEXT")
+	@Description("The text body of this context, if it is a textual content.")
 	private String text;
 	
 	@Column(columnDefinition="LONGBLOB")
+	@Description("The data of this content, if it is a non-textual content.")
 	private Blob data;
 	
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_user_id")
+	@Description("The author of this content.")
 	private User author;
 
     @OneToMany(mappedBy = "content")
+	@Description("A set of interactions between users and this content entity.")
 	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 		
 }

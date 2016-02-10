@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,6 +31,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"annotations"})
 @Entity
 @Table(name="annotation")
+@Description("An aggregate that links an entity with a set of annotation instances. Each annotatable aggregate can have one aggregate and each aggregate can link to multiple annotation instances.")
 public class Annotations extends UntimedBaseEntity implements Serializable{
 
 	private static final long serialVersionUID = -4654984158138436217L;
@@ -38,11 +40,13 @@ public class Annotations extends UntimedBaseEntity implements Serializable{
 	@Column(name="id_annotation", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
 	@Setter(AccessLevel.PRIVATE) 
+	@Description("The primary key.")
 	private Long id;
 	
 	@RestResource(rel="annotationInstances",path="annotationInstances")
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}, mappedBy="annotationAggregate")
 	@JsonIgnore
+	@Description("A set of annotation instances associated with the entity that is represented by this aggregate.")
 	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
     
 	public void addAnnotation(AnnotationInstance annotation) {

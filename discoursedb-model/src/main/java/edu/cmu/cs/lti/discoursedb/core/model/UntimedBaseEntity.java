@@ -7,6 +7,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.rest.core.annotation.Description;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -29,11 +30,13 @@ public abstract class UntimedBaseEntity{
 	@JsonIgnore
 	@Version
 	@Setter(AccessLevel.PRIVATE) 
+	@Description("The version of this entity. Only used for auditing purposes and changes whenever the entity is modified.")
 	private Long version;	
 	
 	@JsonIgnore
 	@CreationTimestamp
 	@Column(name = "created")
 	@Setter(AccessLevel.PRIVATE) 
+	@Description("The date this entity was first stored in the database. Only used for auditing purposes.")
 	private Date createDate;
 }

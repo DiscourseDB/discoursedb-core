@@ -5,6 +5,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.springframework.data.rest.core.annotation.Description;
+
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSources;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +26,7 @@ public abstract class TimedAnnotatableBaseEntityWithSource extends TimedAnnotata
 
 	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_data_sources")
+	@Description("An aggregate that contains links to all data sources associated with this entity.")
 	private DataSources dataSourceAggregate;
 		
 }
