@@ -24,16 +24,19 @@ import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationTypeRepos
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationsRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureTypeRepository;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @Service
+@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class AnnotationService {
 
-	@Autowired private AnnotationInstanceRepository annoInstanceRepo;
-	@Autowired private AnnotationTypeRepository annoTypeRepo;
-	@Autowired private AnnotationsRepository annoRepo;
-	@Autowired private FeatureRepository featureRepo;
-	@Autowired private FeatureTypeRepository featureTypeRepo;
+	private final @NonNull AnnotationInstanceRepository annoInstanceRepo;
+	private final @NonNull AnnotationTypeRepository annoTypeRepo;
+	private final @NonNull AnnotationsRepository annoRepo;
+	private final @NonNull FeatureRepository featureRepo;
+	private final @NonNull FeatureTypeRepository featureTypeRepo;
 	
 	/**
 	 * Retrieves all annotations for the given entity.

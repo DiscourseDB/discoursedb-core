@@ -12,13 +12,15 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscourse;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
+@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class DiscourseService {
 
-	@Autowired
-	private DiscourseRepository discourseRepository;
+	private final @NonNull DiscourseRepository discourseRepository;
 
 	/**
 	 * Returns a Discourse object with the given name if it exists or creates a

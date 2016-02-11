@@ -27,17 +27,20 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRep
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @Service
+@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class ContributionService {
 
-	@Autowired private ContributionRepository contributionRepo;
-	@Autowired private DataSourceService dataSourceService;	
-	@Autowired private ContributionTypeRepository contribTypeRepo;
-	@Autowired private DiscourseRelationTypeRepository discRelationTypeRepo;
-	@Autowired private DiscourseRelationRepository discourseRelationRepo;
-	@PersistenceContext private EntityManager entityManager; 
+	private final @NonNull ContributionRepository contributionRepo;
+	private final @NonNull DataSourceService dataSourceService;	
+	private final @NonNull ContributionTypeRepository contribTypeRepo;
+	private final @NonNull DiscourseRelationTypeRepository discRelationTypeRepo;
+	private final @NonNull DiscourseRelationRepository discourseRelationRepo;
+	private final @NonNull @PersistenceContext EntityManager entityManager; 
 	
 	/**
 	 * Retrieves existing or creates a new ContributionType entity with the
