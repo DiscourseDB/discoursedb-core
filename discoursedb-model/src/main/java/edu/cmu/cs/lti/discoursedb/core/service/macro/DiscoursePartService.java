@@ -366,7 +366,7 @@ public class DiscoursePartService {
 	 * Retrieves DiscourseParts by name
 	 * 
 	 * @param discoursePartName the name of the discourse part to search for
-	 * @return an optional DiscoursePart, depending on if it was found or not 
+	 * @return an list of DiscoursePart entities that might be empty 
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<DiscoursePart> findAllByName(String discoursePartName) {
