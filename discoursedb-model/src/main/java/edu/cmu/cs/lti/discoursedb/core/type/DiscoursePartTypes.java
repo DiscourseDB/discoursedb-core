@@ -40,6 +40,18 @@ public enum DiscoursePartTypes {
 	/**
 	 * A Prosolo Blog 
 	 */
-	PROSOLO_BLOG
+	PROSOLO_BLOG,
+	/**
+	 * A github owner's set of repositories
+	 */
+	GITHUB_OWNER_REPOS,
+	/**
+	 * A Github repository
+	 */
+	GITHUB_REPO, 
+	/**
+	 * A Github Issue
+	 */
+	GITHUB_ISSUE
 	
 }

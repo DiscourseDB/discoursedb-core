@@ -367,4 +367,17 @@ public class UserService {
 		userRepo.delete(user);
 	}
 
+	/**
+	 * Retrieves User by username
+	 * 
+	 * @param discoursePartName the name of the discourse part to search for
+	 * @return an optional DiscoursePart, depending on if it was found or not 
+	 */
+	public Optional<User> findUserByUsername(String username) {
+		Assert.notNull(username);
+		return Optional.ofNullable(userRepo.findOne(
+				UserPredicates.hasUserName(username)));
+
+	}
+
 }

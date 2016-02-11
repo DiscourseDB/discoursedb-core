@@ -19,9 +19,17 @@ public enum DiscoursePartInteractionTypes {
 	 */
 	READY,
 	/**
-	 * A user or group is not ready to move on with a conversation
+	 *  * A user or group is not ready to move on with a conversation
 	 */
-	UNREADY
+	UNREADY,
+    /**
+	 * Watch a repository (Github)
+	 */
+	WATCH,
+	/**
+	 * Unwatch a repository (Github)
+	 */
+	UNWATCH
 
 }
 
