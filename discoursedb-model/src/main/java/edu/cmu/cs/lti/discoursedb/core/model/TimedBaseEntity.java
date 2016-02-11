@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +19,7 @@ import lombok.Data;
 import lombok.Setter;
 
 /**
- * Adds basic common fields for type entities (Version, CreationDate, Type identifier) 
+ * Adds basic fields to entities that do not keep track of their lifetime (version, entity creation date)
  * 
  * @author Oliver Ferschke
  *
@@ -25,7 +27,7 @@ import lombok.Setter;
 @Data
 @MappedSuperclass
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public abstract class BaseTypeEntity{
+public abstract class TimedBaseEntity{
 
 	@JsonIgnore
 	@Version
@@ -40,8 +42,14 @@ public abstract class BaseTypeEntity{
 	@Description("The date this entity was first stored in the database. Only used for auditing purposes.")
 	private Date createDate;
 	
-	@Column(unique=true)
-	@Description("The type value that this type-entity represents.")
-	private String type;
+	@Column(name = "start_time")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Description("Start of the lifetime of this entity, e.g. creation date of a contribution.")
+    private Date startTime;   
+
+	@Column(name = "end_time")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Description("End of the lifetime of this entity, e.g. deletion date of a contribution.")
+    private Date endTime;
 
 }

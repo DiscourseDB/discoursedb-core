@@ -16,64 +16,36 @@ import javax.persistence.Table;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="user_relation")
 public class UserRelation extends TimedAnnotatableBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = -5267036520925282560L;
 
-	private long id;
-	
-	private UserRelationType type;
-	
-	private User source;
-	
-	private User target;
-	
-	public UserRelation(){}
-	
 	@Id
 	@Column(name="id_user_relation", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "fk_user_relation_type")
-	public UserRelationType getType() {
-		return type;
-	}
-
-	public void setType(UserRelationType type) {
-		this.type = type;
-	}
-
+	private UserRelationType type;
+	
 	@RestResource(rel="sourceUser",path="sourceUser")
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_source")
-	public User getSource() {
-		return source;
-	}
-
-	public void setSource(User source) {
-		this.source = source;
-	}
-
+	private User source;
+	
 	@RestResource(rel="targetUser",path="targetUser")
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_target")
-	public User getTarget() {
-		return target;
-	}
-
-	public void setTarget(User target) {
-		this.target = target;
-	}
-
+	private User target;
 }

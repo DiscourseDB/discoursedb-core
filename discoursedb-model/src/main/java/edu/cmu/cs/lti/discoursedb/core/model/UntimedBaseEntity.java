@@ -7,34 +7,36 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.rest.core.annotation.Description;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 
 /**
  * Adds basic fields to entities that do not keep track of their lifetime (version, entity creation date)
  * 
- * @author oliverf
+ * @author Oliver Ferschke
  *
  */
+@Data
 @MappedSuperclass
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public abstract class UntimedBaseEntity{
 
-	private Long version;	
+	@JsonIgnore
 	@Version
-	public Long getVersion() {
-		return version;
-	}
-	@SuppressWarnings("unused")
-	private void setVersion(Long version) {
-		this.version = version;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	@Description("The version of this entity. Only used for auditing purposes and changes whenever the entity is modified.")
+	private Long version;	
 	
-	private Date createDate;
+	@JsonIgnore
 	@CreationTimestamp
 	@Column(name = "created")
-	public Date getCreateDate() {
-	    return this.createDate;
-	}
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setCreateDate(Date createDate) {
-	    this.createDate = createDate;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	@Description("The date this entity was first stored in the database. Only used for auditing purposes.")
+	private Date createDate;
 }

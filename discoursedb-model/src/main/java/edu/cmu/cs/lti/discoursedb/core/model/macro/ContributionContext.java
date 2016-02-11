@@ -13,52 +13,32 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="contribution_has_context", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_contribution", "fk_context" }))
-public class ContributionContext extends TimedAnnotatableBaseEntity implements Serializable{
+public class ContributionContext extends TimedBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -1542771414387707049L;
-
-	private long id;
-	
-    private Contribution contribution;
-    
-    private Context context;
-	
-	public ContributionContext() {}
 
 	@Id
 	@Column(name="id_contribution_context", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_contribution")
-	public Contribution getContribution() {
-		return contribution;
-	}
-
-	public void setContribution(Contribution contribution) {
-		this.contribution = contribution;
-	}
-
+    private Contribution contribution;
+    
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_context")
-	public Context getContext() {
-		return context;
-	}
-
-	public void setContext(Context context) {
-		this.context = context;
-	}
-    
+    private Context context;    
 	
 }

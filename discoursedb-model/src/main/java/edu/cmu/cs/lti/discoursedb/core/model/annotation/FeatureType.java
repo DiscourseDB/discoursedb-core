@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,58 +13,43 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import org.springframework.data.rest.core.annotation.Description;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(callSuper=true, exclude={"features"})
+@ToString(callSuper=true, exclude={"features"})
 @Entity
 @Table(name="feature_type")
+@Description("Defines the type of a feature (instance).")
 public class FeatureType extends BaseTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = -3343145417294760437L;
 
-	private long id;
-	
-	private String datatype;
-	
-	private String description;
-	
-	private Set<Feature> features = new HashSet<Feature>();
-	
-	public FeatureType(){}
-
 	@Id
 	@Column(name="id_feature_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public String getDatatype() {
-		return datatype;
-	}
-
-	public void setDatatype(String datatype) {
-		this.datatype = datatype;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<Feature> getFeatures() {
-		return features;
-	}
-
-	public void setFeatures(Set<Feature> features) {
-		this.features = features;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	@Description("The primary key.")
+	private Long id;
+	
+	@Description("The data type of the associated features. Determines how the feature value should be interpreted (e.g. String, Integer).")
+	private String datatype;
+	
+	@Description("An optional description of the feature type.")
+	private String description;
+	
+	@JsonIgnore
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="type")
+	@Description("The set of all features with this type.")
+	private Set<Feature> features = new HashSet<Feature>();
 	
 }

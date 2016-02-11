@@ -13,52 +13,32 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="audience_has_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_audience", "fk_group" }))
-public class AudienceGroup extends TimedAnnotatableBaseEntity implements Serializable{
+public class AudienceGroup extends TimedBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = 5232683398940704768L;
-
-	private long id;
-	
-    private Group group;
-    
-    private Audience audience;
-	
-	public AudienceGroup() {}
 
 	@Id
 	@Column(name="id_audience_group", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "fk_audience")
-	public Audience getAudience() {
-		return audience;
-	}
-
-	public void setAudience(Audience audience) {
-		this.audience = audience;
-	}
-
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_group")
-	public Group getGroup() {
-		return group;
-	}
-
-	public void setGroup(Group group) {
-		this.group = group;
-	}
+    private Group group;
     
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "fk_audience")
+    private Audience audience;
 	
 }

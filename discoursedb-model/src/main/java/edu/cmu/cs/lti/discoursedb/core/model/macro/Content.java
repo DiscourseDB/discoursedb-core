@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,9 +17,16 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.rest.core.annotation.Description;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Content entities represent the content of Contribution and Context entities.
@@ -37,104 +45,51 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
  * @author Oliver Ferschke
  *
  */
+@Data
+@EqualsAndHashCode(callSuper=true, exclude={"contributionInteractions","previousRevision","nextRevision"})
+@ToString(callSuper=true, exclude={"contributionInteractions","previousRevision","nextRevision"})
 @Entity
 @Table(name="content")
+@Description("The content of a Contribution or Context")
 public class Content extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -1465025480150664388L;
 
-	private long id;
-	
-	private Content previousRevision;
-	
-	private Content nextRevision;
-
-	private String title;
-
-	private String text;
-	
-	private Blob data;
-	
-	private User author;
-
-	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
-	
-	public Content(){}
-
-	@OneToOne(cascade=CascadeType.ALL) 
-	@JoinColumn(name = "fk_user_id")
-	public User getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(User author) {
-		this.author = author;
-	}
-	
 	@Id
 	@Column(name="id_content", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	@OneToOne(cascade=CascadeType.ALL) 
+	@Setter(AccessLevel.PRIVATE) 
+	@Description("The primary key of a content")
+	private Long id;
+	
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_previous_revision")
-	public Content getPreviousRevision() {
-		return previousRevision;
-	}
-
-	public void setPreviousRevision(Content previousRevision) {
-		this.previousRevision = previousRevision;
-	}
-
-	@OneToOne(cascade=CascadeType.ALL) 
+	@Description("The content that represents the previous revision of this contribution or context.")
+	private Content previousRevision;
+	
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY) 
 	@JoinColumn(name = "fk_next_revision")
-	public Content getNextRevision() {
-		return nextRevision;
-	}
+	@Description("The content that represents the next revision of this contribution or context.")
+	private Content nextRevision;
 
-	public void setNextRevision(Content nextRevision) {
-		this.nextRevision = nextRevision;
-	}
+	@Description("The title of the content.")
+	private String title;
 
 	@Column(columnDefinition="LONGTEXT")
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
+	@Description("The text body of this context, if it is a textual content.")
+	private String text;
+	
 	@Column(columnDefinition="LONGBLOB")
-	public Blob getData() {
-		return data;
-	}
-
-	public void setData(Blob data) {
-		this.data = data;
-	}
+	@Description("The data of this content, if it is a non-textual content.")
+	private Blob data;
+	
+	@OneToOne(cascade=CascadeType.ALL) 
+	@JoinColumn(name = "fk_user_id")
+	@Description("The author of this content.")
+	private User author;
 
     @OneToMany(mappedBy = "content")
-	public Set<ContributionInteraction> getContributionInteractions() {
-		return contributionInteractions;
-	}
-
-	public void setContributionInteractions(Set<ContributionInteraction> contributionInteractions) {
-		this.contributionInteractions = contributionInteractions;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
+	@Description("A set of interactions between users and this content entity.")
+	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
+		
 }

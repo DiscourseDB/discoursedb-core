@@ -15,6 +15,14 @@ THREAD_STARTER,
  */
 POST,
 /**
+ * An image posted in a bazaar chat
+ */
+BAZAAR_IMAGE,
+/**
+ * A private message, e.g. in a bazaar chat
+ */
+PRIVATE_MESSAGE,
+/**
  * A regular tweet.
  */
 TWEET,

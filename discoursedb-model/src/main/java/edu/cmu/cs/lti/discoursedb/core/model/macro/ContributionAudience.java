@@ -12,53 +12,39 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.user.Audience;
+import org.springframework.data.rest.core.annotation.Description;
 
+import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.user.Audience;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+
+@Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="contribution_has_audience")
-public class ContributionAudience extends TimedAnnotatableBaseEntity implements Serializable{
+@Description("A relation that associates a contribution with an audience.")
+public class ContributionAudience extends TimedBaseEntity implements Serializable{
 	
 	private static final long serialVersionUID = -2668707116929576568L;
-
-	private long id;
-	
-    private Contribution contribution;
-    
-    private Audience audience;
-    	
-	public ContributionAudience() {}
 
 	@Id
 	@Column(name="id_contribution_audience", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	@Description("The primary key.")
+	private Long id;
+	
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_contribution")
-	public Contribution getContribution() {
-		return contribution;
-	}
-
-	public void setContribution(Contribution contribution) {
-		this.contribution = contribution;
-	}
-
+    @Description("The contribution that should be related to an audience.")
+    private Contribution contribution;
+    
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "fk_audience")
-	public Audience getAudience() {
-		return audience;
-	}
-
-	public void setAudience(Audience audience) {
-		this.audience = audience;
-	}
-    
-	
+    @Description("The audience that should be related to a contribution.")
+    private Audience audience;
+    		
 }

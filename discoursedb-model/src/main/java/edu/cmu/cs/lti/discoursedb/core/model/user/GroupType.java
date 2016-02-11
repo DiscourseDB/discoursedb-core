@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,36 +14,28 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
 
+@Data
+@EqualsAndHashCode(callSuper=true, exclude={"groups"})
+@ToString(callSuper=true, exclude={"groups"})
 @Entity
 @Table(name="group_type")
 public class GroupType extends BaseTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = -8085963752024237480L;
 
-	private long id;
-	
-	private Set<Group> groups = new HashSet<Group>();
-
-	public GroupType(){}
-	
 	@Id
 	@Column(name="id_group_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="type")
+	private Set<Group> groups = new HashSet<Group>();
 
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<Group> getGroups() {
-		return groups;
-	}
-
-	public void setGroups(Set<Group> groups) {
-		this.groups = groups;
-	}
 }

@@ -5,7 +5,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.springframework.data.rest.core.annotation.Description;
+
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSources;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Adds source information to to regular timed entities
@@ -13,19 +18,15 @@ import edu.cmu.cs.lti.discoursedb.core.model.system.DataSources;
  * @author Oliver Ferschke
  *
  */
+@Data
+@EqualsAndHashCode(callSuper=true, exclude={"dataSourceAggregate"})
+@ToString(callSuper=true, exclude={"dataSourceAggregate"})
 @MappedSuperclass
 public abstract class TimedAnnotatableBaseEntityWithSource extends TimedAnnotatableBaseEntity{
 
-	private DataSources dataSourceAggregate;
-
-	@ManyToOne(cascade=CascadeType.ALL) 
+	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_data_sources")
-	public DataSources getDataSourceAggregate() {
-		return dataSourceAggregate;
-	}
-	
-	public void setDataSourceAggregate(DataSources dataSources) {
-		this.dataSourceAggregate = dataSources;
-	}
+	@Description("An aggregate that contains links to all data sources associated with this entity.")
+	private DataSources dataSourceAggregate;
 		
 }

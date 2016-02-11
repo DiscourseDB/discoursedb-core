@@ -20,6 +20,12 @@ import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * A User is uniquely identified by a source_id,username pair. Neither source_id
@@ -31,13 +37,21 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
  * @author Oliver Ferschke
  *
  */
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper=true, exclude={"contentInteractions","userAudiences","userGroups","sourceOfUserRelations","targetOfUserRelations"})
+@ToString(callSuper=true, exclude={"contentInteractions","userAudiences","userGroups","sourceOfUserRelations","targetOfUserRelations"})
 @Entity
 @Table(name = "user", indexes = { @Index(name = "userNameIndex", columnList = "username") })
 public class User extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = 5989078859132072475L;
 
-	private long id;
+	@Id
+	@Column(name = "id_user", nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
 
 	private String realname;
 
@@ -53,137 +67,26 @@ public class User extends TimedAnnotatableBaseEntityWithSource implements Serial
 
 	private String location;
 
-	private Set<Discourse> discourses = new HashSet<Discourse>();
-
-	private Set<ContributionInteraction> contentInteractions = new HashSet<ContributionInteraction>();
-
-	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
-
-	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
-
-	private Set<UserRelation> sourceOfUserRelations = new HashSet<UserRelation>();
-
-	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
-
-	User() {}
-
-	public User(Discourse discourse) {addDiscourse(discourse);}
-
-	@Id
-	@Column(name = "id_user", nullable = false)
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public String getRealname() {
-		return realname;
-	}
-
-	public void setRealname(String realname) {
-		this.realname = realname;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
-
-	public String getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(String language) {
-		this.language = language;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	@OneToMany(mappedBy = "user")
-	public Set<ContributionInteraction> getContentInteractions() {
-		return contentInteractions;
-	}
-
-	public void setContentInteractions(Set<ContributionInteraction> contentInteractions) {
-		this.contentInteractions = contentInteractions;
-	}
-
-	@OneToMany(mappedBy = "user")
-	public Set<AudienceUser> getUserAudiences() {
-		return userAudiences;
-	}
-
-	public void setUserAudiences(Set<AudienceUser> userAudiences) {
-		this.userAudiences = userAudiences;
-	}
-
-	@OneToMany(mappedBy = "user")
-	public Set<GroupUser> getUserGroups() {
-		return userGroups;
-	}
-
-	public void setUserGroups(Set<GroupUser> userGroups) {
-		this.userGroups = userGroups;
-	}
-
-	@OneToMany(mappedBy = "source")
-	public Set<UserRelation> getSourceOfUserRelations() {
-		return sourceOfUserRelations;
-	}
-
-	public void setSourceOfUserRelations(Set<UserRelation> sourceOfUserRelations) {
-		this.sourceOfUserRelations = sourceOfUserRelations;
-	}
-
-	@OneToMany(mappedBy = "target")
-	public Set<UserRelation> getTargetOfUserRelations() {
-		return targetOfUserRelations;
-	}
-
-	public void setTargetOfUserRelations(Set<UserRelation> targetOfUserRelations) {
-		this.targetOfUserRelations = targetOfUserRelations;
-	}
-
 	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
 	@JoinTable(name = "user_memberof_discourse", joinColumns = {
 		@JoinColumn(name = "id_user", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "id_discourse", nullable = false, updatable = false) })
-	public Set<Discourse> getDiscourses() {
-		return discourses;
-	}
+	private Set<Discourse> discourses = new HashSet<Discourse>();
 
-	public void setDiscourses(Set<Discourse> discourses) {
-		this.discourses = discourses;
-	}
+	@OneToMany(mappedBy = "user")
+	private Set<ContributionInteraction> contentInteractions = new HashSet<ContributionInteraction>();
+
+	@OneToMany(mappedBy = "user")
+	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
+	
+	@OneToMany(mappedBy = "user")
+	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
+
+	@OneToMany(mappedBy = "source")
+	private Set<UserRelation> sourceOfUserRelations = new HashSet<UserRelation>();
+
+	@OneToMany(mappedBy = "target")
+	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
 
 	public void addDiscourse(Discourse discourse) {
 		this.discourses.add(discourse);
@@ -192,12 +95,7 @@ public class User extends TimedAnnotatableBaseEntityWithSource implements Serial
 		this.discourses.remove(discourse);
 	}
 	
-	public String getCountry() {
-		return country;
+	public User(Discourse discourse){
+		addDiscourse(discourse);		
 	}
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	
 }

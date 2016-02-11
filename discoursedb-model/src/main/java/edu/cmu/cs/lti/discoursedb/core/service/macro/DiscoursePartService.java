@@ -18,6 +18,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelationType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationTypeRepository;
@@ -25,6 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserPredicates;
+import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
@@ -34,7 +36,10 @@ public class DiscoursePartService {
 
 	@Autowired
 	private DiscoursePartRepository discoursePartRepo;
-	
+
+	@Autowired
+	private DataSourceService dataSourceService;
+
 	@Autowired
 	private DiscoursePartTypeRepository discoursePartTypeRepo;
 	
@@ -370,7 +375,29 @@ public class DiscoursePartService {
 		
 		return Optional.ofNullable(discoursePartRepo.findOne(
 				DiscoursePartPredicates.discoursePartHasName(discoursePartName)));
+	}
+	
+    /**
+	 * Retrieves a discourse part that has a source which exactly matches the given DataSource parameters.
+	 * 
+	 * @param entitySourceId the source id of the contribution  
+	 * @param entitySourceDescriptor the entitySourceDescriptor
+	 * @param dataSetName the dataset the source id was derived from
+	 * @return an optional DiscoursePart that meets the requested parameters
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Optional<DiscoursePart> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName) {
+		Assert.hasText(entitySourceId);
+		Assert.hasText(entitySourceDescriptor);
+		Assert.hasText(dataSetName);
 
+		Optional<DataSourceInstance> dataSource = dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName);
+		if(dataSource.isPresent()){
+			return Optional.ofNullable(discoursePartRepo.findOne(
+					DiscoursePartPredicates.discoursePartHasDataSource(dataSource.get())));			
+		}else{
+			return Optional.empty();
+		}
 	}
 
 }

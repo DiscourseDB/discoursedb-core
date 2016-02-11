@@ -16,69 +16,37 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
 
+@Data
+@EqualsAndHashCode(callSuper=true, exclude={"groupAudiences","groupMembers"})
+@ToString(callSuper=true, exclude={"groupAudiences","groupMembers"})
 @Entity
 @Table(name="\"group\"")
 public class Group extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -8400689664755883198L;
 
-	private long id;
+	@Id
+	@Column(name="id_group", nullable=false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
 
+	@ManyToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name = "fk_group_type")
 	private GroupType type;
 
 	private String name;
 	
+    @OneToMany(mappedBy = "group")
 	private Set<AudienceGroup> groupAudiences = new HashSet<AudienceGroup>();
 
+    @OneToMany(mappedBy = "group")
 	private Set<GroupUser> groupMembers = new HashSet<GroupUser>();
 	
-	public Group(){}
-
-	@Id
-	@Column(name="id_group", nullable=false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_group_type")
-	public GroupType getType() {
-		return type;
-	}
-
-	public void setType(GroupType type) {
-		this.type = type;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-    @OneToMany(mappedBy = "group")
-	public Set<AudienceGroup> getGroupAudiences() {
-		return groupAudiences;
-	}
-
-	public void setGroupAudiences(Set<AudienceGroup> groupAudiences) {
-		this.groupAudiences = groupAudiences;
-	}
-
-    @OneToMany(mappedBy = "group")
-	public Set<GroupUser> getGroupMembers() {
-		return groupMembers;
-	}
-
-	public void setGroupMembers(Set<GroupUser> groupMembers) {
-		this.groupMembers = groupMembers;
-	}
 }

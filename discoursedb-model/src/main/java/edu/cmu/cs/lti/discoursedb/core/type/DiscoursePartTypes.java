@@ -26,6 +26,10 @@ public enum DiscoursePartTypes {
 	 */
 	THREAD,
 	/**
+	 * A chat room 
+	 */
+	CHATROOM,
+	/**
 	 * Prosolo course credentials 
 	 */
 	PROSOLO_COURSE_CREDENTIALS,

@@ -17,71 +17,38 @@ import javax.persistence.Table;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionAudience;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
 
+@Data
+@EqualsAndHashCode(callSuper=true, exclude={"audienceContributions","audienceUsers","audienceGroups"})
+@ToString(callSuper=true, exclude={"audienceContributions","audienceUsers","audienceGroups"})
 @Entity
 @Table(name="audience")
 public class Audience extends TimedAnnotatableBaseEntityWithSource implements Serializable {
 
 	private static final long serialVersionUID = -8464122652580037597L;
 
-	private long id;
-	
-	private AudienceType type;
-	
-	private Set<ContributionAudience> audienceContributions = new HashSet<ContributionAudience>();
-	
-	private Set<AudienceUser> audienceUsers = new HashSet<AudienceUser>();
-
-	private Set<AudienceGroup> audienceGroups = new HashSet<AudienceGroup>();
-	
-	public Audience(){}
-	
 	@Id
 	@Column(name="id_audience", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	private Long id;
+	
 	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "fk_audience_type")
-	public AudienceType getType() {
-		return type;
-	}
-
-	public void setType(AudienceType type) {
-		this.type = type;
-	}
+	private AudienceType type;
+	
+    @OneToMany(mappedBy = "audience")
+	private Set<ContributionAudience> audienceContributions = new HashSet<ContributionAudience>();
+	
+    @OneToMany(mappedBy = "audience")
+	private Set<AudienceUser> audienceUsers = new HashSet<AudienceUser>();
 
     @OneToMany(mappedBy = "audience")
-	public Set<ContributionAudience> getAudienceContributions() {
-		return audienceContributions;
-	}
-
-	public void setAudienceContributions(Set<ContributionAudience> audienceContributions) {
-		this.audienceContributions = audienceContributions;
-	}
-
-    @OneToMany(mappedBy = "audience")
-	public Set<AudienceUser> getAudienceUsers() {
-		return audienceUsers;
-	}
-
-	public void setAudienceUsers(Set<AudienceUser> audienceUsers) {
-		this.audienceUsers = audienceUsers;
-	}
-
-    @OneToMany(mappedBy = "audience")
-	public Set<AudienceGroup> getAudienceGroups() {
-		return audienceGroups;
-	}
-
-	public void setAudienceGroups(Set<AudienceGroup> audienceGroups) {
-		this.audienceGroups = audienceGroups;
-	}
-
+	private Set<AudienceGroup> audienceGroups = new HashSet<AudienceGroup>();
+	
 }

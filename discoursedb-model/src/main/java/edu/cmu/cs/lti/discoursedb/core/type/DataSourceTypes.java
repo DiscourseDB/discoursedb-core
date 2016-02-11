@@ -30,6 +30,19 @@ public enum DataSourceTypes {
 	/**
 	 * Google Groups dataset
 	 */
-	GOOGLE_GROUPS
+	GOOGLE_GROUPS,
+	/**
+	 * A Bazaar chat dataset
+	 */
+	BAZAAR,
+	/**
+	 * A Coursera dataset
+	 */
+	COURSERA,
+	/**
+	 * A Piazza dataset
+	 */
+	PIAZZA
+
 
 }

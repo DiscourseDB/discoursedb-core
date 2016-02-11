@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,60 +13,43 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import org.springframework.data.rest.core.annotation.Description;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
+
+@Data
+@EqualsAndHashCode(callSuper=true, exclude={"annotations"})
+@ToString(callSuper=true, exclude={"annotations"})
 @Entity
 @Table(name="annotation_type")
+@Description("Defines the type of an annotation instance.")
 public class AnnotationType extends BaseTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = 9194247332380412321L;
 
-	private long id;
-	
-	
-	private String description;
-	
-	private boolean isEntityAnnotation;
-	
-    private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
-
-	public AnnotationType(){}
-
 	@Id
 	@Column(name="id_annotation_type", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-	public long getId() {
-		return id;
-	}
-
-	@SuppressWarnings("unused") //used by hibernate through reflection, but not exposed to users
-	private void setId(long id) {
-		this.id = id;
-	}
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@Column(name="is_entity_annotation")
-	public boolean isEntityAnnotation() {
-		return isEntityAnnotation;
-	}
-
-	public void setEntityAnnotation(boolean isEntityAnnotation) {
-		this.isEntityAnnotation = isEntityAnnotation;
-	}
-
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, mappedBy="type")
-	public Set<AnnotationInstance> getAnnotations() {
-		return annotations;
-	}
-
-	public void setAnnotations(Set<AnnotationInstance> annotations) {
-		this.annotations = annotations;
-	}
+	@Setter(AccessLevel.PRIVATE) 
+	@Description("The primary key.")
+	private Long id;
 	
+	private String description;
+	
+	@Column(name="is_entity_annotation")
+	@Description("Determines wheter the assocaited annotation instaces refers to an entity or text.")
+	private boolean isEntityAnnotation;
+	
+	@JsonIgnore
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="type")
+	@Description("A set of annotation instances of this type.")
+    private Set<AnnotationInstance> annotations=new HashSet<AnnotationInstance>();
+
 }
