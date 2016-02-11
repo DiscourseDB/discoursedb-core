@@ -4,6 +4,17 @@ This is the parent project for all DiscourseDB projects. It manages dependency v
 All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to be configured to support [Lombok (see below)](https://github.com/DiscourseDB/discoursedb-parent/blob/master/README.md#lombok-in-eclipse) for full DiscourseDB compatibility.
 
 ## Build and Run DiscourseDB
+### Option 1: Launch Spring Boot Application with Maven
+Go to the root folder of the project you want to launch (the folder containing the pom.xml).
+Then execute 
+```
+mvn spring-boot:run
+```
+and maven should build the project and launch the run goal of Spring Boot.
+
+If the build fails due to missing DiscourseDB dependencies, make sure you either have checked out and compiled (mvn install) all the projects your Boot projects depends on OR add the DiscourseDB artifactory to your settings.xml, which will take care of getting all dependencies for you.
+
+### Option 2: Packaging
 The following command builds all DiscourseDB projects, creates .jar files and creates a ```*-dist``` folder in the target folder of each DiscourseDB module which contains all external libraries necessary to run that module. 
 
 ```
