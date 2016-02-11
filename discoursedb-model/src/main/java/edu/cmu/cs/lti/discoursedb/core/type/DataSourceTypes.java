@@ -22,6 +22,14 @@ public enum DataSourceTypes {
 	/**
 	 * A TAGS dataset 
 	 */
-	TAGS
+	TAGS,
+	/**
+	 * Github dataset
+	 */
+	GITHUB,
+	/**
+	 * Google Groups dataset
+	 */
+	GOOGLE_GROUPS
 
 }
