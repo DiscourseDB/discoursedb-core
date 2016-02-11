@@ -7,6 +7,18 @@ The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8
 ## Requirements and Setup
 All DiscourseDB projects require Java 8 and Maven 3.
 
+## Launch Spring Boot Application with Maven
+Go to the root folder of the project (the folder containing the pom.xml).
+Then execute 
+```
+mvn spring-boot:run
+```
+and maven should build the project and launch the run goal of Spring Boot.
+
+If the build fails due to missing DiscourseDB dependencies, make sure you either have checked out and compiled (mvn install) all the projects this project depends on (discoursedb-parent, discoursedb-model) OR add the DiscourseDB artifactory to your settings.xml, which will take care of getting all dependencies for you ([described here](https://github.com/DiscourseDB/discoursedb-model#configuring-maven-repository))
+
+Alternatively, you can package DiscourseDB and run it from a jar as [described here](https://github.com/DiscourseDB/discoursedb-parent#option-2-packaging).
+
 ### Configuring Maven repository
 You can simply add any DiscourseDB project as a dependency to your Maven project. The following configuration needs to be added to your project pom.xml or settings.xml.
 
