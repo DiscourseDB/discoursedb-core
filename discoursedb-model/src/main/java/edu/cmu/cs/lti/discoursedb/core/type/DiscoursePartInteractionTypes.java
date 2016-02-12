@@ -19,9 +19,29 @@ public enum DiscoursePartInteractionTypes {
 	 */
 	READY,
 	/**
-	 * A user or group is not ready to move on with a conversation
+	 *  * A user or group is not ready to move on with a conversation
 	 */
-	UNREADY
+	UNREADY,
+    /**
+	 * Watch a collaboration (e.g. a Github repository)
+	 */
+	WATCH,
+	/**
+	 * Unwatch a collaboration (e.g. a Github repository)
+	 */
+	UNWATCH,
+	/**
+	 * Create a collaboration (e.g. a Github repository)
+	 */
+	CREATE,
+	/**
+	 * Delete a collaboration (e.g. a Github repository)
+	 */
+	DELETE, 
+	/**
+	 * Make a personal copy of a collaboration (e.g. a Github repository)
+	 */
+	FORK_FROM
 
 }
 
