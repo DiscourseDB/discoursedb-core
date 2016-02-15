@@ -79,7 +79,7 @@ public class AnnotationService {
 	 *         connected with its requested type
 	 */
 	public AnnotationInstance createTypedAnnotation(String type){
-		Assert.hasText(type,"Type cannot be empty. Provide an annotation type.");
+		Assert.hasText(type,"Type cannot be empty. Provide an annotation type or create untyped AnnotationInstance.");
 		
 		AnnotationType annoType = annoTypeRepo.findOneByType(type).orElseGet(()->{
 			AnnotationType newType = new AnnotationType();
@@ -123,7 +123,7 @@ public class AnnotationService {
 	 */
 	public Feature createTypedFeature(String value, String type){
 		Assert.hasText(value,"Feature value cannot be empty.");
-		Assert.hasText(type,"Type cannot be empty. Provide a feature type.");
+		Assert.hasText(type,"Type cannot be empty. Provide a feature type or create untype feature.");
 		
 		Feature feature = createTypedFeature(type);		
 		feature.setValue(value);		
@@ -140,7 +140,7 @@ public class AnnotationService {
 	 *         connected with its requested type
 	 */
 	public Feature createTypedFeature(String type){
-		Assert.hasText(type,"Type cannot be empty. Provide a feature type.");
+		Assert.hasText(type,"Type cannot be empty. Provide a feature type or create untyped feature.");
 		
 		FeatureType featureType = featureTypeRepo.findOneByType(type).orElseGet(()->{
 			FeatureType newType = new FeatureType();
@@ -163,7 +163,7 @@ public class AnnotationService {
 	 *            the annotation instance to add to the entity
 	 */
 	public <T extends TimedAnnotatableBaseEntity> void addAnnotation(T entity, AnnotationInstance annotation) {		
-		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");
+		Assert.notNull(entity,"Entity cannot be null. Provide an annotatable entity.");
 		Assert.notNull(annotation);
 
 		//the annotations aggregate is a proxy for the entity
