@@ -1,6 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,8 +108,9 @@ public class ContributionService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<Contribution> findAllByType(ContributionTypes type){
 		Assert.notNull(type, "Type cannot be null.");		
+
 		return contribTypeRepo.findOneByType(type.name()).map(t -> contributionRepo.findAllByType(t))
-				.orElse(new ArrayList<Contribution>(0));
+				.orElse(Collections.emptyList());
 
 	}
 
@@ -155,7 +156,7 @@ public class ContributionService {
 			return contributionRepo.findAll(
 					ContributionPredicates.contributionHasDiscourse(discourse).and(ContributionPredicates.contributionHasType(type)));			
 		}else{
-			return new ArrayList<Contribution>(0);
+			return Collections.emptyList();
 		}
 	}
 	
