@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationType;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Annotations;
@@ -37,22 +36,6 @@ public class AnnotationService {
 	private final @NonNull FeatureRepository featureRepo;
 	private final @NonNull FeatureTypeRepository featureTypeRepo;
 	
-	/**
-	 * Retrieves all annotations for the given entity.
-	 * 
-	 * This is a convenience method. 
-	 * It actually just retrieves content from the entity object, but it performs additional null checks on the annotation aggregate.
-	 * 
-	 * @param entity the entity to retrieve the datasource for
-	 * @return a DataSourceInstance with the given descriptor for the given entity
-	 */
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public <T extends TimedAnnotatableBaseEntityWithSource> Set<AnnotationInstance> findAnnotations(T entity) {
-		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
-		Annotations annos = entity.getAnnotations();
-		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
-	}
-
 	/**
 	 * Retrieves all annotations for the given entity.
 	 * 
