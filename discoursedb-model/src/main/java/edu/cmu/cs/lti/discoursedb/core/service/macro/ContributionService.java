@@ -147,8 +147,8 @@ public class ContributionService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Iterable<Contribution> findAllByType(Discourse discourse, ContributionTypes type){
-		Assert.notNull(discourse);
-		Assert.notNull(type);
+		Assert.notNull(discourse, "Discourse cannot be null");
+		Assert.notNull(type, "Type cannot be null");
 		
 		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
 		if(existingType.isPresent()){
@@ -197,7 +197,7 @@ public class ContributionService {
 		);
 								
 		//check if a relation of the given type already exists between the two contributions
-		//if not, create new relation
+		//if so, return it. if not, create new relation, configure it and return it.
 		return discourseRelationRepo
 				.findOneBySourceAndTargetAndType(sourceContribution, targetContribution, discourseRelationType)
 				.orElseGet(() -> {
