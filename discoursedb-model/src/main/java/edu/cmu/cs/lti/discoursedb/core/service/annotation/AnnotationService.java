@@ -40,10 +40,10 @@ public class AnnotationService {
 	 * Retrieves all annotations for the given entity.
 	 * 
 	 * This is a convenience method. 
-	 * It actually just retrieves content from the entity object, but it performs additional null checks on the annotation aggregate.
+	 * It actually just retrieves annotations from the entity object, but it performs additional null checks on the annotation aggregate.
 	 * 
-	 * @param entity the entity to retrieve the datasource for
-	 * @return a DataSourceInstance with the given descriptor for the given entity
+	 * @param entity the entity to retrieve the annotations for
+	 * @return a set of AnnotationInstances for the given entity
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public <T extends TimedAnnotatableBaseEntity> Set<AnnotationInstance> findAnnotations(T entity) {
