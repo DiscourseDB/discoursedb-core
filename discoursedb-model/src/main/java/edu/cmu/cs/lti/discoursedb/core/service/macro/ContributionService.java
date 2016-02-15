@@ -56,15 +56,13 @@ public class ContributionService {
 	 */
 	public Contribution createTypedContribution(ContributionTypes type){
 		Assert.notNull(type);
-		Optional<ContributionType> optContribType = contribTypeRepo.findOneByType(type.name());
-		ContributionType contribType = null;
-		if(optContribType.isPresent()){
-			contribType = optContribType.get();
-		}else{
-			contribType = new ContributionType();
-			contribType.setType(type.name());
-			contribType= contribTypeRepo.save(contribType);
-		}
+		
+		ContributionType contribType = contribTypeRepo.findOneByType(type.name()).orElseGet(()->{
+			ContributionType newType = new ContributionType();
+			newType.setType(type.name());
+			return contribTypeRepo.save(newType);
+			}
+		);
 
 		Contribution contrib = new Contribution();
 		contrib.setType(contribType);

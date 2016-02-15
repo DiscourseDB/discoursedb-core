@@ -42,15 +42,13 @@ public class ContextService {
 	 */
 	public Context createTypedContext(ContextTypes type){
 		Assert.notNull(type);
-		Optional<ContextType> existingContextType = contextTypeRepo.findOneByType(type.name());
-		ContextType contextType = null;
-		if(existingContextType.isPresent()){
-			contextType = existingContextType.get();
-		}else{
-			contextType = new ContextType();
-			contextType.setType(type.name());
-			contextType= contextTypeRepo.save(contextType);
-		}
+				
+		ContextType contextType = contextTypeRepo.findOneByType(type.name()).orElseGet(()->{
+					ContextType newtype = new ContextType();
+					newtype.setType(type.name());
+					return contextTypeRepo.save(newtype);
+					}
+		);		
 
 		Context context = new Context();
 		context.setType(contextType);
