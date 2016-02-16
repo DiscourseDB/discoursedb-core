@@ -19,7 +19,7 @@ import org.springframework.hateoas.Identifiable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,7 +32,7 @@ import lombok.ToString;
 @Entity
 @Table(name="annotation")
 @Description("An aggregate that links an entity with a set of annotation instances. Each annotatable aggregate can have one aggregate and each aggregate can link to multiple annotation instances.")
-public class Annotations extends UntimedBaseEntity  implements Identifiable<Long>{
+public class Annotations extends BaseEntity  implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_annotation", nullable=false)

@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +16,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -43,9 +44,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"contentInteractions","userAudiences","userGroups","sourceOfUserRelations","targetOfUserRelations"})
 @Entity
 @Table(name = "user", indexes = { @Index(name = "userNameIndex", columnList = "username") })
-public class User extends TimedAnnotatableBaseEntityWithSource implements Serializable {
-
-	private static final long serialVersionUID = 5989078859132072475L;
+public class User extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long> {
 
 	@Id
 	@Column(name = "id_user", nullable = false)

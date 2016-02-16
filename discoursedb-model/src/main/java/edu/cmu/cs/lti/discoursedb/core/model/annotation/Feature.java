@@ -15,7 +15,7 @@ import org.springframework.hateoas.Identifiable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,7 +28,7 @@ import lombok.ToString;
 @Entity
 @Table(name="feature")
 @Description("Represents a feature (instance) which holds the payload of an annotation instance.")
-public class Feature extends UntimedBaseEntity implements Identifiable<Long>{
+public class Feature extends BaseEntity implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_feature", nullable=false)

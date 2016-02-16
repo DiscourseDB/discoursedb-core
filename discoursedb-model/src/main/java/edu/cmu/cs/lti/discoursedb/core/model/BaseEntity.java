@@ -17,7 +17,7 @@ import lombok.Data;
 import lombok.Setter;
 
 /**
- * Adds basic fields to entities that do not keep track of their lifetime (version, entity creation date)
+ * Common subtype of all DiscourseDB entities
  * 
  * @author Oliver Ferschke
  *
@@ -25,8 +25,8 @@ import lombok.Setter;
 @Data
 @MappedSuperclass
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public abstract class UntimedBaseEntity{
-
+public abstract class BaseEntity{
+	
 	@JsonIgnore
 	@Version
 	@Setter(AccessLevel.PRIVATE) 
@@ -39,4 +39,7 @@ public abstract class UntimedBaseEntity{
 	@Setter(AccessLevel.PRIVATE) 
 	@Description("The date this entity was first stored in the database. Only used for auditing purposes.")
 	private Date createDate;
+
+	
+	
 }

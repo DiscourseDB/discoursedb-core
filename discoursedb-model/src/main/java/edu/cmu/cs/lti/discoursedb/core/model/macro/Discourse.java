@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import org.springframework.hateoas.Identifiable;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -49,7 +49,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"discourseToDiscourseParts","users"})
 @Entity
 @Table(name = "discourse", indexes = { @Index(name = "discourseNameIndex", columnList = "name") })
-public class Discourse extends UntimedBaseEntity implements Identifiable<Long> {
+public class Discourse extends BaseEntity implements Identifiable<Long> {
 
 	public Discourse(String name){
 		Assert.hasText(name);

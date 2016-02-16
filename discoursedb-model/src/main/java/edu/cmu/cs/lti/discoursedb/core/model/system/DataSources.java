@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,7 +31,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"sources"})
 @Entity
 @Table(name="data_sources")
-public class DataSources extends UntimedBaseEntity implements Identifiable<Long> {
+public class DataSources extends BaseEntity implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_data_sources", nullable=false)
