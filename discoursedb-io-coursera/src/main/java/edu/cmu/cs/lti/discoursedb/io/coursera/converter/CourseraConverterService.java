@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -33,6 +34,8 @@ import edu.cmu.cs.lti.discoursedb.io.coursera.model.CourseraSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.coursera.model.Forum;
 import edu.cmu.cs.lti.discoursedb.io.coursera.model.Post;
 import edu.cmu.cs.lti.discoursedb.io.coursera.model.Thread;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
 /**
@@ -47,20 +50,15 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @Service
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class CourseraConverterService {
 	
-	@Autowired
-	private DataSourceService dataSourceService;
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private ContentService contentService;
-	@Autowired
-	private ContributionService contributionService;
-	@Autowired
-	private DiscoursePartService discoursepartService;
-	@Autowired
-	private DiscourseService discourseService;
+	private final @NonNull DataSourceService dataSourceService;
+	private final @NonNull UserService userService;
+	private final @NonNull ContentService contentService;
+	private final @NonNull ContributionService contributionService;
+	private final @NonNull DiscoursePartService discoursepartService;
+	private final @NonNull DiscourseService discourseService;
 		
 	/**
 	 * Maps all forum entities in forum table of the coursera database to DiscourseDB.
@@ -74,6 +72,9 @@ public class CourseraConverterService {
 	 */
 	
 	public void mapForum(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
+		Assert.notNull(database, "Database information cannot be null.");
+		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
+		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 		
 		//initialize discourse the forums belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
@@ -120,6 +121,9 @@ public class CourseraConverterService {
 	 */
 	
 	public void mapThread(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
+		Assert.notNull(database, "Database information cannot be null.");
+		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
+		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 		
 		//initialize the discourse the threads belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
@@ -157,16 +161,11 @@ public class CourseraConverterService {
 					dataSetName));
 			
 			//build relation between a thread and the forum it belongs to
-			Optional<DiscoursePart> existingForum = 
-					discoursepartService.findOneByDataSource(
+			discoursepartService.findOneByDataSource(
 							String.valueOf(curThread.getForum_id()),
-							CourseraSourceMapping.ID_STR_TO_DISCOURSEPART, 
-							dataSetName);
-			
-			if(existingForum.isPresent())
-				discoursepartService.createDiscoursePartRelation(
-						existingForum.get(), thread, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION);
-			
+							CourseraSourceMapping.ID_STR_TO_DISCOURSEPART, dataSetName).
+							ifPresent(forum->discoursepartService.createDiscoursePartRelation(forum, thread, DiscoursePartRelationTypes.TALK_PAGE_HAS_DISCUSSION));			
+						
 		}
 		
 	}
@@ -184,6 +183,9 @@ public class CourseraConverterService {
 	 */
 	
 	public void mapPost(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
+		Assert.notNull(database, "Database information cannot be null.");
+		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
+		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 		
 		//initialize the discourse the threads belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
@@ -215,8 +217,7 @@ public class CourseraConverterService {
 			curContent.setText(curPost.getPost_text());
 			curContent.setAuthor(curUser);
 			curContent.setStartTime(strat); 
-			dataSourceService.addSource(
-					curContent, new DataSourceInstance(
+			dataSourceService.addSource(curContent, new DataSourceInstance(
 							String.valueOf(curPost.getId()), 
 							CourseraSourceMapping.ID_STR_TO_CONTENT, 
 							DataSourceTypes.COURSERA, dataSetName));
@@ -245,14 +246,10 @@ public class CourseraConverterService {
 						DataSourceTypes.BAZAAR, dataSetName));
 			
 			//build relation between a post and the thread it belongs to
-			Optional<DiscoursePart> existingThread = 
-					discoursepartService.findOneByDataSource(
+			discoursepartService.findOneByDataSource(
 						String.valueOf(curPost.getThread_id()),
-						CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, 
-						dataSetName);
-			
-			if(existingThread.isPresent())
-				discoursepartService.addContributionToDiscoursePart(curContribution, existingThread.get());
+						CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, dataSetName).
+						ifPresent(dp->discoursepartService.addContributionToDiscoursePart(curContribution, dp));			
 		}			
 	}
 	
@@ -269,6 +266,9 @@ public class CourseraConverterService {
 	 */
 	
 	public void mapComment(CourseraDB database, String dataSetName, String discourseName) throws SQLException {
+		Assert.notNull(database, "Database information cannot be null.");
+		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
+		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 		
 		//initialize the discourse the comments belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
@@ -324,23 +324,15 @@ public class CourseraConverterService {
 								dataSetName));
 				
 				//build relation between a comment and the post it belongs to
-				Optional<Contribution> post = contributionService.findOneByDataSource(
-						String.valueOf(curComment.getPost_id()), 
-						CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
-						dataSetName);				
-				if(post.isPresent()) 
-					contributionService.createDiscourseRelation(
-							post.get(), curContribution, DiscourseRelationTypes.COMMENT);
+				contributionService.findOneByDataSource(
+						String.valueOf(curComment.getPost_id()), CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).
+						ifPresent(p->contributionService.createDiscourseRelation(p, curContribution, DiscourseRelationTypes.COMMENT));				
 				
 				//build relation between a comment and the thread it belongs to
-				Optional<DiscoursePart> existingThread = 
-						discoursepartService.findOneByDataSource(
+				discoursepartService.findOneByDataSource(
 								String.valueOf(curComment.getThread_id()),
-								CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, 
-								dataSetName);
-				if(existingThread.isPresent()) {
-					discoursepartService.addContributionToDiscoursePart(curContribution, existingThread.get());
-				}
+								CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, dataSetName).
+								ifPresent(t->discoursepartService.addContributionToDiscoursePart(curContribution, t));
 			}
 		}
 	}
