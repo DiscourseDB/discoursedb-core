@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,6 +17,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import lombok.AccessLevel;
@@ -44,9 +44,7 @@ import lombok.ToString;
 @Entity
 @Table(name="context")
 @Description("The context of one or more contributions.")
-public class Context extends TimedAnnotatableBaseEntityWithSource implements Serializable {
-
-	private static final long serialVersionUID = 6013322457584994562L;
+public class Context extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_context", nullable=false)

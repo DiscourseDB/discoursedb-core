@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,9 +28,7 @@ import lombok.ToString;
 @Entity
 @Table(name="feature")
 @Description("Represents a feature (instance) which holds the payload of an annotation instance.")
-public class Feature extends UntimedBaseEntity implements Serializable{
-
-	private static final long serialVersionUID = -5462337134833586687L;
+public class Feature extends UntimedBaseEntity implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_feature", nullable=false)

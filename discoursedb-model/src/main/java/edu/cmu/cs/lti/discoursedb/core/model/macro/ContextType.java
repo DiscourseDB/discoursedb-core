@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 import lombok.AccessLevel;
@@ -28,9 +28,7 @@ import lombok.ToString;
 @Entity
 @Table(name="context_type")
 @Description("Defines the type of an a context entity.")
-public class ContextType extends BaseTypeEntity implements Serializable {
-
-	private static final long serialVersionUID = 9191265196419948023L;
+public class ContextType extends BaseTypeEntity implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_content_type", nullable=false)

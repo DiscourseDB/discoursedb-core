@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,9 +30,7 @@ import lombok.ToString;
 @Entity
 @Table(name="feature_type")
 @Description("Defines the type of a feature (instance).")
-public class FeatureType extends BaseTypeEntity implements Serializable{
-
-	private static final long serialVersionUID = -3343145417294760437L;
+public class FeatureType extends BaseTypeEntity implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_feature_type", nullable=false)

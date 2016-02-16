@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,6 +17,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
@@ -51,9 +51,7 @@ import lombok.ToString;
 @Entity
 @Table(name="contribution")
 @Description("A contribution.")
-public class Contribution extends TimedAnnotatableBaseEntityWithSource implements Serializable {
-
-	private static final long serialVersionUID = -2489956863731652149L;
+public class Contribution extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_contribution", nullable=false)

@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 import lombok.AccessLevel;
@@ -25,9 +26,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"discoursePartRelations"})
 @Entity
 @Table(name="discourse_part_relation_type")
-public class DiscoursePartRelationType extends BaseTypeEntity implements Serializable {
-
-	private static final long serialVersionUID = -3867055194845454430L;
+public class DiscoursePartRelationType extends BaseTypeEntity implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_discourse_part_relation_type", nullable=false)

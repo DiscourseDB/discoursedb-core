@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.springframework.hateoas.Identifiable;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -23,10 +23,8 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="contribution_has_context", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_contribution", "fk_context" }))
-public class ContributionContext extends TimedBaseEntity implements Serializable{
+public class ContributionContext extends TimedBaseEntity implements Identifiable<Long>{
 	
-	private static final long serialVersionUID = -1542771414387707049L;
-
 	@Id
 	@Column(name="id_contribution_context", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)	

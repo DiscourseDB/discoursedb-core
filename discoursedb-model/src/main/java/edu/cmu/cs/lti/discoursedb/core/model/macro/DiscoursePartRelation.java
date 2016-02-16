@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.springframework.hateoas.Identifiable;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -23,9 +23,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_part_relation")
-public class DiscoursePartRelation extends TimedBaseEntity implements Serializable {
-
-	private static final long serialVersionUID = 1914547709687781470L;
+public class DiscoursePartRelation extends TimedBaseEntity implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_discourse_part_relation", nullable=false)

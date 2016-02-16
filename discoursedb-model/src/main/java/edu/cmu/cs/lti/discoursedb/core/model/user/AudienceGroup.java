@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.springframework.hateoas.Identifiable;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -23,9 +23,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="audience_has_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_audience", "fk_group" }))
-public class AudienceGroup extends TimedBaseEntity implements Serializable{
-	
-	private static final long serialVersionUID = 5232683398940704768L;
+public class AudienceGroup extends TimedBaseEntity implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_audience_group", nullable=false)

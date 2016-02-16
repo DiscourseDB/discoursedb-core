@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.user.Audience;
@@ -26,9 +25,7 @@ import lombok.Setter;
 @Entity
 @Table(name="contribution_has_audience")
 @Description("A relation that associates a contribution with an audience.")
-public class ContributionAudience extends TimedBaseEntity implements Serializable{
-	
-	private static final long serialVersionUID = -2668707116929576568L;
+public class ContributionAudience extends TimedBaseEntity implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_contribution_audience", nullable=false)

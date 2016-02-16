@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
 import lombok.AccessLevel;
@@ -31,9 +31,7 @@ import lombok.ToString;
 @Entity
 @Table(name="annotation_instance")
 @Description("A single instance of an annotation")
-public class AnnotationInstance extends UntimedBaseEntityWithSource implements Serializable{
-
-	private static final long serialVersionUID = 6699029374236146557L;
+public class AnnotationInstance extends UntimedBaseEntityWithSource implements Identifiable<Long>{
     
 	@Id
 	@Column(name="id_annotation_instance", nullable=false)

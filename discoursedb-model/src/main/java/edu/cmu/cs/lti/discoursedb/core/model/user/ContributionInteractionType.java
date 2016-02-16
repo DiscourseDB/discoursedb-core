@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.BaseTypeEntity;
 import lombok.AccessLevel;
@@ -25,9 +26,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"contributionInteractions"})
 @Entity
 @Table(name="contribution_interaction_type")
-public class ContributionInteractionType extends BaseTypeEntity implements Serializable{
-
-	private static final long serialVersionUID = 4718842646037560198L;
+public class ContributionInteractionType extends BaseTypeEntity implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_contribution_interaction_type", nullable=false)

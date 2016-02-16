@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.hateoas.Identifiable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,9 +30,7 @@ import lombok.ToString;
 @Entity
 @Table(name="annotation_type")
 @Description("Defines the type of an annotation instance.")
-public class AnnotationType extends BaseTypeEntity implements Serializable{
-
-	private static final long serialVersionUID = 9194247332380412321L;
+public class AnnotationType extends BaseTypeEntity implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_annotation_type", nullable=false)

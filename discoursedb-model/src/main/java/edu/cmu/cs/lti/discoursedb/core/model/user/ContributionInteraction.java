@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
@@ -29,9 +28,7 @@ import lombok.Setter;
 @Table(name = "contribution_interaction", uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_contribution" }),
 		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_content" }) })
-public class ContributionInteraction extends TimedAnnotatableBaseEntity implements Serializable{
-
-	private static final long serialVersionUID = 3846201435729013318L;
+public class ContributionInteraction extends TimedAnnotatableBaseEntity implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_contribution_interaction", nullable=false)

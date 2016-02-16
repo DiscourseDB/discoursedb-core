@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,6 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.springframework.hateoas.Identifiable;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -27,9 +28,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"groupAudiences","groupMembers"})
 @Entity
 @Table(name="\"group\"")
-public class Group extends TimedAnnotatableBaseEntityWithSource implements Serializable {
-
-	private static final long serialVersionUID = -8400689664755883198L;
+public class Group extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_group", nullable=false)

@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
 import lombok.AccessLevel;
@@ -45,9 +46,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"discourseToDiscourseParts","discoursePartContributions","sourceOfDiscoursePartRelations","targetOfDiscoursePartRelations"})
 @Entity
 @Table(name="discourse_part", indexes = { @Index(name = "discoursePartNameIndex", columnList = "name") })
-public class DiscoursePart extends TimedAnnotatableBaseEntityWithSource implements Serializable{
-
-	private static final long serialVersionUID = -7341483666466458901L;
+public class DiscoursePart extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_discourse_part", nullable=false)
