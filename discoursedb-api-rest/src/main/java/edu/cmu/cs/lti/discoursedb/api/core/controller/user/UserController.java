@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +43,7 @@ public class UserController implements ResourceProcessor<RepositorySearchesResou
 	 */
 	@Override
 	public RepositorySearchesResource process(RepositorySearchesResource resource) {
-        resource.add(new Link(entityLinks.linkFor(User.class) + "/search/findUserBySourceIdAndUsername{?sourceid,username,projection}", "findUserBySourceIdAndUsername"));
+        resource.add(new Link(entityLinks.linkFor(resource.getDomainType(),"sourceid","username","projection") + "/search/findUserBySourceIdAndUsername{?sourceid,username,projection}", "findUserBySourceIdAndUsername"));
         return resource;	
     }
 	
