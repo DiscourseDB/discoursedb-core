@@ -44,7 +44,7 @@ public class UserController implements ResourceProcessor<RepositorySearchesResou
 	 */
 	@Override
 	public RepositorySearchesResource process(RepositorySearchesResource resource) {
-        resource.add(new Link(entityLinks.linkFor(User.class, "sourceId", "username", "projection") + "/search/findUserBySourceIdAndUsername{?sourceid,username,projection}", "findUserBySourceIdAndUsername"));
+        resource.add(new Link(entityLinks.linkFor(User.class) + "/search/findUserBySourceIdAndUsername{?sourceid,username,projection}", "findUserBySourceIdAndUsername"));
         return resource;	
     }
 	
