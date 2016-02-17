@@ -26,8 +26,8 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name = "contribution_interaction", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_contribution" }),
-		@UniqueConstraint(columnNames = { "fk_user", "fk_contribution_interaction_type", "fk_content" }) })
+		@UniqueConstraint(columnNames = { "fk_user", "type", "fk_contribution" }),
+		@UniqueConstraint(columnNames = { "fk_user", "type", "fk_content" }) })
 public class ContributionInteraction extends TypedTimedAnnotatableBE implements Identifiable<Long> {
 
 	@Id

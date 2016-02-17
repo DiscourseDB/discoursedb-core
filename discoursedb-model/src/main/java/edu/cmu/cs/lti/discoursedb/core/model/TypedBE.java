@@ -24,7 +24,7 @@ import lombok.ToString;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public abstract class TypedBE extends BaseEntity{
 	
-	@Column(unique=true)
+	@Column(name = "type")
 	@Description("The type value that this type-entity represents.")
 	private String type;
 
