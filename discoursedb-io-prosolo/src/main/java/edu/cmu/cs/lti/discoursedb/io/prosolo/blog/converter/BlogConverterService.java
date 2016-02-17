@@ -167,7 +167,7 @@ public class BlogConverterService {
 		discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
 		
 		logger.trace("Create discourse relation between parent contribution and comment");
-		if(parent.getType().getType().equals(ContributionTypes.THREAD_STARTER.name())){
+		if(parent.getType().equals(ContributionTypes.THREAD_STARTER.name())){
 			//if the parent is the blog post (THREAD-STARTER), we actually have a "comment" 
 			contributionService.createDiscourseRelation(parent, curContribution, DiscourseRelationTypes.COMMENT);			
 		}else{
