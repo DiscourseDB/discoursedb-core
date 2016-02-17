@@ -19,7 +19,7 @@ import javax.persistence.Table;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableSourcedBE;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import lombok.AccessLevel;
@@ -51,7 +51,7 @@ import lombok.ToString;
 @Entity
 @Table(name="content")
 @Description("The content of a Contribution or Context")
-public class Content extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long>{
+public class Content extends TimedAnnotatableSourcedBE implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_content", nullable=false)

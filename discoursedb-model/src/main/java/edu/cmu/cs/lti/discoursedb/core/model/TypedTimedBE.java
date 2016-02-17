@@ -26,7 +26,7 @@ import lombok.ToString;
 @ToString(callSuper=true)
 @MappedSuperclass
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public abstract class TimedBaseEntity extends BaseEntity{
+public abstract class TypedTimedBE extends TypedBE{
 	
 	@Column(name = "start_time")
 	@Temporal(TemporalType.TIMESTAMP)

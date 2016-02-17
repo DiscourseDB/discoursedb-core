@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +23,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="audience_has_user")
-public class AudienceUser extends TimedBaseEntity implements Identifiable<Long> {
+public class AudienceUser extends TypedTimedBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_audience_user", nullable=false)

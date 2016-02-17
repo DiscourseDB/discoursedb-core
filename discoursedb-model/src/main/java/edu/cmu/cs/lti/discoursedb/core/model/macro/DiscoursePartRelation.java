@@ -7,13 +7,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +22,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_part_relation")
-public class DiscoursePartRelation extends TimedBaseEntity implements Identifiable<Long> {
+public class DiscoursePartRelation extends TypedTimedBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_discourse_part_relation", nullable=false)
@@ -38,9 +37,5 @@ public class DiscoursePartRelation extends TimedBaseEntity implements Identifiab
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_target")
 	private DiscoursePart target;
-	
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_discourse_part_relation_type")
-	private DiscoursePartRelationType type;
 	
 }

@@ -9,11 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Context;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.ContextType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionContext;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContextRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContextTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionContextRepository;
 import edu.cmu.cs.lti.discoursedb.core.type.ContextTypes;
 import lombok.NonNull;
@@ -25,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class ContextService {
 
 	private final @NonNull ContextRepository contextRepo;
-	private final @NonNull ContextTypeRepository contextTypeRepo;
 	private final @NonNull ContributionContextRepository contributionContextRepo;
 	
 	/**
@@ -43,15 +40,8 @@ public class ContextService {
 	public Context createTypedContext(ContextTypes type){
 		Assert.notNull(type);
 				
-		ContextType contextType = contextTypeRepo.findOneByType(type.name()).orElseGet(()->{
-					ContextType newtype = new ContextType();
-					newtype.setType(type.name());
-					return contextTypeRepo.save(newtype);
-					}
-		);		
-
 		Context context = new Context();
-		context.setType(contextType);
+		context.setType(type.name());
 		return contextRepo.save(context);
 	}		
 	

@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +19,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discoursedb")
-public class DiscourseDB extends TimedAnnotatableBaseEntity implements Identifiable<Long> {
+public class DiscourseDB extends TypedTimedAnnotatableBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_discoursedb", nullable=false)

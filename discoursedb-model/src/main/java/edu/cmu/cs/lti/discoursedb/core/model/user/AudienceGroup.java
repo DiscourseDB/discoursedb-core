@@ -13,7 +13,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +23,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="audience_has_group", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_audience", "fk_group" }))
-public class AudienceGroup extends TimedBaseEntity implements Identifiable<Long> {
+public class AudienceGroup extends TypedTimedBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_audience_group", nullable=false)

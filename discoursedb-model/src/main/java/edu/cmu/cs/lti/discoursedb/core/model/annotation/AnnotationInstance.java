@@ -18,7 +18,7 @@ import javax.persistence.Table;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedSourcedBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,7 +31,7 @@ import lombok.ToString;
 @Entity
 @Table(name="annotation_instance")
 @Description("A single instance of an annotation")
-public class AnnotationInstance extends UntimedBaseEntityWithSource implements Identifiable<Long>{
+public class AnnotationInstance extends TypedSourcedBE implements Identifiable<Long>{
     
 	@Id
 	@Column(name="id_annotation_instance", nullable=false)
@@ -51,16 +51,11 @@ public class AnnotationInstance extends UntimedBaseEntityWithSource implements I
 	@Column(name="covered_text")
 	@Description("The text between begin_offset and end_offset.")
 	private String coveredText;
-	
-	@ManyToOne
-	@JoinColumn(name = "fk_annotation_type")
-	@Description("The type of the annotation.")
-	private AnnotationType type;	
-	
+		
 	@ManyToOne 
 	@JoinColumn(name = "fk_annotation")
 	@Description("The aggregate entity that aggregares all annotations belonging to the associated/annotated entity.")
-	private Annotations annotationAggregate;
+	private AnnotationAggregate annotationAggregate;
 	
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")

@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,15 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelationType;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
@@ -36,8 +31,6 @@ public class ContributionService {
 
 	private final @NonNull ContributionRepository contributionRepo;
 	private final @NonNull DataSourceService dataSourceService;	
-	private final @NonNull ContributionTypeRepository contribTypeRepo;
-	private final @NonNull DiscourseRelationTypeRepository discRelationTypeRepo;
 	private final @NonNull DiscourseRelationRepository discourseRelationRepo;
 	private final @NonNull @PersistenceContext EntityManager entityManager; 
 	
@@ -56,15 +49,8 @@ public class ContributionService {
 	public Contribution createTypedContribution(ContributionTypes type){
 		Assert.notNull(type, "Contribution type cannot be null.");
 		
-		ContributionType contribType = contribTypeRepo.findOneByType(type.name()).orElseGet(()->{
-			ContributionType newType = new ContributionType();
-			newType.setType(type.name());
-			return contribTypeRepo.save(newType);
-			}
-		);
-
 		Contribution contrib = new Contribution();
-		contrib.setType(contribType);
+		contrib.setType(type.name());
 		return contributionRepo.save(contrib);
 	}		
 	
@@ -108,10 +94,7 @@ public class ContributionService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<Contribution> findAllByType(ContributionTypes type){
 		Assert.notNull(type, "Type cannot be null.");		
-
-		return contribTypeRepo.findOneByType(type.name()).map(t -> contributionRepo.findAllByType(t))
-				.orElse(Collections.emptyList());
-
+		return contributionRepo.findAllByType(type.name());
 	}
 
 	/**
@@ -151,13 +134,7 @@ public class ContributionService {
 		Assert.notNull(discourse, "Discourse cannot be null");
 		Assert.notNull(type, "Type cannot be null");
 		
-		Optional<ContributionType> existingType = contribTypeRepo.findOneByType(type.name());
-		if(existingType.isPresent()){
-			return contributionRepo.findAll(
-					ContributionPredicates.contributionHasDiscourse(discourse).and(ContributionPredicates.contributionHasType(type)));			
-		}else{
-			return Collections.emptyList();
-		}
+		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscourse(discourse).and(ContributionPredicates.contributionHasType(type)));			
 	}
 	
 	/**
@@ -188,24 +165,16 @@ public class ContributionService {
 		Assert.notNull(sourceContribution, "Source contribution cannot be null.");
 		Assert.notNull(targetContribution, "Target contribution cannot be null.");
 		Assert.notNull(type, "Relation type cannot be null.");
-
-		//Retrieve type or create if it doesn't exist in db
-		DiscourseRelationType discourseRelationType = discRelationTypeRepo.findOneByType(type.name()).orElseGet(()->{
-			DiscourseRelationType newType = new DiscourseRelationType();
-			newType.setType(type.name());
-			return discRelationTypeRepo.save(newType);
-			}
-		);
 								
 		//check if a relation of the given type already exists between the two contributions
 		//if so, return it. if not, create new relation, configure it and return it.
 		return discourseRelationRepo
-				.findOneBySourceAndTargetAndType(sourceContribution, targetContribution, discourseRelationType)
+				.findOneBySourceAndTargetAndType(sourceContribution, targetContribution, type.name())
 				.orElseGet(() -> {
 					DiscourseRelation newRelation = new DiscourseRelation();
 					newRelation.setSource(sourceContribution);
 					newRelation.setTarget(targetContribution);
-					newRelation.setType(discourseRelationType);
+					newRelation.setType(type.name());
 					return discourseRelationRepo.save(newRelation);
 					}
 				);

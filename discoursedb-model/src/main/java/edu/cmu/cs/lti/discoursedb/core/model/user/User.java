@@ -19,7 +19,7 @@ import javax.persistence.Table;
 
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableSourcedBE;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -44,7 +44,7 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"contentInteractions","userAudiences","userGroups","sourceOfUserRelations","targetOfUserRelations"})
 @Entity
 @Table(name = "user", indexes = { @Index(name = "userNameIndex", columnList = "username") })
-public class User extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long> {
+public class User extends TimedAnnotatableSourcedBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name = "id_user", nullable = false)

@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
-import edu.cmu.cs.lti.discoursedb.core.model.UntimedBaseEntityWithSource;
+import edu.cmu.cs.lti.discoursedb.core.model.SourcedBE;
+import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableSourcedBE;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedSourcedBE;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableSourcedBE;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
-import edu.cmu.cs.lti.discoursedb.core.model.system.DataSources;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.DataSourceInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.DataSourcesRepository;
 import lombok.NonNull;
@@ -115,7 +117,7 @@ public class DataSourceService {
 	 * @return a DataSourceInstance with the given descriptor for the given entity
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public <T extends TimedAnnotatableBaseEntityWithSource> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
+	public <T extends TypedTimedAnnotatableSourcedBE> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
 		Assert.notNull(entity);
 		Assert.hasText(entitySourceDescriptor);
 		
@@ -130,7 +132,7 @@ public class DataSourceService {
 	 * @return a DataSourceInstance with the given descriptor for the given entity
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public <T extends UntimedBaseEntityWithSource> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
+	public <T extends TimedAnnotatableSourcedBE> Optional<DataSourceInstance> findDataSource(T entity, String entitySourceDescriptor) {
 		Assert.notNull(entity);
 		Assert.hasText(entitySourceDescriptor);
 
@@ -138,7 +140,7 @@ public class DataSourceService {
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public <T extends TimedAnnotatableBaseEntityWithSource> boolean hasSourceId(T entity, String sourceId) {
+	public <T extends TypedTimedAnnotatableSourcedBE> boolean hasSourceId(T entity, String sourceId) {
 		Assert.notNull(entity);
 		Assert.hasText(sourceId);
 
@@ -147,7 +149,16 @@ public class DataSourceService {
 	}
 
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public <T extends UntimedBaseEntityWithSource> boolean hasSourceId(T entity, String sourceId) {
+	public <T extends SourcedBE> boolean hasSourceId(T entity, String sourceId) {
+		Assert.notNull(entity);
+		Assert.hasText(sourceId);
+
+		return entity.getDataSourceAggregate().getSources().stream()
+				.anyMatch(e -> e.getEntitySourceId().equals(sourceId));
+	}
+	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public <T extends TypedSourcedBE> boolean hasSourceId(T entity, String sourceId) {
 		Assert.notNull(entity);
 		Assert.hasText(sourceId);
 
@@ -169,14 +180,14 @@ public class DataSourceService {
 	 * @param source
 	 *            the source to add to the entity
 	 */
-	public <T extends TimedAnnotatableBaseEntityWithSource> void addSource(T entity, DataSourceInstance source) {		
+	public <T extends TypedTimedAnnotatableSourcedBE> void addSource(T entity, DataSourceInstance source) {		
 		Assert.notNull(entity);
 		Assert.notNull(source);
 
 		//the source aggregate is a proxy for the entity
-		DataSources sourceAggregate = entity.getDataSourceAggregate();
+		DataSourceAggregate sourceAggregate = entity.getDataSourceAggregate();
 		if (sourceAggregate == null) {
-			sourceAggregate = new DataSources();
+			sourceAggregate = new DataSourceAggregate();
 			sourceAggregate = dataSourcesRepo.save(sourceAggregate);
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
@@ -206,14 +217,14 @@ public class DataSourceService {
 	 * @param source
 	 *            the source to add to the entity
 	 */
-	public <T extends UntimedBaseEntityWithSource> void addSource(T entity, DataSourceInstance source) {
+	public <T extends TimedAnnotatableSourcedBE> void addSource(T entity, DataSourceInstance source) {
 		Assert.notNull(entity);
 		Assert.notNull(source);
 
 		//the source aggregate is a proxy for the entity
-		DataSources sourceAggregate = entity.getDataSourceAggregate();
+		DataSourceAggregate sourceAggregate = entity.getDataSourceAggregate();
 		if (sourceAggregate == null) {
-			sourceAggregate = new DataSources();
+			sourceAggregate = new DataSourceAggregate();
 			sourceAggregate = dataSourcesRepo.save(sourceAggregate);
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
@@ -229,5 +240,42 @@ public class DataSourceService {
 			log.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
 		}
 	}
-	
+
+	/**
+	 * Adds a new source to the provided entity.<br/>
+	 * Note that the source MUST be unique for the entity. No other entity can be associated with this particular source.
+	 * If you want to related multiple DiscourseDB entities with the same source entity, disambiguate the source with the descriptor to make each source unique.
+	 * e.g. to map a source post identified by its id to a DiscourseDB contribution and a DiscourseDB content, specify the source descriptors like this:
+	 * <code> contribution#post.id</code> and <code>content#post.id</code>. Ideally, the source descriptors should be defined in a source mapping file.
+	 * See the edx and prosolo converters for examples.
+	 * 
+	 * @param entity
+	 *            the entity to add a new source to
+	 * @param source
+	 *            the source to add to the entity
+	 */
+	public <T extends TypedSourcedBE> void addSource(T entity, DataSourceInstance source) {
+		Assert.notNull(entity);
+		Assert.notNull(source);
+
+		//the source aggregate is a proxy for the entity
+		DataSourceAggregate sourceAggregate = entity.getDataSourceAggregate();
+		if (sourceAggregate == null) {
+			sourceAggregate = new DataSourceAggregate();
+			sourceAggregate = dataSourcesRepo.save(sourceAggregate);
+			entity.setDataSourceAggregate(sourceAggregate);
+		}
+		//connect source aggregate and source
+		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName());
+		if(!existingDataSourceInstance.isPresent()){
+			source.setSourceAggregate(sourceAggregate);
+			source = dataSourceInstanceRepo.save(source);
+			sourceAggregate.addSource(source);
+		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
+			//we tried to create an existing DataSourceInstance but add it to another entity
+			//this is not allowed, a source may only produce a single entity
+			log.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
+		}
+	}
+
 }

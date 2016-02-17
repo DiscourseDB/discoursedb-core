@@ -2,7 +2,7 @@ package edu.cmu.cs.lti.discoursedb.core.service.system;
 
 import com.mysema.query.types.expr.BooleanExpression;
 
-import edu.cmu.cs.lti.discoursedb.core.model.system.DataSources;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.system.QDataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
@@ -23,7 +23,7 @@ public final class DataSourcePredicates {
 		return QDataSourceInstance.dataSourceInstance.sourceType.eq(type);
 	}
 	
-	public static BooleanExpression hasAssignedEntity(DataSources entitySourceAggregate) {
+	public static BooleanExpression hasAssignedEntity(DataSourceAggregate entitySourceAggregate) {
 		if(entitySourceAggregate==null){
 			return QDataSourceInstance.dataSourceInstance.isNull();
 		}

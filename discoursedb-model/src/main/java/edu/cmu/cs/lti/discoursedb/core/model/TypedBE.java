@@ -22,7 +22,7 @@ import lombok.ToString;
 @ToString(callSuper=true)
 @MappedSuperclass
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public abstract class BaseTypeEntity extends BaseEntity{
+public abstract class TypedBE extends BaseEntity{
 	
 	@Column(unique=true)
 	@Description("The type value that this type-entity represents.")

@@ -7,13 +7,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +22,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="discourse_relation")
-public class DiscourseRelation extends TimedAnnotatableBaseEntity implements Identifiable<Long> {
+public class DiscourseRelation extends TypedTimedAnnotatableBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_discourse_relation", nullable=false)
@@ -37,10 +36,5 @@ public class DiscourseRelation extends TimedAnnotatableBaseEntity implements Ide
 	
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_target")
-	private Contribution target;
-	
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_discourse_relation_type")
-	private DiscourseRelationType type;
-	
+	private Contribution target;	
 }

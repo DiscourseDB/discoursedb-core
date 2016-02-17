@@ -3,20 +3,17 @@ package edu.cmu.cs.lti.discoursedb.core.model.user;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntityWithSource;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableSourcedBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,17 +25,13 @@ import lombok.ToString;
 @ToString(callSuper=true, exclude={"groupAudiences","groupMembers"})
 @Entity
 @Table(name="\"group\"")
-public class Group extends TimedAnnotatableBaseEntityWithSource implements Identifiable<Long> {
+public class Group extends TypedTimedAnnotatableSourcedBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_group", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
-
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_group_type")
-	private GroupType type;
 
 	private String name;
 	

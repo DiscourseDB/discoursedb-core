@@ -14,18 +14,12 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
-import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteractionType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
-import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteractionType;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelation;
-import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelationType;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRelationRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
@@ -43,11 +37,8 @@ public class UserService {
 	private final @NonNull UserRepository userRepo;
 	private final @NonNull DataSourceService dataSourceService;
 	private final @NonNull UserRelationRepository userRelationRepo;
-	private final @NonNull UserRelationTypeRepository userRelationTypeRepo;
 	private final @NonNull ContributionInteractionRepository contribInteractionRepo;
 	private final @NonNull DiscoursePartInteractionRepository discoursePartInteractionRepo;
-	private final @NonNull ContributionInteractionTypeRepository contribInteractionTypeRepo;
-	private final @NonNull DiscoursePartInteractionTypeRepository discoursePartInteractionTypeRepo;
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Optional<User> findUserByDiscourseAndSourceIdAndSourceType(Discourse discourse, String sourceId,
@@ -148,18 +139,15 @@ public class UserService {
 		Assert.notNull(dataSourceType);
 		Assert.hasText(dataSetName);
 
-		Optional<User> existingUser = findUserByDiscourseAndSourceIdAndDataSet(discourse, sourceId, dataSetName);
-		User curUser;
-		if (existingUser.isPresent()) {
-			curUser = existingUser.get();
-		} else {
-			curUser = new User(discourse);
+		return findUserByDiscourseAndSourceIdAndDataSet(discourse, sourceId, dataSetName).orElseGet(()->{
+			User curUser = new User(discourse);
 			curUser.setUsername(username);
 			curUser = userRepo.save(curUser);
 			dataSourceService.addSource(curUser,
 					new DataSourceInstance(sourceId, sourceIdDescriptor, dataSourceType, dataSetName));
-		}
-		return curUser;
+			return curUser;
+			}
+		);
 	}
 
 	/**
@@ -184,30 +172,16 @@ public class UserService {
 		Assert.notNull(contrib);
 		Assert.notNull(type);
 
-		// Retrieve type or create if it doesn't exist in db
-		ContributionInteractionType contribInteractionType = null;
-		Optional<ContributionInteractionType> existingContribInteractionType = contribInteractionTypeRepo
-				.findOneByType(type.name());
-		if (existingContribInteractionType.isPresent()) {
-			contribInteractionType = existingContribInteractionType.get();
-		} else {
-			contribInteractionType = new ContributionInteractionType();
-			contribInteractionType.setType(type.name());
-			contribInteractionTypeRepo.save(contribInteractionType);
-		}
-
 		// Retrieve ContributionInteraction or create if it doesn't exist in db
-		Optional<ContributionInteraction> existingContribInteraction = contribInteractionRepo
-				.findOneByUserAndContributionAndType(user, contrib, contribInteractionType);
-		if (existingContribInteraction.isPresent()) {
-			return existingContribInteraction.get();
-		} else {
-			ContributionInteraction contribInteraction = new ContributionInteraction();
-			contribInteraction.setContribution(contrib);
-			contribInteraction.setUser(user);
-			contribInteraction.setType(contribInteractionType);
-			return contribInteractionRepo.save(contribInteraction);
-		}
+		return contribInteractionRepo
+				.findOneByUserAndContributionAndType(user, contrib, type.name()).orElseGet(()->{
+					ContributionInteraction contribInteraction = new ContributionInteraction();
+					contribInteraction.setContribution(contrib);
+					contribInteraction.setUser(user);
+					contribInteraction.setType(type.name());
+					return contribInteractionRepo.save(contribInteraction);
+					}
+				);
 	}
 
 	/**
@@ -230,30 +204,16 @@ public class UserService {
 		Assert.notNull(dp);
 		Assert.notNull(type);
 
-		// Retrieve type or create if it doesn't exist in db
-		DiscoursePartInteractionType dpInteractionType = null;
-		Optional<DiscoursePartInteractionType> existingDpInteractionType = discoursePartInteractionTypeRepo
-				.findOneByType(type.name());
-		if (existingDpInteractionType.isPresent()) {
-			dpInteractionType = existingDpInteractionType.get();
-		} else {
-			dpInteractionType = new DiscoursePartInteractionType();
-			dpInteractionType.setType(type.name());
-			discoursePartInteractionTypeRepo.save(dpInteractionType);
-		}
-
 		// Retrieve ContributionInteraction or create if it doesn't exist in db
-		Optional<DiscoursePartInteraction> existingDPInteraction = discoursePartInteractionRepo
-				.findOneByUserAndDiscoursePartAndType(user, dp, dpInteractionType);
-		if (existingDPInteraction.isPresent()) {
-			return existingDPInteraction.get();
-		} else {
-			DiscoursePartInteraction dpInteraction = new DiscoursePartInteraction();
-			dpInteraction.setDiscoursePart(dp);
-			dpInteraction.setUser(user);
-			dpInteraction.setType(dpInteractionType);
-			return discoursePartInteractionRepo.save(dpInteraction);
-		}
+		return discoursePartInteractionRepo
+				.findOneByUserAndDiscoursePartAndType(user, dp, type.name()).orElseGet(()->{
+					DiscoursePartInteraction dpInteraction = new DiscoursePartInteraction();
+					dpInteraction.setDiscoursePart(dp);
+					dpInteraction.setUser(user);
+					dpInteraction.setType(type.name());
+					return discoursePartInteractionRepo.save(dpInteraction);
+					}
+				);
 	}
 
 	/**
@@ -275,29 +235,16 @@ public class UserService {
 		Assert.notNull(targetUser);
 		Assert.notNull(type);
 
-		// Retrieve type or create if it doesn't exist in db
-		UserRelationType userRelationType = null;
-		Optional<UserRelationType> existingUserRelationType = userRelationTypeRepo.findOneByType(type.name());
-		if (existingUserRelationType.isPresent()) {
-			userRelationType = existingUserRelationType.get();
-		} else {
-			userRelationType = new UserRelationType();
-			userRelationType.setType(type.name());
-			userRelationTypeRepo.save(userRelationType);
-		}
-
 		// Retrieve UserRelation or create if it doesn't exist in db
-		Optional<UserRelation> existingUserRelation = userRelationRepo.findOneBySourceAndTargetAndType(sourceUser,
-				targetUser, userRelationType);
-		if (existingUserRelation.isPresent()) {
-			return existingUserRelation.get();
-		} else {
-			UserRelation userRelation = new UserRelation();
-			userRelation.setSource(sourceUser);
-			userRelation.setTarget(targetUser);
-			userRelation.setType(userRelationType);
-			return userRelationRepo.save(userRelation);
-		}
+		return userRelationRepo.findOneBySourceAndTargetAndType(sourceUser,
+				targetUser, type.name()).orElseGet(()->{
+					UserRelation userRelation = new UserRelation();
+					userRelation.setSource(sourceUser);
+					userRelation.setTarget(targetUser);
+					userRelation.setType(type.name());
+					return userRelationRepo.save(userRelation);
+					}
+				);
 	}
 
 	/**

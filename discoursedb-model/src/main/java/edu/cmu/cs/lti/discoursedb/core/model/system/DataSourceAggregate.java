@@ -30,8 +30,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"sources"})
 @ToString(callSuper=true, exclude={"sources"})
 @Entity
-@Table(name="data_sources")
-public class DataSources extends BaseEntity implements Identifiable<Long> {
+@Table(name="data_source_aggregate")
+public class DataSourceAggregate extends BaseEntity implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_data_sources", nullable=false)

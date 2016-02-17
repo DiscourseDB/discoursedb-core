@@ -15,15 +15,11 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelationType;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartType;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartTypeRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
@@ -38,9 +34,7 @@ public class DiscoursePartService {
 
 	private final @NonNull DiscoursePartRepository discoursePartRepo;
 	private final @NonNull DataSourceService dataSourceService;
-	private final @NonNull DiscoursePartTypeRepository discoursePartTypeRepo;
 	private final @NonNull DiscoursePartRelationRepository discoursePartRelationRepo;
-	private final @NonNull DiscoursePartRelationTypeRepository discoursePartRelationTypeRepo;
 	private final @NonNull DiscoursePartContributionRepository discoursePartContributionRepo;
 	private final @NonNull DiscourseToDiscoursePartRepository discourseToDiscoursePartRepo;
 
@@ -62,8 +56,8 @@ public class DiscoursePartService {
 	 *         connected with its requested type
 	 */
 	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
-		Assert.notNull(discourse);
-		Assert.notNull(type);
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");		
 
 		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
 	}
@@ -84,35 +78,23 @@ public class DiscoursePartService {
 	 *         connected with its requested type
 	 */
 	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type){		
-		Assert.notNull(discourse);
-		Assert.notNull(discoursePartName);
-		Assert.notNull(type);
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.hasText(discoursePartName);
+		Assert.notNull(type, "Type cannot be null.");		
 
-		Optional<DiscoursePartType> optDiscoursePartType = discoursePartTypeRepo.findOneByType(type.name());
-		DiscoursePartType discoursePartType = null;
-		if(optDiscoursePartType.isPresent()){
-			discoursePartType = optDiscoursePartType.get();
-		}else{
-			discoursePartType = new DiscoursePartType();
-			discoursePartType.setType(type.name());
-			discoursePartType= discoursePartTypeRepo.save(discoursePartType);
-		}		
-		
 		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
 		Optional<DiscoursePart> existingDiscoursePart = Optional.ofNullable(discoursePartRepo.findOne(
 						DiscoursePartPredicates.discoursePartHasName(discoursePartName).and(
-						DiscoursePartPredicates.discoursePartHasType(discoursePartType).and(
+						DiscoursePartPredicates.discoursePartHasType(type).and(
 						DiscoursePartPredicates.discoursePartHasDiscourse(discourse)))));
 
-		DiscoursePart dPart;
-		if(existingDiscoursePart.isPresent()){
-			dPart=existingDiscoursePart.get();
-		}else{
-			dPart=new DiscoursePart();
-			dPart.setType(discoursePartType);
-			dPart.setName(discoursePartName);
-			dPart = discoursePartRepo.save(dPart);
-		}
+		DiscoursePart dPart=existingDiscoursePart.orElseGet(()->{
+			DiscoursePart newDP=new DiscoursePart();
+			newDP.setType(type.name());
+			newDP.setName(discoursePartName);
+			return discoursePartRepo.save(newDP);
+			}
+		);			
 		
 		Optional<DiscourseToDiscoursePart> existingDiscourseToDiscoursePart = discourseToDiscoursePartRepo.findOneByDiscourseAndDiscoursePart(discourse, dPart);	
 		if(!existingDiscourseToDiscoursePart.isPresent()){
@@ -145,8 +127,8 @@ public class DiscoursePartService {
 	 *         connected with its requested type
 	 */
 	public DiscoursePart createTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
-		Assert.notNull(discourse);
-		Assert.notNull(type);
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");		
 
 		return createTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
 	}
@@ -165,22 +147,12 @@ public class DiscoursePartService {
 	 *         connected with its requested type
 	 */
 	public DiscoursePart createTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type){
-		Assert.notNull(discourse);
-		Assert.notNull(discoursePartName);
-		Assert.notNull(type);
-		
-		Optional<DiscoursePartType> optDiscoursePartType = discoursePartTypeRepo.findOneByType(type.name());
-		DiscoursePartType discoursePartType = null;
-		if(optDiscoursePartType.isPresent()){
-			discoursePartType = optDiscoursePartType.get();
-		}else{
-			discoursePartType = new DiscoursePartType();
-			discoursePartType.setType(type.name());
-			discoursePartType= discoursePartTypeRepo.save(discoursePartType);
-		}		
-		
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.hasText(discoursePartName);
+		Assert.notNull(type, "Type cannot be null.");		
+				
 		DiscoursePart dPart=new DiscoursePart();
-		dPart.setType(discoursePartType);
+		dPart.setType(type.name());
 		dPart.setName(discoursePartName);
 		dPart = discoursePartRepo.save(dPart);
 		
@@ -235,31 +207,17 @@ public class DiscoursePartService {
 	public DiscoursePartRelation createDiscoursePartRelation(DiscoursePart sourceDiscoursePart, DiscoursePart targetDiscoursePart, DiscoursePartRelationTypes type) {
 		Assert.notNull(sourceDiscoursePart);
 		Assert.notNull(targetDiscoursePart);
-		Assert.notNull(type);
-		
-		//Retrieve type or create if it doesn't exist in db
-		DiscoursePartRelationType discoursePartRelationType = null;
-		Optional<DiscoursePartRelationType> existingPartDiscourseRelationType = discoursePartRelationTypeRepo.findOneByType(type.name());
-		if(existingPartDiscourseRelationType.isPresent()){
-			discoursePartRelationType=existingPartDiscourseRelationType.get();
-		}else{
-			discoursePartRelationType = new DiscoursePartRelationType();
-			discoursePartRelationType.setType(type.name());
-			discoursePartRelationTypeRepo.save(discoursePartRelationType);			
-		}
-		
+		Assert.notNull(type, "Type cannot be null.");		
+				
 		//check if a relation of the given type already exists between the two DiscourseParts
-		Optional<DiscoursePartRelation> existingRelation = discoursePartRelationRepo.findOneBySourceAndTargetAndType(sourceDiscoursePart, targetDiscoursePart, discoursePartRelationType);
-		if(existingRelation.isPresent()){
-			return existingRelation.get();
-		}
+		return discoursePartRelationRepo.findOneBySourceAndTargetAndType(sourceDiscoursePart, targetDiscoursePart, type.name()).orElseGet(()->{
+			DiscoursePartRelation newRelation = new DiscoursePartRelation();
+			newRelation.setSource(sourceDiscoursePart);
+			newRelation.setTarget(targetDiscoursePart);
+			newRelation.setType(type.name());
+			return discoursePartRelationRepo.save(newRelation);						
+		});
 		
-		//create, save and return the new relation
-		DiscoursePartRelation newRelation = new DiscoursePartRelation();
-		newRelation.setSource(sourceDiscoursePart);
-		newRelation.setTarget(targetDiscoursePart);
-		newRelation.setType(discoursePartRelationType);
-		return discoursePartRelationRepo.save(newRelation);
 	}
 	
 	
@@ -274,21 +232,12 @@ public class DiscoursePartService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<DiscoursePart> findChildDiscourseParts(DiscoursePart sourceDiscoursePart, DiscoursePartRelationTypes type) {
 		Assert.notNull(sourceDiscoursePart);
-		Assert.notNull(type);
+		Assert.notNull(type, "Type cannot be null.");		
 		
 		List<DiscoursePart> returnList = new ArrayList<>();
 		
-		//Retrieve type or create if it doesn't exist in db
-		DiscoursePartRelationType discoursePartRelationType = null;
-		Optional<DiscoursePartRelationType> existingPartDiscourseRelationType = discoursePartRelationTypeRepo.findOneByType(type.name());
-		if(existingPartDiscourseRelationType.isPresent()){
-			discoursePartRelationType=existingPartDiscourseRelationType.get();
-		}else{
-			return returnList;
-		}
-		
 		//check if a relation of the given type already exists between the two DiscourseParts
-		List<DiscoursePartRelation> existingRelations = discoursePartRelationRepo.findAllBySourceAndType(sourceDiscoursePart, discoursePartRelationType);
+		List<DiscoursePartRelation> existingRelations = discoursePartRelationRepo.findAllBySourceAndType(sourceDiscoursePart, type.name());
 		for(DiscoursePartRelation relation:existingRelations){
 			returnList.add(relation.getTarget());
 		}
@@ -304,7 +253,7 @@ public class DiscoursePartService {
 	 * @return the possibly altered entity after the save process 
 	 */
 	public DiscoursePart save(DiscoursePart part){
-		Assert.notNull(part);
+		Assert.notNull(part, "DiscoursePart cannot be null.");
 
 		return discoursePartRepo.save(part);
 	}
@@ -319,18 +268,13 @@ public class DiscoursePartService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public boolean exists(Discourse discourse, String discoursePartName, DiscoursePartTypes type){
-		Assert.notNull(discourse);
-		Assert.notNull(discoursePartName);
-		Assert.notNull(type);
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty.");
+		Assert.notNull(type, "Type cannot be null.");		
 		
-		Optional<DiscoursePartType> discoursePartType = discoursePartTypeRepo.findOneByType(type.name());
-		if(!discoursePartType.isPresent()){
-			return false;
-		}		
-
 		return discoursePartRepo.count(
 				DiscoursePartPredicates.discoursePartHasName(discoursePartName).and(
-				DiscoursePartPredicates.discoursePartHasType(discoursePartType.get()).and(
+				DiscoursePartPredicates.discoursePartHasType(type).and(
 				DiscoursePartPredicates.discoursePartHasDiscourse(discourse))))>0;
 	}
 	
@@ -342,14 +286,8 @@ public class DiscoursePartService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<DiscoursePart> findAllByType(DiscoursePartTypes type){
-		Assert.notNull(type);
-		
-		Optional<DiscoursePartType> dpType = discoursePartTypeRepo.findOneByType(type.name());
-		if(dpType.isPresent()){
-			return discoursePartRepo.findAllByType(dpType.get());					
-		}else{
-			return new ArrayList<DiscoursePart>(0);
-		}
+		Assert.notNull(type, "Type cannot be null.");		
+		return discoursePartRepo.findAllByType(type.name());					
 	}
 	
 	/**
@@ -360,7 +298,7 @@ public class DiscoursePartService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<DiscoursePart> findAllByName(String discoursePartName) {
-		Assert.hasText(discoursePartName);		
+		Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty.");		
 		return discoursePartRepo.findAllByName(discoursePartName);
 	}
 	
@@ -374,9 +312,9 @@ public class DiscoursePartService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Optional<DiscoursePart> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName) {
-		Assert.hasText(entitySourceId);
-		Assert.hasText(entitySourceDescriptor);
-		Assert.hasText(dataSetName);
+		Assert.hasText(entitySourceId, "Entity source id cannot be empty.");
+		Assert.hasText(entitySourceDescriptor, "Entity source descriptor cannot be empty.");
+		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
 
 		Optional<DataSourceInstance> dataSource = dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName);
 		if(dataSource.isPresent()){

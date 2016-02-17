@@ -11,4 +11,5 @@ public interface DiscoursePartRepository extends CoreBaseRepository<DiscoursePar
 	Optional<DiscoursePart> findOneByName(String name);
 	
 	List<DiscoursePart> findAllByName(String name);
+	List<DiscoursePart> findAllByType(String type);
 }

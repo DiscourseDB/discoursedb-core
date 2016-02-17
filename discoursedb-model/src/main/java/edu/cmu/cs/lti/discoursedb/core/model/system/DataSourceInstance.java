@@ -56,7 +56,7 @@ public class DataSourceInstance extends BaseEntity implements Identifiable<Long>
 	
 	@ManyToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_sources")
-	private DataSources sourceAggregate;
+	private DataSourceAggregate sourceAggregate;
 	
 	/**
 	 * Creates a new DataSourceInstance for the entity with the source id

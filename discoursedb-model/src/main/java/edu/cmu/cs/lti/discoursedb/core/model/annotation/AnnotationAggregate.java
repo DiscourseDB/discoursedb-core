@@ -30,9 +30,9 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"annotations"})
 @ToString(callSuper=true, exclude={"annotations"})
 @Entity
-@Table(name="annotation")
+@Table(name="annotation_aggregate")
 @Description("An aggregate that links an entity with a set of annotation instances. Each annotatable aggregate can have one aggregate and each aggregate can link to multiple annotation instances.")
-public class Annotations extends BaseEntity  implements Identifiable<Long>{
+public class AnnotationAggregate extends BaseEntity  implements Identifiable<Long>{
 
 	@Id
 	@Column(name="id_annotation", nullable=false)

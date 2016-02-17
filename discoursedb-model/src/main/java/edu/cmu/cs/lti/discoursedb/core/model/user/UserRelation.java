@@ -7,14 +7,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBaseEntity;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,17 +23,13 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="user_relation")
-public class UserRelation extends TimedAnnotatableBaseEntity implements Identifiable<Long> {
+public class UserRelation extends TypedTimedAnnotatableBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_user_relation", nullable=false)
     @GeneratedValue(strategy = GenerationType.AUTO)
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
-	
-	@ManyToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "fk_user_relation_type")
-	private UserRelationType type;
 	
 	@RestResource(rel="sourceUser",path="sourceUser")
 	@OneToOne(cascade=CascadeType.ALL) 
