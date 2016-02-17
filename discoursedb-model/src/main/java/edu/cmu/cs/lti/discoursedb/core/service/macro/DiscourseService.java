@@ -34,7 +34,8 @@ public class DiscourseService {
 	 */
 	public Discourse createOrGetDiscourse(String name) {
 		Assert.hasText(name, "Discourse name cannot be empty");
-		return discourseRepository.findOneByName(name).orElse(discourseRepository.save(new Discourse(name)));
+		return discourseRepository.findOneByName(name).orElseGet(()->{
+			return discourseRepository.save(new Discourse(name));});
 	}
 	
 	/**
