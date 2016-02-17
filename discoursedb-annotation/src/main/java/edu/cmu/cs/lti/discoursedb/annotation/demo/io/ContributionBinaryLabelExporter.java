@@ -94,7 +94,7 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 			curAnnoExport.setText(contrib.getCurrentRevision().getText());
 			for(AnnotationInstance anno:annoService.findAnnotations(contrib)){
 				if(anno.getType()!=null){
-					curAnnoExport.addLabel(anno.getType().getType());					
+					curAnnoExport.addLabel(anno.getType());					
 				}
 			}
 			//add interchange object to export list

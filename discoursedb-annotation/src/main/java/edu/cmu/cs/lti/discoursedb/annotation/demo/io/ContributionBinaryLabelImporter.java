@@ -88,7 +88,7 @@ public class ContributionBinaryLabelImporter implements CommandLineRunner {
 				List<AnnotationInstance> toDelete = new ArrayList<>();
 				if(contrib.getAnnotations()!=null){
 					for(AnnotationInstance anno: contrib.getAnnotations().getAnnotations()){
-						if(anno.getType()!=null&&!item.getLabels().contains(anno.getType().getType())){
+						if(anno.getType()!=null&&!item.getLabels().contains(anno.getType())){
 							toDelete.add(anno);							
 						}
 					}					
