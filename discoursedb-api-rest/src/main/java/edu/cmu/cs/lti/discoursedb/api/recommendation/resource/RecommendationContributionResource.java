@@ -25,7 +25,7 @@ public class RecommendationContributionResource extends ResourceSupport {
 		this.setUsername(contrib.getCurrentRevision().getAuthor().getUsername());
 		this.setUsermail(contrib.getCurrentRevision().getAuthor().getEmail());
 		this.setUserrealname(contrib.getCurrentRevision().getAuthor().getRealname());
-		this.setContributionType(contrib.getType().getType());
+		this.setContributionType(contrib.getType());
 		this.setCreationTime(contrib.getStartTime());
 		this.setUpvotes(contrib.getUpvotes());
 		this.add(linkTo(methodOn(RecommendationRestController.class).sourcesForContribution(contrib.getId())).withRel("contributionSources"));

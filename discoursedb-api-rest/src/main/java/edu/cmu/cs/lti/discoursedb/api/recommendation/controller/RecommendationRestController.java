@@ -95,10 +95,10 @@ public class RecommendationRestController {
 		//TODO check if optional is present
 		Contribution contrib= contributionRepository.findOne(contribId);
 		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
-			if(rel.getType().getType().equals(DiscourseRelationTypes.COMMENT.name())){
+			if(rel.getType().equals(DiscourseRelationTypes.COMMENT.name())){
 				return rel.getSource();
 			}
-			if(rel.getType().getType().equals(DiscourseRelationTypes.REPLY.name())){
+			if(rel.getType().equals(DiscourseRelationTypes.REPLY.name())){
 				return rel.getSource();
 			}
 		}
@@ -109,7 +109,7 @@ public class RecommendationRestController {
 		//TODO check if optional is present
 		Contribution contrib= contributionRepository.findOne(contribId);
 		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
-			if(rel.getType().getType().equals(DiscourseRelationTypes.DESCENDANT.name())){
+			if(rel.getType().equals(DiscourseRelationTypes.DESCENDANT.name())){
 				return rel.getSource();
 			}
 		}
