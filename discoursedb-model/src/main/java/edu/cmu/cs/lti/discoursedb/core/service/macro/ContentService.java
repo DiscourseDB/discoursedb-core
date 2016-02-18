@@ -26,37 +26,38 @@ public class ContentService {
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public List<Content> findAll(List<Long> ids){
-		Assert.notNull(ids);
-		Assert.notEmpty(ids);
+		Assert.notNull(ids, "List of content ids cannot be null.");
+		Assert.notEmpty(ids, "List of content ids cannot be empty.");
 		return contentRepo.findByIdIn(ids);
 	}
 	
 	public Content save(Content content){
+		Assert.notNull(content, "Content cannot be null.");
 		return contentRepo.save(content);
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Content findOne(Long id){
-		Assert.notNull(id);
-		Assert.isTrue(id>0);
+		Assert.notNull(id, "Content id cannot be null.");
+		Assert.isTrue(id>0, "Content id has to be a positive number.");
 		return contentRepo.findOne(id);
 	}
 	
 	public void setNextRevision(Long id, Long nextRevId){
-		Assert.notNull(id);
-		Assert.isTrue(id>0);
-		Assert.notNull(nextRevId);
-		Assert.isTrue(nextRevId>0);
-		Assert.isTrue(id!=nextRevId);		
+		Assert.notNull(id, "Content id cannot be null.");
+		Assert.isTrue(id>0, "Content id has to be a positive number.");
+		Assert.notNull(nextRevId, "Next revision id cannot be null.");
+		Assert.isTrue(nextRevId>0, "Next revision id has to be a positive number.");
+		Assert.isTrue(id!=nextRevId, "Next revision cannot equal the current revision.");		
 		contentRepo.setNextRevisionId(id, nextRevId);
 	}
 	
 	public void setPreviousRevision(Long id, Long previousRevId){
-		Assert.notNull(id);
-		Assert.isTrue(id>0);
-		Assert.notNull(previousRevId);
-		Assert.isTrue(previousRevId>0);
-		Assert.isTrue(id!=previousRevId);		
+		Assert.notNull(id, "Content id cannot be null.");
+		Assert.isTrue(id>0, "Content id has to be a positive number.");
+		Assert.notNull(previousRevId, "Previous revision id cannot be null.");
+		Assert.isTrue(previousRevId>0, "Previous revision id has to be a positive number.");
+		Assert.isTrue(id!=previousRevId, "Previous revision cannot equal the current revision.");		
 		contentRepo.setPreviousRevisionId(id, previousRevId);
 	}
 

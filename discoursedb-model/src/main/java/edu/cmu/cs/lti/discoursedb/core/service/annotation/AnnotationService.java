@@ -144,7 +144,7 @@ public class AnnotationService {
 	 */
 	public <T extends TypedTimedAnnotatableBE> void addAnnotation(T entity, AnnotationInstance annotation) {		
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotatable entity.");
-		Assert.notNull(annotation);
+		Assert.notNull(annotation, "Annotation cannot be null.");
 
 		//the annotations aggregate is a proxy for the entity
 		//all annotation instantimeAnnotatableBaseEntityRepo.ces are connected to the aggregate which is finally connected to the annotated entity
@@ -168,7 +168,7 @@ public class AnnotationService {
 	 */
 	public <T extends TimedAnnotatableBE> void addAnnotation(T entity, AnnotationInstance annotation) {		
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotatable entity.");
-		Assert.notNull(annotation);
+		Assert.notNull(annotation, "Annotation cannot be null.");
 
 		//the annotations aggregate is a proxy for the entity
 		//all annotation instantimeAnnotatableBaseEntityRepo.ces are connected to the aggregate which is finally connected to the annotated entity
