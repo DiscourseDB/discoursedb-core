@@ -43,9 +43,9 @@ public class UserService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Optional<User> findUserByDiscourseAndSourceIdAndSourceType(Discourse discourse, String sourceId,
 			DataSourceTypes type) {
-		Assert.notNull(discourse);
-		Assert.hasText(sourceId);
-		Assert.notNull(type);
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		Assert.hasText(sourceId, "The sourceId cannot be empty.");
+		Assert.notNull(type, "You have to provide a datasource type.");
 
 		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse)
 				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSourceType(type))));
@@ -54,9 +54,9 @@ public class UserService {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Optional<User> findUserByDiscourseAndSourceIdAndDataSet(Discourse discourse, String sourceId,
 			String dataSetName) {
-		Assert.notNull(discourse);
-		Assert.hasText(sourceId);
-		Assert.hasText(dataSetName);
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		Assert.hasText(sourceId, "The sourceId cannot be empty.");
+		Assert.hasText(dataSetName, "The dataset name cannot be empty.");
 
 		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse)
 				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSet(dataSetName))));
@@ -64,8 +64,8 @@ public class UserService {
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Optional<User> findUserByDiscourseAndSourceId(Discourse discourse, String sourceId) {
-		Assert.notNull(discourse);
-		Assert.hasText(sourceId);
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 
 		return Optional.ofNullable(
 				userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasSourceId(sourceId))));
@@ -73,8 +73,8 @@ public class UserService {
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Optional<User> findUserBySourceIdAndUsername(String sourceId, String username) {
-		Assert.hasText(sourceId);
-		Assert.hasText(username);
+		Assert.hasText(sourceId, "The sourceId cannot be empty.");
+		Assert.hasText(username, "The username cannot be empty.");
 
 		return Optional.ofNullable(
 				userRepo.findOne(UserPredicates.hasSourceId(sourceId).and(UserPredicates.hasUserName(username))));
@@ -82,7 +82,7 @@ public class UserService {
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Iterable<User> findUsersBySourceId(String sourceId) {
-		Assert.hasText(sourceId);
+		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 
 		return userRepo.findAll(UserPredicates.hasSourceId(sourceId));
 	}
@@ -100,20 +100,17 @@ public class UserService {
 	 *         newly created
 	 */
 	public User createOrGetUser(Discourse discourse, String username) {
-		Assert.notNull(discourse);
-		Assert.hasText(username);
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.hasText(username, "Username cannot be empty.");
 
-		Optional<User> existingUser = Optional.ofNullable(
-				userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasUserName(username))));
-		User curUser;
-		if (existingUser.isPresent()) {
-			return existingUser.get();
-		} else {
-			curUser = new User(discourse);
-			curUser.setUsername(username);
-			return save(curUser);
+		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasUserName(username)))).
+				orElseGet(() -> {
+					User curUser = new User(discourse);
+					curUser.setUsername(username);
+					return save(curUser);
+					}
+				);
 		}
-	}
 
 	/**
 	 * Returns a User object with the given source id and username if it exists
@@ -132,12 +129,12 @@ public class UserService {
 	 */
 	public User createOrGetUser(Discourse discourse, String username, String sourceId, String sourceIdDescriptor,
 			DataSourceTypes dataSourceType, String dataSetName) {
-		Assert.notNull(discourse);
-		Assert.hasText(username);
-		Assert.hasText(sourceId);
-		Assert.hasText(sourceIdDescriptor);
-		Assert.notNull(dataSourceType);
-		Assert.hasText(dataSetName);
+		Assert.notNull(discourse, "Discourse cannot be null");
+		Assert.hasText(username, "Username cannot be empty.");
+		Assert.hasText(sourceId, "SourceId cannot be empty.");
+		Assert.hasText(sourceIdDescriptor, "SourceId descriptor cannot be empty.");
+		Assert.notNull(dataSourceType, "You have to provide a datasource type.");
+		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
 
 		return findUserByDiscourseAndSourceIdAndDataSet(discourse, sourceId, dataSetName).orElseGet(()->{
 			User curUser = new User(discourse);
@@ -168,9 +165,9 @@ public class UserService {
 	 */
 	public ContributionInteraction createContributionInteraction(User user, Contribution contrib,
 			ContributionInteractionTypes type) {
-		Assert.notNull(user);
-		Assert.notNull(contrib);
-		Assert.notNull(type);
+		Assert.notNull(user, "User cannot be null.");
+		Assert.notNull(contrib, "Contribution cannot be null.");
+		Assert.notNull(type, "You have to provive a ContributionInteraction type.");
 
 		// Retrieve ContributionInteraction or create if it doesn't exist in db
 		return contribInteractionRepo
@@ -200,9 +197,9 @@ public class UserService {
 	 */
 	public DiscoursePartInteraction createDiscoursePartInteraction(User user, DiscoursePart dp,
 			DiscoursePartInteractionTypes type) {
-		Assert.notNull(user);
-		Assert.notNull(dp);
-		Assert.notNull(type);
+		Assert.notNull(user, "User cannot be null.");
+		Assert.notNull(dp, "DiscoursePart cannot be null.");
+		Assert.notNull(type, "You have to provide a DiscoursePartInteraction type.");
 
 		// Retrieve ContributionInteraction or create if it doesn't exist in db
 		return discoursePartInteractionRepo
@@ -231,9 +228,9 @@ public class UserService {
 	 *         returned.
 	 */
 	public UserRelation createUserRelation(User sourceUser, User targetUser, UserRelationTypes type) {
-		Assert.notNull(sourceUser);
-		Assert.notNull(targetUser);
-		Assert.notNull(type);
+		Assert.notNull(sourceUser, "Source user cannot be null.");
+		Assert.notNull(targetUser, "Target user cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");
 
 		// Retrieve UserRelation or create if it doesn't exist in db
 		return userRelationRepo.findOneBySourceAndTargetAndType(sourceUser,
@@ -266,7 +263,7 @@ public class UserService {
 	 * @return the user with updated or unchanged realname
 	 */
 	public User setRealname(User user, String firstName, String lastName) {
-		Assert.notNull(user);
+		Assert.notNull(user, "User cannot be null.");
 
 		if (firstName == null)
 			firstName = "";
@@ -299,7 +296,7 @@ public class UserService {
 	 * @return the user entity after the save process
 	 */
 	public User save(User user) {
-		Assert.notNull(user);
+		Assert.notNull(user, "User cannot be null.");
 
 		return userRepo.save(user);
 	}
@@ -312,7 +309,7 @@ public class UserService {
 	 *            the user entity to delete
 	 */
 	public void delete(User user) {
-		Assert.notNull(user);
+		Assert.notNull(user, "User cannot be null.");
 
 		for (Discourse d : user.getDiscourses()) {
 			user.removeDiscourse(d);
@@ -330,7 +327,7 @@ public class UserService {
 	 * 
 	 */
 	public List<User> findUserByUsername(String username) {
-		Assert.hasText(username);
+		Assert.hasText(username, "Username cannot be empty.");
 		return userRepo.findAllByUsername(username);
 	}
 
