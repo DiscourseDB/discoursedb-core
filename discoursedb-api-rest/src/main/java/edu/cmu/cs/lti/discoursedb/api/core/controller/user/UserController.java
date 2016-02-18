@@ -31,9 +31,9 @@ public class UserController implements ResourceProcessor<RepositorySearchesResou
 			@RequestParam("username") String username,
 			PersistentEntityResourceAssembler assembler) 
     {
-    	return userService.findUserBySourceIdAndUsername(sourceId, username).
-    			map(u->ResponseEntity.ok(assembler.toResource(u))).
-    			orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    	return userService.findUserBySourceIdAndUsername(sourceId, username). 	//perform the query
+    			map(u->ResponseEntity.ok(assembler.toResource(u))). 			//transform result into Resource if result exists
+    			orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)); 			//handle cases with no result
     }
 
 	/* (non-Javadoc)
