@@ -28,7 +28,8 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 ## Generated Entities
 | Number | DiscourseDB Entity | Description |
 | ------------- | ------------- | ------------- |
-| 1 | User | User information extracted from the Wikipedia revision history. Username is the Wikipedia login if user was registered, IP if user was not registerd and ANONMYOUS if no data was available. |
+| 1 | Discourse | Manually defined scope |
+| 2 | User | User information extracted from the Wikipedia revision history. Username is the Wikipedia login if user was registered, IP if user was not registerd and ANONMYOUS if no data was available. |
 
 
 ## Relation Mappings
