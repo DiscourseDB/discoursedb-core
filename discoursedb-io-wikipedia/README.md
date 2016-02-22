@@ -12,7 +12,7 @@ DiscourseDB converters for Wikipedia data
 | 3b  | Turn | Contribution | POST | if not first turn in thread  |
 | 3c  | Turn | Content | n/a | first and last revision of 3a/b |
 | 4a  | Article | Context | ARTICLE | represents the article related to the TalkPage. Every 3a/b artifact from the same Talk page has the same 4a artifact as context.|
-| 4b  | Article | Content | n/a|each article revision is translated to a content entity. 4a points to the oldes and newest of these revisions as firstRevision and currentRevision | 
+| 4b  | Article | Content (multiple) | n/a|each article revision is translated to a content entity. 4a points to the oldes and newest of these revisions as firstRevision and currentRevision | 
 
 ## Artifact Data Sources
 The Wikipedia artifacts that are mapped to DiscourseDB are extracted with an automatic segmentation algorithm. They do not have idenfiers in the original data source. Therefore, we generate ids for each entity using existing identifiers such as revision ids and thread titles.
