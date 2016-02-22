@@ -10,7 +10,7 @@ DiscourseDB converters for Wikipedia data
 | 2  | Discussion | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
 | 3a  | Turn | Contribution | THREAD_STARTER | if first turn in thread  |
 | 3b  | Turn | Contribution | POST | if not first turn in thread  |
-| 3c  | Turn | Content | n/a |   |
+| 3c  | Turn | Content | n/a | connected with to 3a/b |
 | 4a  | Article | Context | ARTICLE | 
 | 4b  | Article | Content | n/a | 
 
