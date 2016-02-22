@@ -3,8 +3,11 @@ DiscourseDB converters for Wikipedia data
 
 ## Mapping
 
+## Artifact Mappings
 | Number | Source Artifact  | Source Id | Source Descriptor | Source Descriptor | DiscourseDB Entity | DiscourseDB Type |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| 1  |   |  |  |  |  |  |
+| 1  | Talk  |  |  |  |  |  |
 | 2  |   |  |  |  |  |  |
 | 3  |   |  |  |  |  |  |
+
+## Relation Mappings
