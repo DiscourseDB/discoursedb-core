@@ -26,10 +26,10 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 | 3c  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTENT| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 
 ## Generated Entities
-| Number | DiscourseDB Entity | Description |
-| ------------- | ------------- | ------------- |
-| 1 | Discourse | Manually defined scope |
-| 2 | User | User information is extracted from the Wikipedia revision history. The username is the Wikipedia login if the user was registered, the IP if the user was not registerd and ANONMYOUS if no data was available. All extracted content entities have a user assigned to them. |
+| DiscourseDB Entity | Description |
+| ------------- | ------------- |
+| Discourse | Manually defined scope |
+| User | User information is extracted from the Wikipedia revision history. The username is the Wikipedia login if the user was registered, the IP if the user was not registerd and ANONMYOUS if no data was available. All extracted content entities have a user assigned to them. |
 
 
 ## Relation Mappings
