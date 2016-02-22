@@ -25,7 +25,7 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 | 3a/b  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 | 3c  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTENT| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 
-### Generated Entities
+### Other Generated Entities
 | DiscourseDB Entity | Description |
 | ------------- | ------------- |
 | Discourse | Manually defined scope. Dataset Type is WIKIPEDIA. Dataset name and discourse name are assigned at converter startup startup via parameters. |
