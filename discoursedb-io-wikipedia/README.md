@@ -4,7 +4,7 @@ DiscourseDB converters for Wikipedia data
 ## Data Mapping
 
 ## Artifact Mappings
-| Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
+| Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | 1  | Talk Page |  DiscoursePart | TALK_PAGE | Article title -> DiscoursePart.name | 
 | 2  | Discussion | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
@@ -24,5 +24,11 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 | 2  |  "revision id of talk page"\_"title of discussion" |WikipediaTalkPageSourceMapping. DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART | "discoursePart#talkPageRevision\_discussionTitle" | 
 | 3a/b  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 | 3c  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTENT| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
+
+## Generated Entities
+| Number | DiscourseDB Entity | Description |
+| ------------- | ------------- | ------------- |
+| 1 | User | User information extracted from the Wikipedia revision history. Username is the Wikipedia login if available and IP otherwise. |
+
 
 ## Relation Mappings
