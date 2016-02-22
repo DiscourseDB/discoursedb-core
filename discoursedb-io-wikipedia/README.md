@@ -15,7 +15,7 @@ DiscourseDB converters for Wikipedia data
 | 4b  | Article | Content | n/a | 
 
 ## Data Sources
-The Wikipedia artifacts that are mapped to DiscourseDB are extracted with an automatic segmentation algorithm. They do not have idenfiers in the original data source. Therefore, we generate ids for each entity.
+The Wikipedia artifacts that are mapped to DiscourseDB are extracted with an automatic segmentation algorithm. They do not have idenfiers in the original data source. Therefore, we generate ids for each entity using existing identifiers.
 
 Known limitation: Discussions on a Talk page are identified by their title. If multiple discussions have identical titles on the same talk page, they will map to the same identifier.
 
