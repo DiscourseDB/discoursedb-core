@@ -3,7 +3,7 @@ DiscourseDB converters for Wikipedia data
 
 ## Data Mapping
 
-## Artifact Mappings
+### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | 1  | Talk Page |  DiscoursePart | TALK_PAGE | Article title -> DiscoursePart.name | 
@@ -14,7 +14,7 @@ DiscourseDB converters for Wikipedia data
 | 4a  | Article | Context | ARTICLE | represents the article related to the TalkPage. Every 3a/b artifact from the same Talk page has the same 4a artifact as context.|
 | 4b  | Article | Content (multiple) | n/a|each article revision is translated to a content entity. 4a points to the oldes and newest of these revisions as firstRevision and currentRevision | 
 
-## Artifact Data Sources
+### Artifact Data Sources
 The Wikipedia artifacts that are mapped to DiscourseDB are extracted with an automatic segmentation algorithm. They do not have idenfiers in the original data source. Therefore, we generate ids for each entity using existing identifiers such as revision ids and thread titles.
 
 Known limitation: Discussions on a Talk page are identified by their title. If two or more discussions on the same talk page have identical titles , they will map to the same identifier.
@@ -25,11 +25,11 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 | 3a/b  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 | 3c  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTENT| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 
-## Generated Entities
+### Generated Entities
 | DiscourseDB Entity | Description |
 | ------------- | ------------- |
 | Discourse | Manually defined scope. Dataset Type is WIKIPEDIA. Dataset name and discourse name are assigned at converter startup startup via parameters. |
 | User | User information is extracted from the Wikipedia revision history. The username is the Wikipedia login if the user was registered, the IP if the user was not registerd and ANONMYOUS if no data was available. All extracted content entities have a user assigned to them. |
 
 
-## Relation Mappings
+### Relation Mappings
