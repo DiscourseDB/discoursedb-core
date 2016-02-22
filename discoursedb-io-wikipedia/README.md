@@ -4,7 +4,7 @@
 This section outlines how artifacts from the Wikipedia source dataset are mapped to DiscourseDB entities, how the original source artifacts can be identified using DiscourseDB data sources, how the entities relate to each other and what additional entities are generated during the mapping process.
 
 ### Visual Overview
-![]({{site.baseurl}}/mapping.png)
+![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/mapping.png)
 
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
