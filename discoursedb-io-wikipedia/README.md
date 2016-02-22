@@ -6,7 +6,7 @@ DiscourseDB converters for Wikipedia data
 ## Artifact Mappings
 | Number | Source Artifact  | Source Id | Source Descriptor | DiscourseDB Entity | DiscourseDB Type |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| 1  | Talk Page |  |  |  |  |  
+| 1  | Talk Page |  |  | DiscoursePart | TALK_PAGE |  
 | 2  | Discussion |  |  |  |  | 
 | 3  | Turn |  |  |  |  |  
 | 4  | Article |  |  |  |  |  
