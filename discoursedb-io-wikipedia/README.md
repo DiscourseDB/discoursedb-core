@@ -28,7 +28,7 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 ## Generated Entities
 | DiscourseDB Entity | Description |
 | ------------- | ------------- |
-| Discourse | Manually defined scope |
+| Discourse | Manually defined scope. Dataset Type is WIKIPEDIA. Dataset name and discourse name are assigned as converter startup parameters. |
 | User | User information is extracted from the Wikipedia revision history. The username is the Wikipedia login if the user was registered, the IP if the user was not registerd and ANONMYOUS if no data was available. All extracted content entities have a user assigned to them. |
 
 
