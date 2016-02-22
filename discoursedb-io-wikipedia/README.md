@@ -4,11 +4,17 @@ DiscourseDB converters for Wikipedia data
 ## Mapping
 
 ## Artifact Mappings
-| Number | Source Artifact  | Source Id | Source Descriptor | DiscourseDB Entity | DiscourseDB Type |Comments |
+| Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | 1  | Talk Page |  |  | DiscoursePart | TALK_PAGE | Article title -> DiscoursePart.name | 
 | 2  | Discussion | "revision id of talk page"\_"title of discussion" | "discoursePart#talkPageRevision\_discussionTitle" | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
 | 3  | Turn | "revision id of talk page"\_"title of discussion"\_"turn number"  | "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  |   |   | 
 | 4  | Article |  |  |  |  |    | 
+
+## Data Sources
+| Artifact Number | Source Id | Source Descriptor Enum | Source Descriptor | 
+| 2  |  "revision id of talk page"\_"title of discussion" |WikipediaTalkPageSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART | "discoursePart#talkPageRevision\_discussionTitle" | 
+| 3  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
+| 3  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 
 ## Relation Mappings
