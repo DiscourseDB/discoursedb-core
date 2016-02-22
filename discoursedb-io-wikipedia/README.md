@@ -9,8 +9,9 @@ DiscourseDB converters for Wikipedia data
 | 1  | Talk Page |  DiscoursePart | TALK_PAGE | Article title -> DiscoursePart.name | 
 | 2  | Discussion | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
 | 3a  | Turn | Contribution |  |   |
-| 3b  | Turn | Content |  |   |
-| 4a  | Article | Context |  | 
+| 3a  | Turn | Content | THREAD_STARTER | First turn in thread.  |
+| 3c  | Turn | Content | POST | Any turn after first turn in thread.  |
+| 4a  | Article | Context | ARTICLE | 
 | 4b  | Article | Content |  | 
 
 ## Data Sources
