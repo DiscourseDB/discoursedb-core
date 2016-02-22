@@ -33,7 +33,6 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 |DiscourseRelation|DESCENDANT| 3a | 3b | All posts are related to their thread starter.|
 |DiscoursePartRelation|TALK_PAGE_HAS_DISCUSSION| 1 | 2 | DiscourseParts representing discussions are part of DiscourseParts representing a Talk page.|
 
-
 ### Other Generated Entities
 The following entities are created during the mapping process, but don't map to an explicit artifact in the data source.
 
