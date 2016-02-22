@@ -1,7 +1,7 @@
 # discoursedb-io-wikipedia
 DiscourseDB converters for Wikipedia data
 
-## Mapping
+## Data Mapping
 
 ## Artifact Mappings
 | Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
