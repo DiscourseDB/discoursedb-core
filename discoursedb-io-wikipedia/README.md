@@ -15,6 +15,9 @@ DiscourseDB converters for Wikipedia data
 | 4b  | Article | Content | n/a | 
 
 ## Data Sources
+ The artifacts that are mapped to DiscourseDB are based on an automatic segmentation of the page contents. They do not have idenfiers in the original source. Therefore, we are generatign ids for each entity.
+ Known limitation: Discussions on a Talk page are identified by their title. If multiple discussions have identical titles on the same talk page, they will map to the same identifier.
+
 | Artifact Number | Source Id | Source Descriptor Enum | Source Descriptor | 
 | ------------- | ------------- | ------------- | ------------- |
 | 2  |  "revision id of talk page"\_"title of discussion" |WikipediaTalkPageSourceMapping. DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART | "discoursePart#talkPageRevision\_discussionTitle" | 
