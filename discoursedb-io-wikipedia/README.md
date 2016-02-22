@@ -10,8 +10,8 @@ DiscourseDB converters for Wikipedia data
 | 2  | Discussion | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
 | 3a  | Turn | Contribution |  |   |
 | 3b  | Turn | Content |  |   |
-| 4a  | Article | DiscoursePart |  | 
-| 4b  | Article | Context |  | 
+| 4a  | Article | Context |  | 
+| 4b  | Article | Content |  | 
 
 ## Data Sources
 | Artifact Number | Source Id | Source Descriptor Enum | Source Descriptor | 
