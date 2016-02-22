@@ -14,7 +14,7 @@ DiscourseDB converters for Wikipedia data
 ## Data Sources
 | Artifact Number | Source Id | Source Descriptor Enum | Source Descriptor | 
 | ------------- | ------------- | ------------- | ------------- |
-| 2  |  "revision id of talk page"\_"title of discussion" |WikipediaTalkPageSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART | "discoursePart#talkPageRevision\_discussionTitle" | 
+| 2  |  "revision id of talk page"\_"title of discussion" | |WikipediaTalkPageSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART | "discoursePart#talkPageRevision\_discussionTitle" | 
 | 3  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 | 3  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping.TURN_NUMBER_IN_DISCUSSION_TO_CONTENT| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 
