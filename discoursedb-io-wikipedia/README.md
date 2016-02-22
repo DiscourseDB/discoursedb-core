@@ -6,10 +6,10 @@ DiscourseDB converters for Wikipedia data
 ## Artifact Mappings
 | Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| 1  | Talk Page |  |  | DiscoursePart | TALK_PAGE | Article title -> DiscoursePart.name | 
-| 2  | Discussion | "revision id of talk page"\_"title of discussion" | "discoursePart#talkPageRevision\_discussionTitle" | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
-| 3  | Turn | "revision id of talk page"\_"title of discussion"\_"turn number"  | "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  |   |   | 
-| 4  | Article |  |  |  |  |    | 
+| 1  | Talk Page |  DiscoursePart | TALK_PAGE | Article title -> DiscoursePart.name | 
+| 2  | Discussion | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
+| 3  | Turn |  |  |   |
+| 4  | Article |  |  | 
 
 ## Data Sources
 | Artifact Number | Source Id | Source Descriptor Enum | Source Descriptor | 
