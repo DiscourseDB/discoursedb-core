@@ -35,6 +35,7 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 
 ### Other Generated Entities
 The following entities are created during the mapping process, but don't map to an explicit artifact in the data source.
+
 | DiscourseDB Entity | Description |
 | ------------- | ------------- |
 | Discourse | Manually defined scope. Dataset Type is WIKIPEDIA. Dataset name and discourse name are assigned at converter startup startup via parameters. |
