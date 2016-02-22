@@ -25,13 +25,6 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 | 3a/b  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTRIBUTION| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 | 3c  |  "revision id of talk page"\_"title of discussion"\_"turn number"  |WikipediaTalkPageSourceMapping. TURN_NUMBER_IN_DISCUSSION_TO_CONTENT| "contribution#talkPageRevision\_discussionTitle\_turnNumber" |  
 
-### Other Generated Entities
-| DiscourseDB Entity | Description |
-| ------------- | ------------- |
-| Discourse | Manually defined scope. Dataset Type is WIKIPEDIA. Dataset name and discourse name are assigned at converter startup startup via parameters. |
-| User | User information is extracted from the Wikipedia revision history. The username is the Wikipedia login if the user was registered, the IP if the user was not registerd and ANONMYOUS if no data was available. All extracted content entities have a user assigned to them. |
-
-
 ### Relation Mappings
 
 | DiscourseDB Relation | Relaton Type | Source artifact number |Target artifact number | Comments |
@@ -40,3 +33,9 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 |DiscoursePartRelation|TALK_PAGE_HAS_DISCUSSION| 1 | 2 | DiscourseParts representing discussions are part of DiscourseParts representing a Talk page.|
 
 
+### Other Generated Entities
+The following entities are created during the mapping process, but don't map to an explicit artifact in the data source.
+| DiscourseDB Entity | Description |
+| ------------- | ------------- |
+| Discourse | Manually defined scope. Dataset Type is WIKIPEDIA. Dataset name and discourse name are assigned at converter startup startup via parameters. |
+| User | User information is extracted from the Wikipedia revision history. The username is the Wikipedia login if the user was registered, the IP if the user was not registerd and ANONMYOUS if no data was available. All extracted content entities have a user assigned to them. |
