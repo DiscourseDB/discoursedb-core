@@ -142,7 +142,7 @@ public class WikipediaTalkPageConverterService{
 	 * 
 	 * @param talkPageRevisionId revision id of talk page
 	 * @param topicTitle title of discussion
-	 * @return generated unique id for this turn
+	 * @return generated unique id for this topic
 	 */
 	private String generateTopicId(String talkPageRevisionId, String topicTitle){
 		return talkPageRevisionId+"_"+topicTitle;
