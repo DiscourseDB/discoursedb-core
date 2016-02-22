@@ -76,7 +76,7 @@ public class WikipediaTalkPageConverterService{
 		log.debug("Mapping "+topics.size()+" threads.");
 		for(Topic topic:topics){
 			log.trace("Mapping topic "+topic.getTitle());
-			String talkPageRevisionId = tp.getTpBaseRevision().getRevisionID()+"";
+			int talkPageRevisionId = tp.getTpBaseRevision().getRevisionID();
 			//Several Topics/Threads with the same title might occur, so we need to use createTypedDiscoursePart instead of createOrGetTypedDiscoursePart to allow duplicate names
 			DiscoursePart curTopicDP = discoursePartService.createTypedDiscoursePart(discourse, topic.getTitle(), DiscoursePartTypes.THREAD);		
 			dataSourceService.addSource(curTopicDP, new DataSourceInstance(generateTopicId(talkPageRevisionId,topic.getTitle()), WikipediaTalkPageSourceMapping.DISCUSSION_TITLE_ON_TALK_PAGE_TO_DISCOURSEPART, dataSetName));
@@ -132,7 +132,7 @@ public class WikipediaTalkPageConverterService{
 	 * @param turnNumber number of turn in discussion
 	 * @return generated unique id for this turn
 	 */
-	private String generateTurnId(String talkPageRevisionId, String topicTitle, int turnNumber){
+	private String generateTurnId(int talkPageRevisionId, String topicTitle, int turnNumber){
 		return talkPageRevisionId+"_"+topicTitle+"_"+turnNumber;
 	}
 	
@@ -144,7 +144,7 @@ public class WikipediaTalkPageConverterService{
 	 * @param topicTitle title of discussion
 	 * @return generated unique id for this topic
 	 */
-	private String generateTopicId(String talkPageRevisionId, String topicTitle){
+	private String generateTopicId(int talkPageRevisionId, String topicTitle){
 		return talkPageRevisionId+"_"+topicTitle;
 	}
 }

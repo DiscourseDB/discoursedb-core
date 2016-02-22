@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.exception.WikiApiException;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.Revision;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.RevisionApi;
@@ -35,8 +36,7 @@ public class TalkPage {
 	 */
 	private boolean aggregateParagraphs;
 
-	private String title=null;
-
+	private RevisionApi revApi = null;
 	private ParagraphForwardChecker checker = null;
 	private Revision tpBaseRevision = null;
 	public Revision getTpBaseRevision() {
@@ -47,35 +47,20 @@ public class TalkPage {
 	public List<Topic> getTopics() {
 		return topics;
 	}
-
+	
 	/**
-	 * @param revApi
-	 *            RevisionApi instance
-	 * @param rev
-	 *            talk page revision to process
-	 * @param title
-	 *            the title of the Talk page
-	 * @param aggregateParagraphs
-	 *            whether to aggregate paragraphs to turns (true) or to consider
-	 *            paragraphs as turns on their own (false)
+	 * Performs a signature based parse of a JWPL (talk) page without making use of the revision history.
+	 *  
+	 * @param talkPage the JWPL page to segment
 	 */
-	public TalkPage(RevisionApi revApi, int revId, String title,  boolean aggregateParagraphs) {
-		this.aggregateParagraphs = aggregateParagraphs;
-		this.title = title;
-
-		try {
-			tpBaseRevision = revApi.getRevision(revId);
-		} catch (WikiApiException e) {
-			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
-		}
-		_segmentParagraphs();
-		_buildTurns();
+	public TalkPage(Page talkPage) {
+		_signatureSegmentTurns();
 	}
 
 	/**
 	 * @param revApi
 	 *            RevisionApi instance
-	 * @param rev
+	 * @param revId
 	 *            talk page revision to process
 	 * @param aggregateParagraphs
 	 *            whether to aggregate paragraphs to turns (true) or to consider
@@ -83,36 +68,16 @@ public class TalkPage {
 	 */
 	public TalkPage(RevisionApi revApi, int revId, boolean aggregateParagraphs) {
 		this.aggregateParagraphs = aggregateParagraphs;
-
+		this.revApi=revApi;
 		try {
 			tpBaseRevision = revApi.getRevision(revId);
 		} catch (WikiApiException e) {
 			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
 		}
-		_segmentParagraphs();
-		_buildTurns();
+		_revisionSegmentParagraphs();
+		_buildTurnsFromParagraphs();
 	}
 
-	/**
-	 * @param revApi
-	 *            RevisionApi instance
-	 * @param rev
-	 *            talk page revision to process
-	 * @param title
-	 *            the title of the Talk page
-	 * @param aggregateParagraphs
-	 *            whether to aggregate paragraphs to turns (true) or to consider
-	 *            paragraphs as turns on their own (false)
-	 */
-	public TalkPage(Revision rev,String title,  boolean aggregateParagraphs) {
-		this.tpBaseRevision = rev;
-		this.title = title;
-
-		this.aggregateParagraphs = aggregateParagraphs;
-		_segmentParagraphs();
-		_buildTurns();
-	}
-	
 	/**
 	 * @param revApi
 	 *            RevisionApi instance
@@ -122,12 +87,14 @@ public class TalkPage {
 	 *            whether to aggregate paragraphs to turns (true) or to consider
 	 *            paragraphs as turns on their own (false)
 	 */
-	public TalkPage(Revision rev, boolean aggregateParagraphs) {
+	public TalkPage(RevisionApi revApi, Revision rev, boolean aggregateParagraphs) {
 		this.tpBaseRevision = rev;
+		this.revApi=revApi;
 		this.aggregateParagraphs = aggregateParagraphs;
-		_segmentParagraphs();
-		_buildTurns();
+		_revisionSegmentParagraphs();
+		_buildTurnsFromParagraphs();
 	}
+
 
 	/**
 	 * Removes all paragraphs that are older than a given Timestamp
@@ -157,16 +124,39 @@ public class TalkPage {
 	}
 
 	/**
-	 * Segments the TalkPage into paragraphs and extracts meta information for
-	 * each paragraph
+	 * Parses the page using signatures as indicators of turn boundaries
 	 */
-	private void _segmentParagraphs() {
+	private void _signatureSegmentTurns() {
+		try {
+			// segment pages into topics and paragraphs
+			TopicExtractor tExt = new TopicExtractor();
+			this.topics = tExt.getTopics(tpBaseRevision.getRevisionText());
+
+			for (Topic t : topics) {
+				
+				//TODO parse signatures
+				
+//				for (TalkPageParagraph tpp : t.getParagraphs()) {
+//
+//				}
+			}
+		} catch (WikiApiException e) {
+			logger.error("Error checking revisions of origin for paragraphs. Could not process revision. Error accessing Wikipedia database with revision API",e);
+		} catch (Exception e) {
+			logger.error("Error checking revisions of origin for paragraphs. Could not read Wikipedia data from API.",e);
+		}
+	}
+	
+	/**
+	 * Segments the TalkPage into paragraphs and extracts meta information for
+	 * each paragraph from the revision history.
+	 */
+	private void _revisionSegmentParagraphs() {
 		try {
 			// create a new forward checker for the given revision.
 			// this takes a while, because it builds up a revision cache from
 			// the database
-//			checker = new ParagraphForwardChecker(revApi, tpBaseRevision);
-			checker = new ParagraphForwardChecker(title);				
+			checker = new ParagraphForwardChecker(revApi, tpBaseRevision);
 
 			// segment pages into topics and paragraphs
 			TopicExtractor tExt = new TopicExtractor();
@@ -192,7 +182,7 @@ public class TalkPage {
 	 * heuristically aggregated to turns. Otherwise, each paragraph is used as a
 	 * separate turn.
 	 */
-	private void _buildTurns() {
+	private void _buildTurnsFromParagraphs() {
 		// work through all topics
 		for (Topic t : topics) {
 			int curTurnNumInTopic = 1;
