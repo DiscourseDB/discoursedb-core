@@ -1,5 +1,4 @@
-# DiscourseDB converters for Wikipedia data
-
+# DiscourseDB converter for Wikipedia discussion data
 
 ## Data Mapping
 This section outlines how artifacts from the Wikipedia source dataset are mapped to DiscourseDB entities, how the original source artifacts can be identified using DiscourseDB data sources, how the entities relate to each other and what additional entities are generated during the mapping process.
