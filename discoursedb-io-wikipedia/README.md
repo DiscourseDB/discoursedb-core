@@ -10,9 +10,9 @@ DiscourseDB converters for Wikipedia data
 | 2  | Discussion | DiscoursePart | THREAD | Thread title -> DiscoursePart.name  | 
 | 3a  | Turn | Contribution | THREAD_STARTER | if first turn in thread  |
 | 3b  | Turn | Contribution | POST | if not first turn in thread  |
-| 3c  | Turn | Content |  |   |
+| 3c  | Turn | Content | n/a |   |
 | 4a  | Article | Context | ARTICLE | 
-| 4b  | Article | Content |  | 
+| 4b  | Article | Content | n/a | 
 
 ## Data Sources
 | Artifact Number | Source Id | Source Descriptor Enum | Source Descriptor | 
