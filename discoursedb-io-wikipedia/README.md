@@ -15,10 +15,10 @@ with <br/>
 <li>DiscourseName = the name of the discourse the imported discussion should be associated with</li>
 <li>DataSetName = a name for the dataset (e.g. the JWPL database or the list of title) that is imported</li>
 <li>tileListFile = a line-separated list of Wikipedia article titles</li>
-<li>DB\_HOST = host of the JWPL database</li>
+<li>DB_HOST = host of the JWPL database</li>
 <li>DB = name of the JWPL database</li>
-<li>DB\_USER = database username</li>
-<li>DB\_PWD = database password</li>
+<li>DB_USER = database username</li>
+<li>DB_PWD = database password</li>
 <li>LANGUAGE = language of the Wikipedia version to be imported</li>
 </ul>
 ### Importing Discussion Context
