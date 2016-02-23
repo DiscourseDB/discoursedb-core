@@ -6,7 +6,7 @@ This section defines the input for this converter and the startup parameters.
 This converter uses [JWPL 1.1.0-SNAPSHOT](https://dkpro.github.io/dkpro-jwpl/) to import Wikipedia data. It requires a JWPL database created with JWPL 1.0.0 or later. The converter requires both the JWPL Core representation as well as the revisionhistory created by the JWPL RevisionMachine. Documentation for how to create a new JWPL Core database and adding revision data with the RevisionMachine can be found on the [JWPL website](https://dkpro.github.io/dkpro-jwpl/).
 
 ### Importing Wikipedia Discussions
-The import is launched using the class ```edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.converter.WikipediaTalkPageConverterApplication```
+The import is launched using the class<br/> ```edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.converter.WikipediaTalkPageConverterApplication```
 
 It requires the following startup parameters:
 ```WikipediaTalkPageConverterApplication  <DiscourseName> <DataSetName> <tileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```
