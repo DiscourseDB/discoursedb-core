@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class AnnotationService {
 	public <T extends TimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationAggregate annos = entity.getAnnotations();
-		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
+		return annos==null?new ConcurrentSkipListSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
 	/**

@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -66,7 +66,7 @@ public class Discourse extends BaseEntity implements Identifiable<Long> {
 	private String name;
 
 	@OneToMany(mappedBy = "discourse")
-	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
+	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new ConcurrentSkipListSet<DiscourseToDiscoursePart>();
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "discourses")
 	private Set<User> users;

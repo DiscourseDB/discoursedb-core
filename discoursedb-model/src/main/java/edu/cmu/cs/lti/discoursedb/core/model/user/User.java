@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -70,22 +70,22 @@ public class User extends TimedAnnotatableSourcedBE implements Identifiable<Long
 	@JoinTable(name = "user_memberof_discourse", joinColumns = {
 		@JoinColumn(name = "id_user", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "id_discourse", nullable = false, updatable = false) })
-	private Set<Discourse> discourses = new HashSet<Discourse>();
+	private Set<Discourse> discourses = new ConcurrentSkipListSet<Discourse>();
 
 	@OneToMany(mappedBy = "user")
-	private Set<ContributionInteraction> contentInteractions = new HashSet<ContributionInteraction>();
+	private Set<ContributionInteraction> contentInteractions = new ConcurrentSkipListSet<ContributionInteraction>();
 
 	@OneToMany(mappedBy = "user")
-	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
+	private Set<AudienceUser> userAudiences = new ConcurrentSkipListSet<AudienceUser>();
 	
 	@OneToMany(mappedBy = "user")
-	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
+	private Set<GroupUser> userGroups = new ConcurrentSkipListSet<GroupUser>();
 
 	@OneToMany(mappedBy = "source")
-	private Set<UserRelation> sourceOfUserRelations = new HashSet<UserRelation>();
+	private Set<UserRelation> sourceOfUserRelations = new ConcurrentSkipListSet<UserRelation>();
 
 	@OneToMany(mappedBy = "target")
-	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
+	private Set<UserRelation> targetOfUserRelations = new ConcurrentSkipListSet<UserRelation>();
 
 	public void addDiscourse(Discourse discourse) {
 		this.discourses.add(discourse);

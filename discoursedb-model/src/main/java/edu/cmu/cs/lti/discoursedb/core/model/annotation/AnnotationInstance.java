@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -59,7 +59,7 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")
-	private Set<Feature> features = new HashSet<Feature>();
+	private Set<Feature> features = new ConcurrentSkipListSet<Feature>();
 		
 	public void addFeature(Feature feature) {
 		this.features.add(feature);

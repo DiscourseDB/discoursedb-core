@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -64,7 +64,7 @@ public class Context extends TypedTimedAnnotatableSourcedBE implements Identifia
 	
     @OneToMany(mappedBy = "context")
 	@Description("A set of relations that associate this content to contributions.")
-	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
+	private Set<ContributionContext> contextContributions = new ConcurrentSkipListSet<ContributionContext>();
 
 	public void addContextContributions(ContributionContext contextContribution) {
 		this.contextContributions.add(contextContribution);

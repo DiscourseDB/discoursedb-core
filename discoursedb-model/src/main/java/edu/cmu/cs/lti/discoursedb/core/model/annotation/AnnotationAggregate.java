@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.annotation;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -45,7 +45,7 @@ public class AnnotationAggregate extends BaseEntity  implements Identifiable<Lon
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}, mappedBy="annotationAggregate")
 	@JsonIgnore
 	@Description("A set of annotation instances associated with the entity that is represented by this aggregate.")
-	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
+	private Set<AnnotationInstance> annotations = new ConcurrentSkipListSet<AnnotationInstance>();
     
 	public void addAnnotation(AnnotationInstance annotation) {
 		this.annotations.add(annotation);

@@ -1,8 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
 import java.sql.Blob;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -88,6 +88,6 @@ public class Content extends TimedAnnotatableSourcedBE implements Identifiable<L
 
     @OneToMany(mappedBy = "content")
 	@Description("A set of interactions between users and this content entity.")
-	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
+	private Set<ContributionInteraction> contributionInteractions = new ConcurrentSkipListSet<ContributionInteraction>();
 		
 }

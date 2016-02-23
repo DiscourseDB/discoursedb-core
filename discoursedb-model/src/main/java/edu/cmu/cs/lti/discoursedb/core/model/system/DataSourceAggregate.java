@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.system;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,7 +40,7 @@ public class DataSourceAggregate extends BaseEntity implements Identifiable<Long
 	private Long id;
 	
 	@OneToMany(fetch=FetchType.LAZY, mappedBy="sourceAggregate")
-    private Set<DataSourceInstance> sources = new HashSet<DataSourceInstance>();
+    private Set<DataSourceInstance> sources = new ConcurrentSkipListSet<DataSourceInstance>();
 	
 	public void addSource(DataSourceInstance source) {
 		this.sources.add(source);
