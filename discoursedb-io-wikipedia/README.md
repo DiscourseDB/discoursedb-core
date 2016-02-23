@@ -20,6 +20,7 @@ with <br/>
 - **DB_USER** = database username
 - **DB_PWD** = database password
 - **LANGUAGE** = language of the Wikipedia version to be imported
+
 ### Importing Discussion Context
 After the import of discussions, it is possible to optionally import the articles associated with the imported discussion.
 Articles are represented as context and associated with all contributions that have been written on the respective article talk page. The revision history of the article is represented as multiple content entities.
