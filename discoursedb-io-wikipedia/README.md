@@ -8,18 +8,19 @@ This converter uses [JWPL 1.1.0-SNAPSHOT](https://dkpro.github.io/dkpro-jwpl/) t
 ### Importing Wikipedia Discussions
 The import is launched using the class<br/> ```edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.converter.WikipediaTalkPageConverterApplication```
 
-It requires the following startup parameters:
+It requires the following startup parameters:<br/>
 ```WikipediaTalkPageConverterApplication  <DiscourseName> <DataSetName> <tileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```
-with 
-<DiscourseName> the name of the discourse the imported discussion should be associated with
-<DataSetName> a name for the dataset (e.g. the JWPL database or the list of title) that is imported
-<tileListFile> a line-separated list of Wikipedia article titles
-<DB_HOST> = host of the JWPL database
-<DB> = name of the JWPL database
-<DB_USER> = database username
-<DB_PWD> = database password
-<LANGUAGE> = language of the Wikipedia version to be imported
-
+with <br/>
+<ul>
+<li><DiscourseName> the name of the discourse the imported discussion should be associated with</li>
+<li><DataSetName> a name for the dataset (e.g. the JWPL database or the list of title) that is imported</li>
+<li><tileListFile> a line-separated list of Wikipedia article titles</li>
+<li><DB_HOST> = host of the JWPL database</li>
+<li><DB> = name of the JWPL database</li>
+<li><DB_USER> = database username</li>
+<li><DB_PWD> = database password</li>
+<li><LANGUAGE> = language of the Wikipedia version to be imported</li>
+</ul>
 ### Importing Discussion Context
 After the import of discussions, it is possible to optionally import the articles associated with the imported discussion.
 Articles are represented as context and associated with all contributions that have been written on the respective article talk page. The revision history of the article is represented as multiple content entities.
