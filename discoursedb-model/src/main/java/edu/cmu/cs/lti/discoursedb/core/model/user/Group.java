@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,9 +36,9 @@ public class Group extends TypedTimedAnnotatableSourcedBE implements Identifiabl
 	private String name;
 	
     @OneToMany(mappedBy = "group")
-	private Set<AudienceGroup> groupAudiences = new ConcurrentSkipListSet<AudienceGroup>();
+	private Set<AudienceGroup> groupAudiences = new HashSet<AudienceGroup>();
 
     @OneToMany(mappedBy = "group")
-	private Set<GroupUser> groupMembers = new ConcurrentSkipListSet<GroupUser>();
+	private Set<GroupUser> groupMembers = new HashSet<GroupUser>();
 	
 }

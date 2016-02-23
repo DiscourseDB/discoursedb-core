@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -79,27 +79,27 @@ public class Contribution extends TypedTimedAnnotatableSourcedBE implements Iden
 	
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more DiscoursePart entities.")
-	private Set<DiscoursePartContribution> contributionPartOfDiscourseParts = new ConcurrentSkipListSet<DiscoursePartContribution>();
+	private Set<DiscoursePartContribution> contributionPartOfDiscourseParts = new HashSet<DiscoursePartContribution>();
 
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more audience entities.")
-	private Set<ContributionAudience> contributionAudiences = new ConcurrentSkipListSet<ContributionAudience>();
+	private Set<ContributionAudience> contributionAudiences = new HashSet<ContributionAudience>();
 	
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more context entities.")
-	private Set<ContributionContext> contributionContexts = new ConcurrentSkipListSet<ContributionContext>();
+	private Set<ContributionContext> contributionContexts = new HashSet<ContributionContext>();
 	
     @OneToMany(mappedBy="source")
 	@Description("A set of relations that associate this contribution with a another contribution. This set contains only those relations of which the present contribution is the source.")
-	private Set<DiscourseRelation> sourceOfDiscourseRelations = new ConcurrentSkipListSet<DiscourseRelation>();
+	private Set<DiscourseRelation> sourceOfDiscourseRelations = new HashSet<DiscourseRelation>();
 
     @OneToMany(mappedBy="target")
 	@Description("A set of relations that associate this contribution with a another contribution. This set contains only those relations of which the present contribution is the target.")
-	private Set<DiscourseRelation> targetOfDiscourseRelations = new ConcurrentSkipListSet<DiscourseRelation>();
+	private Set<DiscourseRelation> targetOfDiscourseRelations = new HashSet<DiscourseRelation>();
 	
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more users.")
-	private Set<ContributionInteraction> contributionInteractions = new ConcurrentSkipListSet<ContributionInteraction>();
+	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 
     public void addContributionPartOfDiscourseParts(DiscoursePartContribution discoursePartContribution){
     	contributionPartOfDiscourseParts.add(discoursePartContribution);

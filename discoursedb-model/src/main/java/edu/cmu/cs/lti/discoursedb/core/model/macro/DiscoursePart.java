@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.macro;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -54,16 +54,16 @@ public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Ide
 	private String name;
 	
     @OneToMany(mappedBy = "discoursePart")
-	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new ConcurrentSkipListSet<DiscourseToDiscoursePart>();
+	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
     @OneToMany(mappedBy = "discoursePart")
-	private Set<DiscoursePartContribution> discoursePartContributions = new ConcurrentSkipListSet<DiscoursePartContribution>();
+	private Set<DiscoursePartContribution> discoursePartContributions = new HashSet<DiscoursePartContribution>();
 	
     @OneToMany(mappedBy="source")
-	private Set<DiscoursePartRelation> sourceOfDiscoursePartRelations = new ConcurrentSkipListSet<DiscoursePartRelation>();
+	private Set<DiscoursePartRelation> sourceOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 
     @OneToMany(mappedBy="target")
-	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new ConcurrentSkipListSet<DiscoursePartRelation>();
+	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 	
 	public void addDiscoursePartContribution(DiscoursePartContribution discoursePartContribution) {
 		discoursePartContributions.add(discoursePartContribution);

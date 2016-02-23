@@ -1,7 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.model.user;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,12 +35,12 @@ public class Audience extends TypedTimedAnnotatableSourcedBE implements Identifi
 	private Long id;
 	
     @OneToMany(mappedBy = "audience")
-	private Set<ContributionAudience> audienceContributions = new ConcurrentSkipListSet<ContributionAudience>();
+	private Set<ContributionAudience> audienceContributions = new HashSet<ContributionAudience>();
 	
     @OneToMany(mappedBy = "audience")
-	private Set<AudienceUser> audienceUsers = new ConcurrentSkipListSet<AudienceUser>();
+	private Set<AudienceUser> audienceUsers = new HashSet<AudienceUser>();
 
     @OneToMany(mappedBy = "audience")
-	private Set<AudienceGroup> audienceGroups = new ConcurrentSkipListSet<AudienceGroup>();
+	private Set<AudienceGroup> audienceGroups = new HashSet<AudienceGroup>();
 	
 }
