@@ -15,7 +15,7 @@ with <br/>
 
 - **DiscourseName** = the name of the discourse the imported discussion should be associated with
 - **DataSetName** = a name for the dataset (e.g. the JWPL database or the list of title) that is imported
-- **tileListFile** = a line-separated list of Wikipedia article titles
+- **tileListFile** = the location of a text file containing line-separated list of Wikipedia article titles
 - **DB_HOST** = host of the JWPL database
 - **DB** = name of the JWPL database
 - **DB_USER** = database username
