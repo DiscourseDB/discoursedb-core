@@ -12,14 +12,14 @@ It requires the following startup parameters:<br/>
 ```WikipediaTalkPageConverterApplication  <DiscourseName> <DataSetName> <tileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```<br/>
 with <br/>
 <ul>
-<li>DiscourseName = the name of the discourse the imported discussion should be associated with</li>
-<li>DataSetName = a name for the dataset (e.g. the JWPL database or the list of title) that is imported</li>
-<li>tileListFile = a line-separated list of Wikipedia article titles</li>
-<li>DB_HOST = host of the JWPL database</li>
-<li>DB = name of the JWPL database</li>
-<li>DB_USER = database username</li>
-<li>DB_PWD = database password</li>
-<li>LANGUAGE = language of the Wikipedia version to be imported</li>
+<li>**DiscourseName** = the name of the discourse the imported discussion should be associated with</li>
+<li>**DataSetName** = a name for the dataset (e.g. the JWPL database or the list of title) that is imported</li>
+<li>**tileListFile** = a line-separated list of Wikipedia article titles</li>
+<li>**DB_HOST** = host of the JWPL database</li>
+<li>**DB** = name of the JWPL database</li>
+<li>**DB_USER** = database username</li>
+<li>**DB_PWD** = database password</li>
+<li>**LANGUAGE** = language of the Wikipedia version to be imported</li>
 </ul>
 ### Importing Discussion Context
 After the import of discussions, it is possible to optionally import the articles associated with the imported discussion.
@@ -31,11 +31,11 @@ It requires the following startup parameters:<br/>
 ```WikipediaContextArticleConverterApplication <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```
 with <br/>
 <ul>
-<li>DB\_HOST = host of the JWPL database</li>
-<li>DB = name of the JWPL database</li>
-<li>DB\_USER = database username</li>
-<li>DB\_PWD = database password</li>
-<li>LANGUAGE = language of the Wikipedia version to be imported</li>
+<li>**DB_HOST** = host of the JWPL database</li>
+<li>**DB** = name of the JWPL database</li>
+<li>**DB_USER** = database username</li>
+<li>**DB_PWD** = database password</li>
+<li>**LANGUAGE** = language of the Wikipedia version to be imported</li>
 </ul>
 
 ## Data Mapping
