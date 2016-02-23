@@ -1,5 +1,40 @@
 # DiscourseDB converter for Wikipedia Talk pages
 
+## Data Import
+This section defines the input for this converter and the startup parameters.
+### Data Source
+This converter uses [JWPL 1.1.0-SNAPSHOT](https://dkpro.github.io/dkpro-jwpl/) to import Wikipedia data. It requires a JWPL database created with JWPL 1.0.0 or later. The converter requires both the JWPL Core representation as well as the revisionhistory created by the JWPL RevisionMachine. Documentation for how to create a new JWPL Core database and adding revision data with the RevisionMachine can be found on the [JWPL website](https://dkpro.github.io/dkpro-jwpl/).
+
+### Importing Wikipedia Discussions
+The import is launched using the class ```edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.converter.WikipediaTalkPageConverterApplication```
+
+It requires the following startup parameters:
+```WikipediaTalkPageConverterApplication  <DiscourseName> <DataSetName> <tileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```
+with 
+<DiscourseName> the name of the discourse the imported discussion should be associated with
+<DataSetName> a name for the dataset (e.g. the JWPL database or the list of title) that is imported
+<tileListFile> a line-separated list of Wikipedia article titles
+<DB_HOST> = host of the JWPL database
+<DB> = name of the JWPL database
+<DB_USER> = database username
+<DB_PWD> = database password
+<LANGUAGE> = language of the Wikipedia version to be imported
+
+### Importing Discussion Context
+After the import of discussions, it is possible to optionally import the articles associated with the imported discussion.
+Articles are represented as context and associated with all contributions that have been written on the respective article talk page. The revision history of the article is represented as multiple content entities.
+
+The import is launched using the class ```edu.cmu.cs.lti.discoursedb.io.wikipedia.article.converter.WikipediaContextArticleConverterApplication```
+
+It requires the following startup parameters:
+```WikipediaContextArticleConverterApplication <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```
+with 
+<DB_HOST> = host of the JWPL database
+<DB> = name of the JWPL database
+<DB_USER> = database username
+<DB_PWD> = database password
+<LANGUAGE> = language of the Wikipedia version to be imported
+
 ## Data Mapping
 This section outlines how artifacts from the Wikipedia source dataset are mapped to DiscourseDB entities, how the original source artifacts can be identified using DiscourseDB data sources, how the entities relate to each other and what additional entities are generated during the mapping process.
 
