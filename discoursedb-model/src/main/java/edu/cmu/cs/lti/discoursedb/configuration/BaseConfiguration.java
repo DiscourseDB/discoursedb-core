@@ -11,7 +11,6 @@ import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
@@ -44,7 +43,6 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 })
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
-@Import(WebMvcConfig.class)
 public class BaseConfiguration {
 
 	@Autowired 
@@ -107,6 +105,5 @@ public class BaseConfiguration {
 		transactionManager.setEntityManagerFactory(entityManagerFactory);
 		return transactionManager;
 	}
-
 
 }

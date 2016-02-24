@@ -78,10 +78,6 @@
 			<groupId>javax.interceptor</groupId>
 			<artifactId>javax.interceptor-api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-hibernate4</artifactId>
-		</dependency>
 	</dependencies>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
