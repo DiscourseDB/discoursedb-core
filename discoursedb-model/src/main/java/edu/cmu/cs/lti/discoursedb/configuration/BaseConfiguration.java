@@ -11,6 +11,7 @@ import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
@@ -18,6 +19,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -42,9 +44,10 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 })
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
+@Import(WebMvcConfig.class)
 public class BaseConfiguration {
 
-	@Autowired
+	@Autowired 
 	private Environment environment;
 
 	@Bean
@@ -55,49 +58,55 @@ public class BaseConfiguration {
 			String host = environment.getRequiredProperty("jdbc.host");
 			String port = environment.getRequiredProperty("jdbc.port");
 			String database = environment.getRequiredProperty("jdbc.database");
-			ds.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database+"?createDatabaseIfNotExist=true");
+			ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database+ "?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
 			ds.setUser(environment.getRequiredProperty("jdbc.username"));
 			ds.setPassword(environment.getRequiredProperty("jdbc.password"));
 			ds.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("c3p0.acquireIncrement").trim()));
-			ds.setIdleConnectionTestPeriod(Integer.parseInt(environment.getRequiredProperty("c3p0.idleConnectionTestPeriod").trim()));
+			ds.setIdleConnectionTestPeriod(
+					Integer.parseInt(environment.getRequiredProperty("c3p0.idleConnectionTestPeriod").trim()));
 			ds.setMaxStatements(Integer.parseInt(environment.getRequiredProperty("c3p0.maxStatements").trim()));
 			ds.setMinPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.minPoolSize").trim()));
 			ds.setMaxPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.maxPoolSize").trim()));
 			return ds;
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Bean
-	EntityManagerFactory entityManagerFactory(DataSource dataSource, Environment env) {
+	LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, Environment env) {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-	    vendorAdapter.setGenerateDdl(true);
-		    
+		vendorAdapter.setGenerateDdl(true);
+
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setDataSource(dataSource);
-	    factory.setJpaVendorAdapter(vendorAdapter);
+		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan("edu.cmu.cs.lti.discoursedb");
 
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
 		jpaProperties.put("hibernate.hbm2ddl.auto", env.getRequiredProperty("hibernate.hbm2ddl.auto"));
+		jpaProperties.put("hibernate.connection.useUnicode", true);
+		jpaProperties.put("hibernate.connection.characterEncoding", "UTF-8");
 		jpaProperties.put("hibernate.ejb.naming_strategy", env.getRequiredProperty("hibernate.ejb.naming_strategy"));
 		jpaProperties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
 		jpaProperties.put("hibernate.format_sql", env.getRequiredProperty("hibernate.format_sql"));
 		jpaProperties.put("hibernate.jdbc.batch_size", env.getRequiredProperty("hibernate.jdbc.batch_size"));
+		jpaProperties.put("hibernate.order_inserts", true);
+		jpaProperties.put("hibernate.order_updates", true);
 		jpaProperties.put("hibernate.id.new_generator_mappings", Boolean.parseBoolean(environment.getRequiredProperty("hibernate.id.new_generator_mappings").trim()));
 		factory.setJpaProperties(jpaProperties);
-		factory.afterPropertiesSet();
 
-		return factory.getObject();
+		return factory;
 	}
 
+
 	@Bean
-	JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+	PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
 		JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(entityManagerFactory);
 		return transactionManager;
 	}
+
 
 }

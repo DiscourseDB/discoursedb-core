@@ -5,8 +5,6 @@ import javax.persistence.MappedSuperclass;
 
 import org.springframework.data.rest.core.annotation.Description;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -21,7 +19,6 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true)
 @ToString(callSuper=true)
 @MappedSuperclass
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public abstract class TypedBE extends BaseEntity{
 	
 	@Column(name = "type")
