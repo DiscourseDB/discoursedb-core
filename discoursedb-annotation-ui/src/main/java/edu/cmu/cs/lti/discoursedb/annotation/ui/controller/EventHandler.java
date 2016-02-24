@@ -1,6 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.annotation.ui.controller;
 
-import static edu.cmu.cs.lti.discoursedb.config.WebSocketConfiguration.*;
+import static edu.cmu.cs.lti.discoursedb.configuration.WebSocketConfiguration.MESSAGE_PREFIX;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
