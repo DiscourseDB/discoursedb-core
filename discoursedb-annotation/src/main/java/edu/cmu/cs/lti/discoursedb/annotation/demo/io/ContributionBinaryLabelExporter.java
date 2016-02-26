@@ -71,10 +71,7 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		String discourseName = args[0];
 		String outputFileName=args[1];
-		boolean csv = false;
-		if(outputFileName.toLowerCase().endsWith("csv")){
-			csv=true;
-		}
+		boolean csv = outputFileName.toLowerCase().endsWith("csv")?true:false;
 
 		List<BinaryLabeledContributionInterchange> output = new ArrayList<>();		
 		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);		
@@ -102,11 +99,7 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 		}
 
 		//write all interchange objects to output file
-		if(csv){
-			toCSV(output,outputFileName);
-		}else{
-			toJSON(output,outputFileName);
-		}
+		if(csv){toCSV(output,outputFileName);}else{toJSON(output,outputFileName);}
 
 	}
 
