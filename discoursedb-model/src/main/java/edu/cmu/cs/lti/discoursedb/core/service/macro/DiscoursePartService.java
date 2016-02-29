@@ -185,8 +185,6 @@ public class DiscoursePartService {
 			discoursePartContrib.setDiscoursePart(dPArt);
 			discoursePartContrib.setStartTime(contrib.getStartTime());	
 			discoursePartContributionRepo.save(discoursePartContrib);
-			dPArt.addDiscoursePartContribution(discoursePartContrib);
-			contrib.addContributionPartOfDiscourseParts(discoursePartContrib);
 		}	
 	}
 	

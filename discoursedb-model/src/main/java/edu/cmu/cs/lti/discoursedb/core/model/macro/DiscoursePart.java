@@ -65,7 +65,4 @@ public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Ide
     @OneToMany(mappedBy="target")
 	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 	
-	public void addDiscoursePartContribution(DiscoursePartContribution discoursePartContribution) {
-		discoursePartContributions.add(discoursePartContribution);
-	}		
 }
