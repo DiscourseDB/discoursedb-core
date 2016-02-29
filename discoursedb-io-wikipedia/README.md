@@ -48,7 +48,7 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
     <td> <img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contextrelations.jpg"/></td>
     <td><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/allrelations.jpg"/></td>
     <td><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contentrelations.jpg"/></td>
- <td><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/dpcornigrelations.jpg"/></tr>
+ <td><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/dpcontribrelations.jpg"/></tr>
   </tr>
 </table>
 ### Artifact Mappings
