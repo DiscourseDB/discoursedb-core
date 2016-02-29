@@ -66,8 +66,4 @@ public class Context extends TypedTimedAnnotatableSourcedBE implements Identifia
 	@Description("A set of relations that associate this content to contributions.")
 	private Set<ContributionContext> contextContributions = new HashSet<ContributionContext>();
 
-	public void addContextContributions(ContributionContext contextContribution) {
-		this.contextContributions.add(contextContribution);
-	}
-
 }

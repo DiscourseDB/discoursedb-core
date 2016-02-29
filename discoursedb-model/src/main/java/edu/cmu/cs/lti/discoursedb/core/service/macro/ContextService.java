@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -51,19 +49,18 @@ public class ContextService {
 	 * @param context the Context for the given contribution
 	 * @param contrib the contribution that is part of the given DiscoursePart.
 	 */
-	public void addContributionToContext(Context context, Contribution contrib){	
+	public ContributionContext addContributionToContext(Context context, Contribution contrib){	
 		Assert.notNull(context, "Context cannot be null.");
 		Assert.notNull(contrib, "Contribution to add to Context cannot be null.");
-		Optional<ContributionContext> existingContributionContext = contributionContextRepo.findOneByContributionAndContext(contrib, context);
-		if(!existingContributionContext.isPresent()){
-			ContributionContext contributionContext = new ContributionContext();
-			contributionContext.setContribution(contrib);
-			contributionContext.setContext(context);
-			contributionContext.setStartTime(contrib.getStartTime());	
-			contributionContextRepo.save(contributionContext);
-			contrib.addContributionContexts(contributionContext);
-			context.addContextContributions(contributionContext);
-		}	
+		
+		return contributionContextRepo.findOneByContributionAndContext(contrib, context).orElseGet(()->{
+			ContributionContext newContributionContext = new ContributionContext();
+			newContributionContext.setContribution(contrib);
+			newContributionContext.setContext(context);
+			newContributionContext.setStartTime(contrib.getStartTime());	
+			contributionContextRepo.save(newContributionContext);
+			return newContributionContext;
+		});
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
