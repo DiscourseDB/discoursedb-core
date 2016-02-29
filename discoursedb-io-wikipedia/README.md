@@ -43,9 +43,9 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
 
 ### Visual Overview
 ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/norelations.jpg)
-<table width="100%">
+<table width="100%" border="0">
   <tr>
-    <td> <img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contextrelations.jpg"/></td>
+    <td> <img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contextrelations.jpg"/><p>Context Relations</p></td>
     <td><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/allrelations.jpg"/></td>
     <td><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contentrelations.jpg"/></td>
  <td><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/dpcontribrelations.jpg"/></tr>
