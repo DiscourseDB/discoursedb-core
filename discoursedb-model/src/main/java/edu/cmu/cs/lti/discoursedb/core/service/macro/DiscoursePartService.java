@@ -174,18 +174,18 @@ public class DiscoursePartService {
 	 * @param contrib the contribution that is part of the given DiscoursePart.
 	 * @param dPArt the DiscoursePart that contains the given contribution.
 	 */
-	public void addContributionToDiscoursePart(Contribution contrib, DiscoursePart dPArt){	
+	public DiscoursePartContribution addContributionToDiscoursePart(Contribution contrib, DiscoursePart dPArt){	
 		Assert.notNull(contrib);
 		Assert.notNull(dPArt);
 		
-		Optional<DiscoursePartContribution> existingDiscoursePartContrib = discoursePartContributionRepo.findOneByContributionAndDiscoursePart(contrib, dPArt);
-		if(!existingDiscoursePartContrib.isPresent()){
-			DiscoursePartContribution discoursePartContrib = new DiscoursePartContribution();
-			discoursePartContrib.setContribution(contrib);
-			discoursePartContrib.setDiscoursePart(dPArt);
-			discoursePartContrib.setStartTime(contrib.getStartTime());	
-			discoursePartContributionRepo.save(discoursePartContrib);
-		}	
+		return discoursePartContributionRepo.findOneByContributionAndDiscoursePart(contrib, dPArt).orElseGet(()->{
+			DiscoursePartContribution newDPContrib = new DiscoursePartContribution();
+			newDPContrib.setContribution(contrib);
+			newDPContrib.setDiscoursePart(dPArt);
+			newDPContrib.setStartTime(contrib.getStartTime());	
+			discoursePartContributionRepo.save(newDPContrib);
+			return newDPContrib;
+		});		
 	}
 	
 	
