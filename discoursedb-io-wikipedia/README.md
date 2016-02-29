@@ -43,11 +43,15 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
 
 ### Visual Overview
 ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/norelations.jpg)
-| ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/allrelations.jpg)
-| ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contextrelations.jpg)
-| ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contentrelations.jpg)
-| ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/dpcornigrelations.jpg)|
-| ------------- |:-------------:| -----:|-----:|
+<table>
+  <tr>
+    <td> ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contextrelations.jpg)</td>
+    <td>![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/allrelations.jpg)</td>
+    <td> ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contentrelations.jpg)
+</td>
+ <td>![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/dpcornigrelations.jpg)</tr>
+  </tr>
+</table>
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
