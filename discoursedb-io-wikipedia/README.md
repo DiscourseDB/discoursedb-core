@@ -43,7 +43,7 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
 
 ### Visual Overview
 ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/norelations.jpg)
-<table>
+<table width="100%">
   <tr>
     <td> ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/contextrelations.jpg)</td>
     <td>![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-io-wikipedia/master/allrelations.jpg)</td>
