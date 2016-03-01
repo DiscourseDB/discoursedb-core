@@ -6,7 +6,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
 import edu.cmu.cs.lti.discoursedb.core.repository.CoreBaseRepository;
 
 @RepositoryRestResource(collectionResourceRel = "annotations", path = "annotations")
-public interface AnnotationsRepository extends CoreBaseRepository<AnnotationAggregate,Long>{
+public interface AnnotationAggregateRepository extends CoreBaseRepository<AnnotationAggregate,Long>{
     
     
 }

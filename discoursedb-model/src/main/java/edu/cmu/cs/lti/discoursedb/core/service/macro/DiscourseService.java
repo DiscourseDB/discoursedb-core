@@ -64,7 +64,7 @@ public class DiscourseService {
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Discourse findOne(Long id){
+	public Optional<Discourse> findOne(Long id){
 		Assert.notNull(id, "Id cannot be null.");
 		Assert.isTrue(id>0, "Id must be a positive number.");
 

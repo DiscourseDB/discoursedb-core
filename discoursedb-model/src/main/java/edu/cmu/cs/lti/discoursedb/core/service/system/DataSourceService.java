@@ -15,7 +15,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableSourcedBE;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.DataSourceInstanceRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.system.DataSourcesRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.DataSourceAggregateRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -26,7 +26,7 @@ import lombok.extern.log4j.Log4j;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class DataSourceService {
 
-	private final @NonNull DataSourcesRepository dataSourcesRepo;
+	private final @NonNull DataSourceAggregateRepository dataSourceAggregateRepo;
 	private final @NonNull DataSourceInstanceRepository dataSourceInstanceRepo;
 
 	/**
@@ -188,7 +188,7 @@ public class DataSourceService {
 		DataSourceAggregate sourceAggregate = entity.getDataSourceAggregate();
 		if (sourceAggregate == null) {
 			sourceAggregate = new DataSourceAggregate();
-			sourceAggregate = dataSourcesRepo.save(sourceAggregate);
+			sourceAggregate = dataSourceAggregateRepo.save(sourceAggregate);
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source
@@ -225,7 +225,7 @@ public class DataSourceService {
 		DataSourceAggregate sourceAggregate = entity.getDataSourceAggregate();
 		if (sourceAggregate == null) {
 			sourceAggregate = new DataSourceAggregate();
-			sourceAggregate = dataSourcesRepo.save(sourceAggregate);
+			sourceAggregate = dataSourceAggregateRepo.save(sourceAggregate);
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source
@@ -262,7 +262,7 @@ public class DataSourceService {
 		DataSourceAggregate sourceAggregate = entity.getDataSourceAggregate();
 		if (sourceAggregate == null) {
 			sourceAggregate = new DataSourceAggregate();
-			sourceAggregate = dataSourcesRepo.save(sourceAggregate);
+			sourceAggregate = dataSourceAggregateRepo.save(sourceAggregate);
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source

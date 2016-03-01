@@ -17,7 +17,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationsRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationAggregateRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AnnotationService {
 
 	private final @NonNull AnnotationInstanceRepository annoInstanceRepo;
-	private final @NonNull AnnotationsRepository annoRepo;
+	private final @NonNull AnnotationAggregateRepository annoRepo;
 	private final @NonNull FeatureRepository featureRepo;
 	
 	/**

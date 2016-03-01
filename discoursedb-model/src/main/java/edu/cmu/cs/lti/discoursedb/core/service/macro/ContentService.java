@@ -1,6 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class ContentService {
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Content findOne(Long id){
+	public Optional<Content> findOne(Long id){
 		Assert.notNull(id, "Content id cannot be null.");
 		Assert.isTrue(id>0, "Content id has to be a positive number.");
 		return contentRepo.findOne(id);

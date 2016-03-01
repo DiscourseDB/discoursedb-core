@@ -12,13 +12,17 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionContext;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionContextRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
+import edu.cmu.cs.lti.discoursedb.core.type.ContextTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import lombok.NonNull;
@@ -30,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class ContributionService {
 
 	private final @NonNull ContributionRepository contributionRepo;
+	private final @NonNull ContributionContextRepository contributionContextRepo;
 	private final @NonNull DataSourceService dataSourceService;	
 	private final @NonNull DiscourseRelationRepository discourseRelationRepo;
 	private final @NonNull @PersistenceContext EntityManager entityManager; 
@@ -147,6 +152,7 @@ public class ContributionService {
 			return contributionRepo.findAll();
 	}
 	
+	
 	/**
 	 * Creates a new DiscourseRelation of the given type between the two provided contributions.
 	 * Depending on the type, the relation might be directed or not. This information should be given in the type definition.
@@ -180,6 +186,61 @@ public class ContributionService {
 				);
 	}
 	
+	
+	/**
+	 * Creates a new Contribution entity with the provided context type.
+	 * 
+	 * @param type
+	 *            the context type
+	 * @return a new Contribution of the given context type that is already saved to the db 
+	 */
+	public Contribution createTypedContext(ContextTypes type){
+		Assert.notNull(type, "Context type cannot be null.s");
+		Contribution context = new Contribution();
+		context.setType(type.name());
+		return contributionRepo.save(context);
+	}		
+	
+	/**
+	 * Adds the given contribution "context" as context to the given contribution "contrib".
+	 * No start or end date is set for this relation.
+	 * 
+	 * @param contrib the contribution that receives the new context
+	 * @param context the contribution serving as context for the other contribution
+	 */
+	public ContributionContext addContextToContribution(Contribution contrib, Contribution context){	
+		Assert.notNull(context, "Context cannot be null.");
+		Assert.notNull(contrib, "Contribution to add to Context cannot be null.");
+		
+		return contributionContextRepo.findOneByContributionAndContextContribution(contrib, context).orElseGet(()->{
+			ContributionContext newContributionContext = new ContributionContext();
+			newContributionContext.setContribution(contrib);
+			newContributionContext.setContextContribution(context);
+			contributionContextRepo.save(newContributionContext);
+			return newContributionContext;
+		});
+	}
+
+	/**
+	 * Adds the given content "context" as context to the given contribution "contrib".
+	 * No start or end date is set for this relation and no begin or end offset is defined to specify a span within the content.
+	 * 
+	 * @param contrib the contribution that receives the new context
+	 * @param context the content serving as context for the other contribution
+	 */
+	public ContributionContext addContextToContribution(Contribution contrib, Content context){	
+		Assert.notNull(context, "Context cannot be null.");
+		Assert.notNull(contrib, "Contribution to add to Context cannot be null.");
+		
+		return contributionContextRepo.findOneByContributionAndContextContent(contrib, context).orElseGet(()->{
+			ContributionContext newContributionContext = new ContributionContext();
+			newContributionContext.setContribution(contrib);
+			newContributionContext.setContextContent(context);
+			contributionContextRepo.save(newContributionContext);
+			return newContributionContext;
+		});
+	}
+	
 	/**
 	 * Returns a Contribution given it's primary key
 	 * 
@@ -189,7 +250,6 @@ public class ContributionService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Optional<Contribution> findOne(Long id){
 		Assert.notNull(id, "ID cannot be null.");
-		Contribution contrib = contributionRepo.findOne(id);
-		return contrib==null?Optional.empty():Optional.of(contrib);		
+		return contributionRepo.findOne(id);
 	}
 }
