@@ -93,7 +93,7 @@ public class RecommendationRestController {
 	
 	public Contribution getParentContribution(Long contribId){
 		//TODO check if optional is present
-		Contribution contrib= contributionRepository.findOne(contribId);
+		Contribution contrib= contributionRepository.findOne(contribId).get();
 		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
 			if(rel.getType().equals(DiscourseRelationTypes.COMMENT.name())){
 				return rel.getSource();
@@ -107,7 +107,7 @@ public class RecommendationRestController {
 	
 	public Contribution getThreadStarter(Long contribId){
 		//TODO check if optional is present
-		Contribution contrib= contributionRepository.findOne(contribId);
+		Contribution contrib= contributionRepository.findOne(contribId).get();
 		for(DiscourseRelation rel:contrib.getTargetOfDiscourseRelations()){
 			if(rel.getType().equals(DiscourseRelationTypes.DESCENDANT.name())){
 				return rel.getSource();
@@ -119,21 +119,21 @@ public class RecommendationRestController {
 	@RequestMapping(value = "/contribution/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public RecommendationContributionResource contrib(@PathVariable Long id) {
-		Contribution contrib = contributionRepository.findOne(id);
+		Contribution contrib = contributionRepository.findOne(id).get();
 		return new RecommendationContributionResource(contrib);
 	}
 
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public RecommendationUserResource user(@PathVariable Long id) {
-		User user = userRepository.findOne(id);
+		User user = userRepository.findOne(id).get();
 		return new RecommendationUserResource(user);
 	}
 
 	@RequestMapping(value = "/discoursePartsOfDiscourse/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationDiscoursePartResource> discourseToDiscourseParts(@PathVariable Long id) {
-		Discourse discourse = discourseRepository.findOne(id);
+		Discourse discourse = discourseRepository.findOne(id).get();
 		List<RecommendationDiscoursePartResource> discoursePartResources = discourseToDiscoursePartRepository.findByDiscourse(discourse).stream().map(e -> e.getDiscoursePart()).map(RecommendationDiscoursePartResource::new).collect(Collectors.toList());
 		return new Resources<RecommendationDiscoursePartResource>(discoursePartResources);
 	}
@@ -141,7 +141,7 @@ public class RecommendationRestController {
 	@RequestMapping(value = "/contributionsOfDiscoursePart/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationContributionResource> contributionsForDiscoursePart(@PathVariable Long id) {
-		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		
+		DiscoursePart discoursePart = discoursePartRepository.findOne(id).get();		
 		List<RecommendationContributionResource> discoursePartResources = discoursePartContributionRepository
 				.findByDiscoursePart(discoursePart).stream()
 				.map(e -> e.getContribution())
@@ -152,7 +152,7 @@ public class RecommendationRestController {
 	@RequestMapping(value = "/usersOfDiscoursePart/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationUserResource> usersForDiscoursePart(@PathVariable Long id) {
-		DiscoursePart discoursePart = discoursePartRepository.findOne(id);		
+		DiscoursePart discoursePart = discoursePartRepository.findOne(id).get();		
 		List<RecommendationUserResource> discoursePartResources = discoursePartContributionRepository
 				.findByDiscoursePart(discoursePart).stream()
 				.map(e -> e.getContribution().getCurrentRevision().getAuthor())
@@ -164,7 +164,7 @@ public class RecommendationRestController {
 	@RequestMapping(value = "/sourcesForUser/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationDataSourceInstanceResource> sourcesForUser(@PathVariable Long id) {
-		User user= userRepository.findOne(id);		
+		User user= userRepository.findOne(id).get();		
 		List<RecommendationDataSourceInstanceResource> dataSourceResources = 
 				user.getDataSourceAggregate().getSources().stream()
 				.map(RecommendationDataSourceInstanceResource::new).collect(Collectors.toList());
@@ -174,7 +174,7 @@ public class RecommendationRestController {
 	@RequestMapping(value = "/sourcesForContribution/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Resources<RecommendationDataSourceInstanceResource> sourcesForContribution(@PathVariable Long id) {
-		Contribution contrib= contributionRepository.findOne(id);		
+		Contribution contrib= contributionRepository.findOne(id).get();		
 		List<RecommendationDataSourceInstanceResource> dataSourceResources = 
 				contrib.getDataSourceAggregate().getSources().stream()
 				.map(RecommendationDataSourceInstanceResource::new).collect(Collectors.toList());
