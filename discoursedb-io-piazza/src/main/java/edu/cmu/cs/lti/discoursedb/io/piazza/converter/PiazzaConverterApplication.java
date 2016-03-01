@@ -33,7 +33,7 @@ public class PiazzaConverterApplication {
 	 */
 	
 	public static void main(String... args) {
-		Assert.isTrue(args.length==3, "Usage: PiazzaConverterApplication <DiscourseName> <piazza json dump>");		
+		Assert.isTrue(args.length==3, "Usage: PiazzaConverterApplication <DiscourseName> <DatasetName> <piazza json dump>");		
 		SpringApplication.run(PiazzaConverterApplication.class, args);		
 	}
 
