@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cmu.cs.lti.discoursedb.io.piazza.model.Content;
+import edu.cmu.cs.lti.discoursedb.io.piazza.model.PiazzaContent;
 
 
 public class JsonReaderTest {
@@ -20,11 +20,11 @@ public class JsonReaderTest {
 		try(InputStream in = new FileInputStream(new File(args[0]))) {
 			
 			@SuppressWarnings("unchecked")
-			List<Content> contents =(List<Content>)new ObjectMapper()
+			List<PiazzaContent> contents =(List<PiazzaContent>)new ObjectMapper()
 					.enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
 					.enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)
 					.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-					.readValues(new JsonFactory().createParser(in), new TypeReference<List<Content>>(){}).next();	
+					.readValues(new JsonFactory().createParser(in), new TypeReference<List<PiazzaContent>>(){}).next();	
 			contents.stream().forEach(c->System.out.println(c.getCreated()));
 		}	
 		
