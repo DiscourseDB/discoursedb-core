@@ -33,7 +33,8 @@ import lombok.Setter;
 @Data
 @EqualsAndHashCode(callSuper=true)
 @Entity
-@Table(name="contribution_has_context", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_contribution", "fk_context_contribution", "fk_context_content" }))
+@Table(name = "contribution_has_context", uniqueConstraints = @UniqueConstraint(columnNames = { "fk_contribution",
+		"fk_context_contribution", "fk_context_content", "begin_offset", "end_offset" }) )
 public class ContributionContext extends TypedTimedBE implements Identifiable<Long>{
 	
 	@Id
