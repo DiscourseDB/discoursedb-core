@@ -59,7 +59,7 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
 | 3a  | Turn | Contribution | THREAD_STARTER | if first turn in thread  |
 | 3b  | Turn | Contribution | POST | if not first turn in thread  |
 | 3c  | Turn | Content | n/a | first and last revision of 3a/b |
-| 4a  | Article | Context | ARTICLE | represents the article related to the TalkPage. Every 3a/b artifact from the same Talk page has the same 4a artifact as context.|
+| 4a  | Article | Contribution | ARTICLE | represents the article context related to the TalkPage. Every 3a/b artifact from the same Talk page has the same 4a artifact as context.|
 | 4b  | Article | Content (multiple) | n/a|each article revision is translated to a content entity. 4a points to the oldes and newest of these revisions as firstRevision and currentRevision | 
 
 ### Artifact Data Sources
@@ -79,6 +79,7 @@ Known limitation: Discussions on a Talk page are identified by their title. If t
 | ------------- | ------------- | ------------- | ------------- |------------- |
 |DiscourseRelation|DESCENDANT| 3a | 3b | All posts are related to their thread starter.|
 |DiscoursePartRelation|TALK_PAGE_HAS_DISCUSSION| 1 | 2 | DiscourseParts representing discussions are part of DiscourseParts representing a Talk page.|
+|ContributionContext|n/a| 3a/b | 4a | Contributions that represent turns are related to Contributions that represents articles that constitute the context of the turns.|
 
 ### Other Generated Entities
 The following entities are created during the mapping process, but don't map to an explicit artifact in the data source.
