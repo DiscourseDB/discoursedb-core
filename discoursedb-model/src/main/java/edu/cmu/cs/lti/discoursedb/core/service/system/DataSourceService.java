@@ -46,10 +46,10 @@ public class DataSourceService {
 		Assert.hasText(entitySourceDescriptor);
 		Assert.hasText(dataSetName);
 
-		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
+		return dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
 				DataSourcePredicates.hasDataSetName(dataSetName)).and(
-				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor))));
+				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor)));
 	}	
 
 	/**

@@ -16,7 +16,6 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
@@ -83,10 +82,10 @@ public class DiscoursePartService {
 		Assert.notNull(type, "Type cannot be null.");		
 
 		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
-		Optional<DiscoursePart> existingDiscoursePart = Optional.ofNullable(discoursePartRepo.findOne(
+		Optional<DiscoursePart> existingDiscoursePart = discoursePartRepo.findOne(
 						DiscoursePartPredicates.discoursePartHasName(discoursePartName).and(
 						DiscoursePartPredicates.discoursePartHasType(type).and(
-						DiscoursePartPredicates.discoursePartHasDiscourse(discourse)))));
+						DiscoursePartPredicates.discoursePartHasDiscourse(discourse))));
 
 		DiscoursePart dPart=existingDiscoursePart.orElseGet(()->{
 			DiscoursePart newDP=new DiscoursePart();
@@ -314,13 +313,9 @@ public class DiscoursePartService {
 		Assert.hasText(entitySourceDescriptor, "Entity source descriptor cannot be empty.");
 		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
 
-		Optional<DataSourceInstance> dataSource = dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName);
-		if(dataSource.isPresent()){
-			return Optional.ofNullable(discoursePartRepo.findOne(
-					DiscoursePartPredicates.discoursePartHasDataSource(dataSource.get())));			
-		}else{
-			return Optional.empty();
-		}
+		return dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName)
+				.map(s -> discoursePartRepo.findOne(DiscoursePartPredicates.discoursePartHasDataSource(s)))
+				.orElse(Optional.empty());
 	}
 
 }

@@ -59,8 +59,8 @@ public class DiscourseService {
 	public Optional<Discourse> findOne(DiscoursePart discoursePart){
 		Assert.notNull(discoursePart, "DiscoursePart cannot be null.");
 		
-		return Optional.ofNullable(discourseRepository
-				.findOne(QDiscourse.discourse.discourseToDiscourseParts.any().discoursePart.eq(discoursePart)));
+		return discourseRepository
+				.findOne(QDiscourse.discourse.discourseToDiscourseParts.any().discoursePart.eq(discoursePart));
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)

@@ -1,37 +1,35 @@
+/*
+ * Copyright 2008-2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package edu.cmu.cs.lti.discoursedb.core.repository;
 
 import java.io.Serializable;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.querydsl.QueryDslPredicateExecutor;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.Repository;
 
 /**
- * The CoreBaseRepository interface defines the data access methods that every of the DiscourseDB Core repositories should have.
- * It replicates the functionality of Spring's PagingAndSortingRepository and CrudRepository but adapts return types to use Java 8 Optionals.
+ * This is a fork of the Spring Data {@link org.springframework.data.repository.CrudRepository} that makes use
+ * of DiscourseDB-specific customizations, such as consistently returning Optionals.
  * 
- * It extends QueryDslPredicateExecutor to provide support for QueryDSL predicates.
- * 
- * @author Oliver Ferschke
- * 
- * @see PagingAndSortingRepository
- * @see CrudRepository
- * @see Sort
- * @see Pageable
- * @see Page
- *
- * @param <T> the entity type
- * @param <ID> the primary key type (usually long)
+ *  @author Oliver Ferschke
  */
 @NoRepositoryBean
-public interface CoreBaseRepository<T, ID extends Serializable> extends Repository<T,ID>, QueryDslPredicateExecutor<T> {
-	
+public interface CrudRepository<T, ID extends Serializable> extends Repository<T, ID> {
+
 	/**
 	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the
 	 * entity instance completely.
@@ -118,21 +116,4 @@ public interface CoreBaseRepository<T, ID extends Serializable> extends Reposito
 	 * Deletes all entities managed by the repository.
 	 */
 	void deleteAll();
-	
-	/**
-	 * Returns all entities sorted by the given options.
-	 * 
-	 * @param sort
-	 * @return all entities sorted by the given options
-	 */
-	Iterable<T> findAll(Sort sort);
-
-	/**
-	 * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.
-	 * 
-	 * @param pageable
-	 * @return a page of entities
-	 */
-	Page<T> findAll(Pageable pageable);
-	
-	}
+}

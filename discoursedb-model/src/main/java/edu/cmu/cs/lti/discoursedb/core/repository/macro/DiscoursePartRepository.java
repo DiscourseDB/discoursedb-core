@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.repository.CoreBaseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
-public interface DiscoursePartRepository extends CoreBaseRepository<DiscoursePart,Long>{
+public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Long>{
     
 	Optional<DiscoursePart> findOneByName(String name);
 	
