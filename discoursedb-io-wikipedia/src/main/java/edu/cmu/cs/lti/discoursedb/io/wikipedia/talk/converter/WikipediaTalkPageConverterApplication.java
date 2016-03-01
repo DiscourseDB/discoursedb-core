@@ -18,7 +18,7 @@ public class WikipediaTalkPageConverterApplication {
 	 * Launches the SpringBoot application which runs the converter components in the order provided by the Order annotation.
 	 * The launch parameters are passed on to each component.
 	 * 
-	 * @param args 
+	 * @param args <DiscourseName> <DataSetName> <tileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>
 	 */
 	public static void main(String[] args) {
 		Assert.isTrue(args.length==8,"Usage: WikipediaTalkPageConverterApplication <DiscourseName> <DataSetName> <tileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>");
