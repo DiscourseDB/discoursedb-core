@@ -69,7 +69,19 @@ UPLOAD_ASSIGNMENT_ACTIVITY,
 /**
  * A ProSolo SocialActivityComment
  */
-SOCIAL_ACTIVITY_COMMENT
+SOCIAL_ACTIVITY_COMMENT,
+/*
+ * A contribution in a followup discussion on Piazza
+ */
+PIAZZA_FOLLOWUP,
+/*
+ * A reply a question by a student on Piazza
+ */
+PIAZZA_STUDENT_ANSWER,
+/*
+ * A reply a question by an instructor on Piazza
+ */
+PIAZZA_INSTRUCTOR_ANSWER
 
 
 
