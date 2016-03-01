@@ -9,14 +9,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * Represents a Content item in a Piazza dump.
+ * Represents a PiazzaContent item in a Piazza dump.
  * 
  * @author Oliver Ferschke
  *
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Content {
+public class PiazzaContent {
 
 	private Date created;
 
