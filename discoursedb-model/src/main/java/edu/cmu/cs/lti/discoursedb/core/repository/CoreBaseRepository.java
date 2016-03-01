@@ -7,15 +7,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.Repository;
 
 /**
  * The CoreBaseRepository interface defines the data access methods that every of the DiscourseDB Core repositories should have.
- * It replicates the functionality of Spring's PagingAndSortingRepository but adapts return types to use Java 8 Optionals  
+ * It replicates the functionality of Spring's PagingAndSortingRepository and CrudRepository but adapts return types to use Java 8 Optionals.
+ * 
+ * It extends QueryDslPredicateExecutor to provide support for QueryDSL predicates.
  * 
  * @author Oliver Ferschke
  * 
+ * @see PagingAndSortingRepository
+ * @see CrudRepository
  * @see Sort
  * @see Pageable
  * @see Page
