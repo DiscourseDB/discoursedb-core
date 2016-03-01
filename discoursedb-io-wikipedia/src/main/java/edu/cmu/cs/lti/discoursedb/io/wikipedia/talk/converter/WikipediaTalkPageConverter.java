@@ -32,10 +32,10 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger(WikipediaTalkPageConverter.class);	
 
-	@Autowired private DataSourceService dataSourceService;
 	@Autowired private DiscoursePartService discoursePartService;
 	@Autowired private DiscourseService discourseService;
 	@Autowired private WikipediaTalkPageConverterService converterService;
+	@Autowired private DataSourceService dataSourceService;
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -72,7 +72,7 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 		int tpNum = 1;
 		for(String title:titles){
 			//first check if we alrady have the discussions from this article from a previous import
-			if(discoursePartService.findOne(discourseService.createOrGetDiscourse(discourseName), title, DiscoursePartTypes.TALK_PAGE).isPresent()){
+			if(discoursePartService.exists(discourseService.createOrGetDiscourse(discourseName), title, DiscoursePartTypes.TALK_PAGE)){
 				logger.warn("Discussions for article "+title+ "have already been imported. Skipping ...");
 				continue;			
 			}			
@@ -81,8 +81,10 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 			extractor = new RevisionBasedTalkPageExtractor(wiki, revApi, title, false, true);
 			List<TalkPage> talkPages = extractor.getTalkPages();
 			for(TalkPage tp:talkPages){
-				logger.info("Mapping Talk Page #"+tpNum++);
-				converterService.mapTalkPage(discourseName, dataSetName, title, tp);				
+				if(tp!=null){
+					logger.info("Mapping Talk Page #"+tpNum++);
+					converterService.mapTalkPage(discourseName, dataSetName, title, tp);									
+				}
 			}
 		}
 		logger.info("Finished mapping Talk pages.");

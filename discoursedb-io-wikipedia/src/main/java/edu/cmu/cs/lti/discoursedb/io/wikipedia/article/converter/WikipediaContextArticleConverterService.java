@@ -13,11 +13,9 @@ import org.springframework.util.Assert;
 import de.tudarmstadt.ukp.wikipedia.api.exception.WikiApiException;
 import de.tudarmstadt.ukp.wikipedia.revisionmachine.api.Revision;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Context;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
-import edu.cmu.cs.lti.discoursedb.core.service.macro.ContextService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
@@ -44,7 +42,6 @@ public class WikipediaContextArticleConverterService{
 	private final @NonNull DiscoursePartService discoursePartService;
 	private final @NonNull ContributionService contributionService;
 	private final @NonNull UserService userService;
-	private final @NonNull ContextService contextService;
 	
 	/**
 	 * Creates a context for a DiscoursePart that represents a Talk page
@@ -86,18 +83,17 @@ public class WikipediaContextArticleConverterService{
 
 		//create context entity for the previously created content entities
 		if(timeOfFirstContrib!=null&&timeOfLastContrib!=null){
-			Context curTPContext = contextService.createTypedContext(ContextTypes.ARTICLE);
+			Contribution curTPContext = contributionService.createTypedContext(ContextTypes.ARTICLE);
 			curTPContext.setStartTime(timeOfFirstContrib);
 			curTPContext.setEndTime(timeOfLastContrib);		
 			
 			//connect context with all contributions of the corresponding Talk page
 			for(Contribution contrib:tpContribs){
-				contextService.addContributionToContext(curTPContext, contrib);
+				contributionService.addContextToContribution(contrib,curTPContext);
 			}			
 			return new ContextTransactionData(timeOfFirstContrib, timeOfLastContrib, curTPContext.getId());
 		}else{
-			return new ContextTransactionData();
-			
+			return new ContextTransactionData();			
 		}
 	}
 
@@ -125,16 +121,18 @@ public class WikipediaContextArticleConverterService{
 		//there seem to be cases where the user name is null, so we can only assign a user if we have the name
 		String curUserName = curArticleRev.getContributorName();
 		if(curUserName!=null&&!curUserName.isEmpty()){
-			curRev.setAuthor(userService.createOrGetUser(discourseService.findOne(discourseId), curArticleRev.getContributorName()));
+			discourseService.findOne(discourseId).ifPresent(discourse -> 
+				curRev.setAuthor(userService.createOrGetUser(discourse, curArticleRev.getContributorName())));
 		}
 
 		//in case there was a previous revision, retrieve it and connect the Content entity
 		if(prevRevId!=null){
-			Content prev = contentService.findOne(prevRevId);
-			prev.setNextRevision(curRev);
-			prev.setEndTime(curRev.getStartTime());
-			curRev.setPreviousRevision(prev);
-			contentService.save(prev);
+			contentService.findOne(prevRevId).ifPresent(prev->{
+				prev.setNextRevision(curRev);
+				prev.setEndTime(curRev.getStartTime());
+				curRev.setPreviousRevision(prev);
+				contentService.save(prev);				
+			});
 		}
 		contentService.save(curRev);
 
@@ -144,18 +142,21 @@ public class WikipediaContextArticleConverterService{
 	/**
 	 * Update references to first and last element 
 	 */
-	public Context updateContext(Long contextId, Long firstContentId, Long lastContentId){
+	public void updateContext(Long contextId, Long firstContentId, Long lastContentId){
 		Assert.notNull(contextId, "Context id cannot be null.");
 		Assert.isTrue(contextId>0, "Context id has to be a positive number.");
 
-		Context ctx = contextService.findOne(contextId);
-		Content first = contentService.findOne(firstContentId);
-		Content last = contentService.findOne(lastContentId);
-		ctx.setFirstRevision(first);
-		ctx.setCurrentRevision(last);
-		ctx.setStartTime(first.getStartTime());
-		ctx.setEndTime(last.getEndTime());
-		return contextService.save(ctx);
+		contributionService.findOne(contextId).ifPresent(ctx->{
+			contentService.findOne(firstContentId).ifPresent(first->{
+				ctx.setFirstRevision(first);
+				ctx.setStartTime(first.getStartTime());				
+			});
+			contentService.findOne(lastContentId).ifPresent(last->{
+				ctx.setCurrentRevision(last);
+				ctx.setEndTime(last.getEndTime());				
+			});
+			contributionService.save(ctx);
+		});
 	}
 
 }

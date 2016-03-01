@@ -126,6 +126,7 @@ public class TalkPage {
 	/**
 	 * Parses the page using signatures as indicators of turn boundaries
 	 */
+	@SuppressWarnings("unused")
 	private void _signatureSegmentTurns() {
 		try {
 			// segment pages into topics and paragraphs
