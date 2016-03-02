@@ -2,8 +2,6 @@ package edu.cmu.cs.lti.discoursedb.io.piazza.converter;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,9 +24,12 @@ import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
-import edu.cmu.cs.lti.discoursedb.io.piazza.model.PiazzaSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.piazza.model.Child;
 import edu.cmu.cs.lti.discoursedb.io.piazza.model.PiazzaContent;
+import edu.cmu.cs.lti.discoursedb.io.piazza.model.PiazzaSourceMapping;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
 /**
  * This Service class maps piazza contents to DiscourseDB
@@ -38,39 +39,33 @@ import edu.cmu.cs.lti.discoursedb.io.piazza.model.PiazzaContent;
  * @author Haitian Gong
  *
  */
+@Log4j
 @Service
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class PiazzaConverterService {
 	
-	private static final Logger logger = LogManager.getLogger(PiazzaConverterService.class);
-	
-	@Autowired
-	private DataSourceService dataSourceService;
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private ContentService contentService;
-	@Autowired
-	private ContributionService contributionService;
-	@Autowired
-	private DiscoursePartService discoursepartService;
-	@Autowired
-	private DiscourseService discourseService;
+	private final @NonNull UserService userService;
+	private final @NonNull ContentService contentService;
+	private final @NonNull ContributionService contributionService;
+	private final @NonNull DiscoursePartService discoursepartService;
+	private final @NonNull DiscourseService discourseService;
+	private final @NonNull DataSourceService dataSourceService;
 	
 	/**
 	 * Maps a single Piazza Content object as a discoursePart to DiscourseDB
 	 * 
-	 * @param dataSetName    the name of the ddataSet 
 	 * @param discourseName  the name of the discourse
+	 * @param dataSetName    the name of the ddataSet 
 	 * @param content        the Piazza Content object to convert
 	 */
 
-	public void convertPiazzaContent(String dataSetName, String discourseName, PiazzaContent content){
+	public void convertPiazzaContent(String discourseName, String dataSetName, PiazzaContent content){
 		
 		Assert.hasText(discourseName, "No discourse name defined in Piazza content converter");
 		Assert.notNull(content, "The Piazza Content to convert was null");
 		
-		logger.trace("Converting content object "+content.getId());
+		log.trace("Converting content object "+content.getId());
 		
 		
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);

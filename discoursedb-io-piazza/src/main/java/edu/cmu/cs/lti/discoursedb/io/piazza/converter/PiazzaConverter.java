@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -18,6 +16,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cmu.cs.lti.discoursedb.io.piazza.model.PiazzaContent;
+import lombok.extern.log4j.Log4j;
 
 /**
  * This converter loads data from a piazza dump file (in JSON format) and maps all entities to DiscourseDB.
@@ -30,13 +29,11 @@ import edu.cmu.cs.lti.discoursedb.io.piazza.model.PiazzaContent;
  * @author Haitian Gong
  *
  */
+@Log4j
 @Component
 public class PiazzaConverter implements CommandLineRunner {
 
-	private static final Logger logger = LogManager.getLogger(PiazzaConverter.class);
-
-	@Autowired
-	PiazzaConverterService converterService;
+	@Autowired private PiazzaConverterService converterService;
 
 	private String dataSetName;
 	private String discourseName;
@@ -44,21 +41,21 @@ public class PiazzaConverter implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		Assert.hasText(args[0], "dataset name invalid: "+args[0]);
-		Assert.hasText(args[1], "discourse name invalid: "+args[1]);
+		Assert.hasText(args[0], "discourse name invalid: "+args[1]);
+		Assert.hasText(args[1], "dataset name invalid: "+args[0]);
 		Assert.hasText(args[2], "File name invalid: "+args[2]);
 
-		dataSetName = args[0];
-		discourseName = args[1];
+		discourseName = args[0];
+		dataSetName = args[1];
 		String inputFileName = args[2];
 		
 		inputFile = new File(inputFileName);
 		if (!inputFile.exists() || !inputFile.isFile()) {
-			logger.error("Cannot access data dump file: " + inputFileName);
+			log.error("Cannot access data dump file: " + inputFileName);
 			return;
 		}
 
-		logger.info("Start processing dump file: "+inputFileName);
+		log.info("Start processing dump file: "+inputFileName);
 		
 		//Parse dump and serially parse on Piazza content object to converter service 
 		try (InputStream in = new FileInputStream(inputFile)) {
@@ -70,10 +67,10 @@ public class PiazzaConverter implements CommandLineRunner {
 					.readValues(new JsonFactory().createParser(in), new TypeReference<List<PiazzaContent>>() {
 					}).next();
 
-			contents.stream().forEach(c -> converterService.convertPiazzaContent(dataSetName, discourseName, c));
+			contents.stream().forEach(c -> converterService.convertPiazzaContent(discourseName, dataSetName, c));
 		}
 
-		logger.info("Finished processing Piazza dump.");
+		log.info("Finished processing Piazza dump.");
 
 	}
 
