@@ -14,25 +14,33 @@ import lombok.Data;
  * @author Oliver Ferschke
  */
 @Data
-@JsonPropertyOrder({ "table", "id", "labels", "text"})
-public class BinaryLabeledContributionInterchange implements Serializable{
-	
+@JsonPropertyOrder({ "table", "contribId", "contribType", "threadIds","labels", "text" })
+public class BinaryLabeledContributionInterchange implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
-	private Long id;
+	private Long contribId;
 
-	private String table;	
-	
+	private String table;
+
+	private String contribType;
+
+	private Set<Long> threadIds = new HashSet<Long>();
+	public void addThreadId(Long id) {
+		if (id != null) {
+			this.threadIds.add(id);
+		}
+	}
+
 	/**
-	 * Change to list if multiple identical labels should be allowed 
+	 * Change to list if multiple identical labels should be allowed
 	 */
 	private Set<String> labels = new HashSet<String>();
-	
 	public void addLabel(String label) {
-		if(label!=null){
-			this.labels.add(label);			
+		if (label != null) {
+			this.labels.add(label);
 		}
-	}	
-	
+	}
+
 	private String text;
 }

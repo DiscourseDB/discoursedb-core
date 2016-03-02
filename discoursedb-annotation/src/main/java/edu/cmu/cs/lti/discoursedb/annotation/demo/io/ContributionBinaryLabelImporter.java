@@ -69,9 +69,9 @@ public class ContributionBinaryLabelImporter implements CommandLineRunner {
 		List<BinaryLabeledContributionInterchange> input = csv?fromCsv(inputFileName):fromJson(inputFileName); 
 	
 		for(BinaryLabeledContributionInterchange item:input){
-			Optional<Contribution> existingContrib = contribService.findOne(item.getId());
+			Optional<Contribution> existingContrib = contribService.findOne(item.getContribId());
 			if(!existingContrib.isPresent()){
-				log.error("Contribution with id "+item.getId()+" not found. Skipping.");
+				log.error("Contribution with id "+item.getContribId()+" not found. Skipping.");
 				continue;
 			}else{
 				Contribution contrib = existingContrib.get();

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
@@ -30,6 +31,7 @@ import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
@@ -87,8 +89,14 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 			//wrap all relevant information about the given contribution in an interchange object
 			BinaryLabeledContributionInterchange curAnnoExport = new BinaryLabeledContributionInterchange();			
 			curAnnoExport.setTable(contrib.getClass().getAnnotation(Table.class).name()); //table name automatically determined
-			curAnnoExport.setId(contrib.getId());
+			curAnnoExport.setContribId(contrib.getId());
 			curAnnoExport.setText(contrib.getCurrentRevision().getText());
+			curAnnoExport.setContribType(contrib.getType());
+
+			for(DiscoursePartContribution dpc:contrib.getContributionPartOfDiscourseParts()){
+				curAnnoExport.addThreadId(dpc.getDiscoursePart().getId());
+			}
+			
 			for(AnnotationInstance anno:annoService.findAnnotations(contrib)){
 				if(anno.getType()!=null){
 					curAnnoExport.addLabel(anno.getType());					
@@ -109,8 +117,11 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 	}
 	
 	private void toCSV(Collection<?> data, String outputFileName) throws IOException{
+		
 		CsvMapper mapper = new CsvMapper();
+		String[] header = BinaryLabeledContributionInterchange.class.getAnnotation(JsonPropertyOrder.class).value();
 		try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileName)))) {
+			out.write(mapper.writeValueAsString(header));
 			for(Object a:data){
 				out.write(mapper.writerWithSchemaFor(a.getClass()).writeValueAsString(a));
 			}	    	
