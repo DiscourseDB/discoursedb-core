@@ -86,7 +86,7 @@ public class ContributionService {
 		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
 
 		return dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName)
-				.map(s -> contributionRepo.findOne(ContributionPredicates.contributionHasDataSource(s)))
+				.map(s -> Optional.ofNullable(contributionRepo.findOne(ContributionPredicates.contributionHasDataSource(s))))
 				.orElse(Optional.empty());
 	}
 	

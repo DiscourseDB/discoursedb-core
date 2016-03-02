@@ -28,7 +28,7 @@ import org.springframework.data.repository.Repository;
  *  @author Oliver Ferschke
  */
 @NoRepositoryBean
-public interface CrudRepository<T, ID extends Serializable> extends Repository<T, ID> {
+public interface CustomCrudRepository<T, ID extends Serializable> extends Repository<T, ID> {
 
 	/**
 	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the

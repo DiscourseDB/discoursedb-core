@@ -12,7 +12,8 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
 public interface UserRepository extends BaseRepository<User,Long>{    
-    public Optional<User> findById(@Param("id")Long id);    	
+	
+	public Optional<User> findById(@Param("id")Long id);    	
 	
     public Long countByRealname(@Param("realname")String realname);
 	

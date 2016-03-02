@@ -28,7 +28,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * Optionals. 
  */
 @NoRepositoryBean
-public interface PagingAndSortingRepository<T, ID extends Serializable> extends CrudRepository<T, ID> {
+public interface CustomPagingAndSortingRepository<T, ID extends Serializable> extends CustomCrudRepository<T, ID> {
 
 	/**
 	 * Returns all entities sorted by the given options.

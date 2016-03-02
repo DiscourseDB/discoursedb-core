@@ -47,8 +47,8 @@ public class UserService {
 		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 		Assert.notNull(type, "You have to provide a datasource type.");
 
-		return userRepo.findOne(UserPredicates.hasDiscourse(discourse)
-				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSourceType(type)));
+		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse)
+				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSourceType(type))));
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
@@ -58,8 +58,8 @@ public class UserService {
 		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 		Assert.hasText(dataSetName, "The dataset name cannot be empty.");
 
-		return userRepo.findOne(UserPredicates.hasDiscourse(discourse)
-				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSet(dataSetName)));
+		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse)
+				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSet(dataSetName))));
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
@@ -67,7 +67,8 @@ public class UserService {
 		Assert.notNull(discourse, "The discourse cannot be null.");
 		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 
-		return userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasSourceId(sourceId)));
+		return Optional.ofNullable(
+				userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasSourceId(sourceId))));
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
@@ -75,7 +76,8 @@ public class UserService {
 		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 		Assert.hasText(username, "The username cannot be empty.");
 
-		return userRepo.findOne(UserPredicates.hasSourceId(sourceId).and(UserPredicates.hasUserName(username)));
+		return Optional.ofNullable(
+				userRepo.findOne(UserPredicates.hasSourceId(sourceId).and(UserPredicates.hasUserName(username))));
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
@@ -101,7 +103,7 @@ public class UserService {
 		Assert.notNull(discourse, "Discourse cannot be null.");
 		Assert.hasText(username, "Username cannot be empty.");
 
-		return userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasUserName(username))).
+		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasUserName(username)))).
 				orElseGet(() -> {
 					User curUser = new User(discourse);
 					curUser.setUsername(username);
