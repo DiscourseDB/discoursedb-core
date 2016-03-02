@@ -127,15 +127,11 @@ A Contribution entity is a representation of a contribution in a discussion spac
 A Contribution is a typed entity, i.e. it is associated with a ContributionType indiciating what the Contribution instance represents, e.g. a POST.
 
 #### Content
-Content entities represent the content of Contribution and Context entities. The main payload of a Content entity resides in its text and data field. The content of Contributions usually textual, thus the text field will hold the content of a Contribution. The data field is able to hold arbitrary blobs of data. This is most likely necessary when used to represent the content of Context entities but will rarely be the case for content of Contribution entities.
+Content entities represent the content of Contribution entities. The main payload of a Content entity resides in its text and data field. The content of Contributions usually textual, thus the text field will hold the content of a Contribution. The data field is able to hold arbitrary blobs of data.
 
-Content entities formally represent nodes in a linked list by pointing to a previous and a next content revision. This way, revision histories of Contribution and Context entities can be represented. 
+Content entities formally represent nodes in a linked list by pointing to a previous and a next content revision. This way, revision histories of Contribution entities can be represented. 
 
 A Content entity is related to a User indicating that this user is the author of the content instance. Other relationships between Users and Content or Contributions can be represented with ContributionInteraction entities (see below).
-
-#### Context
-Context is whatever a Contribution is referring to. For example if the contributions are comments on a Wikipedia talk page, then context might be version of the wiki page at the point in time the comment was made.  
-Context entities are associated with Contribution entities via a ContributionContext entity. Apart from that, Context entities resemble Contribution entities, ie. the content of a Context entity is represented by one or more Content instances (see above).
 
 #### DataSource
 For many reasons, we might want to keep track of where the data for a DiscourseDB entity came from. This is either relevant in case we need to get details from the original dataset that are not represented in DiscourseDB or is important during the data import phase where we have to refer to ids and primare keys in the original dataset in order to make connections between entities.
