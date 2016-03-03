@@ -5,9 +5,9 @@
 	<name>DiscourseDB Core Model</name>
 	<description>DiscourseDB Core ORM and Configuration classes</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-model</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-model.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-model.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-model</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-model.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
