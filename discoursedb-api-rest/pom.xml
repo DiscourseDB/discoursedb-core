@@ -11,9 +11,9 @@
 	<name>DiscourseDB REST API</name>
 	<description>RESTful API to the discoursedb-model based on Spring Data REST</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-api-rest</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-api-rest</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
