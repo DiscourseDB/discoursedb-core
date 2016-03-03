@@ -11,9 +11,9 @@
 	<name>DiscourseDB bazaar converters</name>
 	<description>DiscourseDB converters for bazaar data</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-bazaar</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-bazaar.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-bazaar.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-io-bazaar</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-bazaar.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
