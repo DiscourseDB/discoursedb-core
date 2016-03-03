@@ -108,10 +108,16 @@ public class PiazzaConverterService {
 			curContent.setTitle(content.getHistory().get(i).getSubject());
 			curContent.setStartTime(content.getHistory().get(i).getCreated());
 			curContent.setEndTime(content.getHistory().get(i).getCreated());
-			if(content.getHistory().get(i).getUid()==null) {
-				User curUser = userService.createOrGetUser(discourse, String.valueOf(content.getHistory().get(i).getUid()));
-				curContent.setAuthor(curUser);
-			}
+			
+			//set user, the author of the current revision of note/question
+			User curUser = null;
+			if(content.getHistory().get(i).getUid()!=null)
+			    curUser = userService.createOrGetUser(discourse, String.valueOf(content.getHistory().get(i).getUid()));
+			else 
+				curUser = userService.createOrGetUser(discourse, "Anonymous");
+			curContent.setAuthor(curUser);
+			
+			//build relation between different revisions of contents
 			if(i!=content.getHistory().size()-1) {
 				curContent.setPreviousRevision(prevContent);
 				prevContent.setNextRevision(curContent);
@@ -120,11 +126,14 @@ public class PiazzaConverterService {
 				curContribution.setCurrentRevision(curContent);
 			if(i==content.getHistory().size()-1)
 				curContribution.setFirstRevision(curContent);
+			
+			//add content entity to data source
 			dataSourceService.addSource(
 					curContent, new DataSourceInstance(
 							content.getId(), 
 							PiazzaSourceMapping.ID_STR_TO_CONTENT+String.valueOf(i), 
 							DataSourceTypes.PIAZZA, dataSetName));
+			
 			prevContent = curContent;
 		}
 		
@@ -170,10 +179,16 @@ public class PiazzaConverterService {
 					curContent.setTitle(curChild.getHistory().get(j).getSubject());
 					curContent.setStartTime(curChild.getHistory().get(j).getCreated());
 					curContent.setEndTime(curChild.getHistory().get(j).getCreated());
-					if(curChild.getHistory().get(j).getUid()==null) {
-						User curUser = userService.createOrGetUser(discourse, "Anonymous");
-						curContent.setAuthor(curUser);
-					}
+					
+					//set user, the author of current revision of answer
+					User curUser = null;
+					if(curChild.getHistory().get(j).getUid()==null)
+						curUser = userService.createOrGetUser(discourse, "Anonymous");
+					else
+						userService.createOrGetUser(discourse, curChild.getHistory().get(j).getUid());
+					curContent.setAuthor(curUser);
+					
+					//build relation between different revisions of contents
 					if(j!=curChild.getHistory().size()-1) {
 						curContent.setPreviousRevision(prevAnswer);
 						prevAnswer.setNextRevision(curContent);
@@ -182,11 +197,14 @@ public class PiazzaConverterService {
 						childContribution.setCurrentRevision(curContent);
 					if(j==curChild.getHistory().size()-1)
 						childContribution.setFirstRevision(curContent);
+					
+					//add current content entity to data source
 					dataSourceService.addSource(
 							curContent, new DataSourceInstance(
 									curChild.getId(), 
 									PiazzaSourceMapping.ID_STR_TO_CONTENT_ANSWER+curChild.getType()+String.valueOf(j), 
 									DataSourceTypes.PIAZZA, dataSetName));
+					
 					prevAnswer = curContent;
 				}
 				
@@ -213,12 +231,16 @@ public class PiazzaConverterService {
 				flupContent.setStartTime(curChild.getCreated());
 				flupContent.setEndTime(curChild.getCreated());
 				flupContent.setText(curChild.getSubject());
-
-				if(curChild.getUid()==null) {
-					User curUser = userService.createOrGetUser(discourse, "Anonymous");
-					flupContent.setAuthor(curUser);
-				}
-
+				
+				//set user, the author of the current revision of follow up
+				User curUser = null;
+				if(curChild.getUid()==null)
+					curUser = userService.createOrGetUser(discourse, "Anonymous");
+				else
+					curUser = userService.createOrGetUser(discourse, curChild.getUid());
+				flupContent.setAuthor(curUser);
+				
+				//add current content entity to data source
 				dataSourceService.addSource(
 						flupContent, new DataSourceInstance(
 								curChild.getId(), 
@@ -235,7 +257,7 @@ public class PiazzaConverterService {
 							PiazzaSourceMapping.ID_STR_TO_CONTRIBUTION, 
 							DataSourceTypes.PIAZZA, dataSetName));
 				
-				//build relation between followp contribution and current discoursepart
+				//build relation between follow up contribution and current discoursepart
 				contributionService.createDiscourseRelation(curContribution, childContribution, DiscourseRelationTypes.REPLY);
 				
 				/*
@@ -254,11 +276,16 @@ public class PiazzaConverterService {
 						replyContent.setStartTime(reply.getCreated());
 						replyContent.setEndTime(reply.getCreated());
 						replyContent.setText(reply.getSubject());
-						if(reply.getUid()==null) {
-							User replyer = userService.createOrGetUser(discourse, "Anonymous");
-							replyContent.setAuthor(replyer);
-						}
-
+						
+						//set user, the author of the current revision of follow up reply
+						User replyer = null;
+						if(reply.getUid()==null)
+					        replyer = userService.createOrGetUser(discourse, "Anonymous");
+						else
+							replyer = userService.createOrGetUser(discourse, reply.getUid());
+						replyContent.setAuthor(replyer);
+						
+						//add current content revision to data source
 						dataSourceService.addSource(
 								replyContent, new DataSourceInstance(
 										reply.getId(), 
