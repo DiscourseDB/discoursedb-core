@@ -10,6 +10,12 @@
 		<system>GitHub</system>
 		<url>https://github.com/DiscourseDB/discoursedb-parent/issues</url>
 	</issueManagement>
+	<distributionManagement>
+		<repository>
+			<id>libs-release</id>
+			<url>dav:http://moon.lti.cs.cmu.edu:8081/artifactory/libs-release</url>
+		</repository>
+	</distributionManagement>	
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-parent</artifactId>
 	<version>0.5-SNAPSHOT</version>
@@ -500,8 +506,8 @@
 		<extensions>
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-webdav</artifactId>
-				<version>1.0-beta-2</version>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>2.10</version>
 			</extension>
 		</extensions>
 	</build>
