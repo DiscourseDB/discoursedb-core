@@ -9,6 +9,11 @@
 	<artifactId>discoursedb-annotation-ui</artifactId>
 	<name>DiscourseDB Annotation UI</name>
 	<description>Web UI for DiscourseDB annotation</description>
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-annotation-ui</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-annotation-ui.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-annotation-ui</url>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
