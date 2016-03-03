@@ -10,9 +10,9 @@
 	<name>discoursedb-io-wikipedia</name>
 	<description>DiscourseDB converters for Wikipedia data</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-wikipedia</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-wikipedia.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-wikipedia.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-io-wikipedia</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-wikipedia.git</url>
 	</scm>
 	<dependencies>
 		<dependency>
