@@ -10,9 +10,9 @@
 	<name>Classroom Salon Converters</name>
 	<description>DiscourseDB converters for classroom salon data</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-classroomsalon</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-classroomsalon.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-classroomsalon.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-io-classroomsalon</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-classroomsalon.git</url>
 	</scm>
 	<dependencies>
 		<dependency>
