@@ -59,14 +59,7 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<Feature> features = new HashSet<Feature>();
-		
-	public void addFeature(Feature feature) {
-		this.features.add(feature);
-	}
-
-	public void removeAllFeatures() {
-		this.features.clear();
-	}
 	
 }

@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -42,7 +41,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"discourseToDiscourseParts","discoursePartContributions","sourceOfDiscoursePartRelations","targetOfDiscoursePartRelations"})
 @ToString(callSuper=true, exclude={"discourseToDiscourseParts","discoursePartContributions","sourceOfDiscoursePartRelations","targetOfDiscoursePartRelations"})
 @Entity
-@Table(name="discourse_part", indexes = { @Index(name = "discoursePartNameIndex", columnList = "name") })
+@Table(name="discourse_part")
 public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Identifiable<Long> {
 
 	@Id
@@ -51,23 +50,19 @@ public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Ide
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@Column(columnDefinition="LONGTEXT")
+	@Column(columnDefinition="TEXT")
 	private String name;
 	
     @OneToMany(mappedBy = "discoursePart")
-	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
     @OneToMany(mappedBy = "discoursePart")
-	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscoursePartContribution> discoursePartContributions = new HashSet<DiscoursePartContribution>();
 	
     @OneToMany(mappedBy="source")
-	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscoursePartRelation> sourceOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 
     @OneToMany(mappedBy="target")
-	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 	
 }
