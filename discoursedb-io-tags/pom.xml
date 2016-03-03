@@ -11,9 +11,9 @@
 	<name>DiscourseDB TAGS converters</name>
 	<description>DiscourseDB converters for tweets collected with TAGS v6</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-tags</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-tags.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-tags.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-io-tags</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-tags.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
