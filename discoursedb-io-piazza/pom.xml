@@ -1,21 +1,28 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>edu.cmu.cs.lti</groupId>
-    <artifactId>discoursedb-parent</artifactId>
-    <version>0.5-SNAPSHOT</version>
-  </parent>
-  <artifactId>discoursedb-io-piazza</artifactId>
-  <name>DiscourseDB Piazza converter</name>
-  <description>DiscourseDB converters for Piazza data</description>
-  <dependencies>
-  	<dependency>
-  		<groupId>edu.cmu.cs.lti</groupId>
-  		<artifactId>discoursedb-model</artifactId>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.fasterxml.jackson.core</groupId>
-  		<artifactId>jackson-databind</artifactId>
-  	</dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.cmu.cs.lti</groupId>
+		<artifactId>discoursedb-parent</artifactId>
+		<version>0.5-SNAPSHOT</version>
+	</parent>
+	<artifactId>discoursedb-io-piazza</artifactId>
+	<name>DiscourseDB Piazza converter</name>
+	<description>DiscourseDB converters for Piazza data</description>
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-piazza</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-piazza.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-io-piazza</url>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+	</dependencies>
 </project>
