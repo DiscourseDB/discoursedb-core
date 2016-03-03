@@ -9,6 +9,11 @@
 	<artifactId>discoursedb-io-wikipedia</artifactId>
 	<name>discoursedb-io-wikipedia</name>
 	<description>DiscourseDB converters for Wikipedia data</description>
+	<scm>
+		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-wikipedia</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-wikipedia.git</developerConnection>
+		<url>https://github.com/discoursedb/discoursedb-io-wikipedia</url>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
