@@ -10,9 +10,9 @@
 	<name>DiscourseDB Piazza converter</name>
 	<description>DiscourseDB converters for Piazza data</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-piazza</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-piazza.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-piazza.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-io-piazza</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-piazza.git</url>
 	</scm>
 
 	<dependencies>
