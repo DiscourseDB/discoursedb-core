@@ -202,11 +202,11 @@
 		<repository>
 			<!-- BEGIN NEEDED FOR JWPL snapshots -->
 			<id>ukp-oss</id>
-			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-snapshots/</url>
+			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-ukp-snapshots-local/</url>
 		</repository>
 		<repository>
 			<id>ukp-oss-model-snapshots</id>
-			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-releases/</url>
+			<url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-model-releases-local/</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>
