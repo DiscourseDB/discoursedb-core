@@ -5,7 +5,7 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent</relativePath>
+		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>discoursedb-io-tags</artifactId>
 	<name>DiscourseDB TAGS converters</name>
