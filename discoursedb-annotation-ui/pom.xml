@@ -5,6 +5,7 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
+		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>discoursedb-annotation-ui</artifactId>
 	<name>DiscourseDB Annotation UI</name>
