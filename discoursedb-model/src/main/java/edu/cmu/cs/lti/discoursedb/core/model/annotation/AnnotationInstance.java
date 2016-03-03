@@ -48,7 +48,7 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	@Description("End offset that indicates the end index of the span of text of a content entity to which the annotation instance applies. Can be ingored in the case of an entity annotation.")
 	private int endOffset;
 	
-	@Column(name="covered_text")
+	@Column(columnDefinition="LONGTEXT", name="covered_text")
 	@Description("The text between begin_offset and end_offset.")
 	private String coveredText;
 		

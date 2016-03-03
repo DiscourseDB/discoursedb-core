@@ -33,6 +33,7 @@ public class Group extends TypedTimedAnnotatableSourcedBE implements Identifiabl
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 
+	@Column(columnDefinition="LONGTEXT")
 	private String name;
 	
     @OneToMany(mappedBy = "group")

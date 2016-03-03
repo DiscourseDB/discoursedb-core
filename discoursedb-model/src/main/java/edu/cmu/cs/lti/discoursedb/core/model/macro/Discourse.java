@@ -62,7 +62,7 @@ public class Discourse extends BaseEntity implements Identifiable<Long> {
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 
-	@Column(updatable=false, unique=true)
+	@Column(columnDefinition="LONGTEXT", updatable=false, unique=true)
 	private String name;
 
 	@OneToMany(mappedBy = "discourse")

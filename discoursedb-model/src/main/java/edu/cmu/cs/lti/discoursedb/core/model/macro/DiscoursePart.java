@@ -51,6 +51,7 @@ public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Ide
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
+	@Column(columnDefinition="LONGTEXT")
 	private String name;
 	
     @OneToMany(mappedBy = "discoursePart")
