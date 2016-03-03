@@ -55,7 +55,7 @@ public class PiazzaConverter implements CommandLineRunner {
 			return;
 		}
 
-		log.info("Start processing dump file: "+inputFileName);
+		log.info("Start importing dump file: "+inputFileName);
 		
 		//Parse dump and serially parse on Piazza content object to converter service 
 		try (InputStream in = new FileInputStream(inputFile)) {
@@ -66,11 +66,10 @@ public class PiazzaConverter implements CommandLineRunner {
 					.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
 					.readValues(new JsonFactory().createParser(in), new TypeReference<List<PiazzaContent>>() {
 					}).next();
-
 			contents.stream().forEach(c -> converterService.convertPiazzaContent(discourseName, dataSetName, c));
 		}
 
-		log.info("Finished processing Piazza dump.");
+		log.info("Successfully imported the Piazza dump file.");
 
 	}
 
