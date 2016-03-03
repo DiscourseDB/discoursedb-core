@@ -10,9 +10,9 @@
 	<name>DiscourseDB Coursera converters</name>
 	<description>DiscourseDB converters for Coursera data</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-coursera</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-coursera.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-coursera.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-io-coursera</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-coursera.git</url>
 	</scm>
 
 	<dependencies>
