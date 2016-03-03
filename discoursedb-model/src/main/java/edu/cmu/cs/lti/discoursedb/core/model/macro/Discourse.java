@@ -66,6 +66,7 @@ public class Discourse extends BaseEntity implements Identifiable<Long> {
 	private String name;
 
 	@OneToMany(mappedBy = "discourse")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "discourses")

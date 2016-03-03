@@ -55,15 +55,19 @@ public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Ide
 	private String name;
 	
     @OneToMany(mappedBy = "discoursePart")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
     @OneToMany(mappedBy = "discoursePart")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscoursePartContribution> discoursePartContributions = new HashSet<DiscoursePartContribution>();
 	
     @OneToMany(mappedBy="source")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscoursePartRelation> sourceOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 
     @OneToMany(mappedBy="target")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscoursePartRelation> targetOfDiscoursePartRelations = new HashSet<DiscoursePartRelation>();
 	
 }

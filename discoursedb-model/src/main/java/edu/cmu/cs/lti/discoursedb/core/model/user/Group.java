@@ -37,9 +37,11 @@ public class Group extends TypedTimedAnnotatableSourcedBE implements Identifiabl
 	private String name;
 	
     @OneToMany(mappedBy = "group")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<AudienceGroup> groupAudiences = new HashSet<AudienceGroup>();
 
     @OneToMany(mappedBy = "group")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<GroupUser> groupMembers = new HashSet<GroupUser>();
 	
 }

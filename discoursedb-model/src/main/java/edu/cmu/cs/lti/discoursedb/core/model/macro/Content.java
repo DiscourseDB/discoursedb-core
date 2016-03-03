@@ -89,6 +89,7 @@ public class Content extends TimedAnnotatableSourcedBE implements Identifiable<L
 
     @OneToMany(mappedBy = "content")
 	@Description("A set of interactions between users and this content entity.")
-	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
+	@Setter(AccessLevel.PRIVATE) 
+    private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 		
 }
