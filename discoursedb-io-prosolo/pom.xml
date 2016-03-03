@@ -11,9 +11,9 @@
 	<name>DiscourseDB prosolo converters</name>
 	<description>DiscourseDB converters for prosolo data</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-io-prosolo</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-io-prosolo</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
@@ -39,6 +39,10 @@
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 	</dependencies>
 </project>
