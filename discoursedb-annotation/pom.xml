@@ -10,9 +10,9 @@
 	<name>DiscourseDB Annotation</name>
 	<description>Support for annotating DiscourseDB databases</description>
 	<scm>
-		<connection>scm:git:git://github.com/discoursedb/discoursedb-annotation</connection>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-annotation.git</connection>
 		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-annotation.git</developerConnection>
-		<url>https://github.com/discoursedb/discoursedb-annotation</url>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-annotation.git</url>
 	</scm>
 	<dependencies>
 		<dependency>
