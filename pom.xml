@@ -15,7 +15,7 @@
 			<id>libs-release</id>
 			<url>dav:http://moon.lti.cs.cmu.edu:8081/artifactory/libs-release</url>
 		</repository>
-	</distributionManagement>	
+	</distributionManagement>
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-parent</artifactId>
 	<version>0.5-SNAPSHOT</version>
@@ -410,6 +410,19 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>versions-maven-plugin</artifactId>
+				<version>2.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<version>1.9.4</version>
+				<configuration>
+					<tag>${project.artifactId}-${project.version}</tag>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok-maven-plugin</artifactId>
