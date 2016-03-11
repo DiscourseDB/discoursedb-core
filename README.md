@@ -1,5 +1,4 @@
-# DiscourseDB Parent Project
-This is the parent project for all DiscourseDB projects. It manages dependency versions and configures necessary Maven plugins.
+# DiscourseDB Core
 
 All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to be configured to support [Lombok (see below)](https://github.com/DiscourseDB/discoursedb-parent/blob/master/README.md#lombok-in-eclipse) for full DiscourseDB compatibility.
 
