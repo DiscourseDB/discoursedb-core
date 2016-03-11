@@ -8,7 +8,7 @@
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-core/issues</url>
+		<url>https://github.com/DiscourseDB/discoursedb-io-tags/issues</url>
 	</issueManagement>
 	<distributionManagement>
 		<repository>
@@ -17,7 +17,7 @@
 		</repository>
 	</distributionManagement>
 	<groupId>edu.cmu.cs.lti</groupId>
-	<artifactId>discoursedb-parent</artifactId>
+	<artifactId>discoursedb-core</artifactId>
 	<version>0.5-SNAPSHOT</version>
 	<name>DiscourseDB parent</name>
 	<description>Parent POM for DiscourseDB projects</description>

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
-		<artifactId>discoursedb-parent</artifactId>
+		<artifactId>discoursedb-core</artifactId>
 		<version>0.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>discoursedb-annotation-ui</artifactId>

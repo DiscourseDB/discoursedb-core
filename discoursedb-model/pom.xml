@@ -72,7 +72,7 @@
 	</dependencies>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
-		<artifactId>discoursedb-parent</artifactId>
+		<artifactId>discoursedb-core</artifactId>
 		<version>0.5-SNAPSHOT</version>
 	</parent>
 
