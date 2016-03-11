@@ -78,7 +78,7 @@ If you provide a ```custom.properties``` file on the classpath, e.g. the folder 
 ## Additional Developer Setup
 
 ### Setting up eclipse to support Project Lombok
-DiscourseDB uses [Project Lombok](https://projectlombok.org) as a code generator for boiler plate code. Maven already takes care that Lombok generates its code during a regular build, but in order to get Eclipse to recognize the auto-generated code, you need to set up Lombok in your eclipse environment.
+This is only necessary if you want to check out DiscourseDB and view or edit the code in eclipse. DiscourseDB uses [Project Lombok](https://projectlombok.org) as a code generator for boiler plate code. Maven already takes care that Lombok generates its code during a regular build, but in order to get Eclipse to recognize the auto-generated code, you need to set up Lombok in your eclipse environment.
 
 You have two options to set up your eclipse:
 (1) simply go to any DiscourseDB Project you have checked out, expand the "Maven Dependencies" tab, find lombok.jar, right-click the jar and select Run as > Java Application. This will open a window where you can select the location of your eclipse and have Lombok set it up to recognize the auto-generated code.
