@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.cmu.cs.lti</groupId>
+		<artifactId>discoursedb-parent</artifactId>
+		<version>0.5-SNAPSHOT</version>
+		<relativePath>../discoursedb-parent/pom.xml</relativePath>
+	</parent>
+	<artifactId>discoursedb-io-classroomsalon</artifactId>
+	<name>Classroom Salon Converters</name>
+	<description>DiscourseDB converters for classroom salon data</description>
+	<scm>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-classroomsalon.git</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-classroomsalon.git</developerConnection>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-classroomsalon.git</url>
+	</scm>
+	<dependencies>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>discoursedb-io-edx</artifactId>
+	<name>DiscourseDB edx converters</name>
+	<description>DiscourseDB converters for edX data</description>
+	<scm>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</developerConnection>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/DiscourseDB/discoursedb-io-edx/issues</url>
+	</issueManagement>
+	<parent>
+		<groupId>edu.cmu.cs.lti</groupId>
+		<artifactId>discoursedb-parent</artifactId>
+		<version>0.5-SNAPSHOT</version>
+		<relativePath>../discoursedb-parent/pom.xml</relativePath>
+	</parent>
+	<dependencies>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-csv</artifactId>
+		</dependency>
+	</dependencies>
+</project>

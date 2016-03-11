@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.cmu.cs.lti</groupId>
+		<artifactId>discoursedb-parent</artifactId>
+		<version>0.5-SNAPSHOT</version>
+		<relativePath>../discoursedb-parent/pom.xml</relativePath>
+	</parent>
+	<artifactId>discoursedb-io-prosolo</artifactId>
+	<name>DiscourseDB prosolo converters</name>
+	<description>DiscourseDB converters for prosolo data</description>
+	<scm>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</developerConnection>
+		<url>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/DiscourseDB/discoursedb-io-prosolo/issues</url>
+	</issueManagement>
+	<dependencies>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jooq</groupId>
+			<artifactId>jool</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,4 @@
+id	username	first_name	last_name	email	password	is_staff	is_active	is_superuser	last_login	date_joined	status	email_key	avatar_type	country	show_country	date_of_birth	interesting_tags	ignored_tags	email_tag_filter_strategy	display_tag_filter_strategy	consecutive_days_visit_count
+1932526	EmilyWatson	Emily	Watson	emily@edx.org		1	1	0	2015-03-01 19:50:55	2013-07-08 14:42:50		NULL			0	NULL			0	0	0
+326488	gsiemens			gsiemens@gmail.com		0	1	0	2015-01-28 15:30:48	2012-08-24 11:00:15		NULL			0	NULL			0	0	0
+2030452	dgasevic			dgasevic@acm.org		0	1	0	2015-02-04 13:19:34	2013-07-26 19:17:15		NULL			0	NULL			0	0	0
