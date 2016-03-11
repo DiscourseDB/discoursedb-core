@@ -4,7 +4,7 @@ All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to
 
 ## How to get DiscourseDB
 
-### Option 1: Configuring Maven repository to automatically obtain DiscourseDB artifacts
+### Option 1: Configure Maven repository to automatically get DiscourseDB artifacts
 You can simply add any DiscourseDB project as a dependency to your Maven project. The following configuration needs to be added to your project pom.xml or settings.xml.
 
 ```xml
@@ -38,7 +38,7 @@ You can simply add any DiscourseDB project as a dependency to your Maven project
 </settings>
 ```
 
-### Option 2: Checking out projects
+### Option 2: Check out projects
 To import the DiscourseDB with all sub-modules into eclipse, simply follow the following steps (Steps 3 and 4 are only necessary the first time you import a Maven project from git):
 
 ```
