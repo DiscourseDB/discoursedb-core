@@ -5,20 +5,10 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>discoursedb-io-bazaar</artifactId>
 	<name>DiscourseDB bazaar converters</name>
 	<description>DiscourseDB converters for bazaar data</description>
-	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-bazaar.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-bazaar.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-io-bazaar.git</url>
-	</scm>
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-io-bazaar/issues</url>
-	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>

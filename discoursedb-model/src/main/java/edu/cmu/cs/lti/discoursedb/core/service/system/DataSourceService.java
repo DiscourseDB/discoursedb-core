@@ -196,6 +196,7 @@ public class DataSourceService {
 		if(!existingDataSourceInstance.isPresent()){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
+			sourceAggregate.addSource(source);
 		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
 			//we tried to create an existing DataSourceInstance but add it to another entity
 			//this is not allowed, a source may only produce a single entity
@@ -232,6 +233,7 @@ public class DataSourceService {
 		if(!existingDataSourceInstance.isPresent()){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
+			sourceAggregate.addSource(source);
 		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
 			//we tried to create an existing DataSourceInstance but add it to another entity
 			//this is not allowed, a source may only produce a single entity
@@ -268,6 +270,7 @@ public class DataSourceService {
 		if(!existingDataSourceInstance.isPresent()){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
+			sourceAggregate.addSource(source);
 		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
 			//we tried to create an existing DataSourceInstance but add it to another entity
 			//this is not allowed, a source may only produce a single entity

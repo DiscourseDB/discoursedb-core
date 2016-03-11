@@ -36,7 +36,6 @@ public class Feature extends TypedBE implements Identifiable<Long>{
 	@Description("The primary key.")
 	private Long id;
 	
-	@Column(columnDefinition="LONGTEXT")
 	@Description("The feature value.")
 	private String value;
 	

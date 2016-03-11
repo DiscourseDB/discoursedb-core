@@ -39,7 +39,11 @@ public class ProsoloBlogComment {
 	}
 
 	public List<ProsoloBlogComment> getComments() {
-		return comments;
+		if(comments==null){
+			return new ArrayList<>();
+		}else{
+			return comments;			
+		}
 	}
 
 	@SuppressWarnings("unchecked")

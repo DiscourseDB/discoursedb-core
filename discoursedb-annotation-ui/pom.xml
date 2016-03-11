@@ -5,16 +5,10 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>discoursedb-annotation-ui</artifactId>
 	<name>DiscourseDB Annotation UI</name>
 	<description>Web UI for DiscourseDB annotation</description>
-	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-annotation-ui.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-annotation-ui.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-annotation-ui.git</url>
-	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -51,7 +51,7 @@ public class TweetConverterService {
 
 	private final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm:ss '+0000' YYYY");
 	
-	public void map(TweetInfo t, String dataSetName, String discourseName) throws ParseException {		
+	public void mapTweet(TweetInfo t, String dataSetName, String discourseName) throws ParseException {		
 		if (contributionService.findOneByDataSource(t.getId_str(), TweetSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).isPresent()) {
 			logger.warn("Tweet " + t.getId_str() + " already in database. Skipping Tweet");
 			return;

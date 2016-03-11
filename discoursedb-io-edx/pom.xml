@@ -4,20 +4,10 @@
 	<artifactId>discoursedb-io-edx</artifactId>
 	<name>DiscourseDB edx converters</name>
 	<description>DiscourseDB converters for edX data</description>
-	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-io-edx.git</url>
-	</scm>
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-io-edx/issues</url>
-	</issueManagement>
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<dependencies>
 		<dependency>

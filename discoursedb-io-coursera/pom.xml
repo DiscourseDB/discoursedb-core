@@ -5,17 +5,10 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>discoursedb-io-coursera</artifactId>
 	<name>DiscourseDB Coursera converters</name>
 	<description>DiscourseDB converters for Coursera data</description>
-	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-coursera.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-coursera.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-io-coursera.git</url>
-	</scm>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.jooq</groupId>

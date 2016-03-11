@@ -4,15 +4,6 @@
 	<artifactId>discoursedb-model</artifactId>
 	<name>DiscourseDB Core Model</name>
 	<description>DiscourseDB Core ORM and Configuration classes</description>
-	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-model.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-model.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-model.git</url>
-	</scm>
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-model/issues</url>
-	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -83,7 +74,6 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 
 </project>

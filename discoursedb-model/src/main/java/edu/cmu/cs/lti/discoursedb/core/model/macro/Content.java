@@ -70,7 +70,6 @@ public class Content extends TimedAnnotatableSourcedBE implements Identifiable<L
 	@Description("The content that represents the next revision of this contribution or context.")
 	private Content nextRevision;
 
-	@Column(columnDefinition="TEXT")
 	@Description("The title of the content.")
 	private String title;
 
@@ -89,7 +88,6 @@ public class Content extends TimedAnnotatableSourcedBE implements Identifiable<L
 
     @OneToMany(mappedBy = "content")
 	@Description("A set of interactions between users and this content entity.")
-	@Setter(AccessLevel.PRIVATE) 
-    private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
+	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
 		
 }

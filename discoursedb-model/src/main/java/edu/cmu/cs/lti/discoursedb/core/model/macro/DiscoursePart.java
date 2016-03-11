@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -41,7 +42,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"discourseToDiscourseParts","discoursePartContributions","sourceOfDiscoursePartRelations","targetOfDiscoursePartRelations"})
 @ToString(callSuper=true, exclude={"discourseToDiscourseParts","discoursePartContributions","sourceOfDiscoursePartRelations","targetOfDiscoursePartRelations"})
 @Entity
-@Table(name="discourse_part")
+@Table(name="discourse_part", indexes = { @Index(name = "discoursePartNameIndex", columnList = "name") })
 public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Identifiable<Long> {
 
 	@Id
@@ -50,7 +51,6 @@ public class DiscoursePart extends TypedTimedAnnotatableSourcedBE implements Ide
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@Column(columnDefinition="TEXT")
 	private String name;
 	
     @OneToMany(mappedBy = "discoursePart")

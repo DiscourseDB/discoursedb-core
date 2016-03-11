@@ -2,13 +2,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-parent.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-parent.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-parent.git</url>
+		<connection>scm:git:git@github.com:discoursedb/discoursedb-core.git</connection>
+		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-core.git</developerConnection>
+		<url>https://github.com/DiscourseDB/discoursedb-core</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-parent/issues</url>
+		<url>https://github.com/DiscourseDB/discoursedb-core/issues</url>
 	</issueManagement>
 	<distributionManagement>
 		<repository>

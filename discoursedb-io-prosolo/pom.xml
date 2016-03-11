@@ -5,20 +5,10 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>discoursedb-io-prosolo</artifactId>
 	<name>DiscourseDB prosolo converters</name>
 	<description>DiscourseDB converters for prosolo data</description>
-	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-io-prosolo.git</url>
-	</scm>
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-io-prosolo/issues</url>
-	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>

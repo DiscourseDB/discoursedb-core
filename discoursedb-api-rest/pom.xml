@@ -5,20 +5,10 @@
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-parent</artifactId>
 		<version>0.5-SNAPSHOT</version>
-		<relativePath>../discoursedb-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>discoursedb-api-rest</artifactId>
 	<name>DiscourseDB REST API</name>
 	<description>RESTful API to the discoursedb-model based on Spring Data REST</description>
-	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</developerConnection>
-		<url>scm:git:git@github.com:discoursedb/discoursedb-api-rest.git</url>
-	</scm>
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-api-rest/issues</url>
-	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
