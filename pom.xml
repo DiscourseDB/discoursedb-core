@@ -750,17 +750,17 @@
 	</profiles>
 	<packaging>pom</packaging>
 	<modules>
-		<module>../discoursedb-io-edx</module>
-		<module>../discoursedb-io-bazaar</module>
-		<module>../discoursedb-io-tags</module>
-		<module>../discoursedb-io-prosolo</module>
-		<module>../discoursedb-model</module>
-		<module>../discoursedb-api-rest</module>
-		<module>../discoursedb-io-wikipedia</module>
-		<module>../discoursedb-io-coursera</module>
-		<module>../discoursedb-io-piazza</module>
-		<module>../discoursedb-annotation</module>
-		<module>../discoursedb-annotation-ui</module>
-		<module>../discoursedb-io-classroomsalon</module>
+		<module>discoursedb-io-edx</module>
+		<module>discoursedb-io-bazaar</module>
+		<module>discoursedb-io-tags</module>
+		<module>discoursedb-io-prosolo</module>
+		<module>discoursedb-model</module>
+		<module>discoursedb-api-rest</module>
+		<module>discoursedb-io-wikipedia</module>
+		<module>discoursedb-io-coursera</module>
+		<module>discoursedb-io-piazza</module>
+		<module>discoursedb-annotation</module>
+		<module>discoursedb-annotation-ui</module>
+		<module>discoursedb-io-classroomsalon</module>
 	</modules>
 </project>
