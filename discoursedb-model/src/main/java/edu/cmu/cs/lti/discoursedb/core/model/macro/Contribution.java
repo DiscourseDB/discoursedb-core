@@ -79,26 +79,32 @@ public class Contribution extends TypedTimedAnnotatableSourcedBE implements Iden
 	
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more DiscoursePart entities.")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscoursePartContribution> contributionPartOfDiscourseParts = new HashSet<DiscoursePartContribution>();
 
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more audience entities.")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<ContributionAudience> contributionAudiences = new HashSet<ContributionAudience>();
 	
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more context entities.")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<ContributionContext> contributionContexts = new HashSet<ContributionContext>();
 	
     @OneToMany(mappedBy="source")
 	@Description("A set of relations that associate this contribution with a another contribution. This set contains only those relations of which the present contribution is the source.")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscourseRelation> sourceOfDiscourseRelations = new HashSet<DiscourseRelation>();
 
     @OneToMany(mappedBy="target")
 	@Description("A set of relations that associate this contribution with a another contribution. This set contains only those relations of which the present contribution is the target.")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscourseRelation> targetOfDiscourseRelations = new HashSet<DiscourseRelation>();
 	
     @OneToMany(mappedBy = "contribution")
 	@Description("A set of relations that associate this contribution with one or more users.")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<ContributionInteraction> contributionInteractions = new HashSet<ContributionInteraction>();
     
 }

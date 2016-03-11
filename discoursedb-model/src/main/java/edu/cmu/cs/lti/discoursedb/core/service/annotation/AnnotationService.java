@@ -155,7 +155,6 @@ public class AnnotationService {
 		}
 		annotation.setAnnotationAggregate(annoAggregate);
 		annotation = annoInstanceRepo.save(annotation);
-		annoAggregate.addAnnotation(annotation);
 	}
 	
 	/**
@@ -179,7 +178,6 @@ public class AnnotationService {
 		}
 		annotation.setAnnotationAggregate(annoAggregate);
 		annotation = annoInstanceRepo.save(annotation);
-		annoAggregate.addAnnotation(annotation);
 	}
 	
 	/**
@@ -190,7 +188,6 @@ public class AnnotationService {
 	 */
 	public <T extends TypedTimedAnnotatableBE> void deleteAnnotation(AnnotationInstance annotation) {		
 		Assert.notNull(annotation,"Annotation to delete cannot be null.");
-		annotation.getAnnotationAggregate().removeAnnotation(annotation);		
 		Set<Feature> features = annotation.getFeatures();
 		if(features!=null&&!features.isEmpty()){
 			featureRepo.delete(annotation.getFeatures());			
@@ -209,7 +206,6 @@ public class AnnotationService {
 
 		List<Feature> featuresToDelete = new ArrayList<>();
 		for(AnnotationInstance anno:annotations){
-			anno.getAnnotationAggregate().removeAnnotation(anno);
 			Set<Feature> features = anno.getFeatures();
 			if(features!=null&&!features.isEmpty()){
 				featuresToDelete.addAll(features);
@@ -259,7 +255,6 @@ public class AnnotationService {
 		Assert.notNull(annotation, "Annotation cannot be null.");
 		Assert.notNull(feature, "Feature cannot be null.");		
 		feature.setAnnotation(annotation);
-		annotation.addFeature(feature);
 	}
 
 }

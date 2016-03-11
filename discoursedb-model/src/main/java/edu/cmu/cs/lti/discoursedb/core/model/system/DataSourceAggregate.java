@@ -40,10 +40,7 @@ public class DataSourceAggregate extends BaseEntity implements Identifiable<Long
 	private Long id;
 	
 	@OneToMany(fetch=FetchType.LAZY, mappedBy="sourceAggregate")
+	@Setter(AccessLevel.PRIVATE) 
     private Set<DataSourceInstance> sources = new HashSet<DataSourceInstance>();
-	
-	public void addSource(DataSourceInstance source) {
-		this.sources.add(source);
-	}
 	
 }

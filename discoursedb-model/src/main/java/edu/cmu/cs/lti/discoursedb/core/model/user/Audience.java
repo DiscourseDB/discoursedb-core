@@ -35,12 +35,15 @@ public class Audience extends TypedTimedAnnotatableSourcedBE implements Identifi
 	private Long id;
 	
     @OneToMany(mappedBy = "audience")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<ContributionAudience> audienceContributions = new HashSet<ContributionAudience>();
 	
     @OneToMany(mappedBy = "audience")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<AudienceUser> audienceUsers = new HashSet<AudienceUser>();
 
     @OneToMany(mappedBy = "audience")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<AudienceGroup> audienceGroups = new HashSet<AudienceGroup>();
 	
 }

@@ -73,18 +73,23 @@ public class User extends TimedAnnotatableSourcedBE implements Identifiable<Long
 	private Set<Discourse> discourses = new HashSet<Discourse>();
 
 	@OneToMany(mappedBy = "user")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<ContributionInteraction> contentInteractions = new HashSet<ContributionInteraction>();
 
 	@OneToMany(mappedBy = "user")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<AudienceUser> userAudiences = new HashSet<AudienceUser>();
 	
 	@OneToMany(mappedBy = "user")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<GroupUser> userGroups = new HashSet<GroupUser>();
 
 	@OneToMany(mappedBy = "source")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<UserRelation> sourceOfUserRelations = new HashSet<UserRelation>();
 
 	@OneToMany(mappedBy = "target")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<UserRelation> targetOfUserRelations = new HashSet<UserRelation>();
 
 	public void addDiscourse(Discourse discourse) {

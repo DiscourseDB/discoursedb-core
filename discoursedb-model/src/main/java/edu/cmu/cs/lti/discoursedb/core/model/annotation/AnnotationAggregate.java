@@ -43,15 +43,9 @@ public class AnnotationAggregate extends BaseEntity  implements Identifiable<Lon
 	
 	@RestResource(rel="annotationInstances",path="annotationInstances")
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}, mappedBy="annotationAggregate")
+	@Setter(AccessLevel.PRIVATE) 
 	@JsonIgnore
 	@Description("A set of annotation instances associated with the entity that is represented by this aggregate.")
 	private Set<AnnotationInstance> annotations = new HashSet<AnnotationInstance>();
-    
-	public void addAnnotation(AnnotationInstance annotation) {
-		this.annotations.add(annotation);
-	}
 
-	public void removeAnnotation(AnnotationInstance annotation) {
-		this.annotations.remove(annotation);
-	}
 }

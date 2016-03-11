@@ -9,7 +9,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -48,7 +47,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"discourseToDiscourseParts","users"})
 @ToString(callSuper=true, exclude={"discourseToDiscourseParts","users"})
 @Entity
-@Table(name = "discourse", indexes = { @Index(name = "discourseNameIndex", columnList = "name") })
+@Table(name = "discourse")
 public class Discourse extends BaseEntity implements Identifiable<Long> {
 
 	public Discourse(String name){
@@ -62,13 +61,15 @@ public class Discourse extends BaseEntity implements Identifiable<Long> {
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 
-	@Column(updatable=false, unique=true)
+	@Column(updatable=false, unique=true, columnDefinition="TEXT")
 	private String name;
 
 	@OneToMany(mappedBy = "discourse")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<DiscourseToDiscoursePart> discourseToDiscourseParts = new HashSet<DiscourseToDiscoursePart>();
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "discourses")
+	@Setter(AccessLevel.PRIVATE) 
 	private Set<User> users;
 	
 }
