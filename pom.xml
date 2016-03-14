@@ -756,11 +756,11 @@
 		<module>discoursedb-io-prosolo</module>
 		<module>discoursedb-model</module>
 		<module>discoursedb-api-rest</module>
-		<module>discoursedb-io-wikipedia</module>
+		<!-- <module>discoursedb-io-wikipedia</module> --><!-- Exclude due to snapshot dependency-->
 		<module>discoursedb-io-coursera</module>
 		<module>discoursedb-io-piazza</module>
 		<module>discoursedb-annotation</module>
 		<module>discoursedb-annotation-ui</module>
-		<module>discoursedb-io-classroomsalon</module>
+		<!-- <module>discoursedb-io-classroomsalon</module> --><!-- Excluded since it is not complete yet-->
 	</modules>
 </project>
