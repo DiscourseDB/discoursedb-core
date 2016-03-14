@@ -118,8 +118,7 @@
  			<dependency>
 				<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
 				<artifactId>de.tudarmstadt.ukp.wikipedia</artifactId>
-				<version>1.0.0</version>
-				<!--  <version>1.1.0-SNAPHSOT</version>  --> <!-- Downgraded to last stable version for upcoming release-->
+				<version>1.1.0-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>		
 			</dependency>
@@ -757,11 +756,11 @@
 		<module>discoursedb-io-prosolo</module>
 		<module>discoursedb-model</module>
 		<module>discoursedb-api-rest</module>
-		<!-- <module>discoursedb-io-wikipedia</module> --><!-- Exclude due to snapshot dependency-->
+		<module>discoursedb-io-wikipedia</module>
 		<module>discoursedb-io-coursera</module>
 		<module>discoursedb-io-piazza</module>
 		<module>discoursedb-annotation</module>
 		<module>discoursedb-annotation-ui</module>
-		<!-- <module>discoursedb-io-classroomsalon</module> --><!-- Excluded since it is not complete yet-->
+		<module>discoursedb-io-classroomsalon</module>
 	</modules>
 </project>
