@@ -1,6 +1,6 @@
 # DiscourseDB Core
 
-All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to be configured to support [Lombok (see below)](https://github.com/DiscourseDB/discoursedb-parent/blob/master/README.md#lombok-in-eclipse) for full DiscourseDB compatibility.
+All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to be configured to support [Lombok (see below)](https://github.com/DiscourseDB/discoursedb-core/blob/master/README.md#setting-up-eclipse-to-support-project-lombok) for full DiscourseDB compatibility.
 
 ## How to get DiscourseDB
 
@@ -52,7 +52,7 @@ DiscourseDB requires write access to a MySQL database. The access credentials ar
 
 ## Configure DiscourseDB
 
-DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java) (see Spring docs for more details). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-core/blob/master/discoursedb-model/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-core/tree/master/discoursedb-model) project, which can be replaced or extended by a custom configuration if you substantially need to substantially change the configuration. In most cases, the BaseConfiguration doesn't need to be altered since configuration parameters are read from properties files and thus don't require changes to the class.
+DiscourseDB is centrally configured using a [Java-based container configuration](http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java). The default configuration is provided by the [BaseConfiguration](https://github.com/DiscourseDB/discoursedb-core/blob/master/discoursedb-model/src/main/java/edu/cmu/cs/lti/discoursedb/configuration/BaseConfiguration.java) class in the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-core/tree/master/discoursedb-model) project, which can be replaced or extended by a custom configuration if you substantially need to substantially change the configuration. In most cases, the BaseConfiguration doesn't need to be altered since configuration parameters are read from properties files and thus don't require changes to the class.
 
 Changing configuration parameters such as the credentials for the database connection can be achieved by overriding the default values with a **custom.properties** file that you _provide in the classpath_. The following values are defined by the default properties. **Any key-value-pair that is provided in a custom.properties file will override the respective default value.** You only need to specify the parameters you want to override.
 
