@@ -1,5 +1,8 @@
 # DiscourseDB Core
 
+Latest stable release: 0.5<br/>
+Latest developer snapshot: 0.6-SNAPSHOT<br/>
+
 All DiscourseDB projects require Java 8+ and Maven 3. Eclipse furthermore has to be configured to support [Lombok (see below)](https://github.com/DiscourseDB/discoursedb-core/blob/master/README.md#setting-up-eclipse-to-support-project-lombok) for full DiscourseDB compatibility.
 
 ## How to get DiscourseDB
