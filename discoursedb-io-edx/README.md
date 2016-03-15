@@ -1,56 +1,10 @@
 # DiscourseDB IO edX
-This project provides converters for edX data dumps. Right now, discoursedb-io-edx can import discussion forum data into a DiscourseDB instance. Support for other parts of the edX data dumps will be added to this project in the future. Converters for other sources than edX have their own discoursedb-io-* projects.
+This project provides converters for edX data dumps. Right now, discoursedb-io-edx can import discussion forum data into a DiscourseDB instance. 
+
+Note: this documentation might be outdated and no longer reflect the code.
 
 ## Latest JavaDoc
 The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-io-edx/javadoc/)
-
-### Configuring Maven repository
-You can simply add any DiscourseDB project as a dependency to your Maven project. The following configuration needs to be added to your project pom.xml or settings.xml.
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd" xmlns="http://maven.apache.org/SETTINGS/1.1.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <profiles>
-    <profile>
-      <repositories>
-        <repository>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <id>central</id>
-          <name>libs-release</name>
-          <url>http://moon.lti.cs.cmu.edu:8081/artifactory/libs-release</url>
-        </repository>
-        <repository>
-          <snapshots />
-          <id>snapshots</id>
-          <name>libs-snapshot</name>
-          <url>http://moon.lti.cs.cmu.edu:8081/artifactory/libs-snapshot</url>
-        </repository>
-      </repositories>
-      <id>artifactory</id>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <activeProfile>artifactory</activeProfile>
-  </activeProfiles>
-</settings>
-```
-
-### Check out projects
-To import the project into eclipse, simply follow the following steps (Steps 3 and 4 are only necessary the first time you import a Maven project from git):
-
-```
-- Select the "Import..." context menu from the Package Explorer view
-- Select "Check out Maven projects from SCM" option under the Maven category
-- On the window that is presented choose the link "Find more SCM connectors"
-- Find connector for Git...install...restart
-```
-
-Like all DiscourseDB projects, this project depends on the [discoursedb-parent](https://github.com/DiscourseDB/discoursedb-parent) and the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) project. You need to check out these projects or add the Artifactory configuration above to your settings.xml, so that Maven can pull in the artifacts automatically.
-
-DiscourseDB requires write access to a MySQL database. The access credentials are defined in the [hibernate.properties](https://raw.githubusercontent.com/DiscourseDB/discoursedb-model/master/discoursedb-model/src/main/resources/hibernate.properties). The standard configuration expects a local MySQL server running on port 3306 and a user with the login credentials user:user and sufficient permissions. The standard database name is discoursedb. Edit the properties file to change these parameters. DiscourseDB will automatically initialize a fresh DiscourseDB instance if none exists yet. Otherwise, it will import data into the existing database.
 
 ## Forum Converter Architecture
 All DiscourseDB-IO projects are [Spring Boot Applications](http://projects.spring.io/spring-boot/). Spring Boot is a Spring project that makes it easy to create stand-alone Spring based applications with a minimum of configuration. A single [starter class](https://github.com/DiscourseDB/discoursedb-io-edx/blob/master/discoursedb-io-edx/src/main/java/edu/cmu/cs/lti/discoursedb/io/edx/forum/converter/EdxForumConverterApplication.java) is launched by the user which configures the runtime environment and establishes a connection to DiscourseDB. The necessary DiscourseDB configurations are automatically pulled in from the [discoursedb-model](https://github.com/DiscourseDB/discoursedb-model) project which contains the DiscourseDB core components.
@@ -123,20 +77,15 @@ The following example shows how to create a new user entity from a Post object a
 @Autowired
 private UserRepository userRepo;
 
-		⋮     ⋮
-
 public void map(Post p) {
 		⋮     ⋮
-	Optional<User> curOptUser = userRepository.findBySourceIdAndUsername(p.getAuthorId(),p.getAuthorUsername());
-    User curUser;
-    if(curOptUser.isPresent()){ 
-        curUser=curOptUser.get();
-    }else{
-        curUser = new User();
-        curUser.setUsername(p.getAuthorUsername());
-        curUser.setSourceId(p.getAuthorId());
-        curUser = userRepository.save(curUser);
-    }
+    User curUser = userRepository.findBySourceIdAndUsername(p.getAuthorId(),p.getAuthorUsername()).orElseGet(()->{
+        User newUser = new User();
+        newUser.setUsername(p.getAuthorUsername());
+        newUser.setSourceId(p.getAuthorId());
+        return userRepository.save(newUser);
+        };
+     );
 		⋮     ⋮
 }
 ```
