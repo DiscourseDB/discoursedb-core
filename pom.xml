@@ -8,7 +8,7 @@
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/DiscourseDB/discoursedb-io-tags/issues</url>
+		<url>https://github.com/DiscourseDB/discoursedb-core/issues</url>
 	</issueManagement>
 	<distributionManagement>
 		<repository>
@@ -763,4 +763,8 @@
 		<module>discoursedb-annotation-ui</module>
 		<module>discoursedb-io-classroomsalon</module>
 	</modules>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://moon.lti.cs.cmu.edu:8080/</url>
+	</ciManagement>
 </project>
