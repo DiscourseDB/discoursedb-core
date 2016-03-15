@@ -19,8 +19,8 @@
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-core</artifactId>
 	<version>0.6-SNAPSHOT</version>
-	<name>DiscourseDB parent</name>
-	<description>Parent POM for DiscourseDB projects</description>
+	<name>DiscourseDB Core Parent </name>
+	<description>DiscourseDB Core Parent Project</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -767,4 +767,9 @@
 		<system>Jenkins</system>
 		<url>http://moon.lti.cs.cmu.edu:8080/</url>
 	</ciManagement>
+	<organization>
+		<name>Carnegie Mellon University</name>
+		<url>https://lti.cs.cmu.edu/</url>
+	</organization>
+	<url>https://discoursedb.github.io/</url>
 </project>
