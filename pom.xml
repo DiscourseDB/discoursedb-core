@@ -21,6 +21,13 @@
 	<version>0.6-SNAPSHOT</version>
 	<name>DiscourseDB Core Parent </name>
 	<description>DiscourseDB Core Parent Project</description>
+	<developers>
+		<developer>
+			<id>ferschke</id>
+			<name>Oliver Ferschke</name>
+			<email>oliver.ferschke@gmail.com</email>
+		</developer>
+	</developers>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.target>1.8</maven.compiler.target>
