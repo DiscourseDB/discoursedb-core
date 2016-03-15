@@ -6,6 +6,6 @@ DiscourseDB is an infrastructure project that provides a common data model desig
 
 
 ## Documentation
-* Project-level documentation can be found in the [DiscourseDB Wiki](https://github.com/DiscourseDB/discoursedb-core/wiki).<br/>
+* Project-level documentation (general overview, setup, developer manual) can be found in the [DiscourseDB Wiki](https://github.com/DiscourseDB/discoursedb-core/wiki).<br/>
 * Module-level documentation can be found in the README.md files in each module folder.
 
