@@ -2,7 +2,7 @@
 This project contains the core object model for DiscourseDB which both defines the database schema and constitutes as an access layer to the the database. discoursedb-model is based on the [Spring Framework](http://projects.spring.io/spring-framework/) and [Spring Data JPA](http://projects.spring.io/spring-data-jpa/) with [Hibernate ORM](http://hibernate.org/orm/) as its JPA Provider. Query abstraction is provided by [QueryDSL-JPA](http://www.querydsl.com/).
 
 ## Requirements and Setup
-All DiscourseDB projects require Java 8+ and Maven 3. More information about the setup can be found in the [main README](https://github.com/DiscourseDB/discoursedb-core/blob/master/README.md).
+All DiscourseDB projects require Java 8+ and Maven 3. More information about the setup can be found in the [wiki README](https://github.com/DiscourseDB/discoursedb-core/wiki/General-Info-and-Setup).
 
 ## DiscourseDB Model Architecture Overview
 
