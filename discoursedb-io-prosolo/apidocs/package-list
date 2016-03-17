@@ -1,0 +1,5 @@
+edu.cmu.cs.lti.discoursedb.io.prosolo.blog.converter
+edu.cmu.cs.lti.discoursedb.io.prosolo.blog.model
+edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.converter
+edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.io
+edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model

@@ -1,0 +1,17 @@
+edu.cmu.cs.lti.discoursedb.configuration
+edu.cmu.cs.lti.discoursedb.core.model
+edu.cmu.cs.lti.discoursedb.core.model.annotation
+edu.cmu.cs.lti.discoursedb.core.model.macro
+edu.cmu.cs.lti.discoursedb.core.model.system
+edu.cmu.cs.lti.discoursedb.core.model.user
+edu.cmu.cs.lti.discoursedb.core.model.user.projection
+edu.cmu.cs.lti.discoursedb.core.repository
+edu.cmu.cs.lti.discoursedb.core.repository.annotation
+edu.cmu.cs.lti.discoursedb.core.repository.macro
+edu.cmu.cs.lti.discoursedb.core.repository.system
+edu.cmu.cs.lti.discoursedb.core.repository.user
+edu.cmu.cs.lti.discoursedb.core.service.annotation
+edu.cmu.cs.lti.discoursedb.core.service.macro
+edu.cmu.cs.lti.discoursedb.core.service.system
+edu.cmu.cs.lti.discoursedb.core.service.user
+edu.cmu.cs.lti.discoursedb.core.type

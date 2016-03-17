@@ -1,0 +1,5 @@
+edu.cmu.cs.lti.discoursedb.api
+edu.cmu.cs.lti.discoursedb.api.core.controller.user
+edu.cmu.cs.lti.discoursedb.api.recommendation.controller
+edu.cmu.cs.lti.discoursedb.api.recommendation.resource
+edu.cmu.cs.lti.discoursedb.configuration
