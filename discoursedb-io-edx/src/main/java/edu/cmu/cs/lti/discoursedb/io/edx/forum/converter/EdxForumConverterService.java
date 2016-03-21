@@ -121,12 +121,14 @@ public class EdxForumConverterService{
 				curContribution -> {
 					//If current contribution is not a thread starter then create a DiscourseRelation of DESCENDANT type that connects it with the thread starter 
 					if(p.getCommentThreadId()!=null){
-						contributionService.findOneByDataSource(p.getCommentThreadId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(threadStarter -> contributionService.createDiscourseRelation(threadStarter, curContribution, DiscourseRelationTypes.DESCENDANT));				
+						contributionService.findOneByDataSource(p.getCommentThreadId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(
+								threadStarter -> contributionService.createDiscourseRelation(threadStarter, curContribution, DiscourseRelationTypes.DESCENDANT));				
 					}
 
 					//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent			
 					if(p.getParentId()!=null){
-						contributionService.findOneByDataSource(p.getParentId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(parent -> contributionService.createDiscourseRelation(parent , curContribution, DiscourseRelationTypes.REPLY));				
+						contributionService.findOneByDataSource(p.getParentId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(
+								parent -> contributionService.createDiscourseRelation(parent , curContribution, DiscourseRelationTypes.REPLY));				
 					}
 				}
 		);
