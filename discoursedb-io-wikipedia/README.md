@@ -10,12 +10,12 @@ This converter uses [JWPL 1.1.0-SNAPSHOT](https://dkpro.github.io/dkpro-jwpl/) t
 The import is launched using the class<br/> ```edu.cmu.cs.lti.discoursedb.io.wikipedia.talk.converter.WikipediaTalkPageConverterApplication```<br/>
 
 It requires the following startup parameters:<br/>
-```WikipediaTalkPageConverterApplication  <DiscourseName> <DataSetName> <tileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```<br/>
+```WikipediaTalkPageConverterApplication  <DiscourseName> <DataSetName> <TileListFile> <DB_HOST> <DB> <DB_USER> <DB_PWD> <LANGUAGE>```<br/>
 with <br/>
 
 - **DiscourseName** = the name of the discourse the imported discussion should be associated with
 - **DataSetName** = a name for the dataset (e.g. the JWPL database or the list of title) that is imported
-- **tileListFile** = the location of a text file containing a line-separated list of Wikipedia article titles
+- **TileListFile** = the location of a text file containing a line-separated list of Wikipedia article titles
 - **DB_HOST** = host of the JWPL database
 - **DB** = name of the JWPL database
 - **DB_USER** = database username
