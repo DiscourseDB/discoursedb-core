@@ -1,9 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.coursera.converter;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,14 +77,9 @@ public class CourseraConverterService {
 		//initialize discourse the forums belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 		
-		//get the list of all forum ids in the source database
-		ArrayList<Integer> forumIds = (ArrayList<Integer>) database.getIds("forum");
-		
 		log.info("Importing forum data");
 		
-		for(int i=0;i<forumIds.size();i++) {
-			
-			int forumid = forumIds.get(i);
+		for(int forumid:database.getIds("forum")) {
 			Forum curForum = (Forum) database.getDbEntity("forum", (long) forumid);
 			
 			DiscoursePart forum = 
@@ -95,9 +88,7 @@ public class CourseraConverterService {
 			forum.setStartTime(d);
 			
 			//If a forum has no name, set "NoNameForum" as its name
-			if(curForum.getName().length()==0)
-				curForum.setName("NoNameForum");
-			forum.setName(curForum.getName());
+			forum.setName(curForum.getName().length()>0?curForum.getName():"NoNameForum");
 			
 			dataSourceService.addSource(forum, new DataSourceInstance(
 					String.valueOf(curForum.getId()), 
@@ -128,23 +119,12 @@ public class CourseraConverterService {
 		//initialize the discourse the threads belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 		
-		//get the list of all thread ids in the source database
-	    ArrayList<Integer> threadIds = (ArrayList<Integer>) database.getIds("thread");
-	    
 	    log.info("Importing thread data");
 		
-		for(int i=0;i<threadIds.size();i++) {
-			int threadid = threadIds.get(i);
+	    for(int threadid: database.getIds("thread")) {
 			Thread curThread = (Thread) database.getDbEntity("thread", (long) threadid);
 
-			//A few threads have very long title (longer than 255)
-			//These threads are skipped
-			//TODO OF: check if we should do that. maybe the range of the title field should be extended 
-			if(curThread.getTitle().length()>=255)
-				continue;			
-			
-			DiscoursePart thread = 
-					discoursepartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.THREAD);
+			DiscoursePart thread = discoursepartService.createTypedDiscoursePart(discourse, DiscoursePartTypes.THREAD);
 						
 			//set time and name
 			Date start = new Date(curThread.getPosted_time()*1000L);
@@ -190,66 +170,59 @@ public class CourseraConverterService {
 		//initialize the discourse the threads belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 		
-		//get the list of all post ids in the source database
-		ArrayList<Integer> postIds = (ArrayList<Integer>) database.getIds("post");
-		
 		log.info("Importing post data");
 		
-		for(int i=0;i<postIds.size();i++) {
-			int postid = postIds.get(i);
+		for(int postid:database.getIds("post")){
 			Post curPost = (Post) database.getDbEntity("post", (long) postid);
 			
-			//if a post is already in discoursedb, then it is skipped
-			Optional<Contribution> existingContribution = 
-					contributionService.findOneByDataSource(
-						String.valueOf(curPost.getId()),
-						CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
-						dataSetName);
-			if(existingContribution.isPresent())
-				continue;
-			
-			Date strat = new Date(curPost.getPost_time()*1000L);
-				
-			//add content entity to database
-			log.trace("Create Content entity");
-			User curUser = userService.createOrGetUser(discourse, String.valueOf(curPost.getUser_id()));
-			Content curContent = contentService.createContent();
-			curContent.setText(curPost.getPost_text());
-			curContent.setAuthor(curUser);
-			curContent.setStartTime(strat); 
-			dataSourceService.addSource(curContent, new DataSourceInstance(
-							String.valueOf(curPost.getId()), 
-							CourseraSourceMapping.ID_STR_TO_CONTENT, 
-							DataSourceTypes.COURSERA, dataSetName));
-				
-			//add post contribution entity to database
-			log.trace("Create Contribution entity");
-			ContributionTypes mappedType = null;
-			if(curPost.getOriginal()==0)
-				mappedType = ContributionTypes.POST;
-			else
-				mappedType = ContributionTypes.THREAD_STARTER;
-				
-			Contribution curContribution = contributionService.createTypedContribution(mappedType);
-			curContribution.setStartTime(strat);
-			curContribution.setFirstRevision(curContent);
-			curContribution.setCurrentRevision(curContent);
-			if(curPost.getVotes()>0)
-				curContribution.setUpvotes((int) curPost.getVotes());
-			else
-				curContribution.setDownvotes((int) Math.abs(curPost.getVotes()));
-				
-			dataSourceService.addSource(curContribution,
-					new DataSourceInstance(
-						String.valueOf(curPost.getId()), 
-						CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
-						DataSourceTypes.BAZAAR, dataSetName));
-			
-			//build relation between a post and the thread it belongs to
-			discoursepartService.findOneByDataSource(
-						String.valueOf(curPost.getThread_id()),
-						CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, dataSetName).
-						ifPresent(dp->discoursepartService.addContributionToDiscoursePart(curContribution, dp));			
+			//create new contribution for post if it doesn't already exist 
+			contributionService.findOneByDataSource(String.valueOf(curPost.getId()), CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName)
+				.orElseGet(()->{
+							Date startTime = new Date(curPost.getPost_time()*1000L);
+							
+							//add content entity to database
+							log.trace("Create Content entity");
+							User curUser = userService.createOrGetUser(discourse, String.valueOf(curPost.getUser_id()));
+							Content curContent = contentService.createContent();
+							curContent.setText(curPost.getPost_text());
+							curContent.setAuthor(curUser);
+							curContent.setStartTime(startTime); 
+							dataSourceService.addSource(curContent, new DataSourceInstance(
+											String.valueOf(curPost.getId()), 
+											CourseraSourceMapping.ID_STR_TO_CONTENT, 
+											DataSourceTypes.COURSERA, dataSetName));
+								
+							//add post contribution entity to database
+							log.trace("Create Contribution entity");
+							ContributionTypes mappedType = null;
+							if(curPost.getOriginal()==0)
+								mappedType = ContributionTypes.POST;
+							else
+								mappedType = ContributionTypes.THREAD_STARTER;
+								
+							Contribution curContribution = contributionService.createTypedContribution(mappedType);
+							curContribution.setStartTime(startTime);
+							curContribution.setFirstRevision(curContent);
+							curContribution.setCurrentRevision(curContent);
+							if(curPost.getVotes()>0)
+								curContribution.setUpvotes((int) curPost.getVotes());
+							else
+								curContribution.setDownvotes((int) Math.abs(curPost.getVotes()));
+								
+							dataSourceService.addSource(curContribution,
+									new DataSourceInstance(
+										String.valueOf(curPost.getId()), 
+										CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
+										DataSourceTypes.BAZAAR, dataSetName));
+							
+							//build relation between a post and the thread it belongs to
+							discoursepartService.findOneByDataSource(
+										String.valueOf(curPost.getThread_id()),
+										CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, dataSetName).
+										ifPresent(dp->discoursepartService.addContributionToDiscoursePart(curContribution, dp));			
+
+							return curContribution; //only necessary for orElseGet()					
+						});			
 		}			
 	}
 	
@@ -273,30 +246,24 @@ public class CourseraConverterService {
 		//initialize the discourse the comments belong to
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 		
-		//get the list of all comment ids in the source database
-		ArrayList<Integer> commentIds = (ArrayList<Integer>) database.getIds("comment");
-		
 		log.info("Importing comment data");
 		
-		for(int i=0;i<commentIds.size();i++) {
-			int commentid = commentIds.get(i);
+		for(int commentid:database.getIds("comment")) {
 			Comment curComment = (Comment) database.getDbEntity("comment", (long) commentid);
 			
-			Optional<Contribution> existingContribution = 
-					contributionService.findOneByDataSource(
-							String.valueOf(curComment.getId()),
-							CourseraSourceMapping.ID_STR_TO_CONTRIBUTION_COMMENT, 
-							dataSetName);
-			
-			if(!existingContribution.isPresent()) {
-				Date start = new Date(curComment.getPost_time()*1000L);
-				//add content entity to database
+			//create conribution if it doesn't exist yet
+			contributionService.findOneByDataSource(String.valueOf(curComment.getId()),CourseraSourceMapping.ID_STR_TO_CONTRIBUTION_COMMENT, dataSetName)
+				.orElseGet(()-> {
+				
+					Date startTime = new Date(curComment.getPost_time()*1000L);
+
+					//add content entity to database
 				log.trace("Create Content entity");
 				Content curContent = contentService.createContent();
 				curContent.setText(curComment.getText());
 				User curUser = userService.createOrGetUser(discourse, String.valueOf(curComment.getUser_id()));
 				curContent.setAuthor(curUser);
-				curContent.setStartTime(start);
+				curContent.setStartTime(startTime);
 				dataSourceService.addSource(
 						curContent, new DataSourceInstance(
 								String.valueOf(curComment.getId()), 
@@ -310,8 +277,8 @@ public class CourseraConverterService {
 				Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
 				curContribution.setCurrentRevision(curContent);
 				curContribution.setFirstRevision(curContent);
-				curContribution.setStartTime(start);
-				if(curComment.getVotes()>0)
+				curContribution.setStartTime(startTime);
+				if (curComment.getVotes() > 0)
 					curContribution.setUpvotes((int) curComment.getVotes());
 				else
 					curContribution.setDownvotes((int) Math.abs(curComment.getVotes()));
@@ -333,7 +300,9 @@ public class CourseraConverterService {
 								String.valueOf(curComment.getThread_id()),
 								CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, dataSetName).
 								ifPresent(t->discoursepartService.addContributionToDiscoursePart(curContribution, t));
+				return curContribution; //only necessary for orElseGet()
 			}
+			);
 		}
 	}
 	
