@@ -11,6 +11,7 @@ buildNumber.properties
 .settings
 .classpath
 .project
+custom.properties
 
 *.class
 
