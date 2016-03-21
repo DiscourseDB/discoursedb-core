@@ -45,10 +45,10 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
 ![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/norelations.jpg)
 <table width="100%" border="0">
   <tr border="0">
-    <td align="center"><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/allrelations.jpg"/><p>All Relations</p></td>
-    <td align="center"> <img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/contextrelations.jpg"/><p>Context Relations</p></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/contentrelations.jpg"/><p>Content Relations</p></td>
- <td align="center"><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/dpcontribrelations.jpg"/><p>DiscoursePart Relations</p></tr>
+    <td align="center"><img height="200" src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/allrelations.jpg"/><p>All Relations</p></td>
+    <td align="center"> <img height="200" src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/contextrelations.jpg"/><p>Context Relations</p></td>
+    <td align="center"><img height="200" src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/contentrelations.jpg"/><p>Content Relations</p></td>
+ <td align="center"><img height="200" src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/dpcontribrelations.jpg"/><p>DiscoursePart Relations</p></tr>
   </tr>
 </table>
 ### Artifact Mappings
