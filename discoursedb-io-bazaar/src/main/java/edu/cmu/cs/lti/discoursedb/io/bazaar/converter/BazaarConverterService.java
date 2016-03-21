@@ -129,20 +129,27 @@ public class BazaarConverterService {
 		
 		
 		//add discoursepartType entity to database
-		DiscoursePart curDiscoursePart = 
+		DiscoursePart curRoom = 
 				discoursepartService.createOrGetTypedDiscoursePart(
 						curDiscourse, r.getName(), DiscoursePartTypes.CHATROOM);
 		if(r.getCreated_time()!=null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			java.util.Date date = sdf.parse(r.getCreated_time());
-			curDiscoursePart.setStartTime(date);
+			curRoom.setStartTime(date);
 		}
 		if(r.getModified_time()!=null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			java.util.Date date = sdf.parse(r.getModified_time());
-			curDiscoursePart.setEndTime(date);
+			curRoom.setEndTime(date);
 		}
-		//curDiscoursePart.setName(r.getName());
+		
+		curRoom.setName(r.getName());
+		
+		dataSourceService.addSource(curRoom, new DataSourceInstance(
+				String.valueOf(r.getId()), 
+				BazaarSourceMapping.ID_STR_TO_DISCOURSEPART, 
+				DataSourceTypes.BAZAAR, 
+				dataSetName));
 		
 	}
 	
