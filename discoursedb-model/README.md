@@ -4,7 +4,7 @@ This project contains the core object model for DiscourseDB which both defines t
 The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/)
 
 ## Requirements and Setup
-All DiscourseDB projects require Java 8+ and Maven 3. More information about the setup can be found in the [wiki](https://github.com/DiscourseDB/discoursedb-core/wiki/General-Info-and-Setup).
+All DiscourseDB projects require Java 8+ and Maven 3. The discoursedb-model module contains the base configuration of DiscourseDB. Information about configuration and setup can be found in the [wiki](https://github.com/DiscourseDB/discoursedb-core/wiki/General-Info-and-Setup).
 
 ## DiscourseDB Model Architecture Overview
 
