@@ -6,7 +6,7 @@ This section defines the input for this converter and the startup parameters.
 ### Data Source
 This converter imports the chatroom data on Bazaar platform into DiscourseDB. The source data are stored in two csv files. One file stores room data. The other one stores all the chat data. Each line in room file stores necessary information (e.g. id, name) of a chatroom. Each line in message file stores necessary information of a message (e.g. id, type, content) in a certain chatroom. The source data are mapped into DiscourseDB line by line with the help of an open source CSV mapper. And during the importing process, a temporary file is created to help build relations.
 
-### Importing Piazza Discussion Data
+### Importing Chatroom Data
 The import is launched using the class<br/> ```edu.cmu.cs.lti.discoursedb.io.bazaar.converter.BazaarConverterApplication```<br/>
 
 It requires the following startup parameters:<br/>
