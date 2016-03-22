@@ -135,7 +135,11 @@ public class BazaarConverterService {
 			}
 		}
 		curDiscoursePart.setName(r.getName());			
-		
+		dataSourceService.addSource(curDiscoursePart, new DataSourceInstance(
+				String.valueOf(r.getId()), 
+				BazaarSourceMapping.ID_STR_TO_DISCOURSEPART, 
+				DataSourceTypes.BAZAAR, 
+				dataSetName));
 	}
 	
 	public void mapInteraction(Message m, String discourseName, String dataSetName, Map<String, String> roommap) {
