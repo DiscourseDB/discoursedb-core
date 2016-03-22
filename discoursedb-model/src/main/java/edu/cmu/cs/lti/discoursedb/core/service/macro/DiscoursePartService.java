@@ -79,7 +79,7 @@ public class DiscoursePartService {
 	 */
 	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type){		
 		Assert.notNull(discourse, "Discourse cannot be null.");
-		Assert.hasText(discoursePartName);
+		Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty");
 		Assert.notNull(type, "Type cannot be null.");		
 
 		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
