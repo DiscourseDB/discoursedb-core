@@ -3,8 +3,6 @@ package edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.converter;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -37,6 +35,9 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloPost;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.ProsoloUser;
 import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
 /**
  * This converter service maps Prosolo social activities from a prosolo database
@@ -46,18 +47,18 @@ import edu.cmu.cs.lti.discoursedb.io.prosolo.socialactivity.model.SocialActivity
  * 
  * @author Oliver Ferschke
  */
-@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+@Log4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired) )
+@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 public class ProsoloConverterService {
 
-	private static final Logger logger = LogManager.getLogger(ProsoloConverterService.class);
-	
-	@Autowired private DiscourseService discourseService;	
-	@Autowired private UserService userService;
-	@Autowired private DataSourceService dataSourceService;
-	@Autowired private ContentService contentService;
-	@Autowired private ContributionService contributionService;
-	@Autowired private DiscoursePartService discoursePartService;
+	private final @NonNull DiscourseService discourseService;	
+	private final @NonNull UserService userService;
+	private final @NonNull DataSourceService dataSourceService;
+	private final @NonNull ContentService contentService;
+	private final @NonNull ContributionService contributionService;
+	private final @NonNull DiscoursePartService discoursePartService;
 	
 	/**
 	 * Maps social activities of the given type and the given action to DiscourseDB.
@@ -73,7 +74,7 @@ public class ProsoloConverterService {
 	
 			//check if the current social activity has already been imported at any point in time. if so, skip and proceed with the next
 			if(dataSourceService.dataSourceExists(curSocialActivityId+"",ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_CONTRIBUTION,dataSetName)){
-				logger.warn("Social activity with id "+curSocialActivityId+" ("+dtype+", "+action+") already in database. Skipping...");
+				log.warn("Social activity with id "+curSocialActivityId+" ("+dtype+", "+action+") already in database. Skipping...");
 				return;	
 			}
 			
@@ -255,7 +256,7 @@ public class ProsoloConverterService {
 					followUser.setStartTime(curFollowedEntity.getStarted_following());					
 				}				
 			}else{
-				logger.warn("Unsupported dtype: "+dtype);
+				log.warn("Unsupported dtype: "+dtype);
 				return;
 			}
 	}
@@ -277,7 +278,7 @@ public class ProsoloConverterService {
 	public User createUpdateOrGetUser(ProsoloUser prosoloUser, ProsoloDB prosolo, String discourseName, String dataSetName, DataSourceTypes dataSourceType) throws SQLException{
 		User curUser = null; 
 		if(prosoloUser==null){
-			logger.error("Could not find user information for prosolo user in prosolo database");
+			log.error("Could not find user information for prosolo user in prosolo database");
 		}else{				
 			//Check if we previously ran the addOrUpdate already. If so, just return the User
 			Optional<User> existingUser = userService.findUserByDiscourseAndSourceIdAndDataSet(discourseService.createOrGetDiscourse(discourseName), prosoloUser.getId()+"", dataSetName);
