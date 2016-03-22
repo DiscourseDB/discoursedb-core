@@ -68,14 +68,11 @@ public class BazaarConverterService {
 					ContributionTypes mappedType = null;
 					switch (m.getType()) {
 						case "text":
-							mappedType = ContributionTypes.POST;												
-							break;
+							mappedType = ContributionTypes.POST; break;
 						case "image":
-							mappedType = ContributionTypes.BAZAAR_IMAGE;								
-							break;
+							mappedType = ContributionTypes.BAZAAR_IMAGE; break;
 						case "private":
-							mappedType = ContributionTypes.PRIVATE_MESSAGE;								
-							break;
+							mappedType = ContributionTypes.PRIVATE_MESSAGE; break;
 						default:
 							log.warn("Cannot map message type "+m.getType()+". Skipping...");
 							return null;
