@@ -1,10 +1,9 @@
 package edu.cmu.cs.lti.discoursedb.io.bazaar.converter;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.util.Assert;
 
 
 /**
@@ -16,13 +15,11 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages={"edu.cmu.cs.lti.discoursedb.configuration","edu.cmu.cs.lti.discoursedb.io.bazaar"})
 public class BazaarConverterApplication {
 
-	private static final Logger logger = LogManager.getLogger(BazaarConverterApplication.class);
-	
+	/**
+	 * @param args <Dataset Name> <Discourse name> <chat message log> <chat room log> <agent name>\n A common value for the agent name (args[4]) is VirtualCarolyn.
+	 */
 	public static void main(String[] args) {		
-		if (args.length != 4) {
-			logger.error("Usage: BazaarConverterApplication <Dataset Name> <Discourse name> <chat message log> <chat room log>");
-			return;
-		}
+		Assert.isTrue(args.length==5,"Usage: BazaarConverterApplication <Dataset Name> <Discourse name> <chat message log> <chat room log> <agent name>\n A common value for the agent name is VirtualCarolyn.");
 		SpringApplication.run(BazaarConverterApplication.class, args);		
 	}
 

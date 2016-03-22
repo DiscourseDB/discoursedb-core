@@ -2,11 +2,9 @@ package edu.cmu.cs.lti.discoursedb.io.bazaar.converter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.Date;
+import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,129 +29,125 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.BazaarSourceMapping;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Message;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Room;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
 /**
  * @author Haitian Gong
  * @author Oliver Ferschke
  *
  */
+@Log4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
 public class BazaarConverterService {
 	
-	@Autowired
-	private DataSourceService dataSourceService;
-	@Autowired
-	private DiscourseService discourseService;
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private ContentService contentService;
-	@Autowired
-	private ContributionService contributionService;
-	@Autowired
-	private DiscoursePartService discoursepartService;
-	
-	private static final Logger logger = LogManager.getLogger(BazaarConverterService.class);
-	
-	public void mapMessage(Message m, String dataSetName, String discourseName, HashMap<String, String> map) throws ParseException {
+	private final @NonNull DataSourceService dataSourceService;
+	private final @NonNull DiscourseService discourseService;
+	private final @NonNull UserService userService;
+	private final @NonNull ContentService contentService;
+	private final @NonNull ContributionService contributionService;
+	private final @NonNull DiscoursePartService discoursepartService;
+
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	public void mapMessage(Message m, String dataSetName, String discourseName, Map<String, String> roommap) {
 		if (contributionService.findOneByDataSource(m.getId(), BazaarSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).isPresent()) {
-			logger.warn("Message " + m.getId() + " already in database. Skipping Message");
+			log.warn("Message " + m.getId() + " already in database. Skipping...");
 			return;
 		}
 		
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
 		User curUser = userService.createOrGetUser(curDiscourse, m.getUsername());
-		dataSourceService.addSource(curUser,
-				new DataSourceInstance(m.getUsername(), BazaarSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.BAZAAR, dataSetName));
+		dataSourceService.addSource(curUser, new DataSourceInstance(m.getUsername(), BazaarSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.BAZAAR, dataSetName));
 		
-		Optional<Contribution> existingContribution = 
-				contributionService.findOneByDataSource(
-						m.getId(),BazaarSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName);
-		
-		if (!existingContribution.isPresent()) {
-			ContributionTypes mappedType = null;
-			if(m.getType().equals("text"))
-				mappedType = ContributionTypes.POST;
-			else if(m.getType().equals("image"))
-				mappedType = ContributionTypes.BAZAAR_IMAGE;
-			else if(m.getType().equals("private"))
-				mappedType = ContributionTypes.PRIVATE_MESSAGE;
-				
-			//add content entity to database
-			logger.trace("Create Content entity");
-			Content curContent = contentService.createContent();
-			curContent.setText(m.getContent());
-			if(m.getCreated_time()!=null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				//System.out.println(m.getCreated_time());
-				java.util.Date date = sdf.parse(m.getCreated_time());
-				//System.out.println(sdf.format(date));
-				curContent.setStartTime(date);
-				curContent.setEndTime(date);
-			}
-			curContent.setAuthor(curUser);
-			dataSourceService.addSource(
-					curContent, new DataSourceInstance(
-							m.getId(), BazaarSourceMapping.ID_STR_TO_CONTENT, DataSourceTypes.BAZAAR, dataSetName));
-			
-			//add contribution entity to database
-			logger.trace("Create Contribution entity");
-			Contribution curContribution = contributionService.createTypedContribution(mappedType);
-			curContribution.setCurrentRevision(curContent);
-			if(m.getCreated_time()!=null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				java.util.Date date = sdf.parse(m.getCreated_time());
-				java.sql.Date sdate = new java.sql.Date(date.getTime());
-				curContribution.setStartTime(sdate);
-				curContribution.setEndTime(sdate);
-			}
-			curContribution.setFirstRevision(curContent);
-			dataSourceService.addSource(curContribution,
-					new DataSourceInstance(
-							m.getId(), BazaarSourceMapping.ID_STR_TO_CONTRIBUTION, DataSourceTypes.BAZAAR, dataSetName));
-			
-			//map relation between contribution and discoursepart
-			DiscoursePart curDiscoursePart = 
-					discoursepartService.createOrGetTypedDiscoursePart(
-							curDiscourse, map.get(m.getRoomid()), DiscoursePartTypes.CHATROOM);
-			discoursepartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
-			
-		}
-		
+		contributionService.findOneByDataSource(m.getId(),BazaarSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).orElseGet(()->{
+
+					ContributionTypes mappedType = null;
+					switch (m.getType()) {
+						case "text":
+							mappedType = ContributionTypes.POST;												
+							break;
+						case "image":
+							mappedType = ContributionTypes.BAZAAR_IMAGE;								
+							break;
+						case "private":
+							mappedType = ContributionTypes.PRIVATE_MESSAGE;								
+							break;
+						default:
+							log.warn("Cannot map message type "+m.getType()+". Skipping...");
+							return null;
+					}					
+						
+					log.trace("Create Content entity");
+					Content curContent = contentService.createContent();
+					curContent.setText(m.getContent());
+					curContent.setAuthor(curUser);
+					dataSourceService.addSource(curContent, new DataSourceInstance(m.getId(), BazaarSourceMapping.ID_STR_TO_CONTENT, DataSourceTypes.BAZAAR, dataSetName));
+					
+					log.trace("Create Contribution entity");
+					Contribution curContribution = contributionService.createTypedContribution(mappedType);
+					curContribution.setCurrentRevision(curContent);
+					curContribution.setFirstRevision(curContent);
+					dataSourceService.addSource(curContribution, new DataSourceInstance(m.getId(), BazaarSourceMapping.ID_STR_TO_CONTRIBUTION, DataSourceTypes.BAZAAR, dataSetName));
+
+					
+					//parse and set creation time for content and contribution
+					try{
+						Date date = sdf.parse(m.getCreated_time());									
+						curContent.setStartTime(date);
+						curContent.setEndTime(date);
+						curContribution.setStartTime(date);
+						curContribution.setEndTime(date);									
+					}catch(ParseException e){
+						log.error("Could not parse creation time "+m.getCreated_time(), e);
+					}
+
+					//map relation between contribution and discoursepart
+					DiscoursePart curDiscoursePart = discoursepartService.createOrGetTypedDiscoursePart(
+									curDiscourse, lookupRoomName(m.getRoomid(), roommap), DiscoursePartTypes.CHATROOM);
+					discoursepartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
+									
+					return curContribution; //only needed to fulfill return reqs of orElseGet							
+				}
+		);		
 	}
 	
-	public void mapRoom(Room r, String dataSetName, String discourseName) throws ParseException {
+	public void mapRoom(Room r, String dataSetName, String discourseName) {
 
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
-		
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);		
 		
 		//add discoursepartType entity to database
-		DiscoursePart curDiscoursePart = 
-				discoursepartService.createOrGetTypedDiscoursePart(
+		DiscoursePart curDiscoursePart = discoursepartService.createOrGetTypedDiscoursePart(
 						curDiscourse, r.getName(), DiscoursePartTypes.CHATROOM);
+		
 		if(r.getCreated_time()!=null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			java.util.Date date = sdf.parse(r.getCreated_time());
-			curDiscoursePart.setStartTime(date);
+			try{
+				curDiscoursePart.setStartTime(sdf.parse(r.getCreated_time()));
+			}catch(ParseException e){
+				log.error("Could not parse creation time "+r.getCreated_time(), e);
+			}
 		}
 		if(r.getModified_time()!=null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			java.util.Date date = sdf.parse(r.getModified_time());
-			curDiscoursePart.setEndTime(date);
+			try{
+				curDiscoursePart.setEndTime(sdf.parse(r.getModified_time()));				
+			}catch(ParseException e){
+				log.error("Could not parse modification time "+r.getModified_time(), e);				
+			}
 		}
-		//curDiscoursePart.setName(r.getName());
+		curDiscoursePart.setName(r.getName());			
 		
 	}
 	
-	public void mapInteraction(Message m, String discourseName, String dataSetName, HashMap<String, String> map) {
+	public void mapInteraction(Message m, String discourseName, String dataSetName, Map<String, String> roommap) {
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
 		User curUser = userService.createOrGetUser(curDiscourse, m.getUsername());
 		dataSourceService.addSource(curUser,
 				new DataSourceInstance(m.getUsername(), BazaarSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.BAZAAR, dataSetName));
-		DiscoursePart curDiscoursePart = 
-				discoursepartService.createOrGetTypedDiscoursePart(
-						curDiscourse, map.get(m.getRoomid()), DiscoursePartTypes.CHATROOM);
+		
+		DiscoursePart curDiscoursePart = discoursepartService.createOrGetTypedDiscoursePart(curDiscourse, lookupRoomName(m.getRoomid(), roommap), DiscoursePartTypes.CHATROOM);
 		if(m.getContent().equals("join"))
 			userService.createDiscoursePartInteraction(curUser, curDiscoursePart, DiscoursePartInteractionTypes.JOIN);
 		if(m.getContent().equals("ready"))
@@ -163,6 +157,24 @@ public class BazaarConverterService {
 		if(m.getContent().equals("global unready"))
 			userService.createDiscoursePartInteraction(curUser, curDiscoursePart, DiscoursePartInteractionTypes.UNREADY);
 		
+	}
+	
+	/**
+	 * Returns the room name from the map if it exists and is not empty.
+	 * If it no valid room name exists, it uses the room id to create one.
+	 * 
+	 * @param roomId the if of the chat room
+	 * @param roomNameMap a map from ids to names
+	 * @return the room name
+	 */
+	private String lookupRoomName(String roomId, Map<String, String> roomNameMap){
+		String mappedName = roomNameMap.get(roomId); 
+		if(mappedName!=null&&!mappedName.isEmpty()){
+			return mappedName;
+		}else{
+			log.warn("Could not find valid room name for room "+roomId+". Using room id instead.");
+			return "Unnamed room "+ roomId;
+		}
 	}
 	
 }

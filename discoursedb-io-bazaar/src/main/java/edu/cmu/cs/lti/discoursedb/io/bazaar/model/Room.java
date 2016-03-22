@@ -1,5 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.io.bazaar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import lombok.Data;
 
 /**
@@ -12,6 +15,8 @@ import lombok.Data;
  *
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ "id", "name", "created_time", "modified_time", "comment" })
 public class Room {
 	
 	private String id;

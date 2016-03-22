@@ -1,22 +1,20 @@
 package edu.cmu.cs.lti.discoursedb.io.bazaar.converter;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -24,81 +22,82 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Message;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Room;
+import lombok.extern.log4j.Log4j;
 
 /**
  * @author Haitian Gong
  * @author Oliver Ferschke
  *
  */
+@Log4j
 @Component
 public class BazaarConverter implements CommandLineRunner {
 
-	private static final Logger logger = LogManager.getLogger(BazaarConverter.class);
 	private String dataSetName;
 	private String discourseName;
-	@Autowired
-	BazaarConverterService converterService;
+	@Autowired private BazaarConverterService converterService;
 
 	@Override
 	public void run(String... args) throws Exception {
+		Assert.isTrue(args.length==5,"Usage: BazaarConverterApplication <Dataset Name> <Discourse name> <chat message log> <chat room log> <agent name>\n A common value for the agent name is VirtualCarolyn.");
+
 		this.dataSetName = args[0];
 		this.discourseName = args[1];
 		String messageFileDir = args[2];
 		String roomFileDir = args[3];
-
+		String agentname = args[4];
+		
 		File messageFile = new File(messageFileDir);
 		File roomFile = new File(roomFileDir);
 		if (!messageFile.exists() || !messageFile.isFile() || !messageFile.canRead()) {
-			logger.error("Input file does not exist or is not readable.");
+			log.error("Input file does not exist or is not readable.");
 			return;
 		}
 
 		if (!roomFile.exists() || !roomFile.isFile() || !roomFile.canRead()) {
-			logger.error("Input file does not exist or is not readable.");
+			log.error("Input file does not exist or is not readable.");
 			return;
 		}
 
-		logger.info("Starting bazaar conversion");
-		convert(messageFileDir, roomFileDir);
+		log.info("Starting bazaar conversion ("+messageFileDir+" ; "+roomFileDir+" ; "+agentname+")");
+		convert(messageFileDir, roomFileDir, agentname);
+		log.info("Finished bazaar conversion");
 	}
 
-	private void convert(String messageFileDir, String roomFileDir) throws ParseException, IOException {
+	private void convert(String messageFileDir, String roomFileDir, String agentname) throws ParseException, IOException {
 
-		/*
-		 * TODO NOTES Oliver Ferschke: The following preprocessing might be done in
-		 * memory. The agent name needs to be provided as a parameter.
-		 * 
-		 */
-		HashMap<String, String> roomIdNameMap = new HashMap<String, String>();
-		String tempFileDir = "src/resource/new_message.csv";
-		// read through input message file once and remove write a new file.
-		BufferedReader br = new BufferedReader(
-				new InputStreamReader(new FileInputStream(new File(messageFileDir)), "utf-8"));
-		BufferedWriter bw = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(tempFileDir, true), "utf-8"));
-		String lineString;
-		while ((lineString = br.readLine()) != null) {
-			if (lineString.contains("\\\"We're Ready\\\"")) {
-				lineString = lineString.replaceAll("\"We're Ready\\\\\"", "We're Ready\\\\");
-				// System.out.println(lineString);
+		Map<String, String> roomIdNameMap = new HashMap<>();
+		List<String> messages = new ArrayList<>();
+		
+		//Read input file and preprocess
+		String lineFragment = null;
+		for(String line:FileUtils.readLines(new File(messageFileDir))){
+			//line fragments occur in case we have line feeds in a column
+			if(lineFragment!=null){
+				line=lineFragment+line;
+				lineFragment=null;
 			}
-			if (lineString.contains("\\\"ready\\\"")) {
-				lineString = lineString.replaceAll("\\\\\"ready\\\\\"", "\\\\ready\\\\");
-				// System.out.println(lineString);
+			if (line.endsWith("\\")||line.endsWith("\\\r\f")){
+				line = line.replaceAll("\\\r\f", "");
+				lineFragment = line;
+			}else{
+				if (line.contains("\\\"We're Ready\\\"")) {
+					line = line.replaceAll("\"We're Ready\\\\\"", "We're Ready\\\\");
+				}
+				if (line.contains("\\\"ready\\\"")) {
+					line = line.replaceAll("\\\\\"ready\\\\\"", "\\\\ready\\\\");
+				}
+				if (line.contains("\\\""+agentname+"\\\"")){
+					line = line.replaceAll("\\\\\""+agentname+"\\\\\"", "\\\\"+agentname+"\\\\");
+				}
+				messages.add(line);						
 			}
-			if (lineString.contains("\\\"VirtualCarolyn\\\""))
-				lineString = lineString.replaceAll("\\\\\"VirtualCarolyn\\\\\"", "\\\\VirtualCarolyn\\\\");
-			bw.write(lineString);
-			bw.write("\n");
 		}
-		br.close();
-		bw.flush();
-		bw.close();
 
 		// Phase 1: read through input room file once and map all entities
 		try (InputStream in = new FileInputStream(roomFileDir)) {
 			CsvMapper mapper = new CsvMapper();
-			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator(',');
+			CsvSchema schema = mapper.schemaFor(Room.class).withColumnSeparator(',');
 			MappingIterator<Room> rIter = mapper.readerFor(Room.class).with(schema).readValues(in);
 			while (rIter.hasNextValue()) {
 				Room r = rIter.next();
@@ -107,27 +106,20 @@ public class BazaarConverter implements CommandLineRunner {
 				converterService.mapRoom(r, dataSetName, discourseName);
 			}
 		} catch (IOException e) {
-			//TODO NOTE Oliver Ferschke: properly handle exception
-			e.printStackTrace();
+			log.error("Error reading room file",e);
 		}
 
-		// Phase 2: read through input message file and map relationships
-		// between room and message
-		try (InputStream in = new FileInputStream("src/resource/new_message.csv")) {
+		// Phase 2: read through input message file and map relationships between room and message
 			CsvMapper mapper = new CsvMapper();
-			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator(',');
-			MappingIterator<Message> mIter = mapper.readerFor(Message.class).with(schema).readValues(in);
-			while (mIter.hasNextValue()) {
-				Message m = mIter.next();
-				if (m.getType().equals("text") || m.getType().equals("image") || m.getType().equals("private"))
-					converterService.mapMessage(m, dataSetName, discourseName, roomIdNameMap);
-				else
-					converterService.mapInteraction(m, dataSetName, discourseName, roomIdNameMap);
+			CsvSchema schema = mapper.schemaFor(Message.class).withColumnSeparator(',');
+			for(String message:messages){
+				Message m = mapper.readerFor(Message.class).with(schema).readValue(message);
+				if (m.getType().equals("text") || m.getType().equals("image") || m.getType().equals("private")){
+					converterService.mapMessage(m, dataSetName, discourseName, roomIdNameMap);				
+				}else{
+					converterService.mapInteraction(m, dataSetName, discourseName, roomIdNameMap);					
+				}
 			}
-		} catch (IOException e) {
-			//TODO NOTE Oliver Ferschke: properly handle exception
-			e.printStackTrace();
-		}
 	}
 
 }
