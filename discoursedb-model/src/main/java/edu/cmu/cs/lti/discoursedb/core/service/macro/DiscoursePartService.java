@@ -1,8 +1,10 @@
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -322,5 +326,29 @@ public class DiscoursePartService {
 			return Optional.empty();
 		}
 	}
+	
+	/**
+	 * Get the set of all discourse parts that do NOT contain a particular annotation type
+	 * 
+	 * @param badAnnotation
+	 * @return a set of discourse part names
+	 */
+    public Set<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
+        Set<DiscoursePart> unannotated = new HashSet<DiscoursePart>();
+        for(DiscoursePart dp : discoursePartRepo.findAll()) {
+                boolean addme = true;
+                AnnotationAggregate ag = dp.getAnnotations();
+                if (ag != null) {
+                        Set<AnnotationInstance> sai = ag.getAnnotations();
+                        if (sai != null) {
+                                for (AnnotationInstance ai : sai) {
+                                        if (ai.getType() == badAnnotation) { addme = false; break; }
+                                }
+                        }
+                }
+                if (addme) { unannotated.add(dp); }
+        }
+        return unannotated;
+    }
 
 }

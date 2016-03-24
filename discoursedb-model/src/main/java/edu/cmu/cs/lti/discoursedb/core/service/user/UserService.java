@@ -1,7 +1,9 @@
 package edu.cmu.cs.lti.discoursedb.core.service.user;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -330,5 +334,29 @@ public class UserService {
 		Assert.hasText(username, "Username cannot be empty.");
 		return userRepo.findAllByUsername(username);
 	}
+
+	/**
+	 * Get the set of all usernames that do NOT contain a particular annotation type
+	 * 
+	 * @param badAnnotation
+	 * @return a set of user names
+	 */
+    public Set<User> findUsersWithoutAnnotation(String badAnnotation) {
+        Set<User> unannotated = new HashSet<User>();
+        for(User user : userRepo.findAll()) {
+                boolean addme = true;
+                AnnotationAggregate ag = user.getAnnotations();
+                if (ag != null) {
+                        Set<AnnotationInstance> sai = ag.getAnnotations();
+                        if (sai != null) {
+                                for (AnnotationInstance ai : sai) {
+                                        if (ai.getType() == badAnnotation) { addme = false; break; }
+                                }
+                        }
+                }
+                if (addme) { unannotated.add(user); }
+        }
+        return unannotated;
+    }
 
 }

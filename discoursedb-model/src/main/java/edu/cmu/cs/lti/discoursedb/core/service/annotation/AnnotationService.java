@@ -257,4 +257,22 @@ public class AnnotationService {
 		feature.setAnnotation(annotation);
 	}
 
+	/**
+	 * Finds all annotations that have a feature matching a type=value pair
+	 * 
+	 * @param type  The feature type to search for
+	 * @param value The value of the feature
+	 * @return a List of annotations
+	 */
+	public List<AnnotationInstance> findAnnotationsByFeatureTypeAndValue(String type, String value) {
+	        Assert.hasText(type,"Type cannot be empty. Provide an annotation type or create untyped AnnotationInstance.");
+	
+	        List<Feature> features = featureRepo.findAllByTypeAndValue(type, value);
+	        List<AnnotationInstance> annotations = new ArrayList<AnnotationInstance>();
+	        for(Feature f : features) {
+	                annotations.add(f.getAnnotation());
+	        }
+	        return annotations;
+	}
+
 }
