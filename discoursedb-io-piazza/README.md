@@ -23,12 +23,12 @@ This section outlines how discussion data (including question posts and note pos
 
 
 ### Visual Overview
-![](norelations_1.jpg =100*20)
-![](norelations_2.jpg)
+![](norelations_1.png =100*20)
+![](norelations_2.png)
 <table width="100%" border="0">
   <tr border="0">
-    <td align="center"><img src="img/contentrelations.jpg"/><p>Content Relations</p></td>
-    <td align="center"><img src="img/dpcontribrelations.jpg"/><p>DiscoursePart Relations</p></tr>
+    <td align="center"><img src="img/contentrelations.png"/><p>Content Relations</p></td>
+    <td align="center"><img src="img/dpcontribrelations.png"/><p>DiscoursePart Relations</p></tr>
   </tr>
 </table>
 
