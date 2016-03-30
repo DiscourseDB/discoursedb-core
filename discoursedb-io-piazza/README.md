@@ -23,8 +23,8 @@ This section outlines how discussion data (including question posts and note pos
 
 
 ### Visual Overview
-![](img/norelations_1.png =100*20)
-![](img/norelations_2.png)
+ <img src="img/norelations_1.png" width = "200" height = "300" align=center />
+  <img src="img/norelations_2.png" width = "200" height = "300" align=center />
 <table width="100%" border="0">
   <tr border="0">
     <td align="center"><img src="img/contentrelations.png"/><p>Content Relations</p></td>
