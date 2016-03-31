@@ -33,10 +33,16 @@ import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Message;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Room;
 
 /**
+ * This BazaarConverterService class contains three methods.
+ * One maps Message objects to DiscourseDB entities.
+ * The second maps Room objects DisocurseDB entities.
+ * The last builds DiscoursePartInteraction between Bazaar users and chatrooms.
+ * 
  * @author Haitian Gong
  * @author Oliver Ferschke
  *
  */
+
 @Service
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
 public class BazaarConverterService {
@@ -55,6 +61,16 @@ public class BazaarConverterService {
 	private DiscoursePartService discoursepartService;
 	
 	private static final Logger logger = LogManager.getLogger(BazaarConverterService.class);
+	
+	/**
+	 * Maps a single Message object to DiscourseDB entities
+	 * Contribution, Content and User entities are created in DiscourseDB during mapping 
+	 * 
+	 * @param m              a Message object
+	 * @param dataSetName    the name of the dataSet
+	 * @param discourseName  the name of the discourse
+	 * @param map            a HashMap stores relation between chatroom id and chatroom name 
+	 */
 	
 	public void mapMessage(Message m, String dataSetName, String discourseName, HashMap<String, String> map) throws ParseException {
 		if (contributionService.findOneByDataSource(m.getId(), BazaarSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).isPresent()) {
@@ -123,12 +139,21 @@ public class BazaarConverterService {
 		
 	}
 	
+	/**
+	 * Maps a single Room object to DiscoursePart entity
+	 * 
+	 * @param r              a Room object
+	 * @param dataSetName    the name of the dataSet
+	 * @param discourseName  the name of the discourse 
+	 */
+	
 	public void mapRoom(Room r, String dataSetName, String discourseName) throws ParseException {
 
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
 		
 		
 		//add discoursepartType entity to database
+		
 		DiscoursePart curRoom = 
 				discoursepartService.createOrGetTypedDiscoursePart(
 						curDiscourse, r.getName(), DiscoursePartTypes.CHATROOM);
@@ -152,6 +177,15 @@ public class BazaarConverterService {
 				dataSetName));
 		
 	}
+	
+	/**
+	 * Builds DiscoursePartInteraction between the created Users and DiscoursePart entities.
+	 * 
+	 * @param m              a Message object
+	 * @param discourseName  the name of the discourse
+	 * @param dataSetName    the name of the dataSet
+	 * @param map            a HashMap stores relation between chatroom id and chatroom name 
+	 */
 	
 	public void mapInteraction(Message m, String discourseName, String dataSetName, HashMap<String, String> map) {
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);

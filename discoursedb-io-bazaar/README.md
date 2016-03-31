@@ -25,6 +25,19 @@ This section outlines how bazaar chatroom data (including message and room infor
 
 ### Visual Overview
 
+<div style=" width: 100%; text-align:center">
+ <img src="img/norelations.png" width = "100%" height = "360" align=center />
+  </div>
+  
+<div style=" width: 100%; text-align:center">
+<table width="80%" border="0">
+  <tr border="0">
+    <td align="center"><img src="img/contentrelations.png"/><p>Content Relations</p></td>
+    <td align="center"><img src="img/dprelations.png"/><p>DiscoursePart Relations</p></tr>
+  </tr>
+</table>
+</div>
+
 
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |

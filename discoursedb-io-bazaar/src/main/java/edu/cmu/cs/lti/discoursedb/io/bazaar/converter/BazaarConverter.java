@@ -26,10 +26,15 @@ import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Message;
 import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Room;
 
 /**
+ * The BazaarConverter loads two csv files, and maps entities extracted from the source files to DiscourseDB entities.
+ * The DiscourseDB configuration is defined in the dicoursedb-model project and 
+ * Spring/Hibernate are taking care of connections.
+ * 
  * @author Haitian Gong
  * @author Oliver Ferschke
  *
  */
+
 @Component
 public class BazaarConverter implements CommandLineRunner {
 
@@ -69,9 +74,12 @@ public class BazaarConverter implements CommandLineRunner {
 		 * memory. The agent name needs to be provided as a parameter.
 		 * 
 		 */
+		
 		HashMap<String, String> roomIdNameMap = new HashMap<String, String>();
 		String tempFileDir = "src/resource/new_message.csv";
+		
 		// read through input message file once and remove write a new file.
+		
 		BufferedReader br = new BufferedReader(
 				new InputStreamReader(new FileInputStream(new File(messageFileDir)), "utf-8"));
 		BufferedWriter bw = new BufferedWriter(
@@ -80,11 +88,9 @@ public class BazaarConverter implements CommandLineRunner {
 		while ((lineString = br.readLine()) != null) {
 			if (lineString.contains("\\\"We're Ready\\\"")) {
 				lineString = lineString.replaceAll("\"We're Ready\\\\\"", "We're Ready\\\\");
-				// System.out.println(lineString);
 			}
 			if (lineString.contains("\\\"ready\\\"")) {
 				lineString = lineString.replaceAll("\\\\\"ready\\\\\"", "\\\\ready\\\\");
-				// System.out.println(lineString);
 			}
 			if (lineString.contains("\\\"VirtualCarolyn\\\""))
 				lineString = lineString.replaceAll("\\\\\"VirtualCarolyn\\\\\"", "\\\\VirtualCarolyn\\\\");
@@ -95,7 +101,12 @@ public class BazaarConverter implements CommandLineRunner {
 		bw.flush();
 		bw.close();
 
-		// Phase 1: read through input room file once and map all entities
+		/*
+		 * Phase 1: 
+		 * read through input room file once and map all entities
+		 * 
+		 */
+		
 		try (InputStream in = new FileInputStream(roomFileDir)) {
 			CsvMapper mapper = new CsvMapper();
 			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator(',');
@@ -111,8 +122,12 @@ public class BazaarConverter implements CommandLineRunner {
 			e.printStackTrace();
 		}
 
-		// Phase 2: read through input message file and map relationships
-		// between room and message
+		/*
+		 * Phase 2:
+		 * read through input message file and map relationships between room and message
+		 * 
+		 */
+		
 		try (InputStream in = new FileInputStream("src/resource/new_message.csv")) {
 			CsvMapper mapper = new CsvMapper();
 			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator(',');
