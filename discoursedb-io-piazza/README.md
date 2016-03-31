@@ -23,14 +23,18 @@ This section outlines how discussion data (including question posts and note pos
 
 
 ### Visual Overview
- <img src="img/norelations_1.png" width = "200" height = "300" align=center />
-  <img src="img/norelations_2.png" width = "200" height = "300" align=center />
-<table width="100%" border="0">
+<div style=" width: 100%; text-align:center">
+ <img src="img/norelations.png" width = "600" height = "360" align=center />
+  </div>
+  
+<div style=" width: 100%; text-align:center">
+<table width="60%" border="0">
   <tr border="0">
     <td align="center"><img src="img/contentrelations.png"/><p>Content Relations</p></td>
     <td align="center"><img src="img/dpcontribrelations.png"/><p>DiscoursePart Relations</p></tr>
   </tr>
 </table>
+</div>
 
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
