@@ -20,21 +20,15 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import edu.cmu.cs.lti.discoursedb.io.tags.model.TweetInfo;
 
 /**
- * The TweetConverter loads a csv field with data produced by TAGS v6, maps each
- * Tweet to TweetInfo objects and then passes the TweetInfos to the
- * TweetConverterService which stores the data in DiscourseDB.
- * 
- * The expected input file is a csv version of the Google sheets produced by see
- * <a href="https://tags.hawksey.info">TAGS v6</a>. Field delimiters should be
- * commas and the encoding should be UTF-8.
- * 
- * Usage: TweetConverterApplication <DataSourceType> <DataSetName> </path/to/tags.csv>
- * 
+ * The TweetConverter loads a csv file with data produced by TAGS v6, and maps entities extracted from the source file to DiscourseDB entities.
+ * The DiscourseDB configuration is defined in the dicoursedb-model project and 
+ * Spring/Hibernate are taking care of connections.
  * 
  * @author Haitian Gong
  * @author Oliver Ferschke
  *
  */
+
 @Component
 public class TweetConverter implements CommandLineRunner {
 
@@ -69,7 +63,11 @@ public class TweetConverter implements CommandLineRunner {
 		
 		HashMap<String, ArrayList<String[]>> idContributionMap = new HashMap<String, ArrayList<String[]>>();
 
-		//Phase 1: read through input file once and map all entities
+		/*
+		 * Phase 1:
+		 * read through input file once and map all entities 
+		 */
+		
 		try(InputStream in = new FileInputStream(inFile)){
 			CsvMapper mapper = new CsvMapper();
 			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator(',');
@@ -78,7 +76,8 @@ public class TweetConverter implements CommandLineRunner {
 				TweetInfo tweet = it.next();
 				converterService.mapTweet(tweet,dataSetName,discourseName);
 
-				//create hashmap to build relation between contribution Id and contribution content
+				//create hash map to build relation between contribution Id and contribution content
+				
 				if(idContributionMap.containsKey(tweet.getText())) {
 					String[] origInfo = new String[2];
 					origInfo[0] = tweet.getId_str();
@@ -95,7 +94,11 @@ public class TweetConverter implements CommandLineRunner {
 			}
 		}
 		
-		//Phase 2: read through input file a second time and map all entity relationships
+		/*
+		 * Phase 2:
+		 * read through input file a second time and map all entity relationships
+		 */
+		
 		try(InputStream in = new FileInputStream(inFile)){
 			CsvMapper mapper = new CsvMapper();
 			CsvSchema schema = mapper.schemaWithHeader().withColumnSeparator(',');
