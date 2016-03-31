@@ -25,6 +25,30 @@ This section outlines how artifacts from the source coursera database are mapped
 
 ### Visual Overview
 
+<table width="100%" border="0">
+  <tr border="0">
+    <td align="center"><img src="img/norelations_1.png"/></td>
+    <td align="center"><img src="img/norelations_2.png"/></td>
+    <td align="center"><img src="img/norelations_3.png"/></td>
+  </tr>
+</table>
+
+<table width="100%" border="0">
+  <tr border="0">
+    <td align="center"><img src="img/contentrelation_1.png"/><p>Content Relations</p></td>
+    <td align="center"><img src="img/contentrelation_2.png"/><p>Content Relations</p></td>
+  </tr>
+</table>
+
+<table width="100%" border="0">
+  <tr border="0">
+    <td align="center"><img src="img/dprelation_1.png"/><p>DiscoursePart Relations</p></td>
+    <td align="center"><img src="img/dprelation_2.png"/><p>DiscoursePart Relations</p></td>
+    <td align="center"><img src="img/dprelation_3.png"/><p>DiscoursePart Relations</p></td>
+  </tr>
+</table>
+
+
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
@@ -53,7 +77,7 @@ All impoeted artifacts in coursera forums are entities stored in the source cour
 
 | DiscourseDB Relation | Relaton Type | Source artifact number |Target artifact number | Comments |
 | ------------- | ------------- | ------------- | ------------- |------------- |
-| DiscoursePartRelation | TALK_PAGE_HAS_DISCUSSION | 1 | 2 | DiscourseParts representing threads are part of DiscourseParts representing a sub-forum. |
+| DiscoursePartRelation | TALK\_PAGE\_HAS\_DISCUSSION | 1 | 2 | DiscourseParts representing threads are part of DiscourseParts representing a sub-forum. |
 | DiscourseRelation | DESCENDANT | 3a | 3b | In a thread, all posts are related to their thread starter. |
 | DiscourseRelation | COMMENT | 3a/3b | 3d | Comments to certain posts in coursera forums are regared as Comment to source contributions in DiscourseDB. |
 
