@@ -770,7 +770,7 @@
 		<module>discoursedb-annotation-ui</module>
 		<module>discoursedb-io-classroomsalon</module>
 		<module>discoursedb-io-habworlds</module>
-		<module>discoursedb-demo-courserapsych</module>
+		
 	</modules>
 	<ciManagement>
 		<system>Jenkins</system>
