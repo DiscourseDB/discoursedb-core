@@ -42,7 +42,10 @@ public enum DataSourceTypes {
 	/**
 	 * A Piazza dataset
 	 */
-	PIAZZA
-
+	PIAZZA,
+	/**
+	 * A Habworlds dataset
+	 */
+	HABWORLDS
 
 }
