@@ -90,6 +90,12 @@ public class UserService {
 
 		return userRepo.findAll(UserPredicates.hasSourceId(sourceId));
 	}
+	
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	public Iterable<User> findUsersByDiscourse(Discourse discourse) {
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		return userRepo.findAll(UserPredicates.hasDiscourse(discourse));
+	}
 
 	/**
 	 * Returns a User object with the given username and a given discourse if it
@@ -330,18 +336,29 @@ public class UserService {
 
 	 * 
 	 */
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<User> findUserByUsername(String username) {
 		Assert.hasText(username, "Username cannot be empty.");
 		return userRepo.findAllByUsername(username);
 	}
+	
+	
 
 	/**
-	 * Get the set of all usernames that do NOT contain a particular annotation type
+	 * Get the set of all usernames that do NOT contain a particular annotation
+	 * type
+	 * 
+	 * TODO NOTE OF: This should be implemented as a QueryDSL query that directly retrieves
+	 * 		the desired users. Retrieving all users an then narrowing down might cause
+	 * 		performance issues
 	 * 
 	 * @param badAnnotation
 	 * @return a set of user names
 	 */
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public Set<User> findUsersWithoutAnnotation(String badAnnotation) {
+    	Assert.hasText(badAnnotation);
+    	
         Set<User> unannotated = new HashSet<User>();
         for(User user : userRepo.findAll()) {
                 boolean addme = true;

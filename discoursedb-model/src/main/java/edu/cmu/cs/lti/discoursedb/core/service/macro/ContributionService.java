@@ -18,6 +18,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionContext;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionContextRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
@@ -112,6 +113,19 @@ public class ContributionService {
 	public Iterable<Contribution> findAllByDiscourse(Discourse discourse){
 		Assert.notNull(discourse, "Discourse cannot be null.");
 		return contributionRepo.findAll(ContributionPredicates.contributionHasDiscourse(discourse));			
+	}
+	
+	/**
+	 * Returns a list of all contributions initially created by a given user.
+	 * This does not contain contributions a user has revised but that were created by another user.
+	 * 
+	 * @param user that created the contributions
+	 * @return a list of Contributions initially created by the provided user
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<Contribution> findAllByFirstRevisionUser(User user){
+		Assert.notNull(user, "User cannot be null.");
+		return contributionRepo.findAll(ContributionPredicates.contributionWithFirstRevisionByUser(user));			
 	}
 	
 	
