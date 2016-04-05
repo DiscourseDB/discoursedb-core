@@ -26,14 +26,14 @@ This section outlines how bazaar chatroom data (including message and room infor
 ### Visual Overview
 
 <div style=" width: 100%; text-align:center">
- <img src="img/norelations.png" width="60%" align=center />
+ <img src="img/norelations.png" width="50%" align=center />
   </div>
   
 <div style=" width: 100%; text-align:center">
-<table width="80%" border="0">
+<table border="0">
   <tr border="0">
-    <td align="center"><img widht="100px" src="img/contentrelations.png"/><p>Content Relations</p></td>
-    <td align="center"><img widht="100px" src="img/dprelations.png"/><p>DiscoursePart Relations</p></tr>
+    <td align="center"><img width="150px" src="img/contentrelations.png"/><p>Content Relations</p></td>
+    <td align="center"><img width="150px" src="img/dprelations.png"/><p>DiscoursePart Relations</p></tr>
   </tr>
 </table>
 </div>
