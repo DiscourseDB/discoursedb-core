@@ -24,7 +24,7 @@ This section outlines how discussion data (including question posts and note pos
 
 ### Visual Overview
  ![](img/norelations.png)
-<table width="100%" border="0">
+<table width="50%" border="0">
   <tr border="0">
     <td align="center"><img src="img/contentrelations.png"/><p>Content Relations</p></td>
     <td align="center"> <img src="img/dpcontribrelations.png"/><p>DiscoursePart Relations</p></td>
