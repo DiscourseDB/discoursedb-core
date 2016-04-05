@@ -43,7 +43,7 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
 
 ### Visual Overview
 ![](norelations.jpg)
-<table width="100%" border="0">
+<table width="50%" border="0">
   <tr border="0">
     <td align="center"><img src="allrelations.jpg"/><p>All Relations</p></td>
     <td align="center"> <img src="contextrelations.jpg"/><p>Context Relations</p></td>
@@ -51,6 +51,7 @@ This section outlines how artifacts from the Wikipedia source dataset are mapped
  <td align="center"><img src="dpcontribrelations.jpg"/><p>DiscoursePart Relations</p></tr>
   </tr>
 </table>
+
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
