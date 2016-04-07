@@ -758,6 +758,7 @@
 		<module>discoursedb-io-classroomsalon</module>
 		<module>discoursedb-io-habworlds</module>
 
+		<module>discoursedb-io-neuwirth</module>
 	</modules>
 	<ciManagement>
 		<system>Jenkins</system>
