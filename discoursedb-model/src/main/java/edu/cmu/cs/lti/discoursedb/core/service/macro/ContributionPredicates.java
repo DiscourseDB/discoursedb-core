@@ -6,6 +6,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.QContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 
 public final class ContributionPredicates {
@@ -49,6 +50,20 @@ public final class ContributionPredicates {
 			return QContribution.contribution.isNull();
 		} else {
 			return QContribution.contribution.contributionPartOfDiscourseParts.any().discoursePart.eq(discoursePart);
+		}
+	}
+	
+	/**
+	 * This only returns true if the first revision was created by the provided user - not any other revisions
+	 * 
+	 * @param user the user to look for
+	 * @return true, if the first revision of the contribution was created by the provided user
+	 */
+	public static BooleanExpression contributionWithFirstRevisionByUser(User user) {
+		if (user == null) {
+			return QContribution.contribution.isNull();
+		} else {
+			return QContribution.contribution.firstRevision.author.eq(user);
 		}
 	}
 

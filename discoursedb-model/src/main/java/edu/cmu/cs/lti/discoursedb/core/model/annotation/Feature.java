@@ -12,7 +12,9 @@ import javax.persistence.Table;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TypedBE;
 import lombok.AccessLevel;
@@ -40,7 +42,6 @@ public class Feature extends TypedBE implements Identifiable<Long>{
 	@Column(columnDefinition="TEXT")
 	private String value;
 	
-	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "fk_annotation_instance")
 	@Description("The annotation instance assocaited with this feature.")

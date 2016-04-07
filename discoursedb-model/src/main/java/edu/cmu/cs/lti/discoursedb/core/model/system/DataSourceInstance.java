@@ -16,6 +16,10 @@ import javax.persistence.UniqueConstraint;
 
 import org.springframework.hateoas.Identifiable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import lombok.AccessLevel;

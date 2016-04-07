@@ -6,6 +6,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
 import org.springframework.data.rest.core.annotation.Description;
+import org.springframework.data.rest.core.annotation.RestResource;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
 import lombok.Data;
