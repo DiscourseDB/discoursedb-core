@@ -37,7 +37,9 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ "((select count(ai) from dp.annotations aa join aa.annotations ai where ai.type like :annotationType) = 0)")
 	Page<DiscoursePart> findAllNotAnnotatedWithTypePaged(@Param("annotationType") String type, Pageable pageable);
 	
-	@Query("select new edu.cmu.cs.lti.discoursedb.core.repository.macro.AnnotatedDiscoursePart(dp,ai,feat)  from DiscoursePart dp join dp.annotations as aa "
+	/*
+        Experimental -- not implemented yet
+        @Query("select new edu.cmu.cs.lti.discoursedb.core.repository.macro.AnnotatedDiscoursePart(dp,ai,feat)  from DiscoursePart dp join dp.annotations as aa "
 			+ "join aa.annotations as ai "
 			+ "join ai.features as feat "
 			+ "where dp.type like :include_discoursePartType "
@@ -46,5 +48,6 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 	Page<AnnotatedDiscoursePart> findDiscoursePartsEnhanced(@Param("include_annotationType") String include_annotationType, 
 			@Param("include_discoursePartType") String include_discoursePartType,
 			Pageable pageable);
+        */
 
 }
