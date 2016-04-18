@@ -5,11 +5,14 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Resources;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
@@ -56,13 +59,14 @@ public class BrowsingRestController {
 	
 	@RequestMapping(value = "/repos", method = RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingDiscoursePartResource> contributions() {
+	Resources<BrowsingDiscoursePartResource> contributions(@RequestParam(value= "page", defaultValue = "1") int page, 
+														   @RequestParam(value= "size", defaultValue="20") int size) {
+		PageRequest p = new PageRequest(page,size);
 		List<BrowsingDiscoursePartResource> repoResources = StreamSupport
-				.stream(discoursePartRepository.findAllByType("GITHUB_REPO").spliterator(), false)
+				.stream(discoursePartRepository.findAllNonDegenerateByType("GITHUB_REPO", p).spliterator(), false)
 				.map(BrowsingDiscoursePartResource::new).collect(Collectors.toList());
 		return new Resources<BrowsingDiscoursePartResource>(repoResources);
 	}
-    // TODO: pagination http://www.baeldung.com/2012/01/18/rest-pagination-in-spring/
-	
+    
 
 }
