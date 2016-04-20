@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Table;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,12 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import lombok.extern.log4j.Log4j;
 
 /**
@@ -36,18 +40,18 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @Component
 @SpringBootApplication
-@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration",
-		"edu.cmu.cs.lti.discoursedb.annotation.demo.io" }, useDefaultFilters = false, includeFilters = {
-				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratDiscourseExport.class,
+@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration" }, useDefaultFilters = false, includeFilters = {
+				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratThreadExport.class,
 						BaseConfiguration.class }) })
-public class BratDiscourseExport implements CommandLineRunner {
+public class BratThreadExport implements CommandLineRunner {
 
-	@Autowired
-	private DiscourseService discourseService;
-	@Autowired
-	private ContributionService contribService;
-	@Autowired
-	private AnnotationService annoService;
+	@Autowired private DiscourseService discourseService;
+	@Autowired private DiscoursePartService discoursePartService;
+	@Autowired private ContributionService contribService;
+	@Autowired private AnnotationService annoService;
+	
+	private final String SEPARATOR_PREFIX = "********* ";
+	private final String SEPARATOR_SUFFIX = " *********";
 	
 	
 	/**
@@ -57,11 +61,11 @@ public class BratDiscourseExport implements CommandLineRunner {
 	 */
 	public static void main(String[] args) {
 		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: BratDiscourseExport <DiscourseName> <outputFolder> <mappingFile (optional)>");
-		SpringApplication.run(BratDiscourseExport.class, args);
+		SpringApplication.run(BratThreadExport.class, args);
 	}
 
 	@Override
-	@Transactional
+	@Transactional //TODO -> move actual transactions into a service class to avoid overly large transactions 
 	public void run(String... args) throws Exception {
 		String discourseName = args[0];
 		String outputFolder = args[1];
@@ -72,35 +76,38 @@ public class BratDiscourseExport implements CommandLineRunner {
 		}
 
 		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
-
-		// retrieve all contributions for the given discourse
-		List<String> contributions = new ArrayList<>();
-		List<BratAnnotation> annos = new ArrayList<>();
-		int spanOffset = 0;
-		for (Contribution contrib : contribService.findAllByDiscourse(discourse)) {			
-			String text = contrib.getCurrentRevision().getText();			
-			//TODO create meaningful separator
-			String contribSeparator = "NEW CONTRIBUTION";
+		
+		for(DiscoursePart dp: discoursePartService.findAllByDiscourseAndType(discourse, DiscoursePartTypes.THREAD)){
 			
-			contributions.add(contribSeparator);
-			contributions.add(text);
-									
-			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-				BratAnnotation newAnno = convertAnnotation(anno, spanOffset, contribSeparator, text, mappingLabels);
-				if(newAnno!=null){
-					annos.add(newAnno);					
+			// retrieve all contributions for the given discourse
+			List<String> contributions = new ArrayList<>();
+			List<BratAnnotation> annos = new ArrayList<>();
+			int spanOffset = 0;
+			for (Contribution contrib : contribService.findAllByDiscoursePart(dp)) {			
+				
+				String text = contrib.getCurrentRevision().getText();			
+				String contribSeparatorContent = contrib.getClass().getAnnotation(Table.class).name()+"_"+contrib.getId();
+				String contribSeparator = SEPARATOR_PREFIX+contribSeparatorContent+SEPARATOR_SUFFIX;
+				
+				contributions.add(contribSeparator);
+				contributions.add(text);
+										
+				for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
+					BratAnnotation newAnno = convertAnnotation(anno, spanOffset, contribSeparator, text, mappingLabels);
+					if(newAnno!=null){
+						annos.add(newAnno);					
+					}
 				}
+
+				//update span offset
+				spanOffset+=text.length()+1;
+				spanOffset+=contribSeparator.length()+1;
 			}
-
-			//update span offset
-			spanOffset+=text.length()+1;
-			spanOffset+=contribSeparator.length()+1;
+			String dpprefix = dp.getClass().getAnnotation(Table.class).name();
+			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".txt"),contributions);				
+			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".ann"),annos);				
 			
-		}
-
-		FileUtils.writeLines(new File(outputFolder,discourseName + ".txt"),contributions);				
-		FileUtils.writeLines(new File(outputFolder,discourseName + ".ann"),annos);				
-
+		}	
 	}
 
 	private BratAnnotation convertAnnotation(AnnotationInstance dbAnno, int spanOffset, String separator, String text, List<String> mappingLabels) {

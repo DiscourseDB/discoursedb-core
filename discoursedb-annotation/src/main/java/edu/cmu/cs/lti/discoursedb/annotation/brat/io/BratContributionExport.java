@@ -3,8 +3,8 @@ package edu.cmu.cs.lti.discoursedb.annotation.brat.io;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.Table;
 
 import org.apache.commons.io.FileUtils;
@@ -49,12 +49,6 @@ public class BratContributionExport implements CommandLineRunner {
 	private ContributionService contribService;
 	@Autowired
 	private AnnotationService annoService;
-
-	
-	/*
-	 * TODO: Synthesized one-file discourse
-	 */
-	
 	
 	/**
 	 * Launches the SpringBoot application
@@ -77,15 +71,10 @@ public class BratContributionExport implements CommandLineRunner {
 			mappingLabels = FileUtils.readLines(new File(args[2]));
 		}
 
-		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);
-
-		if (!existingDiscourse.isPresent()) {
-			log.warn("Discourse with name " + discourseName + " does not exist.");
-			return;
-		}
+		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
 
 		// retrieve all contributions for the given discourse
-		for (Contribution contrib : contribService.findAllByDiscourse(existingDiscourse.get())) {
+		for (Contribution contrib : contribService.findAllByDiscourse(discourse)) {
 
 			String prefix = contrib.getClass().getAnnotation(Table.class).name();
 			String text = contrib.getCurrentRevision().getText();

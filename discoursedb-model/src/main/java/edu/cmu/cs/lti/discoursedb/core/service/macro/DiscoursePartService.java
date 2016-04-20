@@ -304,6 +304,24 @@ public class DiscoursePartService {
 		return discoursePartRepo.findAllByName(discoursePartName);
 	}
 	
+	
+	/**
+	 * Returns a list of DiscoursePart of the given type associated with the given Discourse
+	 *  
+	 * @param discourse the associated discourse
+	 * @param type the DiscoursePartType
+	 * @return an Iterable with DiscoursePart of the given type associated with the given discourse
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<DiscoursePart> findAllByDiscourseAndType(Discourse discourse, DiscoursePartTypes type) {
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");		
+		
+		return discoursePartRepo.findAll(
+				DiscoursePartPredicates.discoursePartHasType(type).and(
+				DiscoursePartPredicates.discoursePartHasDiscourse(discourse)));
+	}
+	
     /**
 	 * Retrieves a discourse part that has a source which exactly matches the given DataSource parameters.
 	 * 
