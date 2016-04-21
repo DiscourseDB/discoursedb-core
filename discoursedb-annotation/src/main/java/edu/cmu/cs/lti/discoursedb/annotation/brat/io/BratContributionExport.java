@@ -37,6 +37,7 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @Component
 @SpringBootApplication
+@Deprecated
 @ComponentScan(useDefaultFilters = false, includeFilters = {
 				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratContributionExport.class,
 						BaseConfiguration.class }) })
