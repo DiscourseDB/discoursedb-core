@@ -118,8 +118,8 @@ public class BrowsingRestController {
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
 			Page<BrowsingDiscoursePartResource> repoResources = 
-					discoursePartRelationRepository.findAllByTarget(parent.get(), p)
-			.map(dpr -> dpr.getSource())
+					discoursePartRelationRepository.findAllBySource(parent.get(), p)
+			.map(dpr -> dpr.getTarget())
 			.map(BrowsingDiscoursePartResource::new);
 			
 			Resources<BrowsingDiscoursePartResource> response = new Resources<BrowsingDiscoursePartResource>(repoResources);

@@ -34,6 +34,7 @@ public class BrowsingStatsResource extends ResourceSupport {
 		
 		discourseRepository.findAll().forEach(d -> this.discourses.add(d.getName()));
 		this.users = userRepository.count();
+		
 		discoursePartRepository.findAll().forEach(dp -> {
 			this.discourseParts.put(dp.getType(), this.discourseParts.getOrDefault(dp.getType(), 0)+1);
 		});
