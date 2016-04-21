@@ -75,7 +75,7 @@ public class BlogConverterService {
 
 		logger.trace("Init DiscoursePart entity");
 		// in edX, we consider the whole blog space to be a single DiscoursePart		
-		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
+		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,curDiscourse.getName()+"_"+DiscoursePartTypes.PROSOLO_BLOG.name(),DiscoursePartTypes.PROSOLO_BLOG);
 		
 		logger.trace("Init User entity");
 		//if no user name is available, we cannot create a user instance
@@ -135,7 +135,7 @@ public class BlogConverterService {
 
 		logger.trace("Init DiscoursePart entity");
 		// in edX, we consider the whole forum to be a single DiscoursePart		
-		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,DiscoursePartTypes.PROSOLO_BLOG);
+		DiscoursePart curDiscoursePart = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse,curDiscourse.getName()+"_"+DiscoursePartTypes.PROSOLO_BLOG.name(),DiscoursePartTypes.PROSOLO_BLOG);
 		
 		logger.trace("Init User entity for comment");
 		//if no user name is available, we cannot create a user instance

@@ -83,7 +83,7 @@ public class ProsoloConverterService {
 			SocialActivity curSocialActivity = prosolo.getSocialActivity(curSocialActivityId).get();
 			
 			// each social activity translates to a separate DiscoursePart			
-			DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, lookUpDiscoursePartType(dtype));		
+			DiscoursePart postSocialActivityContainer = discoursePartService.createOrGetTypedDiscoursePart(discourse, discourse.getName()+"_"+lookUpDiscoursePartType(dtype).name(), lookUpDiscoursePartType(dtype));		
 
 			// User information
 			User curUser = null;
