@@ -18,29 +18,36 @@ public class BratAnnotation {
 	 * Whitespaces are replaced by underscores since BRAT doesn't allow whitespaces in category identifiers.
 	 * This might be defined in a DiscourseDB type system
 	 */
-	String annotationCategory;
+	String annotationLabel;
 	
-	String annotationValue;
+	String coveredText;
+
+	//if an annotation or a pair of annotation is referenced, this holds the id (of the first annotation)
+	String sourceAnnotationId;
+
+	//if a pair of annotation is referenced, this holds the id of the second annotation
+	String targetAnnotationId;
 	
 	int beginIndex;
 	
 	int endIndex;
 	
-	public void setAnnotationCategory(String category){
+	public void setAnnotationLabel(String category){
 		if(category!=null){
-			annotationCategory = category.replaceAll(" ", "_");
+			annotationLabel = category.replaceAll(" ", "_");
 		}
 	}
 	
+	public String getFullAnnotationId(){
+		return type.name()+id;				
+	}
 	
 	@Override
 	public String toString() { 
 		if(type==BratAnnotationType.T){
-			if(annotationValue!=null){
-				return "T"+id+"\t"+annotationCategory+" "+beginIndex+" "+endIndex+"\t"+annotationValue;				
-			}else{
-				return "T"+id+"\t"+annotationCategory+" "+beginIndex+" "+endIndex+"\tNO VALUE";
-			}			
+			return getFullAnnotationId()+"\t"+annotationLabel+" "+beginIndex+" "+endIndex+"\t"+coveredText;				
+		}else if(type==BratAnnotationType.A){
+			return getFullAnnotationId()+"\t"+annotationLabel+" "+sourceAnnotationId;
 		}else{
 			log.error("Unsupported Annotation Type.");
 			return super.toString();

@@ -12,24 +12,25 @@ public enum BratAnnotationType {
 	 * Text-bound (entity) annotation 
 	 */
 	T 
-//	/**
-//	 * Relation 
-//	 */
-//	,R 
-//	/**
-//	 * Event 
-//	 */
-//	,E 
-//	/**
-//	 * Attribute 
-//	 */
-//	,A 
-//	/**
-//	 * Modification 
-//	 */
-//	,M 
-//	/**
-//	 * Normalization 
-//	 */
-//	,N
+	/** 
+	 * Attribute 
+	 */
+	,A 
+	/**
+	 * Relation 
+	 */
+	,R 
+	/**
+	 * Event 
+	 */
+	,E 
+	/**
+	/**
+	 * Modification 
+	 */
+	,M 
+	/**
+	 * Normalization 
+	 */
+	,N
 }

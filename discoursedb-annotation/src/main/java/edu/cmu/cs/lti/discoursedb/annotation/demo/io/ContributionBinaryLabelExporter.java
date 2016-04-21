@@ -47,8 +47,7 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @Component
 @SpringBootApplication
-@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.demo.io" }, 
-				useDefaultFilters = false, 
+@ComponentScan(	useDefaultFilters = false, 
 				includeFilters = {@ComponentScan.Filter(
 						type = FilterType.ASSIGNABLE_TYPE, 
 						value = {ContributionBinaryLabelExporter.class, BaseConfiguration.class })})

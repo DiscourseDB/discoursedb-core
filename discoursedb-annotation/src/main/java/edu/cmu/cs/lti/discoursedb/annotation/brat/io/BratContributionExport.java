@@ -37,8 +37,7 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @Component
 @SpringBootApplication
-@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration",
-		"edu.cmu.cs.lti.discoursedb.annotation.demo.io" }, useDefaultFilters = false, includeFilters = {
+@ComponentScan(useDefaultFilters = false, includeFilters = {
 				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratContributionExport.class,
 						BaseConfiguration.class }) })
 public class BratContributionExport implements CommandLineRunner {
@@ -138,8 +137,8 @@ public class BratContributionExport implements CommandLineRunner {
 		//we have exactly one feature
 		if(numFeatures==1){
 			for(Feature f:dbAnno.getFeatures()){
-				anno.setAnnotationCategory(f.getType());
-				anno.setAnnotationValue(text.substring(anno.getBeginIndex(),anno.getEndIndex()));						
+				anno.setAnnotationLabel(f.getType());
+				anno.setCoveredText(text.substring(anno.getBeginIndex(),anno.getEndIndex()));						
 			}
 		}
 		//we have more than one feature (currently unsupported)
@@ -149,8 +148,8 @@ public class BratContributionExport implements CommandLineRunner {
 		}
 		//we have no feature and a mapped type	
 		else if(mappingLabels.contains(dbAnno.getType())){
-			anno.setAnnotationCategory(dbAnno.getType());					
-			anno.setAnnotationValue(text.substring(anno.getBeginIndex(),anno.getEndIndex()));						
+			anno.setAnnotationLabel(dbAnno.getType());					
+			anno.setCoveredText(text.substring(anno.getBeginIndex(),anno.getEndIndex()));						
 		}
 		
 		//we have no feature and a regular type	

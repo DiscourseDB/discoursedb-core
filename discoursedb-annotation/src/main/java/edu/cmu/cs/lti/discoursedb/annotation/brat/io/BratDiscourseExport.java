@@ -36,8 +36,7 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @Component
 @SpringBootApplication
-@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration",
-		"edu.cmu.cs.lti.discoursedb.annotation.demo.io" }, useDefaultFilters = false, includeFilters = {
+@ComponentScan(useDefaultFilters = false, includeFilters = {
 				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratDiscourseExport.class,
 						BaseConfiguration.class }) })
 public class BratDiscourseExport implements CommandLineRunner {
@@ -153,11 +152,11 @@ public class BratDiscourseExport implements CommandLineRunner {
 		//we have exactly one feature
 		if(numFeatures==1){
 			for(Feature f:dbAnno.getFeatures()){
-				anno.setAnnotationCategory(f.getType());
+				anno.setAnnotationLabel(f.getType());
 				if(contributionLabel){
-					anno.setAnnotationValue(separator);											
+					anno.setCoveredText(separator);											
 				}else{
-					anno.setAnnotationValue(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
+					anno.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
 				}
 			}
 		}
@@ -168,11 +167,11 @@ public class BratDiscourseExport implements CommandLineRunner {
 		}
 		//we have no feature and a mapped type	
 		else if(mappingLabels.contains(dbAnno.getType())){
-			anno.setAnnotationCategory(dbAnno.getType());					
+			anno.setAnnotationLabel(dbAnno.getType());					
 			if(contributionLabel){
-				anno.setAnnotationValue(separator);											
+				anno.setCoveredText(separator);											
 			}else{
-				anno.setAnnotationValue(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
+				anno.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
 			}
 		}
 		

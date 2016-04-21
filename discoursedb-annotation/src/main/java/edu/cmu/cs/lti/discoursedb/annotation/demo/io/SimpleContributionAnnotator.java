@@ -30,8 +30,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
  */
 @Component
 @SpringBootApplication
-@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.io" }, 
-				useDefaultFilters = false, 
+@ComponentScan(	useDefaultFilters = false, 
 				includeFilters = {@ComponentScan.Filter(
 						type = FilterType.ASSIGNABLE_TYPE, 
 						value = {SimpleContributionAnnotator.class, BaseConfiguration.class })})
