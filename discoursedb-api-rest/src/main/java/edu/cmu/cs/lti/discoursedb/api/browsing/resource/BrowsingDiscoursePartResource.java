@@ -9,25 +9,34 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 
+import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.api.recommendation.controller.RecommendationRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+
 public class BrowsingDiscoursePartResource extends ResourceSupport {
 	
 	private String name;
 	private String type;
+	private long subDiscoursePartCount;
+	private long contributionCount;
 	private Date startTime;
 	private Date endTime;
-	private List<BrowsingAnnotationResource> ais;
+	private List<BrowsingAnnotationResource> annotations;
 	
-	
+	private static final Logger logger = LogManager.getLogger(BrowsingDiscoursePartResource.class);	
+
 	public BrowsingDiscoursePartResource(DiscoursePart dp) {
 		this.setName(dp.getName());
 		this.setType(dp.getType());
@@ -39,18 +48,24 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 			for (AnnotationInstance ai: dp.getAnnotations().getAnnotations()) {
 				annos.add(new BrowsingAnnotationResource(ai));
 			}
-			this.setAis(annos);
+			this.setAnnotations(annos);
 		}
 		
-		/*this.add(linkTo(methodOn(RecommendationRestController.class).sourcesForContribution(contrib.getId())).withRel("contributionSources"));
-		if(getContributionType().equals(ContributionTypes.POST.name())||getContributionType().equals(ContributionTypes.GOAL_NOTE.name())||getContributionType().equals(ContributionTypes.NODE_COMMENT.name())){			
-			this.add(linkTo(methodOn(RecommendationRestController.class).contribParent(contrib.getId())).withRel("parentContribution"));
-		}		
-		if(getContributionType().equals(ContributionTypes.POST.name())){			
-			this.add(linkTo(methodOn(RecommendationRestController.class).threadStarter(contrib.getId())).withRel("threadStarter"));
-		}		
-		this.add(linkTo(methodOn(RecommendationRestController.class).user(contrib.getCurrentRevision().getAuthor().getId())).withRel("author"));
-		*/
+		this.setContributionCount(dp.getDiscoursePartContributions().stream().collect(Collectors.summingLong(f -> 1L)));
+		this.setSubDiscoursePartCount(dp.getTargetOfDiscoursePartRelations().stream().collect(Collectors.summingLong(f -> 1L)));
+		
+		for (DiscoursePartRelation dp1 : dp.getSourceOfDiscoursePartRelations()) {
+			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp1.getTarget().getId() + "/", 
+					dp1.getType() + ": " + dp1.getTarget().getName() ));			
+		}
+		
+		this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", "contributions"));
+	}
+	
+	public void filterAnnotations(String annotType) {
+		if (!annotType.equals("*")) {
+			setAnnotations(this.getAnnotations().stream().filter( bai -> bai.getType().equals(annotType) ).collect(Collectors.toList()));
+		}
 	}
 
 
@@ -97,13 +112,29 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	}
 
 
-	public List<BrowsingAnnotationResource> getAis() {
-		return ais;
+	public List<BrowsingAnnotationResource> getAnnotations() {
+		return annotations;
 	}
 
 
-	public void setAis(List<BrowsingAnnotationResource> ais) {
-		this.ais = ais;
+	public void setAnnotations(List<BrowsingAnnotationResource> annotations) {
+		this.annotations = annotations;
+	}
+
+	public long getSubDiscoursePartCount() {
+		return subDiscoursePartCount;
+	}
+
+	public void setSubDiscoursePartCount(long subDiscoursePartCount) {
+		this.subDiscoursePartCount = subDiscoursePartCount;
+	}
+
+	public long getContributionCount() {
+		return contributionCount;
+	}
+
+	public void setContributionCount(long contributionCount) {
+		this.contributionCount = contributionCount;
 	}
 
 
