@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -70,6 +72,7 @@ public class BrowsingContributionResource extends ResourceSupport {
 		return startTime;
 	}
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}

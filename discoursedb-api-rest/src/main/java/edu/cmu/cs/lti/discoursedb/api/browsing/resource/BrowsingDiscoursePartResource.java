@@ -16,6 +16,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.api.recommendation.controller.RecommendationRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
@@ -97,6 +99,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	}
 
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
@@ -107,6 +110,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	}
 
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
