@@ -51,6 +51,13 @@
 				<artifactId>discoursedb-io-edx</artifactId>
 				<version>0.6-SNAPSHOT</version>
 			</dependency>
+			<!-- Override mysql due to utf issues -->
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.38</version>
+			</dependency>
+			
 			<!-- Override querydsl versions defined in platform-bom, since we need 
 				to be consitent with our maven plugin -->
 			<dependency>

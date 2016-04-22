@@ -62,21 +62,21 @@ public class TestDiscourseGenerator implements CommandLineRunner {
 		
 		Contribution contrib1 = contribService.createTypedContribution(ContributionTypes.THREAD_STARTER);
 		Content content1 = contentService.createContent();
-		content1.setText("Contribution one.");
+		content1.setText("Contribution one 😎😎😎");
 		contrib1.setFirstRevision(content1);
 		contrib1.setCurrentRevision(content1);
 		discoursePartService.addContributionToDiscoursePart(contrib1, threadOne);
 
 		Contribution contrib2 = contribService.createTypedContribution(ContributionTypes.POST);
 		Content content2 = contentService.createContent();
-		content2.setText("Contribution two.");
+		content2.setText("Contribution two 😅😅😅");
 		contrib2.setFirstRevision(content2);
 		contrib2.setCurrentRevision(content2);
 		discoursePartService.addContributionToDiscoursePart(contrib2, threadOne);
 
 		Contribution contrib3 = contribService.createTypedContribution(ContributionTypes.THREAD_STARTER);
 		Content content3 = contentService.createContent();
-		content3.setText("Contribution three.");
+		content3.setText("Contribution three 😆😆😆");
 		contrib3.setFirstRevision(content3);
 		contrib3.setCurrentRevision(content3);
 		discoursePartService.addContributionToDiscoursePart(contrib3, threadTwo);
