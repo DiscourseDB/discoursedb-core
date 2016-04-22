@@ -46,6 +46,7 @@ public class DiscoursePartService {
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,
+<<<<<<< HEAD
 	 * connects it with the type and the provided discourse.<br/>
 	 * 
 	 * All changed/created entities are committed to the db and the DiscoursePart is returned.<br/>
@@ -95,6 +96,8 @@ public class DiscoursePartService {
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,
+=======
+>>>>>>> refs/remotes/origin/master
 	 * connects it with the type and the provided discourse.
 	 * 
 	 * All changed/created entities are committed to the db and the DiscoursePart is returned.
@@ -329,6 +332,24 @@ public class DiscoursePartService {
 	public List<DiscoursePart> findAllByName(String discoursePartName) {
 		Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty.");		
 		return discoursePartRepo.findAllByName(discoursePartName);
+	}
+	
+	
+	/**
+	 * Returns a list of DiscoursePart of the given type associated with the given Discourse
+	 *  
+	 * @param discourse the associated discourse
+	 * @param type the DiscoursePartType
+	 * @return an Iterable with DiscoursePart of the given type associated with the given discourse
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<DiscoursePart> findAllByDiscourseAndType(Discourse discourse, DiscoursePartTypes type) {
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");		
+		
+		return discoursePartRepo.findAll(
+				DiscoursePartPredicates.discoursePartHasType(type).and(
+				DiscoursePartPredicates.discoursePartHasDiscourse(discourse)));
 	}
 	
     /**

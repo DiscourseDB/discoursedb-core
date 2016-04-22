@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TypedSourcedBE;
+import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -60,6 +61,11 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	@JoinColumn(name = "fk_annotation")
 	@Description("The aggregate entity that aggregares all annotations belonging to the associated/annotated entity.")
 	private AnnotationAggregate annotationAggregate;
+	
+	@ManyToOne 
+	@JoinColumn(name = "fk_annotator")
+	@Description("The user who created this annotation instance.")
+	private SystemUser annotator;
 	
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")

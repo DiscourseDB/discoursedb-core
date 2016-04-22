@@ -53,6 +53,14 @@ public class BazaarConverterService {
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+	/**
+	 * Maps a message to DiscourseDB 
+	 * 
+	 * @param m the message object
+	 * @param dataSetName the dataset the message is imported from
+	 * @param discourseName the discourse the message belongs to
+	 * @param roommap a map from room ids to room names
+	 */
 	public void mapMessage(Message m, String dataSetName, String discourseName, Map<String, String> roommap) {
 		if (contributionService.findOneByDataSource(m.getId(), BazaarSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).isPresent()) {
 			log.warn("Message " + m.getId() + " already in database. Skipping...");
@@ -112,6 +120,13 @@ public class BazaarConverterService {
 		);		
 	}
 	
+	/**
+	 * Maps room object to DiscourseDB DiscourseParts
+	 * 
+	 * @param r the room object
+	 * @param dataSetName the dataset the room is imported from
+	 * @param discourseName the name of the discourse the chatroom belongs to
+	 */
 	public void mapRoom(Room r, String dataSetName, String discourseName) {
 
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);		
@@ -135,13 +150,17 @@ public class BazaarConverterService {
 			}
 		}
 		curDiscoursePart.setName(r.getName());			
-		dataSourceService.addSource(curDiscoursePart, new DataSourceInstance(
-				String.valueOf(r.getId()), 
-				BazaarSourceMapping.ID_STR_TO_DISCOURSEPART, 
-				DataSourceTypes.BAZAAR, 
-				dataSetName));
+		
 	}
 	
+	/**
+	 * Represents DiscoursePartInteractions based on activity indicators in the chat, such as "JOING", "LEAVE" or "READY"
+	 * 
+	 * @param m the message that contains an indicator for a DiscoursePartInteraction
+	 * @param discourseName the name of the discourse the interaction belongs to
+	 * @param dataSetName the name of the dataset the message is imported from
+	 * @param roommap a map from room ids to room names.
+	 */
 	public void mapInteraction(Message m, String discourseName, String dataSetName, Map<String, String> roommap) {
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
 		User curUser = userService.createOrGetUser(curDiscourse, m.getUsername());

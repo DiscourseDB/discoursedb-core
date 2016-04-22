@@ -23,7 +23,14 @@ This section outlines how discussion data (including question posts and note pos
 
 
 ### Visual Overview
-
+ ![](img/norelations.png)
+<table border="0">
+  <tr border="0">
+    <td align="center"><img width="150px" src="img/contentrelations.png"/><p>Content Relations</p></td>
+    <td align="center"> <img width="150px" src="img/dpcontribrelations.png"/><p>DiscoursePart Relations</p></td>
+  </tr>
+</table>
+  
 
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
@@ -77,4 +84,4 @@ The following entities are created during the mapping process, but don't map to 
 | DiscourseDB Entity | Description |
 | ------------- | ------------- |
 | Discourse | Manually defined scope. Dataset name and discourse name are assigned at converter startup startup via parameters. |
-| User | User entities are created while creating note, question, answer and followup contribution entities. The only information extarcted about a user is the user id assigned by Piazza (If a user is anonymous, the user entity will be assigned an id "Anonymous"). All extracted content entities have a user assigned to them. |
+| User | User entities are created while creating note, question, answer and followup contribution entities. The only information of a user is the user id assigned by Piazza (If a user is set as anonymous, the user entity will be assigned an uniform id "Anonymous"). And all content entities have a user entity assigned to them. |

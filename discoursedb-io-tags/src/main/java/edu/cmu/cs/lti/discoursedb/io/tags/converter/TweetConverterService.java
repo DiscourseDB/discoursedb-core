@@ -30,6 +30,9 @@ import edu.cmu.cs.lti.discoursedb.io.tags.model.TweetInfo;
 import edu.cmu.cs.lti.discoursedb.io.tags.model.TweetSourceMapping;
 
 /**
+ * This TweetConverterService class contains a method that maps TweetInfo objects to DiscourseDB entities
+ * and a method that builds relation between the created DisocurseDB entities.
+ * 
  * @author Haitian Gong
  *
  */
@@ -47,17 +50,29 @@ public class TweetConverterService {
 	private ContentService contentService;
 	@Autowired
 	private ContributionService contributionService;
+	
 	private static final Logger logger = LogManager.getLogger(TweetConverterService.class);
 
 	private final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm:ss '+0000' YYYY");
 	
-	public void mapTweet(TweetInfo t, String dataSetName, String discourseName) throws ParseException {		
+	/**
+	 * Maps a single TweetInfo object to DiscourseDB entities
+	 * Contribution, Content and User entities are created in DiscourseDB during mapping 
+	 * 
+	 * @param t              a TweetInfo object
+	 * @param dataSetName    the name of the dataSet
+	 * @param discourseName  the name of the discourse 
+	 */
+	
+	
+	public void mapTweet(TweetInfo t, String dataSetName, String discourseName) throws ParseException {
+		
+		
 		if (contributionService.findOneByDataSource(t.getId_str(), TweetSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName).isPresent()) {
 			logger.warn("Tweet " + t.getId_str() + " already in database. Skipping Tweet");
 			return;
 		}
-				
-		//create user entity and add it to user table of DiscourseDB
+		
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
 		User curUser = userService.createOrGetUser(curDiscourse, t.getFrom_user());
 		curUser.setLanguage(t.getUser_lang());
@@ -94,8 +109,20 @@ public class TweetConverterService {
 		}
 	}
 	
+	/**
+	 * Builds relationship between Contribution entities created by the mapTweet method.
+	 * Two types of DiscourseRelation are created: REPLY and RESHARE 
+	 * 
+	 * @param t              a TweetInfo object
+	 * @param dataSetName    the name of the dataSet
+	 * @param map            a HashMap that stores that stores the relations between text and its Tweet id and author
+	 */
+	
+	
 	public void mapRelation(TweetInfo t, String dataSetName, HashMap<String, ArrayList<String[]>> map) {
-		//create REPLY relation between a tweet and its replies
+		
+		//build REPLY DiscourseRelation between replies and the tweet they reply to
+		
 		if(t.getIn_reply_to_status_id_str()!=null) {
 			Optional<Contribution> origContribution = 
 					contributionService.findOneByDataSource(
@@ -106,7 +133,8 @@ public class TweetConverterService {
 			}
 		}
 		
-		//create RESHARE relation between original tweets and retweets
+		//build RESHARE DiscoursePart relation between original tweets and retweets
+		
 		String text = t.getText();
 		if(text.contains("RT @")) {
 			System.out.println(text);

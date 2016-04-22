@@ -45,10 +45,10 @@ public class DataSourceInstance extends BaseEntity implements Identifiable<Long>
 	@Setter(AccessLevel.PRIVATE) 
 	private Long id;
 	
-	@Column(name="entity_source_id", nullable=false, updatable=false)
+	@Column(name="entity_source_id", nullable=false, updatable=false, length=95)
 	private String entitySourceId;
 	
-	@Column(name="entity_source_descriptor", nullable=true, updatable=false)
+	@Column(name="entity_source_descriptor", nullable=true, updatable=false, length=95)
 	private String entitySourceDescriptor;
 	
 	@Enumerated(EnumType.STRING)

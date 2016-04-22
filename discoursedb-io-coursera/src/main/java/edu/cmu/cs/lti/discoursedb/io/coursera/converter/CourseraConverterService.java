@@ -213,7 +213,7 @@ public class CourseraConverterService {
 									new DataSourceInstance(
 										String.valueOf(curPost.getId()), 
 										CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, 
-										DataSourceTypes.BAZAAR, dataSetName));
+										DataSourceTypes.COURSERA, dataSetName));
 							
 							//build relation between a post and the thread it belongs to
 							discoursepartService.findOneByDataSource(

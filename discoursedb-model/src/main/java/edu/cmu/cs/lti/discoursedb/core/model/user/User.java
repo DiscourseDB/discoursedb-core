@@ -54,6 +54,7 @@ public class User extends TimedAnnotatableSourcedBE implements Identifiable<Long
 
 	private String realname;
 
+	@Column(length=191)
 	private String username;
 
 	private String email;

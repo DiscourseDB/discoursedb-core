@@ -25,6 +25,10 @@ import edu.cmu.cs.lti.discoursedb.io.bazaar.model.Room;
 import lombok.extern.log4j.Log4j;
 
 /**
+ * Converter for bazaar chatlogs.
+ * 
+ * Usage: BazaarConverterApplication <Dataset Name> <Discourse name> <chat message log> <chat room log> <agent name>\n A common value for the agent name is VirtualCarolyn. 
+ * 
  * @author Haitian Gong
  * @author Oliver Ferschke
  *

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<scm>
 		<connection>scm:git:git@github.com:discoursedb/discoursedb-core.git</connection>
@@ -50,6 +51,13 @@
 				<artifactId>discoursedb-io-edx</artifactId>
 				<version>0.6-SNAPSHOT</version>
 			</dependency>
+			<!-- Override mysql due to utf issues -->
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.38</version>
+			</dependency>
+			
 			<!-- Override querydsl versions defined in platform-bom, since we need 
 				to be consitent with our maven plugin -->
 			<dependency>
@@ -122,12 +130,12 @@
 				<artifactId>jool</artifactId>
 				<version>0.9.7</version>
 			</dependency>
- 			<dependency>
+			<dependency>
 				<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
 				<artifactId>de.tudarmstadt.ukp.wikipedia</artifactId>
 				<version>1.1.0-SNAPSHOT</version>
 				<type>pom</type>
-				<scope>import</scope>		
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
@@ -191,17 +199,6 @@
 		</dependency>
 	</dependencies>
 	<repositories>
-		<repository>
-			<!-- BEGIN NEEDED FOR http://jira.codehaus.org/browse/MCOBERTURA-189 -->
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
 		<repository>
 			<id>spring-releases</id>
 			<url>https://repo.spring.io/libs-release</url>
@@ -309,7 +306,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.4.1</version>
+					<version>2.6</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -343,8 +340,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>cobertura-maven-plugin</artifactId>
-					<!-- Work around some Java 8 issues: http://jira.codehaus.org/browse/MCOBERTURA-189 -->
-					<version>2.7-SNAPSHOT</version>
+					<version>2.7</version>
 				</plugin>
 				<plugin>
 					<groupId>com.mysema.maven</groupId>
@@ -573,7 +569,6 @@
 						<plugin>
 							<groupId>org.codehaus.mojo</groupId>
 							<artifactId>findbugs-maven-plugin</artifactId>
-							<version>2.3.2</version>
 							<executions>
 								<execution>
 									<phase>package</phase>
@@ -601,7 +596,6 @@
 						<plugin>
 							<groupId>org.codehaus.mojo</groupId>
 							<artifactId>cobertura-maven-plugin</artifactId>
-							<version>2.4</version>
 							<configuration>
 								<formats>
 									<format>xml</format>
@@ -770,6 +764,8 @@
 		<module>discoursedb-annotation-ui</module>
 		<module>discoursedb-io-classroomsalon</module>
 		<module>discoursedb-io-habworlds</module>
+
+		<module>discoursedb-io-neuwirth</module>
 	</modules>
 	<ciManagement>
 		<system>Jenkins</system>

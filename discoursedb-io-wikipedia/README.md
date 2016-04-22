@@ -42,15 +42,16 @@ with <br/>
 This section outlines how artifacts from the Wikipedia source dataset are mapped to DiscourseDB entities, how the original source artifacts can be identified using DiscourseDB data sources, how the entities relate to each other and what additional entities are generated during the mapping process.
 
 ### Visual Overview
-![](https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/norelations.jpg)
-<table width="100%" border="0">
+![](norelations.jpg)
+<table width="50%" border="0">
   <tr border="0">
-    <td align="center"><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/allrelations.jpg"/><p>All Relations</p></td>
-    <td align="center"> <img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/contextrelations.jpg"/><p>Context Relations</p></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/contentrelations.jpg"/><p>Content Relations</p></td>
- <td align="center"><img src="https://raw.githubusercontent.com/DiscourseDB/discoursedb-core/master/discoursedb-io-wikipedia/dpcontribrelations.jpg"/><p>DiscoursePart Relations</p></tr>
+    <td align="center"><img src="allrelations.jpg"/><p>All Relations</p></td>
+    <td align="center"> <img src="contextrelations.jpg"/><p>Context Relations</p></td>
+    <td align="center"><img src="contentrelations.jpg"/><p>Content Relations</p></td>
+ <td align="center"><img src="dpcontribrelations.jpg"/><p>DiscoursePart Relations</p></tr>
   </tr>
 </table>
+
 ### Artifact Mappings
 | Artifact Number | Source Artifact  | DiscourseDB Entity | DiscourseDB Type |Comments |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
