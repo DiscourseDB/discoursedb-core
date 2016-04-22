@@ -51,7 +51,7 @@ public class SystemUser extends TimedBE {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "system_user_roles", joinColumns = @JoinColumn(name = "id_system_user"))
-    @Column(name = "role", nullable = false)
+    @Column(name = "role", nullable = false, length = 171)
     @Enumerated(EnumType.STRING)
 	private Set<SystemUserRole> roles;
 
