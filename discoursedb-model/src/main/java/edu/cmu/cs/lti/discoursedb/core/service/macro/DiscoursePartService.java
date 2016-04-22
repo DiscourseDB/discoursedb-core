@@ -26,6 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRep
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import lombok.NonNull;
@@ -64,6 +65,32 @@ public class DiscoursePartService {
 		Assert.notNull(type, "Type cannot be null.");		
 
 		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
+	}
+	
+	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, DataSourceInstance ds) {
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(ds, "sourceType cannot be null.");		
+		
+		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
+		Optional<DiscoursePart> existingDiscoursePart = Optional.ofNullable(discoursePartRepo.findOne(
+						DiscoursePartPredicates.discoursePartHasDataSource(ds).and(
+						DiscoursePartPredicates.discoursePartHasDiscourse(discourse))));
+
+		DiscoursePart dPart=existingDiscoursePart.orElseGet(()->{
+			DiscoursePart newDP=new DiscoursePart();
+			return discoursePartRepo.save(newDP);
+			}
+		);			
+		
+		Optional<DiscourseToDiscoursePart> existingDiscourseToDiscoursePart = discourseToDiscoursePartRepo.findOneByDiscourseAndDiscoursePart(discourse, dPart);	
+		if(!existingDiscourseToDiscoursePart.isPresent()){
+			DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();			
+			discourseToDiscoursePart.setDiscourse(discourse);
+			discourseToDiscoursePart.setDiscoursePart(dPart);
+			discourseToDiscoursePartRepo.save(discourseToDiscoursePart);			
+		}
+		
+		return dPart;
 	}
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
