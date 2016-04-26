@@ -13,7 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingAnnotationResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
@@ -71,7 +75,10 @@ public class BrowsingRestController {
 
 	@Autowired
 	private UserRepository userRepository;
-
+	
+	@Autowired PagedResourcesAssembler<BrowsingDiscoursePartResource> praDiscoursePartAssembler;
+	@Autowired PagedResourcesAssembler<BrowsingContributionResource> praContributionAssembler;
+	
 	@RequestMapping(value="/stats", method=RequestMethod.GET)
 	@ResponseBody
 	Resources<BrowsingStatsResource> stats() {
@@ -92,7 +99,7 @@ public class BrowsingRestController {
 	
 	@RequestMapping(value = "/repos", method = RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingDiscoursePartResource> discourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
+	PagedResources<Resource<BrowsingDiscoursePartResource>> discourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @RequestParam("repoType") String repoType,
 														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
@@ -102,19 +109,20 @@ public class BrowsingRestController {
 				.map(BrowsingDiscoursePartResource::new)
 				.map(bdpr -> {bdpr.filterAnnotations(annoType); return bdpr; });
 		
-		Resources<BrowsingDiscoursePartResource> response = new Resources<BrowsingDiscoursePartResource>(repoResources);
-		if (!repoResources.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
-		if (!repoResources.isLast()) {	response.add(makePageLink(repoResources.getNumberOfElements()-1, size, Link.REL_LAST));   }
+		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
+		/*if (!repoResources.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
+		if (!repoResources.isLast()) {	response.add(makePageLink(repoResources.getTotalPages(), size, Link.REL_LAST));   }
 		if (repoResources.hasPrevious()) {	response.add(makePageLink(page-1, size, Link.REL_PREVIOUS));   }
 		if (repoResources.hasNext()) {	response.add(makePageLink(page+1, size, Link.REL_NEXT));   }
 		response.add(makePageLink(page, size, Link.REL_SELF));  
+		*/
 		response.add(makeLink("/browsing/repos{?page,size,repoType,annoType}", "search"));
 		return response;
 	}
 	
 	@RequestMapping(value = "/subDiscourseParts/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingDiscoursePartResource> subDiscourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
+	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @PathVariable("childOf") Long dpId)  {
 		PageRequest p = new PageRequest(page,size);
@@ -126,12 +134,12 @@ public class BrowsingRestController {
 			.map(dpr -> dpr.getTarget()).map(BrowsingDiscoursePartResource::new).collect(Collectors.toList());
 			Page<BrowsingDiscoursePartResource> pRepoResources = new PageImpl<BrowsingDiscoursePartResource>(repoResources);
 
-			Resources<BrowsingDiscoursePartResource> response = new Resources<BrowsingDiscoursePartResource>(pRepoResources);
-			if (!pRepoResources.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
-			if (!pRepoResources.isLast()) {	response.add(makePageLink(pRepoResources.getNumberOfElements()-1, size, Link.REL_LAST));   }
+			PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(pRepoResources);
+			/*if (!pRepoResources.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
+			if (!pRepoResources.isLast()) {	response.add(makePageLink(pRepoResources.getTotalPages(), size, Link.REL_LAST));   }
 			if (pRepoResources.hasPrevious()) {	response.add(makePageLink(page-1, size, Link.REL_PREVIOUS));   }
 			if (pRepoResources.hasNext()) {	response.add(makePageLink(page+1, size, Link.REL_NEXT));   }
-			response.add(makePageLink(page, size, Link.REL_SELF));  
+			response.add(makePageLink(page, size, Link.REL_SELF));  */
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
 			return response;
 		} else {
@@ -143,7 +151,7 @@ public class BrowsingRestController {
 	
 	@RequestMapping(value = "/dpContributions/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingContributionResource> dpContributions(@RequestParam(value= "page", defaultValue = "0") int page, 
+	PagedResources<Resource<BrowsingContributionResource>> dpContributions(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @PathVariable("childOf") Long dpId)  {
 		PageRequest p = new PageRequest(page,size);
@@ -163,12 +171,12 @@ public class BrowsingRestController {
 			Page<BrowsingContributionResource> pbcr = 
 					new PageImpl<BrowsingContributionResource>( lbcr);
 			
-			Resources<BrowsingContributionResource> response = new Resources<BrowsingContributionResource>(pbcr);
-			if (!pbcr.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
-			if (!pbcr.isLast()) {	response.add(makePageLink(pbcr.getNumberOfElements()-1, size, Link.REL_LAST));   }
+			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(pbcr);
+			/*if (!pbcr.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
+			if (!pbcr.isLast()) {	response.add(makePageLink(pbcr.getTotalPages(), size, Link.REL_LAST));   }
 			if (pbcr.hasPrevious()) {	response.add(makePageLink(page-1, size, Link.REL_PREVIOUS));   }
 			if (pbcr.hasNext()) {	response.add(makePageLink(page+1, size, Link.REL_NEXT));   }
-			response.add(makePageLink(page, size, Link.REL_SELF)); 
+			response.add(makePageLink(page, size, Link.REL_SELF)); */
 			
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
 			return response;
