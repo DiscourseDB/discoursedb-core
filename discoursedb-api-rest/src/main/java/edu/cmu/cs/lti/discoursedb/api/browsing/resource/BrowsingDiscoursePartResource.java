@@ -54,14 +54,20 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		}
 		
 		this.setContributionCount(dp.getDiscoursePartContributions().stream().collect(Collectors.summingLong(f -> 1L)));
-		this.setSubDiscoursePartCount(dp.getTargetOfDiscoursePartRelations().stream().collect(Collectors.summingLong(f -> 1L)));
+		this.setSubDiscoursePartCount(dp.getSourceOfDiscoursePartRelations().stream().collect(Collectors.summingLong(f -> 1L)));
 		
-		for (DiscoursePartRelation dp1 : dp.getSourceOfDiscoursePartRelations()) {
+		if (this.getSubDiscoursePartCount() > 0) {
+			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp.getId() + "/", 
+					 dp.getName() ));			
+		}
+/*		for (DiscoursePartRelation dp1 : dp.getSourceOfDiscoursePartRelations()) {
 			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp1.getTarget().getId() + "/", 
 					dp1.getType() + ": " + dp1.getTarget().getName() ));			
-		}
+		} */
 		
-		this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", "contributions"));
+		if (this.getContributionCount() > 0) {
+			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", "contributions"));
+		}
 	}
 	
 	public void filterAnnotations(String annotType) {

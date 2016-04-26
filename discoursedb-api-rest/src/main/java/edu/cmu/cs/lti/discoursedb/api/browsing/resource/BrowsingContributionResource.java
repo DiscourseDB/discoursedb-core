@@ -22,6 +22,7 @@ public class BrowsingContributionResource extends ResourceSupport {
 	private String type;
 	private String content;
 	private String title;
+	private String contributor;
 	private Date startTime;
 	// links to discourseParts
 	private List<String> userInteractions;
@@ -32,6 +33,7 @@ public class BrowsingContributionResource extends ResourceSupport {
 		content = c.getCurrentRevision().getText();
 		title = c.getCurrentRevision().getTitle();
 		startTime = c.getStartTime();
+		setContributor(c.getCurrentRevision().getAuthor().getUsername());
 		userInteractions = c.getContributionInteractions().stream().map(i -> 
 			i.getUser().getUsername() + ": " + i.getType() + " at " + i.getStartTime().toString())
 				.collect(Collectors.toList());
@@ -91,6 +93,14 @@ public class BrowsingContributionResource extends ResourceSupport {
 
 	public void setAnnotations(List<BrowsingAnnotationResource> annotations) {
 		this.annotations = annotations;
+	}
+
+	public String getContributor() {
+		return contributor;
+	}
+
+	public void setContributor(String contributor) {
+		this.contributor = contributor;
 	}
 
 

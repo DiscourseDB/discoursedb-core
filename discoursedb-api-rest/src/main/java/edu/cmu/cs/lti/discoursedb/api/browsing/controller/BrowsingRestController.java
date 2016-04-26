@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -46,6 +48,8 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 @Controller
 @RequestMapping(value = "/browsing", produces = "application/hal+json")
 public class BrowsingRestController {
+
+	private static final Logger logger = LogManager.getLogger(BrowsingRestController.class);
 
 	@Autowired
 	private DiscourseRepository discourseRepository;
@@ -117,20 +121,21 @@ public class BrowsingRestController {
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
-			Page<BrowsingDiscoursePartResource> repoResources = 
-					discoursePartRelationRepository.findAllBySource(parent.get(), p)
-			.map(dpr -> dpr.getTarget())
-			.map(BrowsingDiscoursePartResource::new);
-			
-			Resources<BrowsingDiscoursePartResource> response = new Resources<BrowsingDiscoursePartResource>(repoResources);
-			if (!repoResources.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
-			if (!repoResources.isLast()) {	response.add(makePageLink(repoResources.getNumberOfElements()-1, size, Link.REL_LAST));   }
-			if (repoResources.hasPrevious()) {	response.add(makePageLink(page-1, size, Link.REL_PREVIOUS));   }
-			if (repoResources.hasNext()) {	response.add(makePageLink(page+1, size, Link.REL_NEXT));   }
+			List<BrowsingDiscoursePartResource> repoResources = 
+					discoursePartRelationRepository.findAllBySource(parent.get(), p).stream()
+			.map(dpr -> dpr.getTarget()).map(BrowsingDiscoursePartResource::new).collect(Collectors.toList());
+			Page<BrowsingDiscoursePartResource> pRepoResources = new PageImpl<BrowsingDiscoursePartResource>(repoResources);
+
+			Resources<BrowsingDiscoursePartResource> response = new Resources<BrowsingDiscoursePartResource>(pRepoResources);
+			if (!pRepoResources.isFirst()) {	response.add(makePageLink(0, size, Link.REL_FIRST));   }
+			if (!pRepoResources.isLast()) {	response.add(makePageLink(pRepoResources.getNumberOfElements()-1, size, Link.REL_LAST));   }
+			if (pRepoResources.hasPrevious()) {	response.add(makePageLink(page-1, size, Link.REL_PREVIOUS));   }
+			if (pRepoResources.hasNext()) {	response.add(makePageLink(page+1, size, Link.REL_NEXT));   }
 			response.add(makePageLink(page, size, Link.REL_SELF));  
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
 			return response;
 		} else {
+			logger.info("subdiscourseParts(" + dpId + ") : isPresent==false");
 			return null;
 		}
 	}
@@ -149,6 +154,11 @@ public class BrowsingRestController {
 			List<BrowsingContributionResource> lbcr = parent.get().getDiscoursePartContributions()
 					.stream().map(c->c.getContribution())
 					.map(BrowsingContributionResource::new)
+					.sorted((b1, b2) -> {try{
+						     return b1.getStartTime().compareTo(b2.getStartTime());
+						     }
+					      catch (NullPointerException npe) { return 0; } }
+							)
 					.collect(Collectors.toList());
 			Page<BrowsingContributionResource> pbcr = 
 					new PageImpl<BrowsingContributionResource>( lbcr);

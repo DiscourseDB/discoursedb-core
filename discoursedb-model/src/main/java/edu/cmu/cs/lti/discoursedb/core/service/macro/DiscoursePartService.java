@@ -46,7 +46,6 @@ public class DiscoursePartService {
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,
-<<<<<<< HEAD
 	 * connects it with the type and the provided discourse.<br/>
 	 * 
 	 * All changed/created entities are committed to the db and the DiscoursePart is returned.<br/>
@@ -68,36 +67,28 @@ public class DiscoursePartService {
 		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
 	}
 	
-	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, DataSourceInstance ds) {
+	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
 		Assert.notNull(discourse, "Discourse cannot be null.");
-		Assert.notNull(ds, "sourceType cannot be null.");		
+		Assert.hasText (entitySourceId, "");		
 		
-		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
-		Optional<DiscoursePart> existingDiscoursePart = Optional.ofNullable(discoursePartRepo.findOne(
-						DiscoursePartPredicates.discoursePartHasDataSource(ds).and(
-						DiscoursePartPredicates.discoursePartHasDiscourse(discourse))));
-
-		DiscoursePart dPart=existingDiscoursePart.orElseGet(()->{
-			DiscoursePart newDP=new DiscoursePart();
-			return discoursePartRepo.save(newDP);
-			}
-		);			
-		
-		Optional<DiscourseToDiscoursePart> existingDiscourseToDiscoursePart = discourseToDiscoursePartRepo.findOneByDiscourseAndDiscoursePart(discourse, dPart);	
-		if(!existingDiscourseToDiscoursePart.isPresent()){
-			DiscourseToDiscoursePart discourseToDiscoursePart = new DiscourseToDiscoursePart();			
-			discourseToDiscoursePart.setDiscourse(discourse);
-			discourseToDiscoursePart.setDiscoursePart(dPart);
-			discourseToDiscoursePartRepo.save(discourseToDiscoursePart);			
+		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
+		DiscoursePart dp = null;
+		if (odp.isPresent()) {
+			dp = odp.get();
+		} else {
+			dp = new DiscoursePart();
+			discoursePartRepo.save(dp);
+			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+			dataSourceService.addSource(dp, ds);
 		}
 		
-		return dPart;
+		
+		
+		return dp;
 	}
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,
-=======
->>>>>>> refs/remotes/origin/master
 	 * connects it with the type and the provided discourse.
 	 * 
 	 * All changed/created entities are committed to the db and the DiscoursePart is returned.

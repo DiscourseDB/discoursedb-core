@@ -40,6 +40,9 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ " and type=:discoursePartType")
 	Page<DiscoursePart> findAllNonDegenerateByType(@Param("discoursePartType") String discoursePartType, Pageable pageable);
 	
+	@Query("select dp from DiscoursePart dp left join dp.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id")
+	Optional<DiscoursePart> findOneByDataSourceId(@Param("id") String id);
+		
 	
 	@Query(value = "select * from discourse_part dp where fk_annotation not in " +
 				      "(select fk_annotation from annotation_instance where type=:annotationType)",

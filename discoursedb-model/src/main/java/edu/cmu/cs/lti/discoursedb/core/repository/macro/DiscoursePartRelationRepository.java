@@ -14,7 +14,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 public interface DiscoursePartRelationRepository extends BaseRepository<DiscoursePartRelation, Long> {
 	Optional<DiscoursePartRelation> findOneBySourceAndTargetAndType(DiscoursePart source, DiscoursePart Target, String type);
 	List<DiscoursePartRelation> findAllBySourceAndType(DiscoursePart source, String type);
-	Page<DiscoursePartRelation> findAllBySource(DiscoursePart source, Pageable page);
+	List<DiscoursePartRelation> findAllBySource(DiscoursePart source, Pageable page);
 	Page<DiscoursePartRelation> findAllByTarget(DiscoursePart discoursePart, Pageable page);
 
 }
