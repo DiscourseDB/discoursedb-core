@@ -10,6 +10,33 @@ import lombok.extern.log4j.Log4j;
 @NoArgsConstructor
 public class BratAnnotation {
 
+	/**
+	 * Populates a BratAnnotation from a String which is formatted like Strings produced by BratAnnotation.toString()
+	 * 
+	 * @param data a String in the BratAnnotation.toString() format
+	 */
+	public BratAnnotation(String data){
+		if(data.startsWith(BratAnnotationType.T.name())){
+			setType(BratAnnotationType.T);
+			int firstTab = data.indexOf("\t");
+			int secondTab = data.indexOf("\t",firstTab+1);
+			String[] fields = data.substring(firstTab+1, secondTab).split(" ");
+			setAnnotationLabel(fields[0]);
+			setBeginIndex(Integer.parseInt(fields[1]));
+			setEndIndex(Integer.parseInt(fields[2]));
+			setCoveredText(data.substring(secondTab+1));
+		}else if(data.startsWith(BratAnnotationType.A.name())){
+			setType(BratAnnotationType.A);
+			int firstTab = data.indexOf("\t");
+			String[] fields = data.substring(firstTab+1).split(" ");
+			setAnnotationLabel(fields[0]);
+			setSourceAnnotationId(fields[1]);
+		}else{
+			log.error("Unsupported Annotation Type.");
+			throw new IllegalArgumentException();
+		}		
+	}
+	
 	long id;
 	
 	BratAnnotationType type;
@@ -27,7 +54,9 @@ public class BratAnnotation {
 
 	//if a pair of annotation is referenced, this holds the id of the second annotation
 	String targetAnnotationId;
-	
+
+	String metaData;
+
 	int beginIndex;
 	
 	int endIndex;

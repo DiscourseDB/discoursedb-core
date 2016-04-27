@@ -14,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.hateoas.Identifiable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -21,8 +22,10 @@ import org.springframework.util.Assert;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotationType;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -31,11 +34,19 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
+import lombok.extern.log4j.Log4j;
 
 /**
+ * Compile one text file per DiscoursPart (default type: THREAD) with the concatenated texts of the "currentRevision" Content entities separated
+ * by a String which holds meta information about the contribution (table, id, autor name)
+ * 
+ * Currently, only the latest revision of a contribution is supported.
+ * It is assumed that annotations on contirbutions are not spans, but labels on the whole entities
+ * while annotations on the content of that contributions are always spans and not entity labels 
  * 
  * @author Oliver Ferschke
  */
+@Log4j
 @Component
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration" }, useDefaultFilters = false, includeFilters = {
@@ -48,8 +59,10 @@ public class BratThreadExport implements CommandLineRunner {
 	@Autowired private ContributionService contribService;
 	@Autowired private AnnotationService annoService;
 	
-	private final String SEPARATOR_PREFIX = "[*** ";
-	private final String SEPARATOR_SUFFIX = " ***]";	
+	public static final String SEPARATOR_PREFIX = "[*** ";
+	public static final String SEPARATOR_SUFFIX = " ***]";	
+	public static final String CONTRIB_SEPARATOR = SEPARATOR_PREFIX+"NEW CONTRIBUTION"+SEPARATOR_SUFFIX;
+	public enum EntityTypes{CONTRIBUTION, CONTENT};
 	
 	/**
 	 * Launches the SpringBoot application
@@ -76,39 +89,46 @@ public class BratThreadExport implements CommandLineRunner {
 		
 		for(DiscoursePart dp: discoursePartService.findAllByDiscourseAndType(discourse, DiscoursePartTypes.valueOf(dpType))){
 			
-			// retrieve all contributions for the given discourse
-			List<String> contributions = new ArrayList<>();
+			List<String> contribExportText = new ArrayList<>();
 			List<BratAnnotation> annos = new ArrayList<>();
+			List<String> entityOffsetMapping = new ArrayList<>(); //Strings map entity identifiers to offset (entityClass TAB entityId TAB offset) 			
+			
 			int spanOffset = 0;
 			for (Contribution contrib : contribService.findAllByDiscoursePart(dp)) {			
 				
-				String text = contrib.getCurrentRevision().getText();
-				String authorName = contrib.getCurrentRevision().getAuthor()!=null?contrib.getCurrentRevision().getAuthor().getUsername():"Unknown Author";
-				String tableName = contrib.getClass().getAnnotation(Table.class).name();
-				String contribSeparatorContent = tableName+"_"+contrib.getId()+"_"+authorName;
+				Content curRevision = contrib.getCurrentRevision();
+				String text = curRevision.getText();
 
-				String contribSeparator = SEPARATOR_PREFIX+contribSeparatorContent+SEPARATOR_SUFFIX;
 				
-				contributions.add(contribSeparator);
-				contributions.add(text);
-										
+				contribExportText.add(CONTRIB_SEPARATOR);
+				contribExportText.add(text);
+						
+				for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
+					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, curRevision));					
+				}
 				for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-					annos.addAll(convertAnnotation(anno, spanOffset, contribSeparator, text));					
+					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, contrib));					
 				}
 
-				//update span offset
+				//keep track of offsets
+				entityOffsetMapping.add(EntityTypes.CONTRIBUTION.name()+"\t"+contrib.getId()+"\t"+spanOffset);
+				entityOffsetMapping.add(EntityTypes.CONTENT.name()+"\t"+curRevision.getId()+"\t"+spanOffset);
+
+				//update span offsets
 				spanOffset+=text.length()+1;
-				spanOffset+=contribSeparator.length()+1;
+				spanOffset+=CONTRIB_SEPARATOR.length()+1;				
 			}
 		
 			String dpprefix = dp.getClass().getAnnotation(Table.class).name();
-			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".txt"),contributions);				
-			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".ann"),annos);				
-			
+			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".txt"),contribExportText);				
+			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".ann"),annos);
+			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".offsets"),entityOffsetMapping);
 		}	
+		System.exit(0);
 	}
 
-	private List<BratAnnotation> convertAnnotation(AnnotationInstance dbAnno, int spanOffset, String separator, String text) {
+	
+	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotation(AnnotationInstance dbAnno, int spanOffset, String separator, String text, T entity) {
 		//one DiscourseDB annotation could result in multiple BRAT annotations 
 		List<BratAnnotation> newAnnotations = new ArrayList<>();
 
@@ -134,34 +154,32 @@ public class BratThreadExport implements CommandLineRunner {
 		}
 		else {
 			//PRODUCE Text-Bound Annotation for all other annotations		
-			BratAnnotation textBoundAnnotation = new BratAnnotation();
+			BratAnnotation textBoundAnnotation = new BratAnnotation();  //TODO change meta data to something usable
 			textBoundAnnotation.setType(BratAnnotationType.T);			
 			textBoundAnnotation.setId(dbAnno.getId());
 			textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
 
 			//CALC OFFSET			
-			boolean contributionLabel = false; //indicates whether the contribution is labeled as a whole rather than a span of text
-			if (dbAnno.getEndOffset() == 0) {
+			if (entity instanceof Contribution) {
+				//annotations on contributions are always annotated on the contribution separator as an entity label 
 				textBoundAnnotation.setBeginIndex(spanOffset);
 				textBoundAnnotation.setEndIndex(spanOffset+separator.length());
-				contributionLabel = true;
-				
-			} else {
-				textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+separator.length()-1);
-				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+separator.length()-1);
-			}
-			
-			if(contributionLabel){
-				textBoundAnnotation.setCoveredText(separator);											
-			}else{
+				textBoundAnnotation.setCoveredText(separator);															
+			}else if (entity instanceof Content) {
+				//content labels are always annotated as text spans on the currentRevision content entity
+				if(dbAnno.getEndOffset()==0){
+					log.warn("Labels on Content entites should define a span and should not be entity labels."); 
+				}
+				textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+separator.length()+1);
+				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+separator.length()+1);
 				textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
 			}
-
+			
 			newAnnotations.add(textBoundAnnotation);
 			
 			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES
 			//Feature types are ignores.
-			//
+			//TODO: only nominal/binary attributes are supported. need to be registered in the conf file
 			for(Feature f:dbAnno.getFeatures()){			
 				BratAnnotation newAttribute = new BratAnnotation();
 				newAttribute.setType(BratAnnotationType.A);			
@@ -171,10 +189,17 @@ public class BratThreadExport implements CommandLineRunner {
 				newAnnotations.add(newAttribute);
 			}
     	}
-
-		
-
 		return newAnnotations;
+	}
+
+
+	@SuppressWarnings("unused")
+	private List<String> extractMetaData(List<BratAnnotation> annos){
+		List<String> meta = new ArrayList<>();
+		for(BratAnnotation anno:annos){
+			meta.add(anno.getMetaData());
+		}
+		return meta;
 	}
 
 }

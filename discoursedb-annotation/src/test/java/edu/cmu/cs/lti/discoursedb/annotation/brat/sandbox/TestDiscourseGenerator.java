@@ -30,7 +30,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
  */
 @Component
 @SpringBootApplication
-@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.io" }, 
+@ComponentScan(	basePackages = { "edu.cmu.cs.lti.discoursedb.configuration"}, 
 				useDefaultFilters = false, 
 				includeFilters = {@ComponentScan.Filter(
 						type = FilterType.ASSIGNABLE_TYPE, 
@@ -84,16 +84,16 @@ public class TestDiscourseGenerator implements CommandLineRunner {
 		/////
 		
 		AnnotationInstance anno1 = annoService.createTypedAnnotation("DDB_LABEL_1");
-		annoService.addFeature(anno1, annoService.createFeature("1.0"));
+//		annoService.addFeature(anno1, annoService.createFeature("1.0"));
 		annoService.addAnnotation(contrib1, anno1);
-		
-		AnnotationInstance anno2 = annoService.createTypedAnnotation("DDB_LABEL_2");
-		annoService.addFeature(anno2, annoService.createFeature("two"));
-		annoService.addAnnotation(contrib2, anno2);
-		
-		AnnotationInstance anno3 = annoService.createTypedAnnotation("DDB_LABEL_3");
-		annoService.addFeature(anno3, annoService.createFeature("3"));
-		annoService.addAnnotation(contrib3, anno3);
+//		
+//		AnnotationInstance anno2 = annoService.createTypedAnnotation("DDB_LABEL_2");
+//		annoService.addFeature(anno2, annoService.createFeature("two"));
+//		annoService.addAnnotation(contrib2, anno2);
+//		
+//		AnnotationInstance anno3 = annoService.createTypedAnnotation("DDB_LABEL_3");
+//		annoService.addFeature(anno3, annoService.createFeature("3"));
+//		annoService.addAnnotation(contrib3, anno3);
 
 	}
 }
