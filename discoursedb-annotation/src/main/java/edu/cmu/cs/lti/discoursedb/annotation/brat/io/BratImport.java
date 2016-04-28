@@ -27,11 +27,14 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotationType;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.log4j.Log4j;
 
 /**
@@ -88,9 +91,8 @@ public class BratImport implements CommandLineRunner {
 			TreeMap<Integer, Long> offsetToContentId = getOffsetToIdMap(offsetFile, EntityTypes.CONTENT);
 
 			// keep track of versions of orginally exported annotations and features
-			// TODO map to DDB_ID+DDB_version instead of just DDB_ID
-			Map<Long, Long> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
-			Map<Long, Long> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
+			Map<Long, EntityInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
+			Map<Long, EntityInfo> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
 
 			for (String line : FileUtils.readLines(annFile)) {
 				// create offset-corrected annotations from line
@@ -99,6 +101,9 @@ public class BratImport implements CommandLineRunner {
 				if (anno.getType() == BratAnnotationType.T) {
 					// if the annotation covers a span of at least half of the length of the separator
 					// AND is fully contained in the separator, we assume we are creating an entity annotation
+					
+					EntityInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());
+					
 					if (anno.getCoveredText().length() > (BratThreadExport.CONTRIB_SEPARATOR.length() / 2)
 							&& BratThreadExport.CONTRIB_SEPARATOR.contains(anno.getCoveredText())) {
 						/*
@@ -111,19 +116,23 @@ public class BratImport implements CommandLineRunner {
 
 						// check if annotation already existed before
 						if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
-							AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(annotationBratIdToDDB.get(anno.getFullAnnotationId())).get();
+							AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getId()).get();
 
-							// TODO check changes since last DDB export: If annotation changes in DDB since we last exported, we have to throw an exception. If not, we can continue checking for offline changes
+							//check if the anno version in the database still matches the anno version we initially exported 
+							if(existingAnno.getEntityVersion()==entityInfo.getVersion()){
+								if (existingAnno.getBeginOffset() != 0) {
+									existingAnno.setBeginOffset(0);
+								}
+								if (existingAnno.getEndOffset() != 0) {
+									existingAnno.setBeginOffset(0);
+								}
+								if (existingAnno.getType().equalsIgnoreCase(anno.getAnnotationLabel())) {
+									existingAnno.setType(anno.getAnnotationLabel());
+								}								
+							}else{
+								log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import annotation.");
+							}
 							
-							if (existingAnno.getBeginOffset() != 0) {
-								existingAnno.setBeginOffset(0);
-							}
-							if (existingAnno.getEndOffset() != 0) {
-								existingAnno.setBeginOffset(0);
-							}
-							if (existingAnno.getType().equalsIgnoreCase(anno.getAnnotationLabel())) {
-								existingAnno.setType(anno.getAnnotationLabel());
-							}
 						} else {
 							// anno is new and didn't exist in ddb before
 							AnnotationInstance newAnno = annoService.createTypedAnnotation(anno.getAnnotationLabel());
@@ -144,22 +153,26 @@ public class BratImport implements CommandLineRunner {
 
 						// check if annotation already existed before
 						if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
-							// anno already existed
-							AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(annotationBratIdToDDB.get(anno.getFullAnnotationId())).get();
+							// Anno already existed. Check for changes.
+							AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getId()).get();
 
-							// TODO check changes since last DDB export: If annotation cahnges in DDB since we last exported, we have to throw an exception. If not, we can continue checking for offline changes
+							//check if the anno version in the database still matches the anno version we initially exported 
+							if(existingAnno.getEntityVersion()==entityInfo.getVersion()){
+								if (existingAnno.getBeginOffset() != offsetCorrectedBeginIdx) {
+									existingAnno.setBeginOffset(offsetCorrectedBeginIdx);
+								}
+								if (existingAnno.getEndOffset() != offsetCorrectedEndIdx) {
+									existingAnno.setBeginOffset(offsetCorrectedEndIdx);
+								}
+								if (existingAnno.getType().equalsIgnoreCase(anno.getAnnotationLabel())) {
+									existingAnno.setType(anno.getAnnotationLabel());
+								}								
+							}else{
+								log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import annotation.");
+							}
 
-							if (existingAnno.getBeginOffset() != offsetCorrectedBeginIdx) {
-								existingAnno.setBeginOffset(offsetCorrectedBeginIdx);
-							}
-							if (existingAnno.getEndOffset() != offsetCorrectedEndIdx) {
-								existingAnno.setBeginOffset(offsetCorrectedEndIdx);
-							}
-							if (existingAnno.getType().equalsIgnoreCase(anno.getAnnotationLabel())) {
-								existingAnno.setType(anno.getAnnotationLabel());
-							}
 						} else {
-							// anno is new and didn't exist in ddb before
+							// Anno is new and didn't exist in ddb before. Create it.
 							AnnotationInstance newAnno = annoService.createTypedAnnotation(anno.getAnnotationLabel());
 							newAnno.setBeginOffset(offsetCorrectedBeginIdx);
 							newAnno.setEndOffset(offsetCorrectedEndIdx);
@@ -168,15 +181,24 @@ public class BratImport implements CommandLineRunner {
 					}
 					
 				} else if (anno.getType() == BratAnnotationType.A) {
+					
+					EntityInfo entityInfo = featureBratIdToDDB.get(anno.getFullAnnotationId());
+					
 					// check if annotation already existed before
 					if (featureBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
-						// TODO check if DDB entities changed in the meantime.
-						// If they did, we have to throw an exception. If not,
-						// we can continue checking for offline changes
+						// anno already existed
+						Feature existingFeature = annoService.findOneFeature(entityInfo.getId()).get();
 
-						// TODO feature already existed. check for changes
+						//check if the anno version in the database still matches the anno version we initially exported 
+						if(existingFeature.getEntityVersion()==entityInfo.getVersion()){
+							// TODO feature already existed. check for changes
+							
+						}else{
+							log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import feature.");							
+						}
 					} else {
-						// feature didn't exist in database yet
+						// feature didn't exist in database yet. Create it.
+
 						// TODO Attributes have to be translated into features/
 						// We need the reference annotation for that
 					}
@@ -201,16 +223,22 @@ public class BratImport implements CommandLineRunner {
 		return offsetToId;
 	}
 
-	private Map<Long, Long> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
-		Map<Long, Long> bratIdToDdbVersion = new HashMap<>();
+	private Map<Long, EntityInfo> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
+		Map<Long, EntityInfo> bratIdToDdbVersion = new HashMap<>();
 		for (String line : FileUtils.readLines(versionFile)) {
 			String[] fields = line.split("\t");
 			if (fields[0].equalsIgnoreCase(sourceType.name())) {
-				// TODO fields[3] is the entity version - not needed at the moment
-				bratIdToDdbVersion.put(Long.parseLong(fields[1]), Long.parseLong(fields[2]));
+				bratIdToDdbVersion.put(Long.parseLong(fields[1]), new EntityInfo(Long.parseLong(fields[2]),Long.parseLong(fields[3])));
 			}
 		}
 		return bratIdToDdbVersion;
 	}
 
+	
+	@Data
+	@AllArgsConstructor
+	protected class EntityInfo{
+		Long id;
+		Long version;
+	}
 }
