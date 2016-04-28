@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.annotation.brat.io;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,13 +75,14 @@ public class BratImport implements CommandLineRunner {
 		// save the file name without extension in a list
 		List<String> fileNames = Arrays.stream(dir.listFiles((d, name) -> name.endsWith(".ann")))
 				.map(f -> f.getName().split(".ann")[0]).collect(Collectors.toList());
-
+		
 		for (String fileName : fileNames) {
 
 			// TODO SUPPORT FOR ANNOTATION/FEATURE DELETION
 			// retrieve a list of existing annotation and feature ids related to
 			// this discoursepart in DDB and compare them with the brat
 			// annotations to detect deleted annotations
+			// NOTE: mapping file is updated with newly created annotations 
 
 			File annFile = new File(inputFolder, fileName + ".ann");
 			File offsetFile = new File(inputFolder, fileName + ".offsets");
@@ -91,19 +93,23 @@ public class BratImport implements CommandLineRunner {
 			TreeMap<Integer, Long> offsetToContentId = getOffsetToIdMap(offsetFile, EntityTypes.CONTENT);
 
 			// keep track of versions of orginally exported annotations and features
-			Map<Long, EntityInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
-			Map<Long, EntityInfo> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
+			Map<String, DDBEntityInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
+			Map<String, DDBEntityInfo> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
 
-			for (String line : FileUtils.readLines(annFile)) {
-				// create offset-corrected annotations from line
-				BratAnnotation anno = new BratAnnotation(line);
+			List<String> bratStandoffEncodedLines =FileUtils.readLines(annFile);  
+			//sorting in reverse order assures that Attribute annotations (A) are imported after text-bound annotations (T)
+			Collections.sort(bratStandoffEncodedLines, Collections.reverseOrder());
+			for (String bratStandoffEncodedLine : bratStandoffEncodedLines) {
 
-				if (anno.getType() == BratAnnotationType.T) {
+				// create BratAnnotation object from Brat-Standoff-Encoded String
+				// offset correction will be done later
+				BratAnnotation anno = new BratAnnotation(bratStandoffEncodedLine);
+
+				if (anno.getType() == BratAnnotationType.T) {					
+					DDBEntityInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());
+					
 					// if the annotation covers a span of at least half of the length of the separator
 					// AND is fully contained in the separator, we assume we are creating an entity annotation
-					
-					EntityInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());
-					
 					if (anno.getCoveredText().length() > (BratThreadExport.CONTRIB_SEPARATOR.length() / 2)
 							&& BratThreadExport.CONTRIB_SEPARATOR.contains(anno.getCoveredText())) {
 						/*
@@ -120,6 +126,7 @@ public class BratImport implements CommandLineRunner {
 
 							//check if the anno version in the database still matches the anno version we initially exported 
 							if(existingAnno.getEntityVersion()==entityInfo.getVersion()){
+								//check for and apply changes
 								if (existingAnno.getBeginOffset() != 0) {
 									existingAnno.setBeginOffset(0);
 								}
@@ -137,6 +144,8 @@ public class BratImport implements CommandLineRunner {
 							// anno is new and didn't exist in ddb before
 							AnnotationInstance newAnno = annoService.createTypedAnnotation(anno.getAnnotationLabel());
 							annoService.addAnnotation(contrib, newAnno);
+							//add to mapping file in case we also create a feature for this new annotation
+							annotationBratIdToDDB.put(anno.getFullAnnotationId(), new DDBEntityInfo(newAnno.getId(), newAnno.getEntityVersion())); 
 						}
 					} else {
 						/*
@@ -158,6 +167,7 @@ public class BratImport implements CommandLineRunner {
 
 							//check if the anno version in the database still matches the anno version we initially exported 
 							if(existingAnno.getEntityVersion()==entityInfo.getVersion()){
+								//check for and apply changes
 								if (existingAnno.getBeginOffset() != offsetCorrectedBeginIdx) {
 									existingAnno.setBeginOffset(offsetCorrectedBeginIdx);
 								}
@@ -182,7 +192,7 @@ public class BratImport implements CommandLineRunner {
 					
 				} else if (anno.getType() == BratAnnotationType.A) {
 					
-					EntityInfo entityInfo = featureBratIdToDDB.get(anno.getFullAnnotationId());
+					DDBEntityInfo entityInfo = featureBratIdToDDB.get(anno.getFullAnnotationId());
 					
 					// check if annotation already existed before
 					if (featureBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
@@ -191,16 +201,23 @@ public class BratImport implements CommandLineRunner {
 
 						//check if the anno version in the database still matches the anno version we initially exported 
 						if(existingFeature.getEntityVersion()==entityInfo.getVersion()){
-							// TODO feature already existed. check for changes
-							
+							//check for and apply changes
+							if(existingFeature.getValue().equalsIgnoreCase(anno.getAnnotationLabel())){
+								existingFeature.setValue(anno.getAnnotationLabel());
+							}
 						}else{
 							log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import feature.");							
 						}
 					} else {
 						// feature didn't exist in database yet. Create it.
-
-						// TODO Attributes have to be translated into features/
-						// We need the reference annotation for that
+						DDBEntityInfo referenceAnnotationInfo = annotationBratIdToDDB.get(anno.getSourceAnnotationId());
+						if(referenceAnnotationInfo!=null){
+							AnnotationInstance referenceAnno = annoService.findOneAnnotationInstance(referenceAnnotationInfo.getId()).get();
+							Feature newFeature = annoService.createTypedFeature(anno.getType().name(), anno.getAnnotationLabel());
+							annoService.addFeature(referenceAnno, newFeature);
+						}else{
+							log.error("Cannot find the annotation this feature applied to.");
+						}						
 					}
 				} else {
 					//Implement import capabilities for other Brat Annotation types here
@@ -223,12 +240,12 @@ public class BratImport implements CommandLineRunner {
 		return offsetToId;
 	}
 
-	private Map<Long, EntityInfo> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
-		Map<Long, EntityInfo> bratIdToDdbVersion = new HashMap<>();
+	private Map<String, DDBEntityInfo> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
+		Map<String, DDBEntityInfo> bratIdToDdbVersion = new HashMap<>();
 		for (String line : FileUtils.readLines(versionFile)) {
 			String[] fields = line.split("\t");
 			if (fields[0].equalsIgnoreCase(sourceType.name())) {
-				bratIdToDdbVersion.put(Long.parseLong(fields[1]), new EntityInfo(Long.parseLong(fields[2]),Long.parseLong(fields[3])));
+				bratIdToDdbVersion.put(fields[1], new DDBEntityInfo(Long.parseLong(fields[2]),Long.parseLong(fields[3])));
 			}
 		}
 		return bratIdToDdbVersion;
@@ -237,7 +254,7 @@ public class BratImport implements CommandLineRunner {
 	
 	@Data
 	@AllArgsConstructor
-	protected class EntityInfo{
+	protected class DDBEntityInfo{
 		Long id;
 		Long version;
 	}

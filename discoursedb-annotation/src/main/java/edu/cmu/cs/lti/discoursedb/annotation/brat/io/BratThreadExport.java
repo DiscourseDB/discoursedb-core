@@ -197,7 +197,7 @@ public class BratThreadExport implements CommandLineRunner {
 			
 			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES
 			//Feature types are ignores.
-			//TODO: only nominal/binary attributes are supported. need to be registered in the conf file
+			//TODO: only nominal/binary attributes are supported. need to be registered in the conf file. Maybe store them as Notes instead of Attributes?
 			for(Feature f:dbAnno.getFeatures()){			
 				BratAnnotation newAttribute = new BratAnnotation();
 				newAttribute.setType(BratAnnotationType.A);			
@@ -207,7 +207,6 @@ public class BratThreadExport implements CommandLineRunner {
 				newAnnotations.add(newAttribute);
 
 				exportedAnnotations.add(AnnotationSourceType.FEATURE.name()+"\t"+textBoundAnnotation.getFullAnnotationId()+"\t"+f.getId()+"\t"+f.getEntityVersion());						
-
 			}
     	}
 		return newAnnotations;
