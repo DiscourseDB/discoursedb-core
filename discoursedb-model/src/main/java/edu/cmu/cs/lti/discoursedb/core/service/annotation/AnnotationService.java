@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.core.service.annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
-import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationAggregateRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -275,4 +276,17 @@ public class AnnotationService {
 	        return annotations;
 	}
 
+	public Optional<AnnotationInstance> findOneAnnotationInstance(Long id){
+		return annoInstanceRepo.findOne(id);
+	}
+	public Optional<Feature> findOneFeature(Long id){
+		return featureRepo.findOne(id);
+	}
+
+	public List<Long> findAllAnnotationInstanceIds(){
+		return annoInstanceRepo.findAllIds();
+	}
+	public List<Long> findAllFeatureIds(){
+		return featureRepo.findAllIds();
+	}
 }

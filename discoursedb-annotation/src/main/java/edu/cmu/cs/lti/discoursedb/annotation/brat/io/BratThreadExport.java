@@ -59,10 +59,9 @@ public class BratThreadExport implements CommandLineRunner {
 	@Autowired private ContributionService contribService;
 	@Autowired private AnnotationService annoService;
 	
-	public static final String SEPARATOR_PREFIX = "[*** ";
-	public static final String SEPARATOR_SUFFIX = " ***]";	
-	public static final String CONTRIB_SEPARATOR = SEPARATOR_PREFIX+"NEW CONTRIBUTION"+SEPARATOR_SUFFIX;
+	public static final String CONTRIB_SEPARATOR = "[**** NEW CONTRIBUTION ****]";
 	public enum EntityTypes{CONTRIBUTION, CONTENT};
+	public enum AnnotationSourceType{ANNOTATION, FEATURE};
 	
 	/**
 	 * Launches the SpringBoot application
@@ -91,7 +90,20 @@ public class BratThreadExport implements CommandLineRunner {
 			
 			List<String> contribExportText = new ArrayList<>();
 			List<BratAnnotation> annos = new ArrayList<>();
-			List<String> entityOffsetMapping = new ArrayList<>(); //Strings map entity identifiers to offset (entityClass TAB entityId TAB offset) 			
+			
+			
+			/*
+			 * The offset mapping keeps track of the start positions of each contribution/content in the aggregated txt file
+			 * It's used to identify the correct discoursedb entities both for exported annotations and also for annotations created after the export.
+			 * Strings in this list map entity identifiers to offset (FORMAT: entityClass TAB entityId TAB offset)
+			 */
+			List<String> entityOffsetMapping = new ArrayList<>();  			
+
+			/*
+			 * Keeps track of annotations that have been exported including their version so we know later which ones have been added or changed
+			 * Format: <Type(Annotation|Feature), BratAnnoId, DDB_Id, DDB_Version>
+			 */
+			List<String> exportedAnnotationVersions = new ArrayList<>();   			
 			
 			int spanOffset = 0;
 			for (Contribution contrib : contribService.findAllByDiscoursePart(dp)) {			
@@ -104,10 +116,10 @@ public class BratThreadExport implements CommandLineRunner {
 				contribExportText.add(text);
 						
 				for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
-					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, curRevision));					
+					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, curRevision, exportedAnnotationVersions));					
 				}
 				for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, contrib));					
+					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, contrib, exportedAnnotationVersions));					
 				}
 
 				//keep track of offsets
@@ -123,12 +135,14 @@ public class BratThreadExport implements CommandLineRunner {
 			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".txt"),contribExportText);				
 			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".ann"),annos);
 			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".offsets"),entityOffsetMapping);
+			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".versions"),exportedAnnotationVersions);
 		}	
 		System.exit(0);
 	}
 
 	
-	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotation(AnnotationInstance dbAnno, int spanOffset, String separator, String text, T entity) {
+	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotation(AnnotationInstance dbAnno, int spanOffset, String separator, String text, T entity, List<String> exportedAnnotations) {
+
 		//one DiscourseDB annotation could result in multiple BRAT annotations 
 		List<BratAnnotation> newAnnotations = new ArrayList<>();
 
@@ -136,24 +150,28 @@ public class BratThreadExport implements CommandLineRunner {
 			//specifically handle DiscourseDB annotation that have the Brat Type R
 			//to produce the corresponding BRAT annotation
 			//TODO implement
+			log.warn("BRAT Type R annotations are not supported yet.");
 		}
 		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.E.name())) {
 			//specifically handle DiscourseDB annotation that have the Brat Type E			
 			//Syto produce the corresponding BRAT annotation
 			//TODO implement
+			log.warn("BRAT Type E annotations are not supported yet.");
 		}
 		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.M.name())) {
 			//specifically handle DiscourseDB annotation that have the Brat Type M
 			//to produce the corresponding BRAT annotation
 			//TODO implement
+			log.warn("BRAT Type M annotations are not supported yet.");
 		}
 		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.N.name())) {
 			//specifically handle DiscourseDB annotation that have the Brat Type N			
 			//to produce the corresponding BRAT annotation
 			//TODO implement
+			log.warn("BRAT Type N annotations are not supported yet.");
 		}
 		else {
-			//PRODUCE Text-Bound Annotation for all other annotations		
+			//PRODUCE Text-Bound Annotation for ALL other annotations		
 			BratAnnotation textBoundAnnotation = new BratAnnotation();  //TODO change meta data to something usable
 			textBoundAnnotation.setType(BratAnnotationType.T);			
 			textBoundAnnotation.setId(dbAnno.getId());
@@ -173,9 +191,9 @@ public class BratThreadExport implements CommandLineRunner {
 				textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+separator.length()+1);
 				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+separator.length()+1);
 				textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
-			}
-			
+			}		
 			newAnnotations.add(textBoundAnnotation);
+			exportedAnnotations.add(AnnotationSourceType.ANNOTATION.name()+"\t"+textBoundAnnotation.getFullAnnotationId()+"\t"+dbAnno.getId()+"\t"+dbAnno.getEntityVersion());
 			
 			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES
 			//Feature types are ignores.
@@ -187,6 +205,9 @@ public class BratThreadExport implements CommandLineRunner {
 				newAttribute.setAnnotationLabel(f.getValue());
 				newAttribute.setSourceAnnotationId(textBoundAnnotation.getFullAnnotationId());
 				newAnnotations.add(newAttribute);
+
+				exportedAnnotations.add(AnnotationSourceType.FEATURE.name()+"\t"+textBoundAnnotation.getFullAnnotationId()+"\t"+f.getId()+"\t"+f.getEntityVersion());						
+
 			}
     	}
 		return newAnnotations;
