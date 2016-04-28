@@ -52,11 +52,6 @@
 				<version>0.6-SNAPSHOT</version>
 			</dependency>
 			<!-- Override mysql due to utf issues -->
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.38</version>
-			</dependency>
 			
 			<!-- Override querydsl versions defined in platform-bom, since we need 
 				to be consitent with our maven plugin -->
@@ -133,7 +128,7 @@
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
 				<artifactId>de.tudarmstadt.ukp.wikipedia</artifactId>
-				<version>1.1.0-SNAPSHOT</version>
+				<version>1.1.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
