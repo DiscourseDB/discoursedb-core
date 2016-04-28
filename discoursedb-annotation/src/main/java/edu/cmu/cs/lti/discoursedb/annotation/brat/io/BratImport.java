@@ -96,14 +96,14 @@ public class BratImport implements CommandLineRunner {
 			Map<String, DDBEntityInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
 			Map<String, DDBEntityInfo> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
 
-			List<String> bratStandoffEncodedLines =FileUtils.readLines(annFile);  
+			List<String> bratStandoffEncodedStrings =FileUtils.readLines(annFile);  
 			//sorting in reverse order assures that Attribute annotations (A) are imported after text-bound annotations (T)
-			Collections.sort(bratStandoffEncodedLines, Collections.reverseOrder());
-			for (String bratStandoffEncodedLine : bratStandoffEncodedLines) {
+			Collections.sort(bratStandoffEncodedStrings, Collections.reverseOrder());
+			for (String bratStandoffEncodedString : bratStandoffEncodedStrings) {
 
 				// create BratAnnotation object from Brat-Standoff-Encoded String
 				// offset correction will be done later
-				BratAnnotation anno = new BratAnnotation(bratStandoffEncodedLine);
+				BratAnnotation anno = new BratAnnotation(bratStandoffEncodedString);
 
 				if (anno.getType() == BratAnnotationType.T) {					
 					DDBEntityInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());
@@ -194,12 +194,12 @@ public class BratImport implements CommandLineRunner {
 					
 					DDBEntityInfo entityInfo = featureBratIdToDDB.get(anno.getFullAnnotationId());
 					
-					// check if annotation already existed before
+					// check if feature already existed before
 					if (featureBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
-						// anno already existed
+						// feature already existed
 						Feature existingFeature = annoService.findOneFeature(entityInfo.getId()).get();
 
-						//check if the anno version in the database still matches the anno version we initially exported 
+						//check if the feature version in the database still matches the feature version we initially exported 
 						if(existingFeature.getEntityVersion()==entityInfo.getVersion()){
 							//check for and apply changes
 							if(existingFeature.getValue().equalsIgnoreCase(anno.getAnnotationLabel())){
@@ -216,7 +216,7 @@ public class BratImport implements CommandLineRunner {
 							Feature newFeature = annoService.createTypedFeature(anno.getType().name(), anno.getAnnotationLabel());
 							annoService.addFeature(referenceAnno, newFeature);
 						}else{
-							log.error("Cannot find the annotation this feature applied to.");
+							log.error("Cannot find the annotation this feature applies to.");
 						}						
 					}
 				} else {
