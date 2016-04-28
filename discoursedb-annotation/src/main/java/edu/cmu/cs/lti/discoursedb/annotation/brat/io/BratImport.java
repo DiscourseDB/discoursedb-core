@@ -31,9 +31,11 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j;
@@ -54,6 +56,7 @@ public class BratImport implements CommandLineRunner {
 	@Autowired private ContributionService contribService;
 	@Autowired private ContentService contentService;
 	@Autowired private AnnotationService annoService;
+	@Autowired private DiscoursePartService dpService;
 
 	/**
 	 * Launches the SpringBoot application
@@ -73,16 +76,13 @@ public class BratImport implements CommandLineRunner {
 		File dir = new File(inputFolder);
 		// retrieve all files that end with ann, strip off the extension and
 		// save the file name without extension in a list
-		List<String> fileNames = Arrays.stream(dir.listFiles((d, name) -> name.endsWith(".ann")))
-				.map(f -> f.getName().split(".ann")[0]).collect(Collectors.toList());
+		List<String> fileNames = Arrays.stream(dir.listFiles((d, name) -> name.endsWith(".ann"))).map(f -> f.getName().split(".ann")[0]).collect(Collectors.toList());
 		
 		for (String fileName : fileNames) {
 
 			// TODO SUPPORT FOR ANNOTATION/FEATURE DELETION
-			// retrieve a list of existing annotation and feature ids related to
-			// this discoursepart in DDB and compare them with the brat
-			// annotations to detect deleted annotations
-			// NOTE: mapping file is updated with newly created annotations 
+			// retrieve a list of existing annotation and feature ids related to this discoursepart in DDB and compare them with the brat annotations to detect deleted annotations
+			DiscoursePart dp = dpService.findOne(Long.parseLong(fileName.substring(fileName.lastIndexOf("_")+1))).get();
 
 			File annFile = new File(inputFolder, fileName + ".ann");
 			File offsetFile = new File(inputFolder, fileName + ".offsets");
