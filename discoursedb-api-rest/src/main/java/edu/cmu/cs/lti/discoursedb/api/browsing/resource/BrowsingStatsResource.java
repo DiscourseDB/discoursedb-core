@@ -17,9 +17,9 @@ import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 
 public class BrowsingStatsResource extends ResourceSupport {
 
-	private Map<String,Integer> discourseParts;
+	private Map<String,Long> discourseParts;
 	private long users;
-	private Map<String,Integer> contributions;
+	private Map<String,Long> contributions;
 	private List<String> discourses;
 	
 	public BrowsingStatsResource(DiscourseRepository discourseRepository, 
@@ -28,31 +28,31 @@ public class BrowsingStatsResource extends ResourceSupport {
 			UserRepository userRepository) {
 
 		this.discourses = new ArrayList<String>();
-		this.discourseParts = new HashMap<String,Integer>();
-		this.contributions = new HashMap<String,Integer>();
+		this.discourseParts = new HashMap<String,Long>();
+		this.contributions = new HashMap<String,Long>();
 		this.users = 0;
 		
 		discourseRepository.findAll().forEach(d -> this.discourses.add(d.getName()));
 		this.users = userRepository.count();
 		
-		discoursePartRepository.findAll().forEach(dp -> {
-			this.discourseParts.put(dp.getType(), this.discourseParts.getOrDefault(dp.getType(), 0)+1);
+		discoursePartRepository.countsByType().forEach(c  -> {
+			this.discourseParts.put(c[0].toString(), (Long)c[1]);
 		});
-		
+		contributionRepository.countsByType().forEach(c  -> {
+			this.contributions.put(c[0].toString(), (Long)c[1]);
+		});
+
 		contributionRepository.findAll().forEach(c -> {
-			this.contributions.put(c.getType(), this.contributions.getOrDefault(c.getType(), 0)+1);
+			this.contributions.put(c.getType(), this.contributions.getOrDefault(c.getType(), 0L)+1);
 		});
 		
-		
-				
-				//.map(d -> d.getName()).collect(Collectors.toList());
 	}
 
-	public Map<String, Integer> getDiscourseParts() {
+	public Map<String, Long> getDiscourseParts() {
 		return discourseParts;
 	}
 
-	public void setDiscourseParts(Map<String, Integer> discourseParts) {
+	public void setDiscourseParts(Map<String, Long> discourseParts) {
 		this.discourseParts = discourseParts;
 	}
 
@@ -64,11 +64,11 @@ public class BrowsingStatsResource extends ResourceSupport {
 		this.users = users;
 	}
 
-	public Map<String, Integer> getContributions() {
+	public Map<String, Long> getContributions() {
 		return contributions;
 	}
 
-	public void setContributions(Map<String, Integer> contributions) {
+	public void setContributions(Map<String, Long> contributions) {
 		this.contributions = contributions;
 	}
 

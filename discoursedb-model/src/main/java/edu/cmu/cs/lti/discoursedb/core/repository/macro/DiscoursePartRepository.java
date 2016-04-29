@@ -54,5 +54,7 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 	Page<DiscoursePart> findAllNotAnnotatedWithTypePaged(@Param("annotationType") String type, Pageable pageable);
 	
 	
+	@Query("select type, count(*) as count from DiscoursePart dp group by type")
+	List<Object[]> countsByType();
 
 }
