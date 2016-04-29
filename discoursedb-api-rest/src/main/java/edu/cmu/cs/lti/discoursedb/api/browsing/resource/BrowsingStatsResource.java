@@ -41,10 +41,6 @@ public class BrowsingStatsResource extends ResourceSupport {
 		contributionRepository.countsByType().forEach(c  -> {
 			this.contributions.put(c[0].toString(), (Long)c[1]);
 		});
-
-		contributionRepository.findAll().forEach(c -> {
-			this.contributions.put(c.getType(), this.contributions.getOrDefault(c.getType(), 0L)+1);
-		});
 		
 	}
 
