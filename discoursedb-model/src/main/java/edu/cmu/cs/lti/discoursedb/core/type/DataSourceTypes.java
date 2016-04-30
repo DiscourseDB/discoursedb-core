@@ -46,6 +46,10 @@ public enum DataSourceTypes {
 	/**
 	 * A Habworlds dataset
 	 */
-	HABWORLDS
+	HABWORLDS,
+	/**
+	 * A Neuwirth dataset
+	 */
+	NEUWIRTH
 
 }
