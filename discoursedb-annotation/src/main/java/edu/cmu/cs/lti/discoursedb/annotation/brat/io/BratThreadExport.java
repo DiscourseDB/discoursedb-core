@@ -49,9 +49,8 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @Component
 @SpringBootApplication
-@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration" }, useDefaultFilters = false, includeFilters = {
-				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratThreadExport.class,
-						BaseConfiguration.class }) })
+@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.brat.io" }, useDefaultFilters = false, includeFilters = {
+				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratThreadExport.class, BaseConfiguration.class }) })
 public class BratThreadExport implements CommandLineRunner {
 
 	@Autowired private DiscourseService discourseService;

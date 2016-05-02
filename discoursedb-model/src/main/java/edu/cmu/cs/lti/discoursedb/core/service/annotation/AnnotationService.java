@@ -17,9 +17,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationAggregateRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +34,7 @@ public class AnnotationService {
 
 	private final @NonNull AnnotationInstanceRepository annoInstanceRepo;
 	private final @NonNull AnnotationAggregateRepository annoRepo;
+	private final @NonNull ContributionService contribService;
 	private final @NonNull FeatureRepository featureRepo;
 	
 	/**
@@ -180,14 +185,39 @@ public class AnnotationService {
 		annotation.setAnnotationAggregate(annoAggregate);
 		annotation = annoInstanceRepo.save(annotation);
 	}
+
+	/**
+	 * Deletes an annotation from DiscourseDB
+	 * 
+	 * @param id
+	 *            id of the annotation instance to delete
+	 */
+	public void deleteAnnotation(Long id) {		
+		Assert.notNull(id,"Annotation id cannot be null.");
+		Assert.isTrue(id>0,"Annotation id has to be a positive number.");
+		annoInstanceRepo.findOne(id).ifPresent(annotation -> deleteAnnotation(annotation));
+	}
+
 	
+	/**
+	 * Deletes a feature from DiscourseDB
+	 * 
+	 * @param id
+	 *            id of the feature to delete
+	 */
+	public void deleteFeature(Long id) {		
+		Assert.notNull(id,"Feature id cannot be null.");
+		Assert.isTrue(id>0,"Feature id has to be a positive number.");
+		featureRepo.delete(id);			
+	}
+
 	/**
 	 * Deletes an annotation from DiscourseDB
 	 * 
 	 * @param annotation
-	 *            the annotation instance to add to delete
+	 *            the annotation instance to delete
 	 */
-	public <T extends TypedTimedAnnotatableBE> void deleteAnnotation(AnnotationInstance annotation) {		
+	public void deleteAnnotation(AnnotationInstance annotation) {		
 		Assert.notNull(annotation,"Annotation to delete cannot be null.");
 		Set<Feature> features = annotation.getFeatures();
 		if(features!=null&&!features.isEmpty()){
@@ -202,7 +232,7 @@ public class AnnotationService {
 	 * @param annotation
 	 *            the annotation instance to add to delete
 	 */
-	public <T extends TypedTimedAnnotatableBE> void deleteAnnotations(Iterable<AnnotationInstance> annotations) {		
+	public void deleteAnnotations(Iterable<AnnotationInstance> annotations) {		
 		Assert.notNull(annotations, "Annotation iterable cannot be null.");
 
 		List<Feature> featuresToDelete = new ArrayList<>();
@@ -274,6 +304,45 @@ public class AnnotationService {
 	                annotations.add(f.getAnnotation());
 	        }
 	        return annotations;
+	}
+	
+	/**
+	 * Finds all annotations that have a feature matching a type=value pair
+	 * 
+ 	 * FIXME: this is not very generic and also the way the annotations are retrieved should be revised
+	 * 
+	 * @param dp the discoursepart that contains the contributions which hold the annotations 
+	 * @return a List of annotations
+	 */
+	public List<AnnotationInstance> findContributionAnnotationsByDiscoursePart(DiscoursePart dp) {
+	        Assert.notNull(dp,"DiscoursePart cannot be null.");
+	        List<AnnotationInstance> annos = new ArrayList<>();
+	        for(Contribution contrib: contribService.findAllByDiscoursePart(dp)){
+	        	if(contrib.getAnnotations()!=null){
+		        	annos.addAll(contrib.getAnnotations().getAnnotations());	        		
+	        	}
+	        }
+	        return annos;
+	}
+
+	/**
+	 * Finds all annotations on content entities that are current revisions of any contribution in the given DiscoursePart
+	 * 
+	 * FIXME: this is not very generic and also the way the annotations are retrieved should be revised
+	 * 
+	 * @param dp the discoursepart that contains the contributions of which we extract the currentRevision which hold the annotations 
+	 * @return a List of annotations
+	 */
+	public List<AnnotationInstance> findCurrentRevisionAnnotationsByDiscoursePart(DiscoursePart dp) {
+	        Assert.notNull(dp,"DiscoursePart cannot be null.");
+	        List<AnnotationInstance> annos = new ArrayList<>();
+	        for(Contribution contrib: contribService.findAllByDiscoursePart(dp)){
+	        	Content curRevision = contrib.getCurrentRevision();
+	        	if(curRevision.getAnnotations()!=null){
+		        	annos.addAll(curRevision.getAnnotations().getAnnotations());	        		
+	        	}
+	        }
+	        return annos;
 	}
 
 	public Optional<AnnotationInstance> findOneAnnotationInstance(Long id){

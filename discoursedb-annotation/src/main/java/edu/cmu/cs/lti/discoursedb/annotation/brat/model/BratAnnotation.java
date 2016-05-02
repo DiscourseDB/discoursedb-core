@@ -19,7 +19,8 @@ public class BratAnnotation {
 		if(data.startsWith(BratAnnotationType.T.name())){
 			setType(BratAnnotationType.T);
 			int firstTab = data.indexOf("\t");
-			int secondTab = data.indexOf("\t",firstTab+1);
+			int secondTab = data.indexOf("\t",firstTab+1);			
+			setId(Long.parseLong(data.substring(BratAnnotationType.T.name().length(),firstTab)));
 			String[] fields = data.substring(firstTab+1, secondTab).split(" ");
 			setAnnotationLabel(fields[0]);
 			setBeginIndex(Integer.parseInt(fields[1]));
@@ -28,6 +29,7 @@ public class BratAnnotation {
 		}else if(data.startsWith(BratAnnotationType.A.name())){
 			setType(BratAnnotationType.A);
 			int firstTab = data.indexOf("\t");
+			setId(Long.parseLong(data.substring(BratAnnotationType.A.name().length(),firstTab)));
 			String[] fields = data.substring(firstTab+1).split(" ");
 			setAnnotationLabel(fields[0]);
 			setSourceAnnotationId(fields[1]);
