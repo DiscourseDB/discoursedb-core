@@ -55,12 +55,11 @@ public class NeuwirthConverterService {
 	
 	@SuppressWarnings("resource")
 	public void mapFile(String dataSetName, File file){
-		String filePath = file.getAbsolutePath();		
 		String fileName = file.getName();
 		
 		CSVReader reader =null;
 		try{
-			reader = new CSVReader(new FileReader(filePath));			
+			reader = new CSVReader(new FileReader(file));			
 		}catch(Exception e){
 			log.error("Error reading csv file",e);
 			return;
