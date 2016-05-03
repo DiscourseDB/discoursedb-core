@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
@@ -89,7 +90,7 @@ public class BrowsingRestController {
 		
 		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
-		response.add(makeLink("/browsing/repos{?page,size,repoType,annoType}", "search"));
+		response.add(makeLink("/browsing/subDiscoursePartsByName{?discoursePartName}", "search"));
 		return response;
 	}
 	
@@ -116,18 +117,33 @@ public class BrowsingRestController {
 	}
 	*/
 	
+	@RequestMapping(value = "/subDiscoursePartsByName", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscoursePartsByName(@RequestParam(value= "page", defaultValue = "0") int page, 
+			   @RequestParam(value= "size", defaultValue="20") int size,
+			   @RequestParam("discoursePartName") String discoursePartName)  {
+		List<DiscoursePart> dps = discoursePartRepository.findAllByName(discoursePartName);
+		if (dps.size() > 0) {
+			logger.info("Found " + discoursePartName + " as id " + dps.get(0).getId().toString());
+			return subDiscourseParts(page, size, dps.get(0).getId());
+		} else {
+			logger.info("Did not find " + discoursePartName);
+			return subDiscourseParts(page, size, 0L);
+		}
+	}
+	
 	@RequestMapping(value = "/subDiscourseParts/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @PathVariable("childOf") Long dpId)  {
-		PageRequest p = new PageRequest(page,size);
+		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
 			Page<BrowsingDiscoursePartResource> repoResources = 
-					discoursePartRelationRepository.findAllBySource(parent.get(), p)
-			.map(dpr -> dpr.getTarget()).map(BrowsingDiscoursePartResource::new);
+					discoursePartRelationRepository.findAllTargetsBySource(parent.get(), p)
+			/*.map(dpr -> dpr.getTarget())*/.map(BrowsingDiscoursePartResource::new);
 			
 			PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
@@ -144,7 +160,7 @@ public class BrowsingRestController {
 	PagedResources<Resource<BrowsingContributionResource>> dpContributions(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @PathVariable("childOf") Long dpId)  {
-		PageRequest p = new PageRequest(page,size);
+		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
