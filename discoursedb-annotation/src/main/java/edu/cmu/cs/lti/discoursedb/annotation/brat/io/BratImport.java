@@ -53,7 +53,7 @@ public class BratImport implements CommandLineRunner {
 			log.info("Starting import of "+baseFileName);		
 			//perform nested import of thread data and cleanup (deletion of annotations and features)
 			//the two tasks have to be performed in separate transactions in order to work 
-			importService.deleteFeaturesAndAnnotations(importService.importThread(inputFolder, baseFileName));			
+			importService.cleanupAfterImport(importService.importThread(inputFolder, baseFileName));			
 			log.trace("Finished import of "+baseFileName);
 		}
 		

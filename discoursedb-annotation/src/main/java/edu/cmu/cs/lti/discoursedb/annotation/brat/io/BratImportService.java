@@ -290,7 +290,7 @@ public class BratImportService {
 	 * @param featureIds a list of discourse db feature ids
 	 * @param annotationIds a list of discoursedb annotaiton ids
 	 */
-	public void deleteFeaturesAndAnnotations(DeletionInfo delInfo){
+	public void cleanupAfterImport(DeletionInfo delInfo){
 		for(Long id:delInfo.getFeaturesToDelete()){
 			annoService.deleteFeature(id);
 		}
