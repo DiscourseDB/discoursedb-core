@@ -46,7 +46,11 @@ public enum DiscoursePartInteractionTypes {
 	 * Push a set of changes to a software repository
 	 * (along with a natural language message associated with each change)
 	 */
-	GIT_PUSH
+	GIT_PUSH,
+	// Close a github issue
+	GITHUB_ISSUE_CLOSE,
+	// Merge a pull request with a project branch
+	GIT_PULL_REQUEST_MERGE
 
 }
 
