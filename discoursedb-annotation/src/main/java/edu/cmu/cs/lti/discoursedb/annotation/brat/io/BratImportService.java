@@ -22,6 +22,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratThreadExport.Annotation
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratThreadExport.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotationType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.DeletionInfo;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
@@ -48,7 +49,19 @@ public class BratImportService {
 	private final @NonNull AnnotationService annoService;
 	private final @NonNull DiscoursePartService dpService;
 	
-	public void importThread(String baseFileName, File annFile, File offsetFile, File versionsFile ) throws IOException{
+	/**
+	 * Imports a thread in Brat standoff format into discoursedb.
+	 * 
+	 * @param inputFolder folder with the brat annotation and meta data
+	 * @param baseFileName the base filename for the current thread to be imported
+	 * @return an info object containing lists of ids of annotaitons and fetured to be deleted after the import 
+	 * @throws IOException if any exception occurs while reading the brat annotations or meta data
+	 */
+	public DeletionInfo importThread(String inputFolder, String baseFileName) throws IOException{
+		File annFile = new File(inputFolder, baseFileName + ".ann");
+		File offsetFile = new File(inputFolder, baseFileName + ".offsets");
+		File versionsFile = new File(inputFolder, baseFileName + ".versions");
+		
 				
 		// get mapping from entity to offset
 		TreeMap<Integer, Long> offsetToContributionId = getOffsetToIdMap(offsetFile, EntityTypes.CONTRIBUTION);
@@ -208,19 +221,20 @@ public class BratImportService {
 			}
 		}
 		
-		
-		// delete remaining annotations and features that don't show up any more in the brat files
-		for(Long id:ddbFeatureIds){
-			System.out.println("Delete feature "+id);
-			annoService.deleteFeature(id); //FIXME does not delete. it does work when called outside of this transaction
-		}
-		for(Long id:ddbAnnotationIds){
-			System.out.println("Delete annotation "+id);
-			annoService.deleteAnnotation(id);  //FIXME does not delete. it does work when called outside of this transaction
-		}
+		//return info about entities to be deleted
+		return new DeletionInfo(ddbFeatureIds, ddbAnnotationIds);
 
 	}
 
+	/**
+	 * Parses the offsets file and provides a Map from offset to discoursedb id. This is used to 
+	 * identify discoursedb entities by offset in order to identify the contirbution at a specific point in the aggated (thread-level) document. 
+	 * 
+	 * @param offsetFile file with the offset mapping
+	 * @param entityType the entity types to extract information for (e.g. annotations or features)
+	 * @return a TreeMap (has to be a TreeMap because of the required floorEntry method) mapping offset values to entity ids for the given entity type
+	 * @throws IOException if an exception occured while accessing the offset file 
+	 */
 	private TreeMap<Integer, Long> getOffsetToIdMap(File offsetFile, EntityTypes entityType) throws IOException {
 		TreeMap<Integer, Long> offsetToId = new TreeMap<>();
 		for (String line : FileUtils.readLines(offsetFile)) {
@@ -232,6 +246,15 @@ public class BratImportService {
 		return offsetToId;
 	}
 
+	/**
+	 * Parses the a version file and returns a map from brat annotation id to DDBEntityInfo objects which provide 
+	 * meta information about the corresponding discourse db entities 
+	 * 
+	 * @param versionFile the file containing the version information
+	 * @param sourceType the brat-type of annotations that should be extracted from the versions file (e.g. text-bound annotations) 
+	 * @return a map from brat annotation ids to DDBEntityInfo objects
+	 * @throws IOException if an error occured reading the versions file
+	 */
 	private Map<String, DDBEntityInfo> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
 		Map<String, DDBEntityInfo> bratIdToDdbVersion = new HashMap<>();
 		for (String line : FileUtils.readLines(versionFile)) {
@@ -243,6 +266,14 @@ public class BratImportService {
 		return bratIdToDdbVersion;
 	}
 	
+	/**
+	 * Populates two provided lists with the annotation id of the provided
+	 * annotations and all ids of features associated with these annotations.
+	 * 
+	 * @param annos a list of annotations to extract ids from
+	 * @param annoIds the list that will be populated with annotation ids  
+	 * @param featureIds the list that will be populated with feature ids
+	 */
 	private void extractAnnotationAndFeatureIds(List<AnnotationInstance> annos, Set<Long> annoIds, Set<Long> featureIds){
 		for(AnnotationInstance anno:annos){
 			annoIds.add(anno.getId());
@@ -251,6 +282,23 @@ public class BratImportService {
 			}
 		}
 	}
+	
+	/**
+	 * Deletes annotations and features identified by a list of ids.
+	 * This method should be invoked by the driver class in a separate transaction and not within the import transaction. 
+	 * 
+	 * @param featureIds a list of discourse db feature ids
+	 * @param annotationIds a list of discoursedb annotaiton ids
+	 */
+	public void deleteFeaturesAndAnnotations(DeletionInfo delInfo){
+		for(Long id:delInfo.getFeaturesToDelete()){
+			annoService.deleteFeature(id);
+		}
+		for(Long id:delInfo.getAnnotationsToDelete()){
+			annoService.deleteAnnotation(id);
+		}
+	}
+	
 	
 	@Data
 	@AllArgsConstructor

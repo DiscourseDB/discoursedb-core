@@ -109,7 +109,6 @@ public class BratThreadExport implements CommandLineRunner {
 				
 				Content curRevision = contrib.getCurrentRevision();
 				String text = curRevision.getText();
-
 				
 				contribExportText.add(CONTRIB_SEPARATOR);
 				contribExportText.add(text);
@@ -136,7 +135,6 @@ public class BratThreadExport implements CommandLineRunner {
 			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".offsets"),entityOffsetMapping);
 			FileUtils.writeLines(new File(outputFolder,dpprefix + "_"+dp.getId()+".versions"),exportedAnnotationVersions);
 		}	
-		System.exit(0);
 	}
 
 	

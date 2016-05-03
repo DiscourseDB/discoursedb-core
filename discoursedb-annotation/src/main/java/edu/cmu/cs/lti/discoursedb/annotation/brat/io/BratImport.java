@@ -46,20 +46,18 @@ public class BratImport implements CommandLineRunner {
 		String inputFolder = args[0];
 
 		File dir = new File(inputFolder);
-		// retrieve all files that end with ann, strip off the extension and
-		// save the file name without extension in a list
+		// retrieve all files that end with ann, strip off the extension and save the file name without extension in a list
 		List<String> baseFileNames = Arrays.stream(dir.listFiles((d, name) -> name.endsWith(".ann"))).map(f -> f.getName().split(".ann")[0]).collect(Collectors.toList());
 		
 		for (String baseFileName : baseFileNames) {
-			File annFile = new File(inputFolder, baseFileName + ".ann");
-			File offsetFile = new File(inputFolder, baseFileName + ".offsets");
-			File versionsFile = new File(inputFolder, baseFileName + ".versions");
-			
-			log.info("Starting import of "+baseFileName);
-			importService.importThread(baseFileName, annFile, offsetFile, versionsFile);
+			log.info("Starting import of "+baseFileName);		
+			//perform nested import of thread data and cleanup (deletion of annotations and features)
+			//the two tasks have to be performed in separate transactions in order to work 
+			importService.deleteFeaturesAndAnnotations(importService.importThread(inputFolder, baseFileName));			
 			log.trace("Finished import of "+baseFileName);
 		}
-	}
-
+		
+		
+	}	
 
 }
