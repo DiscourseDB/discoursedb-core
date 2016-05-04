@@ -20,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
-import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotationType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSourceType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.BratAnnotationType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
@@ -58,9 +61,6 @@ public class BratExport implements CommandLineRunner {
 	@Autowired private ContributionService contribService;
 	@Autowired private AnnotationService annoService;
 	
-	public static final String CONTRIB_SEPARATOR = "[**** NEW CONTRIBUTION ****]";
-	public enum EntityTypes{CONTRIBUTION, CONTENT};
-	public enum AnnotationSourceType{ANNOTATION, FEATURE};
 	
 	/**
 	 * Launches the SpringBoot application
@@ -110,14 +110,14 @@ public class BratExport implements CommandLineRunner {
 				Content curRevision = contrib.getCurrentRevision();
 				String text = curRevision.getText();
 				
-				contribExportText.add(CONTRIB_SEPARATOR);
+				contribExportText.add(BratTypes.CONTRIB_SEPARATOR);
 				contribExportText.add(text);
 						
 				for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
-					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, curRevision, exportedAnnotationVersions));					
+					annos.addAll(convertAnnotation(anno, spanOffset, BratTypes.CONTRIB_SEPARATOR, text, curRevision, exportedAnnotationVersions));					
 				}
 				for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-					annos.addAll(convertAnnotation(anno, spanOffset, CONTRIB_SEPARATOR, text, contrib, exportedAnnotationVersions));					
+					annos.addAll(convertAnnotation(anno, spanOffset, BratTypes.CONTRIB_SEPARATOR, text, contrib, exportedAnnotationVersions));					
 				}
 
 				//keep track of offsets
@@ -126,7 +126,7 @@ public class BratExport implements CommandLineRunner {
 
 				//update span offsets
 				spanOffset+=text.length()+1;
-				spanOffset+=CONTRIB_SEPARATOR.length()+1;				
+				spanOffset+=BratTypes.CONTRIB_SEPARATOR.length()+1;				
 			}
 		
 			String dpprefix = dp.getClass().getAnnotation(Table.class).name();

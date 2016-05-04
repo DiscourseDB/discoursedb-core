@@ -19,10 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport.AnnotationSourceType;
-import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
-import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotationType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSourceType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.BratAnnotationType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.CleanupInfo;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
@@ -100,7 +101,7 @@ public class BratImportService {
 				DDBEntityInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());			
 				
 				//check if the annotation is located within the boundat
-				if(anno.getBeginIndex()>=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()&&anno.getEndIndex()<=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()+BratExport.CONTRIB_SEPARATOR.length()){				
+				if(anno.getBeginIndex()>=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()&&anno.getEndIndex()<=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()+BratTypes.CONTRIB_SEPARATOR.length()){				
 					/*
 					 * CONTRIBUTION LABEL
 					 * Load the contribution entity associated with the current offset range
@@ -148,8 +149,8 @@ public class BratImportService {
 					Content content = contentService.findOne(offset.getValue()).get();
 
 					// calculate offset corrected index values for span annotation
-					int offsetCorrectedBeginIdx = anno.getBeginIndex() - offset.getKey() - BratExport.CONTRIB_SEPARATOR.length() - 1;
-					int offsetCorrectedEndIdx = anno.getEndIndex() - offset.getKey() - BratExport.CONTRIB_SEPARATOR.length() - 1;
+					int offsetCorrectedBeginIdx = anno.getBeginIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
+					int offsetCorrectedEndIdx = anno.getEndIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
 
 					// check if annotation already existed before
 					if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {

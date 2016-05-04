@@ -1,5 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.annotation.brat.model;
 
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.BratAnnotationType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
