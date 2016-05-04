@@ -82,11 +82,14 @@ public class BrowsingRestController {
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @RequestParam("repoType") String repoType,
 														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
-		PageRequest p = new PageRequest(page,size);
+		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		Page<BrowsingDiscoursePartResource> repoResources = 
 				discoursePartRepository.findAllNonDegenerateByType(repoType, p)
 				.map(BrowsingDiscoursePartResource::new)
 				.map(bdpr -> {bdpr.filterAnnotations(annoType); return bdpr; });
+		repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr.getContainingDiscourseParts().forEach(
+			     dp -> bcr.add(
+			    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)));}});
 		
 		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
@@ -145,6 +148,9 @@ public class BrowsingRestController {
 					discoursePartRelationRepository.findAllTargetsBySource(parent.get(), p)
 			/*.map(dpr -> dpr.getTarget())*/.map(BrowsingDiscoursePartResource::new);
 			
+			repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr.getContainingDiscourseParts().forEach(
+				     dp -> bcr.add(
+				    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)));}});
 			PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
 			return response;
@@ -169,7 +175,9 @@ public class BrowsingRestController {
 					discoursePartContributionRepository.findByDiscoursePart(parent.get(), p)
 					.map(dpc -> dpc.getContribution())
 					.map(BrowsingContributionResource::new);
-			
+			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr.getDiscourseParts().forEach(
+					     dp -> bcr.add(
+					    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)  )  ); }} );
 			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
 			
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
@@ -178,7 +186,15 @@ public class BrowsingRestController {
 			return null;
 		}
 	}
-    
+	public static Link makeLink1Arg(String dest, String rel, String key, String value) {
+		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
+			.replacePath(dest)
+			.replaceQueryParam(key, value)
+	        .build()
+	        .toUriString();
+	    Link link = new Link(path,rel);
+	    return link;	
+    }
 	public static Link makeLink(String dest, String rel) {
 			String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
 				.replacePath(dest)

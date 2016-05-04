@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.api.browsing.resource;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -35,6 +36,8 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	private long contributionCount;
 	private Date startTime;
 	private Date endTime;
+	private List<String> containingDiscourseParts;
+	
 	private List<BrowsingAnnotationResource> annotations;
 	
 	private static final Logger logger = LogManager.getLogger(BrowsingDiscoursePartResource.class);	
@@ -68,6 +71,8 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		if (this.getContributionCount() > 0) {
 			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", "contributions"));
 		}
+		
+   	    containingDiscourseParts = dp.getTargetOfDiscoursePartRelations().stream().map(dpr -> dpr.getSource().getName()).collect(Collectors.toList());
 	}
 	
 	public void filterAnnotations(String annotType) {
@@ -97,7 +102,14 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	}
 
 
-	
+	public List<String> getContainingDiscourseParts() {
+		return containingDiscourseParts;
+	}
+
+	public void setContainingDiscourseParts(List<String> containingDiscourseParts) {
+		this.containingDiscourseParts = containingDiscourseParts;
+	}
+
 
 
 	public Date getStartTime() {
