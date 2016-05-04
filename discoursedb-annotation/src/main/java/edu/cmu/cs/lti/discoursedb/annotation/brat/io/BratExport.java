@@ -50,8 +50,8 @@ import lombok.extern.log4j.Log4j;
 @Component
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.brat.io" }, useDefaultFilters = false, includeFilters = {
-				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratThreadExport.class, BaseConfiguration.class }) })
-public class BratThreadExport implements CommandLineRunner {
+				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { BratExport.class, BaseConfiguration.class }) })
+public class BratExport implements CommandLineRunner {
 
 	@Autowired private DiscourseService discourseService;
 	@Autowired private DiscoursePartService discoursePartService;
@@ -69,7 +69,7 @@ public class BratThreadExport implements CommandLineRunner {
 	 */
 	public static void main(String[] args) {
 		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: BratDiscourseExport <DiscourseName> <outputFolder> <Split on which DiscoursePart type (default: THREAD)>");
-		SpringApplication.run(BratThreadExport.class, args);
+		SpringApplication.run(BratExport.class, args);
 	}
 
 	@Override

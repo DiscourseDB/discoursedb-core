@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratThreadExport.AnnotationSourceType;
-import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratThreadExport.EntityTypes;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport.AnnotationSourceType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotationType;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.DeletionInfo;
@@ -100,8 +100,8 @@ public class BratImportService {
 				
 				// if the annotation covers a span of at least half of the length of the separator
 				// AND is fully contained in the separator, we assume we are creating an entity annotation
-				if (anno.getCoveredText().length() > (BratThreadExport.CONTRIB_SEPARATOR.length() / 2)
-						&& BratThreadExport.CONTRIB_SEPARATOR.contains(anno.getCoveredText())) {
+				if (anno.getCoveredText().length() > (BratExport.CONTRIB_SEPARATOR.length() / 2)
+						&& BratExport.CONTRIB_SEPARATOR.contains(anno.getCoveredText())) {
 					/*
 					 * CONTRIBUTION LABEL
 					 * Load the contribution entity associated with the current offset range
@@ -149,8 +149,8 @@ public class BratImportService {
 					Content content = contentService.findOne(offset.getValue()).get();
 
 					// calculate offset corrected index values for span annotation
-					int offsetCorrectedBeginIdx = anno.getBeginIndex() - offset.getKey() - BratThreadExport.CONTRIB_SEPARATOR.length() - 1;
-					int offsetCorrectedEndIdx = anno.getEndIndex() - offset.getKey() - BratThreadExport.CONTRIB_SEPARATOR.length() - 1;
+					int offsetCorrectedBeginIdx = anno.getBeginIndex() - offset.getKey() - BratExport.CONTRIB_SEPARATOR.length() - 1;
+					int offsetCorrectedEndIdx = anno.getEndIndex() - offset.getKey() - BratExport.CONTRIB_SEPARATOR.length() - 1;
 
 					// check if annotation already existed before
 					if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
