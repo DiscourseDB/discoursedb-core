@@ -2,6 +2,7 @@ package edu.cmu.cs.lti.discoursedb.annotation.brat.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +23,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport.AnnotationSource
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotationType;
-import edu.cmu.cs.lti.discoursedb.annotation.brat.model.DeletionInfo;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.CleanupInfo;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
@@ -57,7 +58,7 @@ public class BratImportService {
 	 * @return an info object containing lists of ids of annotaitons and fetured to be deleted after the import 
 	 * @throws IOException if any exception occurs while reading the brat annotations or meta data
 	 */
-	public DeletionInfo importThread(String inputFolder, String baseFileName) throws IOException{
+	public CleanupInfo importThread(String inputFolder, String baseFileName) throws IOException{
 		File annFile = new File(inputFolder, baseFileName + ".ann");
 		File offsetFile = new File(inputFolder, baseFileName + ".offsets");
 		File versionsFile = new File(inputFolder, baseFileName + ".versions");
@@ -98,10 +99,8 @@ public class BratImportService {
 			if (anno.getType() == BratAnnotationType.T) {					
 				DDBEntityInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());			
 				
-				// if the annotation covers a span of at least half of the length of the separator
-				// AND is fully contained in the separator, we assume we are creating an entity annotation
-				if (anno.getCoveredText().length() > (BratExport.CONTRIB_SEPARATOR.length() / 2)
-						&& BratExport.CONTRIB_SEPARATOR.contains(anno.getCoveredText())) {
+				//check if the annotation is located within the boundat
+				if(anno.getBeginIndex()>=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()&&anno.getEndIndex()<=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()+BratExport.CONTRIB_SEPARATOR.length()){				
 					/*
 					 * CONTRIBUTION LABEL
 					 * Load the contribution entity associated with the current offset range
@@ -222,7 +221,7 @@ public class BratImportService {
 		}
 		
 		//return info about entities to be deleted
-		return new DeletionInfo(ddbFeatureIds, ddbAnnotationIds);
+		return new CleanupInfo(versionsFile, ddbFeatureIds, ddbAnnotationIds);
 
 	}
 
@@ -290,13 +289,34 @@ public class BratImportService {
 	 * @param featureIds a list of discourse db feature ids
 	 * @param annotationIds a list of discoursedb annotaiton ids
 	 */
-	public void cleanupAfterImport(DeletionInfo delInfo){
-		for(Long id:delInfo.getFeaturesToDelete()){
+	public void cleanupAfterImport(CleanupInfo cleanupInfo) throws IOException{
+		
+		//delete features from DiscourseDB that have been deleted in brat
+		for(Long id:cleanupInfo.getFeaturesToDelete()){
 			annoService.deleteFeature(id);
 		}
-		for(Long id:delInfo.getAnnotationsToDelete()){
+		//delete annotations from DiscourseDB that have been deleted in brat
+		for(Long id:cleanupInfo.getAnnotationsToDelete()){
 			annoService.deleteAnnotation(id);
 		}
+		
+		//cleanup versions file - remove deleted entities
+		List<String> output = new ArrayList<>();
+		for(String line: FileUtils.readLines(cleanupInfo.getVersionsFile())){
+			String[] fields = line.split("\t");
+			if(fields[0].equals(AnnotationSourceType.ANNOTATION.name())){
+				if(!cleanupInfo.getAnnotationsToDelete().contains(Long.parseLong(fields[2]))){
+					output.add(line);
+				}				
+			}else if(fields[0].equals(AnnotationSourceType.FEATURE.name())){
+				if(!cleanupInfo.getFeaturesToDelete().contains(Long.parseLong(fields[2]))){
+					output.add(line);
+				}								
+			}
+		}
+		//update versions file
+		FileUtils.writeLines(cleanupInfo.getVersionsFile(), output);
+		
 	}
 	
 	
