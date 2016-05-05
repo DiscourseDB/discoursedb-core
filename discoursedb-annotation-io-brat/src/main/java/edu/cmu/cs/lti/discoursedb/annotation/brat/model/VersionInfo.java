@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * Holds information about the DiscourseDB entity that is associated with a
+ * particular Brat annotation along with its version at export time.
  * 
  * @author Oliver Ferschke
  *

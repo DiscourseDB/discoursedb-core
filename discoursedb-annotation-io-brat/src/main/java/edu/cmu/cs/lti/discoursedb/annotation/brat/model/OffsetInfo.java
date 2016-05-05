@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
+ * Holds information about where in the aggregated brat file a particular Contribution or Content entity begins.
  * 
  * @author Oliver Ferschke
  *
