@@ -62,11 +62,8 @@ public class BratService {
 
 		//define a common base filename for all files associated with this DiscoursePart
 		String baseFileName = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();  
-
 		//The offset mapping keeps track of the start positions of each contribution/content in the aggregated txt file
-		//It's used to identify the correct discoursedb entities both for exported annotations and also for annotations created after the export.
-		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  			
-		
+		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  					
 		List<String> discoursePartText = new ArrayList<>();
 		List<BratAnnotation> bratAnnotations = new ArrayList<>();				
 		
@@ -80,9 +77,11 @@ public class BratService {
 			discoursePartText.add(BratTypes.CONTRIB_SEPARATOR);
 			discoursePartText.add(text);
 								
+			//annotations on content
 			for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
 				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision));					
 			}
+			//annotations on contributions
 			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
 				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib));					
 			}
