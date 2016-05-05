@@ -1,5 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -197,7 +198,7 @@ public class BrowsingRestController {
 	public static Link makeLink1Arg(String dest, String rel, String key, String value) {
 		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
 			.replacePath(dest)
-			.replaceQueryParam(key, value)
+			.replaceQueryParam(key, URLEncoder.encode(value))
 	        .build()
 	        .toUriString();
 	    Link link = new Link(path,rel);
