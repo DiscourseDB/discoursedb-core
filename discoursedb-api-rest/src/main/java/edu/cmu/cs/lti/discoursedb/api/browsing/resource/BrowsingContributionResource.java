@@ -1,5 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.resource;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -42,10 +43,18 @@ public class BrowsingContributionResource extends ResourceSupport {
 		userInteractions = c.getContributionInteractions().stream().map(i -> 
 			i.getUser().getUsername() + ": " + i.getType() + " at " + i.getStartTime().toString())
 				.collect(Collectors.toList());
+		annotations = new ArrayList<BrowsingAnnotationResource>();
 		try {
-			annotations = c.getAnnotations().getAnnotations().stream().map(a ->
+			annotations.addAll(c.getAnnotations().getAnnotations().stream().map(a ->
 				new BrowsingAnnotationResource(a))
-				.collect(Collectors.toList());
+				.collect(Collectors.toList()));
+		} catch (NullPointerException npe) {
+			annotations = null;
+		}
+		try {
+			annotations.addAll(c.getCurrentRevision().getAnnotations().getAnnotations().stream().map(a ->
+				new BrowsingAnnotationResource(a))
+				.collect(Collectors.toList()));
 		} catch (NullPointerException npe) {
 			annotations = null;
 		}
