@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSour
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.BratAnnotationType;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.CleanupInfo;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.OffsetInfo;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.VersionInfo;
 import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
@@ -41,8 +43,6 @@ import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -66,8 +66,7 @@ public class BratService {
 
 		//The offset mapping keeps track of the start positions of each contribution/content in the aggregated txt file
 		//It's used to identify the correct discoursedb entities both for exported annotations and also for annotations created after the export.
-		//Strings in this list map entity identifiers to offset (FORMAT: entityClass TAB entityId TAB offset)
-		List<String> entityOffsetMapping = new ArrayList<>();  			
+		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  			
 		
 		List<String> discoursePartText = new ArrayList<>();
 		List<BratAnnotation> bratAnnotations = new ArrayList<>();				
@@ -90,8 +89,8 @@ public class BratService {
 			}
 
 			//keep track of offsets
-			entityOffsetMapping.add(EntityTypes.CONTRIBUTION.name()+"\t"+contrib.getId()+"\t"+spanOffset);
-			entityOffsetMapping.add(EntityTypes.CONTENT.name()+"\t"+curRevision.getId()+"\t"+spanOffset);
+			entityOffsetMapping.add(new OffsetInfo(EntityTypes.CONTRIBUTION,contrib.getId(),spanOffset));
+			entityOffsetMapping.add(new OffsetInfo(EntityTypes.CONTENT,curRevision.getId(),spanOffset));
 
 			//update span offsets
 			spanOffset+=text.length()+1;
@@ -101,7 +100,7 @@ public class BratService {
 		FileUtils.writeLines(new File(outputFolder,baseFileName+".txt"),discoursePartText);				
 		FileUtils.writeLines(new File(outputFolder,baseFileName+".ann"),bratAnnotations);
 		FileUtils.writeLines(new File(outputFolder,baseFileName+".offsets"),entityOffsetMapping);
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),bratAnnotations.stream().map(anno->anno.getVersionInfo()).filter(info->info!=null).collect(Collectors.toList()));
+		FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),bratAnnotations.stream().map(anno->anno.getVersionInfo()).filter(Objects::nonNull).collect(Collectors.toList()));
 	}
 	
 	/**
@@ -114,8 +113,6 @@ public class BratService {
 	 * @param entity the annotated entity (Contribution or Content)
 	 * @param annotationVersionInfo a list in which version information about the exported annotations will be stored 
 	 * @return a list of BratAnnotations 
-	 * 
-	 * //TODO: Integrate version information in the return object
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity) {
@@ -145,7 +142,7 @@ public class BratService {
 		}
 		else {
 			//PRODUCE Text-Bound Annotation for ALL other annotations		
-			BratAnnotation textBoundAnnotation = new BratAnnotation();  //TODO change meta data to something usable
+			BratAnnotation textBoundAnnotation = new BratAnnotation();
 			textBoundAnnotation.setType(BratAnnotationType.T);			
 			textBoundAnnotation.setId(dbAnno.getId());
 			textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
@@ -240,22 +237,29 @@ public class BratService {
 		TreeMap<Integer, Long> offsetToContentId = getOffsetToIdMap(offsetFile, EntityTypes.CONTENT);
 
 		// keep track of versions of orginally exported annotations and features
-		Map<String, DDBEntityInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
-		Map<String, DDBEntityInfo> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
+		Map<String, VersionInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
+		Map<String, VersionInfo> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
 
 		
-		/*
-		 * Init ddb annotation stats for deletion handling
-		 */		
-		// Retrieve ids of existing annotations on contributions and current revision contents within the current DiscourseDB
-		// to identify deletions. When importing the brat file, we remove every annotations/feature id we import
-		// from this list. The remaining ids are associated with annotations/features that have been deleted in the Brat file.
 		DiscoursePart dp = dpService.findOne(Long.parseLong(baseFileName.substring(baseFileName.lastIndexOf("_")+1))).get();			
+		
+		//Init ddb annotation stats for deletion handling
 		Set<Long> ddbAnnotationIds = new HashSet<>();
 		Set<Long> ddbFeatureIds = new HashSet<>();
-		extractAnnotationAndFeatureIds(annoService.findContributionAnnotationsByDiscoursePart(dp), ddbAnnotationIds, ddbFeatureIds);
-		extractAnnotationAndFeatureIds(annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp), ddbAnnotationIds, ddbFeatureIds);
-		/* ----  */
+		//extract annotations on Contributions
+		for(AnnotationInstance anno:annoService.findContributionAnnotationsByDiscoursePart(dp)){
+			ddbAnnotationIds.add(anno.getId());
+			if(anno.getFeatures()!=null){
+				ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
+			}
+		}
+		//extract annotations on Content entities
+		for(AnnotationInstance anno:annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp)){
+			ddbAnnotationIds.add(anno.getId());
+			if(anno.getFeatures()!=null){
+				ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
+			}
+		}				
 		
 		
 		List<String> bratStandoffEncodedStrings =FileUtils.readLines(annFile);  
@@ -268,7 +272,7 @@ public class BratService {
 			BratAnnotation anno = new BratAnnotation(bratStandoffEncodedString);				
 
 			if (anno.getType() == BratAnnotationType.T) {					
-				DDBEntityInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());			
+				VersionInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());			
 				
 				//check if the annotation is located within the boundat
 				if(anno.getBeginIndex()>=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()&&anno.getEndIndex()<=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()+BratTypes.CONTRIB_SEPARATOR.length()){				
@@ -282,12 +286,12 @@ public class BratService {
 
 					// check if annotation already existed before
 					if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
-						ddbAnnotationIds.remove(entityInfo.getId()); //update deletion stats
+						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
-						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getId()).get();
+						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getDiscourseDBEntityId()).get();
 
 						//check if the anno version in the database still matches the anno version we initially exported 
-						if(existingAnno.getEntityVersion()==entityInfo.getVersion()){
+						if(existingAnno.getEntityVersion()==entityInfo.getDiscourseDBEntityVersion()){
 							//check for and apply changes
 							if (existingAnno.getBeginOffset() != 0) {
 								existingAnno.setBeginOffset(0);
@@ -307,7 +311,7 @@ public class BratService {
 						AnnotationInstance newAnno = annoService.createTypedAnnotation(anno.getAnnotationLabel());
 						annoService.addAnnotation(contrib, newAnno);
 						//add to mapping file in case we also create a feature for this new annotation
-						annotationBratIdToDDB.put(anno.getFullAnnotationId(), new DDBEntityInfo(newAnno.getId(), newAnno.getEntityVersion())); 
+						annotationBratIdToDDB.put(anno.getFullAnnotationId(), new VersionInfo(AnnotationSourceType.ANNOTATION,anno.getFullAnnotationId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				} else {
 					/*
@@ -324,13 +328,13 @@ public class BratService {
 
 					// check if annotation already existed before
 					if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
-						ddbAnnotationIds.remove(entityInfo.getId()); //update deletion stats
+						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 						// Anno already existed. Check for changes.
-						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getId()).get();
+						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getDiscourseDBEntityId()).get();
 
 						//check if the anno version in the database still matches the anno version we initially exported 
-						if(existingAnno.getEntityVersion()==entityInfo.getVersion()){
+						if(existingAnno.getEntityVersion()==entityInfo.getDiscourseDBEntityVersion()){
 							//check for and apply changes
 							if (existingAnno.getBeginOffset() != offsetCorrectedBeginIdx) {
 								existingAnno.setBeginOffset(offsetCorrectedBeginIdx);
@@ -356,17 +360,17 @@ public class BratService {
 				
 			} else if (anno.getType() == BratAnnotationType.A) {
 				
-				DDBEntityInfo entityInfo = featureBratIdToDDB.get(anno.getFullAnnotationId());
+				VersionInfo entityInfo = featureBratIdToDDB.get(anno.getFullAnnotationId());
 				
 				// check if feature already existed before
 				if (featureBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
-					ddbFeatureIds.remove(entityInfo.getId()); //update deletion stats
+					ddbFeatureIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 					// feature already existed
-					Feature existingFeature = annoService.findOneFeature(entityInfo.getId()).get();
+					Feature existingFeature = annoService.findOneFeature(entityInfo.getDiscourseDBEntityId()).get();
 
 					//check if the feature version in the database still matches the feature version we initially exported 
-					if(existingFeature.getEntityVersion()==entityInfo.getVersion()){
+					if(existingFeature.getEntityVersion()==entityInfo.getDiscourseDBEntityVersion()){
 						//check for and apply changes
 						if(existingFeature.getValue().equalsIgnoreCase(anno.getAnnotationLabel())){
 							existingFeature.setValue(anno.getAnnotationLabel());
@@ -376,9 +380,9 @@ public class BratService {
 					}
 				} else {
 					// feature didn't exist in database yet. Create it.
-					DDBEntityInfo referenceAnnotationInfo = annotationBratIdToDDB.get(anno.getSourceAnnotationId());
+					VersionInfo referenceAnnotationInfo = annotationBratIdToDDB.get(anno.getSourceAnnotationId());
 					if(referenceAnnotationInfo!=null){
-						AnnotationInstance referenceAnno = annoService.findOneAnnotationInstance(referenceAnnotationInfo.getId()).get();
+						AnnotationInstance referenceAnno = annoService.findOneAnnotationInstance(referenceAnnotationInfo.getDiscourseDBEntityId()).get();
 						Feature newFeature = annoService.createTypedFeature(anno.getType().name(), anno.getAnnotationLabel());
 						annoService.addFeature(referenceAnno, newFeature);
 					}else{
@@ -415,21 +419,20 @@ public class BratService {
 		}
 		
 		//cleanup versions file - remove deleted entities
-		List<String> output = new ArrayList<>();
+		List<VersionInfo> filteredVersionFile = new ArrayList<>();
 		for(String line: FileUtils.readLines(cleanupInfo.getVersionsFile())){
-			String[] fields = line.split("\t");
-			if(fields[0].equals(AnnotationSourceType.ANNOTATION.name())){
-				if(!cleanupInfo.getAnnotationsToDelete().contains(Long.parseLong(fields[2]))){
-					output.add(line);
+			VersionInfo info = new VersionInfo(line);
+			if(info.getType()==AnnotationSourceType.ANNOTATION){
+				if(!cleanupInfo.getAnnotationsToDelete().contains(info.getDiscourseDBEntityId())){
+					filteredVersionFile.add(info);
 				}				
-			}else if(fields[0].equals(AnnotationSourceType.FEATURE.name())){
-				if(!cleanupInfo.getFeaturesToDelete().contains(Long.parseLong(fields[2]))){
-					output.add(line);
+			}else if(info.getType()==AnnotationSourceType.FEATURE){
+				if(!cleanupInfo.getFeaturesToDelete().contains(info.getDiscourseDBEntityId())){
+					filteredVersionFile.add(info);
 				}								
 			}
 		}
-		//update versions file
-		FileUtils.writeLines(cleanupInfo.getVersionsFile(), output);		
+		FileUtils.writeLines(cleanupInfo.getVersionsFile(), filteredVersionFile);		
 	}
 
 
@@ -445,9 +448,9 @@ public class BratService {
 	private TreeMap<Integer, Long> getOffsetToIdMap(File offsetFile, EntityTypes entityType) throws IOException {
 		TreeMap<Integer, Long> offsetToId = new TreeMap<>();
 		for (String line : FileUtils.readLines(offsetFile)) {
-			String[] fields = line.split("\t");
-			if (fields[0].equalsIgnoreCase(entityType.name())) {
-				offsetToId.put(Integer.parseInt(fields[2]), Long.parseLong(fields[1]));
+			OffsetInfo info = new OffsetInfo(line);
+			if (info.getType()==entityType) {
+				offsetToId.put(info.getSpanOffset(),info.getDiscourseDbEntityId());
 			}
 		}
 		return offsetToId;
@@ -462,43 +465,16 @@ public class BratService {
 	 * @return a map from brat annotation ids to DDBEntityInfo objects
 	 * @throws IOException if an error occured reading the versions file
 	 */
-	private Map<String, DDBEntityInfo> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
-		Map<String, DDBEntityInfo> bratIdToDdbVersion = new HashMap<>();
+	private Map<String, VersionInfo> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
+		Map<String, VersionInfo> bratIdToDdbVersion = new HashMap<>();
 		for (String line : FileUtils.readLines(versionFile)) {
-			String[] fields = line.split("\t");
-			if (fields[0].equalsIgnoreCase(sourceType.name())) {
-				bratIdToDdbVersion.put(fields[1], new DDBEntityInfo(Long.parseLong(fields[2]),Long.parseLong(fields[3])));
+			VersionInfo info = new VersionInfo(line);
+			if (info.getType()==sourceType) {
+				bratIdToDdbVersion.put(info.getBratAnnotationId(), info);
 			}
 		}
 		return bratIdToDdbVersion;
 	}
 	
-	/**
-	 * Populates two provided lists with the annotation id of the provided
-	 * annotations and all ids of features associated with these annotations.
-	 * 
-	 * TODO return an objects that holds the extracted data rather than populating the provided lists
-	 * 
-	 * @param annos a list of annotations to extract ids from
-	 * @param annoIds the list that will be populated with annotation ids  
-	 * @param featureIds the list that will be populated with feature ids
-	 */
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
-	private void extractAnnotationAndFeatureIds(List<AnnotationInstance> annos, Set<Long> annoIds, Set<Long> featureIds){
-		for(AnnotationInstance anno:annos){
-			annoIds.add(anno.getId());
-			if(anno.getFeatures()!=null){
-				featureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
-			}
-		}
-	}
-		
-	
-	@Data
-	@AllArgsConstructor
-	protected class DDBEntityInfo{
-		Long id;
-		Long version;
-	}
 	
 }

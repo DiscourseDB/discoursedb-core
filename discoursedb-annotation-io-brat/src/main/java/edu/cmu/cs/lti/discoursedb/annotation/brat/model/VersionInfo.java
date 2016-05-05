@@ -1,12 +1,13 @@
 package edu.cmu.cs.lti.discoursedb.annotation.brat.model;
 
+import org.springframework.util.Assert;
+
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSourceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * TODO Implement this to replace the string based representation of each line in the versions files
  * 
  * @author Oliver Ferschke
  *
@@ -16,6 +17,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VersionInfo {
 
+	/**
+	 * Generates a VersionInfo from a String that contains data in the format produced by toString()
+	 * 
+	 * @param parseLine
+	 */
+	public VersionInfo(String parseLine){
+		String[] data = parseLine.split("\t");
+		Assert.isTrue(data.length==4, "Illegal format of version info: "+parseLine);
+		setType(AnnotationSourceType.valueOf(data[0]));
+		setBratAnnotationId(data[1]);
+		setDiscourseDBEntityId(Long.parseLong(data[2]));
+		setDiscourseDBEntityVersion(Long.parseLong(data[3]));		
+	}
+	
 	AnnotationSourceType type;
 	String bratAnnotationId;
 	Long discourseDBEntityId;
