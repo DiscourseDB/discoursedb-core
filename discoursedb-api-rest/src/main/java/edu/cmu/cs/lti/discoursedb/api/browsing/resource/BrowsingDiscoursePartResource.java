@@ -185,13 +185,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		this.contributionCount = contributionCount;
 	}
 
-	public List<String> getUserInteractions() {
-		return userInteractions;
-	}
-
-	public void setUserInteractions(List<String> userInteractions) {
-		this.userInteractions = userInteractions;
-	}
+	
 
 
 	

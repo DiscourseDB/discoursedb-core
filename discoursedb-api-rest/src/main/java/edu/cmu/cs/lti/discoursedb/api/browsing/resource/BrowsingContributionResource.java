@@ -94,13 +94,7 @@ public class BrowsingContributionResource extends ResourceSupport {
 		this.startTime = startTime;
 	}
 
-	public List<String> getUserInteractions() {
-		return userInteractions;
-	}
-
-	public void setUserInteractions(List<String> userInteractions) {
-		this.userInteractions = userInteractions;
-	}
+	
 
 	public List<BrowsingAnnotationResource> getAnnotations() {
 		return annotations;
