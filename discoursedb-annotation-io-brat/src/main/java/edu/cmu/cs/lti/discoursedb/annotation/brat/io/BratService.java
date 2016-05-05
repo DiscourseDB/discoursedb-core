@@ -48,6 +48,7 @@ import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
+@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class BratService {
 
@@ -202,7 +203,7 @@ public class BratService {
 	 * @param baseFileName the base file name of the current thread
 	 * @throws IOException in case an error occurs reading the files
 	 */
-	//Note: this method is non-transactional, but it calls two methods that each run in their own transaction.
+	@Transactional(propagation= Propagation.NOT_SUPPORTED)
 	public void importThread(String inputFolder, String baseFileName) throws IOException{
 		// The importThreadFromBrat call performs the main import work
 		// and the cleanup call deletes discoursedb annotations that have been
@@ -222,7 +223,6 @@ public class BratService {
 	 * @return an info object containing lists of ids of annotaitons and fetured to be deleted after the import 
 	 * @throws IOException if any exception occurs while reading the brat annotations or meta data
 	 */
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 	private CleanupInfo importThreadFromBrat(String inputFolder, String baseFileName) throws IOException{
 		File annFile = new File(inputFolder, baseFileName + ".ann");
 		File offsetFile = new File(inputFolder, baseFileName + ".offsets");
@@ -233,8 +233,8 @@ public class BratService {
 		TreeMap<Integer, OffsetInfo> offsetToOffsetInfo = getOffsetToOffsetInfoMap(offsetFile);
 
 		// keep track of versions of orginally exported annotations and features
-		Map<String, VersionInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
-		Map<String, VersionInfo> featureBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
+		Map<String, VersionInfo> annotationBratIdToVersionInfo = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
+		Map<String, VersionInfo> featureBratIdToVersionInfo = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
 
 		
 		DiscoursePart dp = dpService.findOne(Long.parseLong(baseFileName.substring(baseFileName.lastIndexOf("_")+1))).get();			
@@ -265,22 +265,21 @@ public class BratService {
 
 			// create BratAnnotation object from Brat-Stand-off-Encoded String
 			// offset correction will be done later
-			BratAnnotation anno = new BratAnnotation(bratStandoffEncodedString);				
+			BratAnnotation bratAnno = new BratAnnotation(bratStandoffEncodedString);				
 
-			if (anno.getType() == BratAnnotationType.T) {					
-				VersionInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());			
+			if (bratAnno.getType() == BratAnnotationType.T) {					
+				VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getFullAnnotationId());							
 				
-				
-				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(anno.getBeginIndex());
+				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
 				
 				//check if the annotation is located within the boundary of a separator or within the text of a contribution
-				if (anno.getBeginIndex() >= offset.getKey() && anno.getEndIndex() <= offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
+				if (bratAnno.getBeginIndex() >= offset.getKey() && bratAnno.getEndIndex() <= offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
 
 					// CONTRIBUTION LABEL
 					Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
 
 					// check if annotation already existed before
-					if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
+					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getFullAnnotationId())) {
 						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getDiscourseDBEntityId()).get();
@@ -294,8 +293,8 @@ public class BratService {
 							if (existingAnno.getEndOffset() != 0) {
 								existingAnno.setBeginOffset(0);
 							}
-							if (existingAnno.getType().equalsIgnoreCase(anno.getAnnotationLabel())) {
-								existingAnno.setType(anno.getAnnotationLabel());
+							if (existingAnno.getType().equalsIgnoreCase(bratAnno.getAnnotationLabel())) {
+								existingAnno.setType(bratAnno.getAnnotationLabel());
 							}								
 						}else{
 							log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import annotation.");
@@ -303,10 +302,10 @@ public class BratService {
 						
 					} else {
 						// anno is new and didn't exist in ddb before
-						AnnotationInstance newAnno = annoService.createTypedAnnotation(anno.getAnnotationLabel());
+						AnnotationInstance newAnno = annoService.createTypedAnnotation(bratAnno.getAnnotationLabel());
 						annoService.addAnnotation(contrib, newAnno);
 						//add to mapping file in case we also create a feature for this new annotation
-						annotationBratIdToDDB.put(anno.getFullAnnotationId(), new VersionInfo(AnnotationSourceType.ANNOTATION,anno.getFullAnnotationId(),newAnno.getId(), newAnno.getEntityVersion())); 
+						annotationBratIdToVersionInfo.put(bratAnno.getFullAnnotationId(), new VersionInfo(AnnotationSourceType.ANNOTATION,bratAnno.getFullAnnotationId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				} else {
 					// SPAN ANNOTATION
@@ -314,47 +313,40 @@ public class BratService {
 					Content content = contentService.findOne(offset.getValue().getDiscourseDbContentId()).get();
 
 					// calculate offset corrected index values for span annotation
-					int offsetCorrectedBeginIdx = anno.getBeginIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
-					int offsetCorrectedEndIdx = anno.getEndIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
+					int offsetCorrectedBeginIdx = bratAnno.getBeginIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
+					int offsetCorrectedEndIdx = bratAnno.getEndIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
 
 					// check if annotation already existed before
-					if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
+					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getFullAnnotationId())) {
 						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 						// Anno already existed. Check for changes.
 						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getDiscourseDBEntityId()).get();
 
-						//check if the anno version in the database still matches the anno version we initially exported 
+						//check if the anno version in the database still matches the anno version we initially exported
+						//if so, we can update
 						if(existingAnno.getEntityVersion()==entityInfo.getDiscourseDBEntityVersion()){
-							//check for and apply changes
-							if (existingAnno.getBeginOffset() != offsetCorrectedBeginIdx) {
-								existingAnno.setBeginOffset(offsetCorrectedBeginIdx);
-							}
-							if (existingAnno.getEndOffset() != offsetCorrectedEndIdx) {
-								existingAnno.setBeginOffset(offsetCorrectedEndIdx);
-							}
-							if (existingAnno.getType().equalsIgnoreCase(anno.getAnnotationLabel())) {
-								existingAnno.setType(anno.getAnnotationLabel());
-							}								
+							existingAnno.setBeginOffset(offsetCorrectedBeginIdx);
+							existingAnno.setBeginOffset(offsetCorrectedEndIdx);
+							existingAnno.setType(bratAnno.getAnnotationLabel());
 						}else{
 							log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import annotation.");
 						}
-
 					} else {
 						// Anno is new and didn't exist in ddb before. Create it.
-						AnnotationInstance newAnno = annoService.createTypedAnnotation(anno.getAnnotationLabel());
+						AnnotationInstance newAnno = annoService.createTypedAnnotation(bratAnno.getAnnotationLabel());
 						newAnno.setBeginOffset(offsetCorrectedBeginIdx);
 						newAnno.setEndOffset(offsetCorrectedEndIdx);
 						annoService.addAnnotation(content, newAnno);
 					}
 				}
 				
-			} else if (anno.getType() == BratAnnotationType.A) {
+			} else if (bratAnno.getType() == BratAnnotationType.A) {
 				
-				VersionInfo entityInfo = featureBratIdToDDB.get(anno.getFullAnnotationId());
+				VersionInfo entityInfo = featureBratIdToVersionInfo.get(bratAnno.getFullAnnotationId());
 				
 				// check if feature already existed before
-				if (featureBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
+				if (featureBratIdToVersionInfo.keySet().contains(bratAnno.getFullAnnotationId())) {
 					ddbFeatureIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 					// feature already existed
@@ -363,18 +355,18 @@ public class BratService {
 					//check if the feature version in the database still matches the feature version we initially exported 
 					if(existingFeature.getEntityVersion()==entityInfo.getDiscourseDBEntityVersion()){
 						//check for and apply changes
-						if(existingFeature.getValue().equalsIgnoreCase(anno.getAnnotationLabel())){
-							existingFeature.setValue(anno.getAnnotationLabel());
+						if(existingFeature.getValue().equalsIgnoreCase(bratAnno.getAnnotationLabel())){
+							existingFeature.setValue(bratAnno.getAnnotationLabel());
 						}
 					}else{
 						log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import feature.");							
 					}
 				} else {
 					// feature didn't exist in database yet. Create it.
-					VersionInfo referenceAnnotationInfo = annotationBratIdToDDB.get(anno.getSourceAnnotationId());
+					VersionInfo referenceAnnotationInfo = annotationBratIdToVersionInfo.get(bratAnno.getSourceAnnotationId());
 					if(referenceAnnotationInfo!=null){
 						AnnotationInstance referenceAnno = annoService.findOneAnnotationInstance(referenceAnnotationInfo.getDiscourseDBEntityId()).get();
-						Feature newFeature = annoService.createTypedFeature(anno.getType().name(), anno.getAnnotationLabel());
+						Feature newFeature = annoService.createTypedFeature(bratAnno.getType().name(), bratAnno.getAnnotationLabel());
 						annoService.addFeature(referenceAnno, newFeature);
 					}else{
 						log.error("Cannot find the annotation this feature applies to.");
@@ -382,7 +374,7 @@ public class BratService {
 				}
 			} else {
 				//Implement import capabilities for other Brat Annotation types here
-				log.error("Unsupported Annotation type " + anno.getType().name()+" Skipping.");
+				log.error("Unsupported Annotation type " + bratAnno.getType().name()+" Skipping.");
 			}
 		}
 		
@@ -397,7 +389,6 @@ public class BratService {
 	 * @param featureIds a list of discourse db feature ids
 	 * @param annotationIds a list of discoursedb annotaiton ids
 	 */
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 	private void cleanupAfterImport(CleanupInfo cleanupInfo) throws IOException{
 		
 		//delete features from DiscourseDB that have been deleted in brat
