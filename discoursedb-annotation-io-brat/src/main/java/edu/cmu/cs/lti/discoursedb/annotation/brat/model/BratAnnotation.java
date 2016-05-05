@@ -58,7 +58,7 @@ public class BratAnnotation {
 	//if a pair of annotation is referenced, this holds the id of the second annotation
 	String targetAnnotationId;
 
-	String metaData;
+	VersionInfo versionInfo;
 
 	int beginIndex;
 	

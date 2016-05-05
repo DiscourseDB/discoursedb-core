@@ -30,6 +30,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSour
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.BratAnnotationType;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.CleanupInfo;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.VersionInfo;
 import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
@@ -67,9 +68,6 @@ public class BratService {
 		//It's used to identify the correct discoursedb entities both for exported annotations and also for annotations created after the export.
 		//Strings in this list map entity identifiers to offset (FORMAT: entityClass TAB entityId TAB offset)
 		List<String> entityOffsetMapping = new ArrayList<>();  			
-
-		//Keeps track of annotations that have been exported including their version so we know later which ones have been added or changed. Format: <Type(Annotation|Feature), BratAnnoId, DDB_Id, DDB_Version>
-		List<String> exportedAnnotationVersions = new ArrayList<>();   			
 		
 		List<String> discoursePartText = new ArrayList<>();
 		List<BratAnnotation> bratAnnotations = new ArrayList<>();				
@@ -85,10 +83,10 @@ public class BratService {
 			discoursePartText.add(text);
 								
 			for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision, exportedAnnotationVersions));					
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision));					
 			}
 			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib, exportedAnnotationVersions));					
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib));					
 			}
 
 			//keep track of offsets
@@ -103,7 +101,7 @@ public class BratService {
 		FileUtils.writeLines(new File(outputFolder,baseFileName+".txt"),discoursePartText);				
 		FileUtils.writeLines(new File(outputFolder,baseFileName+".ann"),bratAnnotations);
 		FileUtils.writeLines(new File(outputFolder,baseFileName+".offsets"),entityOffsetMapping);
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),exportedAnnotationVersions);
+		FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),bratAnnotations.stream().map(anno->anno.getVersionInfo()).filter(info->info!=null).collect(Collectors.toList()));
 	}
 	
 	/**
@@ -120,7 +118,7 @@ public class BratService {
 	 * //TODO: Integrate version information in the return object
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity, List<String> annotationVersionInfo) {
+	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity) {
 
 		//one DiscourseDB annotation could result in multiple BRAT annotations 
 		List<BratAnnotation> newAnnotations = new ArrayList<>();
@@ -167,8 +165,8 @@ public class BratService {
 				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
 				textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
 			}		
+			textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getFullAnnotationId(), dbAnno.getId(), dbAnno.getEntityVersion()));
 			newAnnotations.add(textBoundAnnotation);
-			annotationVersionInfo.add(AnnotationSourceType.ANNOTATION.name()+"\t"+textBoundAnnotation.getFullAnnotationId()+"\t"+dbAnno.getId()+"\t"+dbAnno.getEntityVersion());
 			
 			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES
 			//Feature types are ignores.
@@ -179,9 +177,8 @@ public class BratService {
 				newAttribute.setId(f.getId());
 				newAttribute.setAnnotationLabel(f.getValue());
 				newAttribute.setSourceAnnotationId(textBoundAnnotation.getFullAnnotationId());
-				newAnnotations.add(newAttribute);
-
-				annotationVersionInfo.add(AnnotationSourceType.FEATURE.name()+"\t"+textBoundAnnotation.getFullAnnotationId()+"\t"+f.getId()+"\t"+f.getEntityVersion());						
+				newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getFullAnnotationId(), f.getId(), f.getEntityVersion()));
+				newAnnotations.add(newAttribute);				
 			}
     	}
 		return newAnnotations;
