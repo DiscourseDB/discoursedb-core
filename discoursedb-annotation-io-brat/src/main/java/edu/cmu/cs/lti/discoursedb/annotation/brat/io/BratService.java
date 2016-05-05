@@ -48,7 +48,6 @@ import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
-@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class BratService {
 
@@ -203,7 +202,6 @@ public class BratService {
 	 * @param baseFileName the base file name of the current thread
 	 * @throws IOException in case an error occurs reading the files
 	 */
-	@Transactional(propagation= Propagation.NOT_SUPPORTED)
 	public void importThread(String inputFolder, String baseFileName) throws IOException{
 		// The importThreadFromBrat call performs the main import work
 		// and the cleanup call deletes discoursedb annotations that have been
@@ -223,6 +221,7 @@ public class BratService {
 	 * @return an info object containing lists of ids of annotaitons and fetured to be deleted after the import 
 	 * @throws IOException if any exception occurs while reading the brat annotations or meta data
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 	private CleanupInfo importThreadFromBrat(String inputFolder, String baseFileName) throws IOException{
 		File annFile = new File(inputFolder, baseFileName + ".ann");
 		File offsetFile = new File(inputFolder, baseFileName + ".offsets");
@@ -384,6 +383,7 @@ public class BratService {
 	 * @param featureIds a list of discourse db feature ids
 	 * @param annotationIds a list of discoursedb annotaiton ids
 	 */
+	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
 	private void cleanupAfterImport(CleanupInfo cleanupInfo) throws IOException{
 		
 		//delete features from DiscourseDB that have been deleted in brat
