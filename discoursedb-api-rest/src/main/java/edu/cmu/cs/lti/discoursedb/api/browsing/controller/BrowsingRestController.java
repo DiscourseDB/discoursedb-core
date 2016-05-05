@@ -31,6 +31,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributio
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 
 @Controller
@@ -47,6 +48,9 @@ public class BrowsingRestController {
 
 	@Autowired
 	private DiscoursePartRelationRepository discoursePartRelationRepository;
+	
+	@Autowired
+	private DiscoursePartInteractionRepository discoursePartInteractionRepository;
 	
 	@Autowired
 	DiscoursePartContributionRepository discoursePartContributionRepository;
@@ -86,7 +90,10 @@ public class BrowsingRestController {
 		Page<BrowsingDiscoursePartResource> repoResources = 
 				discoursePartRepository.findAllNonDegenerateByType(repoType, p)
 				.map(BrowsingDiscoursePartResource::new)
-				.map(bdpr -> {bdpr.filterAnnotations(annoType); return bdpr; });
+				.map(bdpr -> {bdpr.filterAnnotations(annoType); 
+				              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
+				              return bdpr; });
+				
 		repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr.getContainingDiscourseParts().forEach(
 			     dp -> bcr.add(
 			    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)));}});
@@ -148,6 +155,7 @@ public class BrowsingRestController {
 					discoursePartRelationRepository.findAllTargetsBySource(parent.get(), p)
 			/*.map(dpr -> dpr.getTarget())*/.map(BrowsingDiscoursePartResource::new);
 			
+			repoResources.forEach(bdp -> bdp.fillInUserInteractions(discoursePartInteractionRepository));
 			repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr.getContainingDiscourseParts().forEach(
 				     dp -> bcr.add(
 				    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)));}});
