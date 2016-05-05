@@ -29,7 +29,6 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSourceType;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.BratAnnotationType;
-import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.EntityTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.CleanupInfo;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.OffsetInfo;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.VersionInfo;
@@ -89,8 +88,7 @@ public class BratService {
 			}
 
 			//keep track of offsets
-			entityOffsetMapping.add(new OffsetInfo(EntityTypes.CONTRIBUTION,contrib.getId(),spanOffset));
-			entityOffsetMapping.add(new OffsetInfo(EntityTypes.CONTENT,curRevision.getId(),spanOffset));
+			entityOffsetMapping.add(new OffsetInfo(spanOffset, contrib.getId(),curRevision.getId()));
 
 			//update span offsets
 			spanOffset+=text.length()+1;
@@ -233,8 +231,7 @@ public class BratService {
 		
 				
 		// get mapping from entity to offset
-		TreeMap<Integer, Long> offsetToContributionId = getOffsetToIdMap(offsetFile, EntityTypes.CONTRIBUTION);
-		TreeMap<Integer, Long> offsetToContentId = getOffsetToIdMap(offsetFile, EntityTypes.CONTENT);
+		TreeMap<Integer, OffsetInfo> offsetToOffsetInfo = getOffsetToOffsetInfoMap(offsetFile);
 
 		// keep track of versions of orginally exported annotations and features
 		Map<String, VersionInfo> annotationBratIdToDDB = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
@@ -274,15 +271,14 @@ public class BratService {
 			if (anno.getType() == BratAnnotationType.T) {					
 				VersionInfo entityInfo = annotationBratIdToDDB.get(anno.getFullAnnotationId());			
 				
-				//check if the annotation is located within the boundat
-				if(anno.getBeginIndex()>=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()&&anno.getEndIndex()<=offsetToContentId.floorEntry(anno.getBeginIndex()).getKey()+BratTypes.CONTRIB_SEPARATOR.length()){				
-					/*
-					 * CONTRIBUTION LABEL
-					 * Load the contribution entity associated with the current offset range
-					 */
+				
+				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(anno.getBeginIndex());
+				
+				//check if the annotation is located within the boundary of a separator or within the text of a contribution
+				if (anno.getBeginIndex() >= offset.getKey() && anno.getEndIndex() <= offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
 
-					Entry<Integer, Long> offset = offsetToContributionId.floorEntry(anno.getBeginIndex());
-					Contribution contrib = contribService.findOne(offset.getValue()).get();
+					// CONTRIBUTION LABEL
+					Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
 
 					// check if annotation already existed before
 					if (annotationBratIdToDDB.keySet().contains(anno.getFullAnnotationId())) {
@@ -314,13 +310,9 @@ public class BratService {
 						annotationBratIdToDDB.put(anno.getFullAnnotationId(), new VersionInfo(AnnotationSourceType.ANNOTATION,anno.getFullAnnotationId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				} else {
-					/*
-					 * SPAN ANNOTATION
-					 * Load the content entity associated with the current offset range
-					 */
+					// SPAN ANNOTATION
 
-					Entry<Integer, Long> offset = offsetToContentId.floorEntry(anno.getBeginIndex());
-					Content content = contentService.findOne(offset.getValue()).get();
+					Content content = contentService.findOne(offset.getValue().getDiscourseDbContentId()).get();
 
 					// calculate offset corrected index values for span annotation
 					int offsetCorrectedBeginIdx = anno.getBeginIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
@@ -441,19 +433,16 @@ public class BratService {
 	 * identify discoursedb entities by offset in order to identify the contirbution at a specific point in the aggated (thread-level) document. 
 	 * 
 	 * @param offsetFile file with the offset mapping
-	 * @param entityType the entity types to extract information for (e.g. annotations or features)
 	 * @return a TreeMap (has to be a TreeMap because of the required floorEntry method) mapping offset values to entity ids for the given entity type
 	 * @throws IOException if an exception occured while accessing the offset file 
 	 */
-	private TreeMap<Integer, Long> getOffsetToIdMap(File offsetFile, EntityTypes entityType) throws IOException {
-		TreeMap<Integer, Long> offsetToId = new TreeMap<>();
+	private TreeMap<Integer, OffsetInfo> getOffsetToOffsetInfoMap(File offsetFile) throws IOException {
+		TreeMap<Integer, OffsetInfo> offsetToOffsetInfo = new TreeMap<>();
 		for (String line : FileUtils.readLines(offsetFile)) {
 			OffsetInfo info = new OffsetInfo(line);
-			if (info.getType()==entityType) {
-				offsetToId.put(info.getSpanOffset(),info.getDiscourseDbEntityId());
-			}
+			offsetToOffsetInfo.put(info.getSpanOffset(),info);
 		}
-		return offsetToId;
+		return offsetToOffsetInfo;
 	}
 
 	/**

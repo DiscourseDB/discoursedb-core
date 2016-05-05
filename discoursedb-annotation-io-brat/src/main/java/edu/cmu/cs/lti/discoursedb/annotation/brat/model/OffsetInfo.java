@@ -2,7 +2,6 @@ package edu.cmu.cs.lti.discoursedb.annotation.brat.model;
 
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.EntityTypes;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -24,16 +23,16 @@ public class OffsetInfo {
 	public OffsetInfo(String parseLine){
 		String[] data = parseLine.split("\t");
 		Assert.isTrue(data.length==3, "Illegal format of offset info: "+parseLine);
-		setType(EntityTypes.valueOf(data[0]));
-		setDiscourseDbEntityId(Long.parseLong(data[1]));
-		setSpanOffset(Integer.parseInt(data[2]));
+		setSpanOffset(Integer.parseInt(data[0]));
+		setDiscourseDbContributionId(Long.parseLong(data[1]));
+		setDiscourseDbContentId(Long.parseLong(data[2]));
 	}
 	
-	EntityTypes type;
-	Long discourseDbEntityId;
 	int spanOffset;
+	Long discourseDbContributionId;
+	Long discourseDbContentId;
 	
 	public String toString(){
-		return getType().name()+"\t"+getDiscourseDbEntityId()+"\t"+getSpanOffset();
+		return getSpanOffset()+"\t"+getDiscourseDbContributionId()+"\t"+getDiscourseDbContentId();
 	}
 }
