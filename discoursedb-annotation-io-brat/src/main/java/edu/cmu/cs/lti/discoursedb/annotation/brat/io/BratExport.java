@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.annotation.brat.io;
 
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -64,9 +63,7 @@ public class BratExport implements CommandLineRunner {
 		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
 		
 		for(DiscoursePart dp: discoursePartService.findAllByDiscourseAndType(discourse, DiscoursePartTypes.valueOf(dpType))){
-			//the base filename for this DiscousePart is the name combination of TableName+EntityPrimaryKey, e.g. discourse_part_1
-			String baseFileName = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
-			bratService.exportDiscoursePart(dp, outputFolder, baseFileName);
+			bratService.exportDiscoursePart(dp, outputFolder);
 		}	
 	}
 
