@@ -54,7 +54,11 @@ public enum DiscoursePartInteractionTypes {
 	/*
 	 *  Merge a pull request with a project branch
 	 */
-	GIT_PULL_REQUEST_MERGE
+	GIT_PULL_REQUEST_MERGE, 
+	/*
+	 * Refer to an entity in a message via a tagging convention or url
+	 */
+	REFER
 
 }
 
