@@ -15,7 +15,11 @@ public class BrowsingAnnotationResource extends ResourceSupport {
 	
 	public BrowsingAnnotationResource(AnnotationInstance ai) {
 		this.setType(ai.getType());
-		this.setRange(ai.getBeginOffset() + "-" + ai.getEndOffset());
+		if (ai.getBeginOffset() == ai.getEndOffset() && ai.getEndOffset() == 0) {
+			this.setRange("");
+		} else {
+			this.setRange(ai.getBeginOffset() + "-" + ai.getEndOffset());
+		}
 		this.setFeatures(ai.getFeatures().stream().map(f -> new BrowsingFeatureResource(f)).collect(Collectors.toList()));
 	}
 
