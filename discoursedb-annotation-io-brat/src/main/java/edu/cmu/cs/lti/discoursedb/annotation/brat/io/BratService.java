@@ -255,7 +255,9 @@ public class BratService {
 			if(anno.getFeatures()!=null){
 				ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
 			}
-		}				
+		}
+		log.info(ddbAnnotationIds.size()+" annotations within current thread available in DiscoursDB.");
+		log.info(ddbFeatureIds.size()+" features within current thread available in DiscoursDB.");
 		
 		
 		List<String> bratStandoffEncodedStrings =FileUtils.readLines(annFile);  
@@ -286,16 +288,9 @@ public class BratService {
 
 						//check if the anno version in the database still matches the anno version we initially exported 
 						if(existingAnno.getEntityVersion()==entityInfo.getDiscourseDBEntityVersion()){
-							//check for and apply changes
-							if (existingAnno.getBeginOffset() != 0) {
-								existingAnno.setBeginOffset(0);
-							}
-							if (existingAnno.getEndOffset() != 0) {
-								existingAnno.setBeginOffset(0);
-							}
-							if (existingAnno.getType().equalsIgnoreCase(bratAnno.getAnnotationLabel())) {
-								existingAnno.setType(bratAnno.getAnnotationLabel());
-							}								
+							existingAnno.setBeginOffset(0);
+							existingAnno.setEndOffset(0);
+							existingAnno.setType(bratAnno.getAnnotationLabel());
 						}else{
 							log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import annotation.");
 						}
@@ -327,7 +322,7 @@ public class BratService {
 						//if so, we can update
 						if(existingAnno.getEntityVersion()==entityInfo.getDiscourseDBEntityVersion()){
 							existingAnno.setBeginOffset(offsetCorrectedBeginIdx);
-							existingAnno.setBeginOffset(offsetCorrectedEndIdx);
+							existingAnno.setEndOffset(offsetCorrectedEndIdx);
 							existingAnno.setType(bratAnno.getAnnotationLabel());
 						}else{
 							log.error("Entity changed in DiscourseDB since the data was last import but also changed in the exported file. Cannot import annotation.");
@@ -393,10 +388,12 @@ public class BratService {
 		
 		//delete features from DiscourseDB that have been deleted in brat
 		for(Long id:cleanupInfo.getFeaturesToDelete()){
+			log.info("Delete feature "+id);
 			annoService.deleteFeature(id);
 		}
 		//delete annotations from DiscourseDB that have been deleted in brat
 		for(Long id:cleanupInfo.getAnnotationsToDelete()){
+			log.info("Delete annotation "+id);
 			annoService.deleteAnnotation(id);
 		}
 		
