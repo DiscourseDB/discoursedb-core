@@ -365,6 +365,21 @@ public class DiscoursePartService {
 			return Optional.empty();
 		}
 	}
+
+	
+    /**
+	 * Retrieves a discourse part that has a source which exactly matches the given parameter.
+	 * 
+	 * @param entityId the id of the discourse part  
+	 * @return an optional DiscoursePart that meets the requested parameters
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Optional<DiscoursePart> findOne(Long id) {
+		return discoursePartRepo.findOne(id);
+	}
+
+	
+	
 	
 	/**
 	 * Get the set of all discourse parts that do NOT contain a particular annotation type

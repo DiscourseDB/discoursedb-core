@@ -376,4 +376,17 @@ public class UserService {
         return unannotated;
     }
 
+	
+    /**
+	 * Retrieves a discourse part that has a source which exactly matches the given parameter.
+	 * 
+	 * @param entityId the id of the discourse part  
+	 * @return an optional DiscoursePart that meets the requested parameters
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Optional<User> findOne(Long id) {
+		return userRepo.findOne(id);
+	}
+	
+	
 }
