@@ -180,7 +180,7 @@ public class AnnotationService {
 		AnnotationAggregate annoAggregate = entity.getAnnotations();
 		if (annoAggregate == null) {
 			annoAggregate=annoRepo.save(new AnnotationAggregate());
-			entity.setAnnotations(annoAggregate);
+			entity.setAnnotations(annoAggregate);	
 		}
 		annotation.setAnnotationAggregate(annoAggregate);
 		annotation = annoInstanceRepo.save(annotation);
@@ -357,5 +357,10 @@ public class AnnotationService {
 	}
 	public List<Long> findAllFeatureIds(){
 		return featureRepo.findAllIds();
+	}
+	
+	public void saveAnnotationInstance(AnnotationInstance anno){
+		Assert.notNull(anno, "AnnotationInstance cannot be null.");
+		annoInstanceRepo.save(anno);		
 	}
 }

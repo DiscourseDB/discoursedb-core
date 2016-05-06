@@ -269,9 +269,8 @@ public class BratService {
 			BratAnnotation bratAnno = new BratAnnotation(bratStandoffEncodedString);				
 
 			if (bratAnno.getType() == BratAnnotationType.T) {					
-				VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getId());							
 				
-				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
+				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex()); // TODO check if this works
 				
 				//check if the annotation is located within the boundary of a separator or within the text of a contribution
 				if (bratAnno.getBeginIndex() >= offset.getKey() && bratAnno.getEndIndex() <= offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
@@ -281,6 +280,8 @@ public class BratService {
 
 					// check if annotation already existed before
 					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
+						VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getId());							
+
 						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getDiscourseDBEntityId()).get();
@@ -298,7 +299,8 @@ public class BratService {
 						// anno is new and didn't exist in ddb before
 						AnnotationInstance newAnno = annoService.createTypedAnnotation(bratAnno.getAnnotationLabel());
 						annoService.addAnnotation(contrib, newAnno);
-						//add to mapping file in case we also create a feature for this new annotation
+						contribService.save(contrib); //this should happen in addAnnotation. Filed Issue #15
+						//update version file
 						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				} else {
@@ -312,6 +314,7 @@ public class BratService {
 
 					// check if annotation already existed before
 					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
+						VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getId());							
 						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 						// Anno already existed. Check for changes.
@@ -332,6 +335,9 @@ public class BratService {
 						newAnno.setBeginOffset(offsetCorrectedBeginIdx);
 						newAnno.setEndOffset(offsetCorrectedEndIdx);
 						annoService.addAnnotation(content, newAnno);
+						contentService.save(content); //this should happen in addAnnotation. Filed Issue #15
+						//update version file
+						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				}
 				
@@ -361,7 +367,9 @@ public class BratService {
 					if(referenceAnnotationInfo!=null){
 						AnnotationInstance referenceAnno = annoService.findOneAnnotationInstance(referenceAnnotationInfo.getDiscourseDBEntityId()).get();
 						Feature newFeature = annoService.createTypedFeature(bratAnno.getType().name(), bratAnno.getAnnotationLabel());
-						annoService.addFeature(referenceAnno, newFeature);
+						//update version file
+						featureBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.FEATURE,bratAnno.getId(),newFeature.getId(), newFeature.getEntityVersion())); 
+						annoService.addFeature(referenceAnno, newFeature);						
 					}else{
 						log.error("Cannot find the annotation this feature applies to.");
 					}						
@@ -371,7 +379,13 @@ public class BratService {
 				log.error("Unsupported Annotation type " + bratAnno.getType().name()+" Skipping.");
 			}
 		}
-		
+
+		//Regenerate the version infos updated data from the newly created annotations 
+		List<VersionInfo> updatedVersionInfo = new ArrayList<>();
+		updatedVersionInfo.addAll(annotationBratIdToVersionInfo.values());
+		updatedVersionInfo.addAll(featureBratIdToVersionInfo.values());
+		FileUtils.writeLines(versionsFile,updatedVersionInfo);
+
 		//return info about entities to be deleted
 		return new CleanupInfo(versionsFile, ddbFeatureIds, ddbAnnotationIds);
 	}
