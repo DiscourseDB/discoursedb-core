@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<scm>
 		<connection>scm:git:git@github.com:discoursedb/discoursedb-core.git</connection>
@@ -34,7 +33,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.surefire.heap>512m</maven.surefire.heap>
-		<maven.surefire.argLine />
+		<maven.surefire.argLine/>
 		<querydsl.version>3.7.1</querydsl.version>
 	</properties>
 	<dependencyManagement>
@@ -52,11 +51,6 @@
 				<version>0.6-SNAPSHOT</version>
 			</dependency>
 			<!-- Override mysql due to utf issues -->
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.38</version>
-			</dependency>
 			
 			<!-- Override querydsl versions defined in platform-bom, since we need 
 				to be consitent with our maven plugin -->
@@ -133,7 +127,7 @@
 			<dependency>
 				<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
 				<artifactId>de.tudarmstadt.ukp.wikipedia</artifactId>
-				<version>1.1.0-SNAPSHOT</version>
+				<version>1.1.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -403,7 +397,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore />
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -698,7 +692,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore />
+												<ignore/>
 											</action>
 										</pluginExecution>
 										<pluginExecution>
@@ -711,7 +705,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore />
+												<ignore/>
 											</action>
 										</pluginExecution>
 										<pluginExecution>
@@ -724,7 +718,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore />
+												<ignore/>
 											</action>
 										</pluginExecution>
 										<pluginExecution>
@@ -737,7 +731,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore />
+												<ignore/>
 											</action>
 										</pluginExecution>
 									</pluginExecutions>
@@ -766,7 +760,8 @@
 		<module>discoursedb-io-habworlds</module>
 
 		<module>discoursedb-io-neuwirth</module>
-	</modules>
+    <module>discoursedb-annotation-io-brat</module>
+  </modules>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://moon.lti.cs.cmu.edu:8080/</url>
