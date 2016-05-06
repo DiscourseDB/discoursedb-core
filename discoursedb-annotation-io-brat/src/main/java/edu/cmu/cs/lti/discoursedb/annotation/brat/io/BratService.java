@@ -56,127 +56,6 @@ public class BratService {
 	private final @NonNull AnnotationService annoService;
 	private final @NonNull DiscoursePartService dpService;
 	
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public void exportDiscoursePart(DiscoursePart dp, String outputFolder) throws IOException{
-
-		//define a common base filename for all files associated with this DiscoursePart
-		String baseFileName = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();  
-		//The offset mapping keeps track of the start positions of each contribution/content in the aggregated txt file
-		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  					
-		List<String> discoursePartText = new ArrayList<>();
-		List<BratAnnotation> bratAnnotations = new ArrayList<>();				
-		BratIdGenerator bratIdGenerator = new BratIdGenerator();
-		
-		int spanOffset = 0;
-		
-		for (Contribution contrib : contribService.findAllByDiscoursePart(dp)) {			
-			
-			Content curRevision = contrib.getCurrentRevision();
-			String text = curRevision.getText();
-			
-			discoursePartText.add(BratTypes.CONTRIB_SEPARATOR);
-			discoursePartText.add(text);
-								
-			//annotations on content
-			for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision, bratIdGenerator));					
-			}
-			//annotations on contributions
-			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib, bratIdGenerator));					
-			}
-
-			//keep track of offsets
-			entityOffsetMapping.add(new OffsetInfo(spanOffset, contrib.getId(),curRevision.getId()));
-
-			//update span offsets
-			spanOffset+=text.length()+1;
-			spanOffset+=BratTypes.CONTRIB_SEPARATOR.length()+1;				
-		}
-	
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".txt"),discoursePartText);				
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".ann"),bratAnnotations);
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".offsets"),entityOffsetMapping);
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),bratAnnotations.stream().map(anno->anno.getVersionInfo()).filter(Objects::nonNull).collect(Collectors.toList()));
-	}
-	
-	/**
-	 * Converts a DiscourseDB annotation into Brat annotations.
-	 * A single DiscourseDB annotation might result in multiple Brat annotations 
-	 * 
-	 * @param dbAnno the DiscourseDB annotation to convert
-	 * @param spanOffset the current offset of the Contribution or Content within the aggregate document
-	 * @param text the contribution text
-	 * @param entity the annotated entity (Contribution or Content)
-	 * @param annotationVersionInfo a list in which version information about the exported annotations will be stored 
-	 * @return a list of BratAnnotations 
-	 */
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity, BratIdGenerator bratIdGenerator) {
-
-		//one DiscourseDB annotation could result in multiple BRAT annotations 
-		List<BratAnnotation> newAnnotations = new ArrayList<>();
-
-		if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.R.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type R
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type R annotations are not supported yet.");
-		}
-		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.E.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type E			
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type E annotations are not supported yet.");
-		}
-		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.M.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type M
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type M annotations are not supported yet.");
-		}
-		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.N.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type N			
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type N annotations are not supported yet.");
-		}
-		else {
-			//PRODUCE Text-Bound Annotation for ALL other annotations		
-			BratAnnotation textBoundAnnotation = new BratAnnotation();
-			textBoundAnnotation.setType(BratAnnotationType.T);			
-			textBoundAnnotation.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.T, dbAnno.getId()));
-			textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
-
-			//CALC OFFSET			
-			if (entity instanceof Contribution) {
-				//annotations on contributions are always annotated on the contribution separator as an entity label 
-				textBoundAnnotation.setBeginIndex(spanOffset);
-				textBoundAnnotation.setEndIndex(spanOffset+ BratTypes.CONTRIB_SEPARATOR.length());
-				textBoundAnnotation.setCoveredText(BratTypes.CONTRIB_SEPARATOR);															
-			}else if (entity instanceof Content) {
-				//content labels are always annotated as text spans on the currentRevision content entity
-				if(dbAnno.getEndOffset()==0){
-					log.warn("Labels on Content entites should define a span and should not be entity labels."); 
-				}
-				textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
-				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
-				textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
-			}		
-			textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
-			newAnnotations.add(textBoundAnnotation);
-			
-			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES
-			//Feature types are ignores.
-			//TODO: only nominal/binary attributes are supported. need to be registered in the conf file. Maybe store them as Notes instead of Attributes?
-			for(Feature f:dbAnno.getFeatures()){			
-				BratAnnotation newAttribute = new BratAnnotation();
-				newAttribute.setType(BratAnnotationType.A);			
-				newAttribute.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.A, f.getId()));
-				newAttribute.setAnnotationLabel(f.getValue());
-				newAttribute.setSourceAnnotationId(textBoundAnnotation.getId());
-				newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getId(), f.getId(), f.getEntityVersion()));
-				newAnnotations.add(newAttribute);				
-			}
-    	}
-		return newAnnotations;
-	}
 	
 	/**
 	 * Imports the annotations of all brat-annotated documents located in the provided folder.  
@@ -270,7 +149,7 @@ public class BratService {
 
 			if (bratAnno.getType() == BratAnnotationType.T) {					
 				
-				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex()); // TODO check if this works
+				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
 				
 				//check if the annotation is located within the boundary of a separator or within the text of a contribution
 				if (bratAnno.getBeginIndex() >= offset.getKey() && bratAnno.getEndIndex() <= offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
@@ -428,6 +307,129 @@ public class BratService {
 		FileUtils.writeLines(cleanupInfo.getVersionsFile(), filteredVersionFile);		
 	}
 
+	
+	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public void exportDiscoursePart(DiscoursePart dp, String outputFolder) throws IOException{
+
+		//define a common base filename for all files associated with this DiscoursePart
+		String baseFileName = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();  
+		//The offset mapping keeps track of the start positions of each contribution/content in the aggregated txt file
+		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  					
+		List<String> discoursePartText = new ArrayList<>();
+		List<BratAnnotation> bratAnnotations = new ArrayList<>();				
+		BratIdGenerator bratIdGenerator = new BratIdGenerator();
+		
+		int spanOffset = 0;
+		
+		for (Contribution contrib : contribService.findAllByDiscoursePart(dp)) {			
+			
+			Content curRevision = contrib.getCurrentRevision();
+			String text = curRevision.getText();
+			
+			discoursePartText.add(BratTypes.CONTRIB_SEPARATOR);
+			discoursePartText.add(text);
+								
+			//annotations on content
+			for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision, bratIdGenerator));					
+			}
+			//annotations on contributions
+			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib, bratIdGenerator));					
+			}
+
+			//keep track of offsets
+			entityOffsetMapping.add(new OffsetInfo(spanOffset, contrib.getId(),curRevision.getId()));
+
+			//update span offsets
+			spanOffset+=text.length()+1;
+			spanOffset+=BratTypes.CONTRIB_SEPARATOR.length()+1;				
+		}
+	
+		FileUtils.writeLines(new File(outputFolder,baseFileName+".txt"),discoursePartText);				
+		FileUtils.writeLines(new File(outputFolder,baseFileName+".ann"),bratAnnotations);
+		FileUtils.writeLines(new File(outputFolder,baseFileName+".offsets"),entityOffsetMapping);
+		FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),bratAnnotations.stream().map(anno->anno.getVersionInfo()).filter(Objects::nonNull).collect(Collectors.toList()));
+	}
+	
+	/**
+	 * Converts a DiscourseDB annotation into Brat annotations.
+	 * A single DiscourseDB annotation might result in multiple Brat annotations 
+	 * 
+	 * @param dbAnno the DiscourseDB annotation to convert
+	 * @param spanOffset the current offset of the Contribution or Content within the aggregate document
+	 * @param text the contribution text
+	 * @param entity the annotated entity (Contribution or Content)
+	 * @param annotationVersionInfo a list in which version information about the exported annotations will be stored 
+	 * @return a list of BratAnnotations 
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity, BratIdGenerator bratIdGenerator) {
+
+		//one DiscourseDB annotation could result in multiple BRAT annotations 
+		List<BratAnnotation> newAnnotations = new ArrayList<>();
+
+		if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.R.name())) {
+			//specifically handle DiscourseDB annotation that have the Brat Type R
+			//to produce the corresponding BRAT annotation
+			log.warn("BRAT Type R annotations are not supported yet.");
+		}
+		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.E.name())) {
+			//specifically handle DiscourseDB annotation that have the Brat Type E			
+			//to produce the corresponding BRAT annotation
+			log.warn("BRAT Type E annotations are not supported yet.");
+		}
+		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.M.name())) {
+			//specifically handle DiscourseDB annotation that have the Brat Type M
+			//to produce the corresponding BRAT annotation
+			log.warn("BRAT Type M annotations are not supported yet.");
+		}
+		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.N.name())) {
+			//specifically handle DiscourseDB annotation that have the Brat Type N			
+			//to produce the corresponding BRAT annotation
+			log.warn("BRAT Type N annotations are not supported yet.");
+		}
+		else {
+			//PRODUCE Text-Bound Annotation for ALL other annotations		
+			BratAnnotation textBoundAnnotation = new BratAnnotation();
+			textBoundAnnotation.setType(BratAnnotationType.T);			
+			textBoundAnnotation.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.T, dbAnno.getId()));
+			textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
+
+			//CALC OFFSET			
+			if (entity instanceof Contribution) {
+				//annotations on contributions are always annotated on the contribution separator as an entity label 
+				textBoundAnnotation.setBeginIndex(spanOffset);
+				textBoundAnnotation.setEndIndex(spanOffset+ BratTypes.CONTRIB_SEPARATOR.length());
+				textBoundAnnotation.setCoveredText(BratTypes.CONTRIB_SEPARATOR);															
+			}else if (entity instanceof Content) {
+				//content labels are always annotated as text spans on the currentRevision content entity
+				if(dbAnno.getEndOffset()==0){
+					log.warn("Labels on Content entites should define a span and should not be entity labels."); 
+				}
+				textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
+				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
+				textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
+			}		
+			textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
+			newAnnotations.add(textBoundAnnotation);
+			
+			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES. Feature types are ignored.
+			//TODO: only nominal/binary attributes are supported. need to be registered in the conf file. Maybe store them as Notes instead of Attributes?
+			for(Feature f:dbAnno.getFeatures()){			
+				BratAnnotation newAttribute = new BratAnnotation();
+				newAttribute.setType(BratAnnotationType.A);			
+				newAttribute.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.A, f.getId()));
+				newAttribute.setAnnotationLabel(f.getValue());
+				newAttribute.setSourceAnnotationId(textBoundAnnotation.getId());
+				newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getId(), f.getId(), f.getEntityVersion()));
+				newAnnotations.add(newAttribute);				
+			}
+    	}
+		return newAnnotations;
+	}	
+	
 
 	/**
 	 * Parses the offsets file and provides a Map from offset to discoursedb id. This is used to 
@@ -464,8 +466,7 @@ public class BratService {
 			}
 		}
 		return bratIdToDdbVersion;
-	}
-	
+	}	
 
 	
 	/**
