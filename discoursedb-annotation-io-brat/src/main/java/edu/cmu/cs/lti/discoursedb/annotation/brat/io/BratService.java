@@ -56,7 +56,6 @@ public class BratService {
 	private final @NonNull AnnotationService annoService;
 	private final @NonNull DiscoursePartService dpService;
 	
-
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void exportDiscoursePart(DiscoursePart dp, String outputFolder) throws IOException{
 
@@ -66,6 +65,7 @@ public class BratService {
 		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  					
 		List<String> discoursePartText = new ArrayList<>();
 		List<BratAnnotation> bratAnnotations = new ArrayList<>();				
+		BratIdGenerator bratIdGenerator = new BratIdGenerator();
 		
 		int spanOffset = 0;
 		
@@ -79,11 +79,11 @@ public class BratService {
 								
 			//annotations on content
 			for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision));					
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision, bratIdGenerator));					
 			}
 			//annotations on contributions
 			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib));					
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib, bratIdGenerator));					
 			}
 
 			//keep track of offsets
@@ -112,7 +112,7 @@ public class BratService {
 	 * @return a list of BratAnnotations 
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity) {
+	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity, BratIdGenerator bratIdGenerator) {
 
 		//one DiscourseDB annotation could result in multiple BRAT annotations 
 		List<BratAnnotation> newAnnotations = new ArrayList<>();
@@ -141,7 +141,7 @@ public class BratService {
 			//PRODUCE Text-Bound Annotation for ALL other annotations		
 			BratAnnotation textBoundAnnotation = new BratAnnotation();
 			textBoundAnnotation.setType(BratAnnotationType.T);			
-			textBoundAnnotation.setId(dbAnno.getId());
+			textBoundAnnotation.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.T, dbAnno.getId()));
 			textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
 
 			//CALC OFFSET			
@@ -159,7 +159,7 @@ public class BratService {
 				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
 				textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
 			}		
-			textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getFullAnnotationId(), dbAnno.getId(), dbAnno.getEntityVersion()));
+			textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
 			newAnnotations.add(textBoundAnnotation);
 			
 			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES
@@ -168,10 +168,10 @@ public class BratService {
 			for(Feature f:dbAnno.getFeatures()){			
 				BratAnnotation newAttribute = new BratAnnotation();
 				newAttribute.setType(BratAnnotationType.A);			
-				newAttribute.setId(f.getId());
+				newAttribute.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.A, f.getId()));
 				newAttribute.setAnnotationLabel(f.getValue());
-				newAttribute.setSourceAnnotationId(textBoundAnnotation.getFullAnnotationId());
-				newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getFullAnnotationId(), f.getId(), f.getEntityVersion()));
+				newAttribute.setSourceAnnotationId(textBoundAnnotation.getId());
+				newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getId(), f.getId(), f.getEntityVersion()));
 				newAnnotations.add(newAttribute);				
 			}
     	}
@@ -269,7 +269,7 @@ public class BratService {
 			BratAnnotation bratAnno = new BratAnnotation(bratStandoffEncodedString);				
 
 			if (bratAnno.getType() == BratAnnotationType.T) {					
-				VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getFullAnnotationId());							
+				VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getId());							
 				
 				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
 				
@@ -280,7 +280,7 @@ public class BratService {
 					Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
 
 					// check if annotation already existed before
-					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getFullAnnotationId())) {
+					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
 						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 						AnnotationInstance existingAnno = annoService.findOneAnnotationInstance(entityInfo.getDiscourseDBEntityId()).get();
@@ -299,7 +299,7 @@ public class BratService {
 						AnnotationInstance newAnno = annoService.createTypedAnnotation(bratAnno.getAnnotationLabel());
 						annoService.addAnnotation(contrib, newAnno);
 						//add to mapping file in case we also create a feature for this new annotation
-						annotationBratIdToVersionInfo.put(bratAnno.getFullAnnotationId(), new VersionInfo(AnnotationSourceType.ANNOTATION,bratAnno.getFullAnnotationId(),newAnno.getId(), newAnno.getEntityVersion())); 
+						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				} else {
 					// SPAN ANNOTATION
@@ -311,7 +311,7 @@ public class BratService {
 					int offsetCorrectedEndIdx = bratAnno.getEndIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
 
 					// check if annotation already existed before
-					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getFullAnnotationId())) {
+					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
 						ddbAnnotationIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 						// Anno already existed. Check for changes.
@@ -337,10 +337,10 @@ public class BratService {
 				
 			} else if (bratAnno.getType() == BratAnnotationType.A) {
 				
-				VersionInfo entityInfo = featureBratIdToVersionInfo.get(bratAnno.getFullAnnotationId());
+				VersionInfo entityInfo = featureBratIdToVersionInfo.get(bratAnno.getId());
 				
 				// check if feature already existed before
-				if (featureBratIdToVersionInfo.keySet().contains(bratAnno.getFullAnnotationId())) {
+				if (featureBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
 					ddbFeatureIds.remove(entityInfo.getDiscourseDBEntityId()); //update deletion stats
 
 					// feature already existed
@@ -452,5 +452,33 @@ public class BratService {
 		return bratIdToDdbVersion;
 	}
 	
+
 	
+	/**
+	 * The Brat UI auto-generates annotations starting with ID 1. 
+	 * If an annotation with id 1 is deleted, the next annotation created will again get id 1.
+	 * If we delete an annotation that exists in DiscourseDB that has brat id 1 and then create a new annotation that does not yet exist in discoursedb it
+	 * will get the brat id 1 and the import process would not create the annotation since it thinks the annotation with brat id 1 is already there.
+	 * That's why we offset all annotations that came from discoursedb with a large number upon export to create a certain id range that will always be
+	 * associated with annotations already available in discoursedb.
+	 * 
+	 * This generator produces brat ids and ensured they don't collide with previously generated ids.
+	 */
+	protected class BratIdGenerator{
+		private static final int BRAT_ID_OFFSET = 100000;
+
+		private List<String> ids = new ArrayList<>(); 
+		
+		public String getNextAvailableBratId(BratAnnotationType type, long baseId){
+			long offsetId = BRAT_ID_OFFSET+baseId;
+			String curBratId = type.name()+offsetId;
+			while(ids.contains(curBratId)){
+				offsetId++;
+				curBratId = type.name()+offsetId;
+			}
+			ids.add(curBratId);
+			return curBratId;
+		}
+		
+	}
 }

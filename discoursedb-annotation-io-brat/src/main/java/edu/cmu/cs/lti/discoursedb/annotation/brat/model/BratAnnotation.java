@@ -10,7 +10,7 @@ import lombok.extern.log4j.Log4j;
 @Data
 @NoArgsConstructor
 public class BratAnnotation {
-
+	
 	/**
 	 * Populates a BratAnnotation from a String which is formatted like Strings produced by BratAnnotation.toString()
 	 * 
@@ -21,7 +21,7 @@ public class BratAnnotation {
 			setType(BratAnnotationType.T);
 			int firstTab = data.indexOf("\t");
 			int secondTab = data.indexOf("\t",firstTab+1);			
-			setId(Long.parseLong(data.substring(BratAnnotationType.T.name().length(),firstTab)));
+			setId(data.substring(0,firstTab));
 			String[] fields = data.substring(firstTab+1, secondTab).split(" ");
 			setAnnotationLabel(fields[0]);
 			setBeginIndex(Integer.parseInt(fields[1]));
@@ -30,7 +30,7 @@ public class BratAnnotation {
 		}else if(data.startsWith(BratAnnotationType.A.name())){
 			setType(BratAnnotationType.A);
 			int firstTab = data.indexOf("\t");
-			setId(Long.parseLong(data.substring(BratAnnotationType.A.name().length(),firstTab)));
+			setId(data.substring(0,firstTab));
 			String[] fields = data.substring(firstTab+1).split(" ");
 			setAnnotationLabel(fields[0]);
 			setSourceAnnotationId(fields[1]);
@@ -40,8 +40,8 @@ public class BratAnnotation {
 		}		
 	}
 	
-	long id;
-	
+	String id;
+		
 	BratAnnotationType type;
 	
 	/**
@@ -70,16 +70,13 @@ public class BratAnnotation {
 		}
 	}
 	
-	public String getFullAnnotationId(){
-		return type.name()+id;				
-	}
 	
 	@Override
 	public String toString() { 
 		if(type==BratAnnotationType.T){
-			return getFullAnnotationId()+"\t"+annotationLabel+" "+beginIndex+" "+endIndex+"\t"+coveredText;				
+			return id+"\t"+annotationLabel+" "+beginIndex+" "+endIndex+"\t"+coveredText;				
 		}else if(type==BratAnnotationType.A){
-			return getFullAnnotationId()+"\t"+annotationLabel+" "+sourceAnnotationId;
+			return id+"\t"+annotationLabel+" "+sourceAnnotationId;
 		}else{
 			log.error("Unsupported Annotation Type.");
 			return super.toString();
