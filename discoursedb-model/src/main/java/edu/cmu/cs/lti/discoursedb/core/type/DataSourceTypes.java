@@ -46,10 +46,14 @@ public enum DataSourceTypes {
 	/**
 	 * A Habworlds dataset
 	 */
+<<<<<<< Upstream, based on branch 'master' of https://github.com/discoursedb/discoursedb-core
 	HABWORLDS,
 	/**
 	 * A Neuwirth dataset
 	 */
 	NEUWIRTH
+=======
+	HABWORLDS
+>>>>>>> bcf0921 type changes for githubarchive
 
 }

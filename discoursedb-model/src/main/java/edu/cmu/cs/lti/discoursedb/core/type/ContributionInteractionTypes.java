@@ -25,6 +25,10 @@ public enum ContributionInteractionTypes {
 	/**
 	 * A user shared the contribution
 	 */
-	SHARE	
+	SHARE, 
+	/*
+	 * User edited the contribution
+	 */
+	EDIT	
 }
 
