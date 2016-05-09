@@ -24,7 +24,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
 /**
- * Sample Spring Boot application that shows how to retrieve and add annotations (to Contributions and Content)
+ * Generates a sample discourse with contributions, content and annotations.
  * 
  * @author Oliver Ferschke
  */
