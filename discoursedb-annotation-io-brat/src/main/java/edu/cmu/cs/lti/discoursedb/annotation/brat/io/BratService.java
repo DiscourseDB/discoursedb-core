@@ -162,11 +162,17 @@ public class BratService {
 			if (bratAnno.getType() == BratAnnotationType.BRAT_TEXT) {					
 				
 				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
+				Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
+				Content content = contentService.findOne(offset.getValue().getDiscourseDbContentId()).get();
+				long separatorStartIndex = offset.getKey();
+				long separatorEndIndex = separatorStartIndex+ BratTypes.CONTRIB_SEPARATOR.length();
+				long textEndIndex = separatorEndIndex + content.getText().length();
 				
 				// CONTRIBUTION LABEL: Annotation is completely within a separator
-				if (bratAnno.getBeginIndex() >= offset.getKey() && bratAnno.getEndIndex() <= offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
+				if (bratAnno.getBeginIndex() >= separatorStartIndex && bratAnno.getBeginIndex() <= separatorEndIndex
+						&& bratAnno.getEndIndex() >= separatorStartIndex
+						&& bratAnno.getEndIndex() <= separatorEndIndex) {
 
-					Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
 					// check if annotation already existed before
 					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
 						VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getId());							
@@ -193,10 +199,8 @@ public class BratService {
 						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				} 
-				// SPAN ANNOTATION WITHIN CONTRIBUTION (does not span over separator) //TODO check if span is within the text part
-				else if (bratAnno.getBeginIndex() > offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length() && bratAnno.getEndIndex() > offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
-
-					Content content = contentService.findOne(offset.getValue().getDiscourseDbContentId()).get();
+				// SPAN ANNOTATION WITHIN CONTRIBUTION TEXT (does neither span over separator nor over multiple contributions)
+				else if (bratAnno.getBeginIndex() > separatorEndIndex && bratAnno.getBeginIndex() <= textEndIndex&&bratAnno.getEndIndex() > separatorEndIndex && bratAnno.getEndIndex() <= textEndIndex) {
 
 					// calculate offset corrected index values for span annotation
 					int offsetCorrectedBeginIdx = bratAnno.getBeginIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
@@ -230,7 +234,7 @@ public class BratService {
 						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				}else{
-					log.error("Annotation starts in a contribution separator and extends into the contribution text. You can only annotate within a separator or within a contribution. Skipping this annotation...");
+					log.error("Annotation extends over contribution separator(s) AND text. You can only annotate within a separator or within a contribution. Skipping this annotation...");
 				}
 			} else if (bratAnno.getType() == BratAnnotationType.BRAT_NOTE) {
 				

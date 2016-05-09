@@ -22,7 +22,23 @@ public class BratAnnotation {
 			int firstTab = data.indexOf("\t");
 			int secondTab = data.indexOf("\t",firstTab+1);			
 			setId(data.substring(0,firstTab));
-			String[] fields = data.substring(firstTab+1, secondTab).split(" ");
+			
+			//handle the middle section of the standoff-annotations string			
+			String middleSection = data.substring(firstTab+1, secondTab);
+			String[] fields;
+			//check if we are dealing with a discontinuous annotation
+			//convert discontinuous annotation into a continuous annotation
+			if(middleSection.substring(middleSection.indexOf(" ")).contains(";")){
+				//convert discontinuous annotation into a continuous annotation
+				String[] discontinuousFields = middleSection.split(" ");
+				fields = new String[3];
+				fields[0] = discontinuousFields[0];
+				fields[1] = discontinuousFields[1];
+				fields[2] = discontinuousFields[discontinuousFields.length-1];
+				log.warn("Import of discontinuous annotations not yet importing. Converting "+middleSection.substring(middleSection.indexOf(" "))+"into a continuous annotation "+fields[1]+":"+fields[2]);
+ 			}else{
+				fields = middleSection.split(" ");				
+			}
 			setAnnotationLabel(fields[0]);
 			setBeginIndex(Integer.parseInt(fields[1]));
 			setEndIndex(Integer.parseInt(fields[2]));
