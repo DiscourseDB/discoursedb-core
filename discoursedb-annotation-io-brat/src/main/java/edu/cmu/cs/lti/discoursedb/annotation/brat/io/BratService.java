@@ -474,22 +474,34 @@ public class BratService {
 	 */
 	public void generateBratConfig(Discourse discourse, String outputFolder) throws IOException{
 		Set<String> annoTypes = new HashSet<>();
-		List<String> annotationConf = new ArrayList<>();
 
 		for(DiscoursePart dp: dpService.findAllByDiscourse(discourse)){
 			annoTypes.addAll(annoService.findContributionAnnotationsByDiscoursePart(dp).stream().map(anno->anno.getType()).collect(Collectors.toSet()));
 			annoTypes.addAll(annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp).stream().map(anno->anno.getType()).collect(Collectors.toSet()));
 		}	
+				
+		generateBratConfig(outputFolder, annoTypes);
+	}
+
+	/**
+	 * Generates an empty brat anotation.conf file and registers the provided set of annotation types.
+	 *     
+	 * @param outputFolder the folder to which the config file should be written
+	 * @param annotationTypes a set of annotation types to register in the brat configuration file
+	 * @throws IOException if an exception occurs writing the config file
+	 */
+	public void generateBratConfig(String outputFolder, Set<String> annotationTypes) throws IOException{
+		List<String> annotationConf = new ArrayList<>();
 		
 		annotationConf.add("[relations]");
 		annotationConf.add("[events]");
 		annotationConf.add("[attributes]");
 		annotationConf.add("[entities]");
-		annotationConf.addAll(annoTypes);
+		annotationConf.addAll(annotationTypes);
 		
 		FileUtils.writeLines(new File(outputFolder,"annotation.conf"), annotationConf);
 	}
-	
+
 	/**
 	 * The Brat UI auto-generates annotations starting with ID 1. 
 	 * If an annotation with id 1 is deleted, the next annotation created will again get id 1.
