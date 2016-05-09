@@ -1,5 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +8,11 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -15,6 +20,8 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
@@ -37,10 +45,19 @@ import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 
 @Controller
 @RequestMapping(value = "/browsing", produces = "application/hal+json")
+@PropertySources({
+	@PropertySource(value = "classpath:custom.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
+})
 public class BrowsingRestController {
 
 	private static final Logger logger = LogManager.getLogger(BrowsingRestController.class);
 
+	//@Autowired
+	//private BratService bratService;
+	
+	@Autowired 
+	private Environment environment;
+	
 	@Autowired
 	private DiscourseRepository discourseRepository;
 
@@ -64,6 +81,7 @@ public class BrowsingRestController {
 	
 	@Autowired PagedResourcesAssembler<BrowsingDiscoursePartResource> praDiscoursePartAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingContributionResource> praContributionAssembler;
+	@Autowired PagedResourcesAssembler<BrowsingBratExportResource> praBratAssembler;
 	
 	@RequestMapping(value="/stats", method=RequestMethod.GET)
 	@ResponseBody
@@ -143,6 +161,24 @@ public class BrowsingRestController {
 		}
 	}
 	
+	@RequestMapping(value = "/action/exportBrat", method=RequestMethod.PUT)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> exportBratAction(@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
+		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		//bratService.exportDiscoursePart(discoursePartRepository.findOne(parentDpId).get(), bratDataDirectory);
+		
+		return exportBrat();
+	}
+	
+	@RequestMapping(value = "/exportBrat", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> exportBrat() {
+		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExported(bratDataDirectory);
+		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
+		return praBratAssembler.toResource(p);
+	}
+	
 	@RequestMapping(value = "/subDiscourseParts/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
@@ -162,6 +198,15 @@ public class BrowsingRestController {
 				    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)));}});
 			PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
+			long threadcount = 0L;
+			for (BrowsingDiscoursePartResource bdpr: repoResources) {
+				threadcount += bdpr.getContributionCount();
+			}
+			
+			if (threadcount > 0) {
+				response.add(makeLink1Arg("/browsing/action/exportBrat", "Export these all to BRAT", "parentDpId", dpId.toString()));
+			}
+			
 			return response;
 		} else {
 			logger.info("subdiscourseParts(" + dpId + ") : isPresent==false");
