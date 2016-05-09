@@ -155,12 +155,10 @@ public class BratService {
 				
 				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
 				
-				//check if the annotation is located within the boundary of a separator or within the text of a contribution
+				// CONTRIBUTION LABEL: Annotation is completely within a separator
 				if (bratAnno.getBeginIndex() >= offset.getKey() && bratAnno.getEndIndex() <= offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
 
-					// CONTRIBUTION LABEL
 					Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
-
 					// check if annotation already existed before
 					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
 						VersionInfo entityInfo = annotationBratIdToVersionInfo.get(bratAnno.getId());							
@@ -186,8 +184,9 @@ public class BratService {
 						//update version file
 						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
-				} else {
-					// SPAN ANNOTATION
+				} 
+				// SPAN ANNOTATION WITHIN CONTRIBUTION (does not span over separator) //TODO check if span is within the text part
+				else if (bratAnno.getBeginIndex() > offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length() && bratAnno.getEndIndex() > offset.getKey()+ BratTypes.CONTRIB_SEPARATOR.length()) {
 
 					Content content = contentService.findOne(offset.getValue().getDiscourseDbContentId()).get();
 
@@ -222,8 +221,9 @@ public class BratService {
 						//update version file
 						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
+				}else{
+					log.error("Annotation starts in a contribution separator and extends into the contribution text. You can only annotate within a separator or within a contribution. Skipping this annotation...");
 				}
-				
 			} else if (bratAnno.getType() == BratAnnotationType.BRAT_NOTE) {
 				
 				VersionInfo entityInfo = featureBratIdToVersionInfo.get(bratAnno.getId());
