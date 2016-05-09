@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
@@ -41,7 +40,6 @@ public class BratConfigExport implements CommandLineRunner {
 	}
 
 	@Override
-	@Transactional 
 	public void run(String... args) throws Exception {
 		String discourseName = args[0];
 		String outputFolder = args[1];
