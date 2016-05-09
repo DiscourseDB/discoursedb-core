@@ -363,4 +363,8 @@ public class AnnotationService {
 		Assert.notNull(anno, "AnnotationInstance cannot be null.");
 		annoInstanceRepo.save(anno);		
 	}
+	public void saveFeature(Feature feature){
+		Assert.notNull(feature, "Feature cannot be null.");
+		featureRepo.save(feature);		
+	}
 }

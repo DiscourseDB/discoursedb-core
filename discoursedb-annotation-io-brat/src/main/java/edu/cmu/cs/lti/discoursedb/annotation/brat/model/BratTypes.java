@@ -5,11 +5,11 @@ public class BratTypes {
 	public static final String CONTRIB_SEPARATOR = "[**** NEW CONTRIBUTION ****]";
 
 	public enum EntityTypes {
-		CONTRIBUTION, CONTENT
+		DDB_CONTRIBUTION, DDB_CONTENT
 	};
 
 	public enum AnnotationSourceType {
-		ANNOTATION, FEATURE
+		DDB_ANNOTATION, DDB_FEATURE
 	};
 
 	/**
@@ -20,13 +20,13 @@ public class BratTypes {
 	 */
 	public enum BratAnnotationType {
 
-		TEXT("T")
-		, ATTRIBUTE("A")
-		, RELATION("R")
-		, EVENT("E")
-		, MODIFICATION("M")
-		, NORMALIZATION("N")
-		, NOTE("#");
+		BRAT_TEXT("T")
+		, BRAT_ATTRIBUTE("A")
+		, BRAT_RELATION("R")
+		, BRAT_EVENT("E")
+		, BRAT_MODIFICATION("M")
+		, BRAT_NORMALIZATION("N")
+		, BRAT_NOTE("#");
 
 		private String value;
 

@@ -115,8 +115,8 @@ public class BratService {
 		TreeMap<Integer, OffsetInfo> offsetToOffsetInfo = getOffsetToOffsetInfoMap(offsetFile);
 
 		// keep track of versions of orginally exported annotations and features
-		Map<String, VersionInfo> annotationBratIdToVersionInfo = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.ANNOTATION);
-		Map<String, VersionInfo> featureBratIdToVersionInfo = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.FEATURE);
+		Map<String, VersionInfo> annotationBratIdToVersionInfo = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.DDB_ANNOTATION);
+		Map<String, VersionInfo> featureBratIdToVersionInfo = getBratIdToDdbIdMap(versionsFile, AnnotationSourceType.DDB_FEATURE);
 
 		
 		DiscoursePart dp = dpService.findOne(Long.parseLong(baseFileName.substring(baseFileName.lastIndexOf("_")+1))).get();			
@@ -151,7 +151,7 @@ public class BratService {
 			// offset correction will be done later
 			BratAnnotation bratAnno = new BratAnnotation(bratStandoffEncodedString);				
 
-			if (bratAnno.getType() == BratAnnotationType.TEXT) {					
+			if (bratAnno.getType() == BratAnnotationType.BRAT_TEXT) {					
 				
 				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
 				
@@ -184,7 +184,7 @@ public class BratService {
 						annoService.addAnnotation(contrib, newAnno);
 						contribService.save(contrib); //this should happen in addAnnotation. Filed Issue #15
 						//update version file
-						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
+						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				} else {
 					// SPAN ANNOTATION
@@ -220,11 +220,11 @@ public class BratService {
 						annoService.addAnnotation(content, newAnno);
 						contentService.save(content); //this should happen in addAnnotation. Filed Issue #15
 						//update version file
-						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
+						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
 				}
 				
-			} else if (bratAnno.getType() == BratAnnotationType.NOTE) {
+			} else if (bratAnno.getType() == BratAnnotationType.BRAT_NOTE) {
 				
 				VersionInfo entityInfo = featureBratIdToVersionInfo.get(bratAnno.getId());
 				
@@ -249,10 +249,11 @@ public class BratService {
 					VersionInfo referenceAnnotationInfo = annotationBratIdToVersionInfo.get(bratAnno.getSourceAnnotationId());
 					if(referenceAnnotationInfo!=null){
 						AnnotationInstance referenceAnno = annoService.findOneAnnotationInstance(referenceAnnotationInfo.getDiscourseDBEntityId()).get();
-						Feature newFeature = annoService.createTypedFeature(bratAnno.getType().toString(), bratAnno.getAnnotationLabel());
+						Feature newFeature = annoService.createTypedFeature(bratAnno.getNoteText(), bratAnno.getType().name());
 						//update version file
-						featureBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.FEATURE,bratAnno.getId(),newFeature.getId(), newFeature.getEntityVersion())); 
+						featureBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_FEATURE,bratAnno.getId(),newFeature.getId(), newFeature.getEntityVersion())); 
 						annoService.addFeature(referenceAnno, newFeature);						
+						annoService.saveFeature(newFeature); //this should happen in addFeature. Filed Issue #15
 					}else{
 						log.error("Cannot find the annotation this feature applies to.");
 					}						
@@ -298,11 +299,11 @@ public class BratService {
 		List<VersionInfo> filteredVersionFile = new ArrayList<>();
 		for(String line: FileUtils.readLines(cleanupInfo.getVersionsFile())){
 			VersionInfo info = new VersionInfo(line);
-			if(info.getType()==AnnotationSourceType.ANNOTATION){
+			if(info.getType()==AnnotationSourceType.DDB_ANNOTATION){
 				if(!cleanupInfo.getAnnotationsToDelete().contains(info.getDiscourseDBEntityId())){
 					filteredVersionFile.add(info);
 				}				
-			}else if(info.getType()==AnnotationSourceType.FEATURE){
+			}else if(info.getType()==AnnotationSourceType.DDB_FEATURE){
 				if(!cleanupInfo.getFeaturesToDelete().contains(info.getDiscourseDBEntityId())){
 					filteredVersionFile.add(info);
 				}								
@@ -376,8 +377,8 @@ public class BratService {
 		
 		//PRODUCE Text-Bound Annotation for ALL other annotations		
 		BratAnnotation textBoundAnnotation = new BratAnnotation();
-		textBoundAnnotation.setType(BratAnnotationType.TEXT);			
-		textBoundAnnotation.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.TEXT, dbAnno.getId()));
+		textBoundAnnotation.setType(BratAnnotationType.BRAT_TEXT);			
+		textBoundAnnotation.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.BRAT_TEXT, dbAnno.getId()));
 		textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
 
 		//CALC OFFSET			
@@ -395,17 +396,18 @@ public class BratService {
 			textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
 			textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
 		}		
-		textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
+		textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.DDB_ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
 		newAnnotations.add(textBoundAnnotation);
 		
 		//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES. Feature types are ignored.
 		for(Feature f:dbAnno.getFeatures()){			
 			BratAnnotation newAttribute = new BratAnnotation();
-			newAttribute.setType(BratAnnotationType.NOTE);			
-			newAttribute.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.NOTE, f.getId()));
-			newAttribute.setAnnotationLabel(f.getValue());
+			newAttribute.setType(BratAnnotationType.BRAT_NOTE);			
+			newAttribute.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.BRAT_NOTE, f.getId()));
+			newAttribute.setAnnotationLabel("AnnotatorNotes");
+			newAttribute.setNoteText(f.getValue());
 			newAttribute.setSourceAnnotationId(textBoundAnnotation.getId());
-			newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getId(), f.getId(), f.getEntityVersion()));
+			newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.DDB_FEATURE, newAttribute.getId(), f.getId(), f.getEntityVersion()));
 			newAnnotations.add(newAttribute);				
 		}
     	
