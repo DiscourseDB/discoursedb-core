@@ -459,6 +459,7 @@ public class BratService {
 	 * @param outputFolder the folder to which the config file should be written
 	 * @throws IOException if an exception occurs writing the config file
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void generateBratConfig(String discourseName, String outputFolder) throws IOException{
 		generateBratConfig(discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist.")), outputFolder);		
 		
@@ -472,6 +473,7 @@ public class BratService {
 	 * @param outputFolder the folder to which the config file should be written
 	 * @throws IOException if an exception occurs writing the config file
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void generateBratConfig(Discourse discourse, String outputFolder) throws IOException{
 		Set<String> annoTypes = new HashSet<>();
 
@@ -490,6 +492,7 @@ public class BratService {
 	 * @param annotationTypes a set of annotation types to register in the brat configuration file
 	 * @throws IOException if an exception occurs writing the config file
 	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void generateBratConfig(String outputFolder, Set<String> annotationTypes) throws IOException{
 		List<String> annotationConf = new ArrayList<>();
 		
