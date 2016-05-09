@@ -65,7 +65,7 @@ public class BratService {
 	 * Imports the annotations of all brat-annotated documents located in the provided folder.  
 	 * 
 	 * @param inputFolder the path to the brat corpus folder to import 
-	 * @throws IOException if an Exception occurs acessing the folder
+	 * @throws IOException if an Exception occurs accessing the folder
 	 */
 	public void importDataset(String inputFolder) throws IOException{
 		File dir = new File(inputFolder);
@@ -97,11 +97,11 @@ public class BratService {
 	
 	
 	/**
-	 * Imports a thread in Brat standoff format into discoursedb.
+	 * Imports a thread in Brat stand-off format into discoursedb.
 	 * 
 	 * @param inputFolder folder with the brat annotation and meta data
 	 * @param baseFileName the base filename for the current thread to be imported
-	 * @return an info object containing lists of ids of annotaitons and fetured to be deleted after the import 
+	 * @return an info object containing lists of ids of annotations and featured to be deleted after the import 
 	 * @throws IOException if any exception occurs while reading the brat annotations or meta data
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
@@ -279,7 +279,7 @@ public class BratService {
 	 * Also updates the versions file.
 	 * 
 	 * @param featureIds a list of discourse db feature ids
-	 * @param annotationIds a list of discoursedb annotaiton ids
+	 * @param annotationIds a list of discoursedb annotation ids
 	 */
 	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
 	private void cleanupAfterImport(CleanupInfo cleanupInfo) throws IOException{
@@ -417,11 +417,11 @@ public class BratService {
 
 	/**
 	 * Parses the offsets file and provides a Map from offset to discoursedb id. This is used to 
-	 * identify discoursedb entities by offset in order to identify the contirbution at a specific point in the aggated (thread-level) document. 
+	 * identify discoursedb entities by offset in order to identify the contribution at a specific point in the aggated (thread-level) document. 
 	 * 
 	 * @param offsetFile file with the offset mapping
 	 * @return a TreeMap (has to be a TreeMap because of the required floorEntry method) mapping offset values to entity ids for the given entity type
-	 * @throws IOException if an exception occured while accessing the offset file 
+	 * @throws IOException if an exception occurred while accessing the offset file 
 	 */
 	private TreeMap<Integer, OffsetInfo> getOffsetToOffsetInfoMap(File offsetFile) throws IOException {
 		TreeMap<Integer, OffsetInfo> offsetToOffsetInfo = new TreeMap<>();
