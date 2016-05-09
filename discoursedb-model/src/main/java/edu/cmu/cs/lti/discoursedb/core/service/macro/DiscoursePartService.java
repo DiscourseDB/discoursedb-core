@@ -378,13 +378,7 @@ public class DiscoursePartService {
 		return discoursePartRepo.findOne(id);
 	}
 
-	
-	
-	
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Optional<DiscoursePart> findOne(Long id){
-		return discoursePartRepo.findOne(id);
-	}
+
 	
 	/**
 	 * Get the set of all discourse parts that do NOT contain a particular annotation type
