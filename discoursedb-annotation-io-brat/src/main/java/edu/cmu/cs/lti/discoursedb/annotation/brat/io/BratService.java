@@ -68,6 +68,7 @@ public class BratService {
 	 * @throws IOException if an Exception occurs accessing the folder
 	 */
 	public void importDataset(String inputFolder) throws IOException{
+		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty");
 		File dir = new File(inputFolder);
 		Assert.isTrue(dir.isDirectory(),"Provided parameter has to be a path to a folder.");
 		
@@ -86,6 +87,11 @@ public class BratService {
 	 * @throws IOException in case an error occurs reading the files
 	 */
 	public void importThread(String inputFolder, String baseFileName) throws IOException{
+		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty");
+		Assert.hasText(baseFileName, "baseFileName parameter cannot be empty");
+		File dir = new File(inputFolder);
+		Assert.isTrue(dir.isDirectory(),"Provided parameter has to be a path to a folder.");
+
 		// The importThreadFromBrat call performs the main import work
 		// and the cleanup call deletes discoursedb annotations that have been
 		// deleted in Brat. They need to run in separate transactions for the
@@ -106,10 +112,12 @@ public class BratService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 	private CleanupInfo importThreadFromBrat(String inputFolder, String baseFileName) throws IOException{
+		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty");
+		Assert.hasText(baseFileName, "baseFileName parameter cannot be empty");
+
 		File annFile = new File(inputFolder, baseFileName + ".ann");
 		File offsetFile = new File(inputFolder, baseFileName + ".offsets");
 		File versionsFile = new File(inputFolder, baseFileName + ".versions");
-		
 				
 		// get mapping from entity to offset
 		TreeMap<Integer, OffsetInfo> offsetToOffsetInfo = getOffsetToOffsetInfoMap(offsetFile);
@@ -283,6 +291,7 @@ public class BratService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
 	private void cleanupAfterImport(CleanupInfo cleanupInfo) throws IOException{
+		Assert.notNull(cleanupInfo, "cleanup info cannot be null");
 		
 		//delete features from DiscourseDB that have been deleted in brat
 		for(Long id:cleanupInfo.getFeaturesToDelete()){
@@ -316,13 +325,15 @@ public class BratService {
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void exportDiscoursePart(DiscoursePart dp, String outputFolder) throws IOException{
-
+		Assert.notNull(dp, "The DiscoursePart cannot be null");
+		Assert.hasText(outputFolder, "The outputFolder has to be specified");
+		
 		//define a common base filename for all files associated with this DiscoursePart
 		String baseFileName = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();  
 		//The offset mapping keeps track of the start positions of each contribution/content in the aggregated txt file
 		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  					
 		List<String> discoursePartText = new ArrayList<>();
-		List<BratAnnotation> bratAnnotations = new ArrayList<>();				
+		List<BratAnnotation> bratAnnotations = new ArrayList<>();			
 		BratIdGenerator bratIdGenerator = new BratIdGenerator();
 		
 		int spanOffset = 0;
@@ -371,7 +382,11 @@ public class BratService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity, BratIdGenerator bratIdGenerator) {
-
+		Assert.notNull(dbAnno, "The annotation instance to be converted cannot be null.");
+		Assert.notNull(text, "The text may be empty, but not null.");
+		Assert.notNull(entity, "The entity associated with the annotation cannot be null.");
+		Assert.notNull(bratIdGenerator, "The Brat IDGenerator cannot be null.");
+		
 		//one DiscourseDB annotation could result in multiple BRAT annotations 
 		List<BratAnnotation> newAnnotations = new ArrayList<>();
 		
@@ -424,6 +439,8 @@ public class BratService {
 	 * @throws IOException if an exception occurred while accessing the offset file 
 	 */
 	private TreeMap<Integer, OffsetInfo> getOffsetToOffsetInfoMap(File offsetFile) throws IOException {
+		Assert.notNull(offsetFile, "OffsetFile has to be specified.");
+		
 		TreeMap<Integer, OffsetInfo> offsetToOffsetInfo = new TreeMap<>();
 		for (String line : FileUtils.readLines(offsetFile)) {
 			OffsetInfo info = new OffsetInfo(line);
@@ -442,6 +459,9 @@ public class BratService {
 	 * @throws IOException if an error occured reading the versions file
 	 */
 	private Map<String, VersionInfo> getBratIdToDdbIdMap(File versionFile, AnnotationSourceType sourceType) throws IOException {
+		Assert.notNull(versionFile, "OffsetFile has to be specified.");
+		Assert.notNull(sourceType, "A source type needs to be specified.");
+
 		Map<String, VersionInfo> bratIdToDdbVersion = new HashMap<>();
 		for (String line : FileUtils.readLines(versionFile)) {
 			VersionInfo info = new VersionInfo(line);
@@ -463,6 +483,8 @@ public class BratService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void generateBratConfig(String discourseName, String outputFolder) throws IOException{
+		Assert.hasText(discourseName, "The discourse name cannot be empty.");
+		Assert.hasText(outputFolder, "The output folder path  cannot be empty.");
 		generateBratConfig(discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist.")), outputFolder);		
 		
 	}
@@ -477,6 +499,8 @@ public class BratService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void generateBratConfig(Discourse discourse, String outputFolder) throws IOException{
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		Assert.hasText(outputFolder, "The output folder path  cannot be empty.");
 		Set<String> annoTypes = new HashSet<>();
 
 		for(DiscoursePart dp: dpService.findAllByDiscourse(discourse)){
@@ -496,6 +520,8 @@ public class BratService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void generateBratConfig(String outputFolder, Set<String> annotationTypes) throws IOException{
+		Assert.hasText(outputFolder, "The output folder path  cannot be empty.");
+		Assert.notNull(annotationTypes, "The set holding annotation types was null. Please pass a (potentially empty) set.");
 		List<String> annotationConf = new ArrayList<>();
 		
 		annotationConf.add("[relations]");
