@@ -62,21 +62,21 @@ public class TestDiscourseGenerator implements CommandLineRunner {
 		
 		Contribution contrib1 = contribService.createTypedContribution(ContributionTypes.THREAD_STARTER);
 		Content content1 = contentService.createContent();
-		content1.setText("Contribution one 😎😎😎");
+		content1.setText("Lorem ipsum dolor sit amet, at usu idque eirmod philosophia. Sit phaedrum argumentum cu, graeci quaerendum ne qui, eu sed nisl stet putant. Postea civibus qui te. Graeco aperiam splendide vel et, usu ceteros eligendi ut. Ei mel minimum corpora, an ius aperiri praesent mediocritatem.");
 		contrib1.setFirstRevision(content1);
 		contrib1.setCurrentRevision(content1);
 		discoursePartService.addContributionToDiscoursePart(contrib1, threadOne);
 
 		Contribution contrib2 = contribService.createTypedContribution(ContributionTypes.POST);
 		Content content2 = contentService.createContent();
-		content2.setText("Contribution two 😅😅😅");
+		content2.setText("Pro at vituperata dissentiet, ea consul aliquip ponderum vel. Quo et dictas definiebas, an altera fabellas has. Justo dolor denique ei mea, graece inimicus ocurreret ea nam, pri timeam suscipiantur ex. Mei nulla consequuntur et, homero eirmod interesset qui ea. Ius eu error decore epicuri, iusto aliquando nam ut, cu ius nonumes copiosae luptatum.");
 		contrib2.setFirstRevision(content2);
 		contrib2.setCurrentRevision(content2);
 		discoursePartService.addContributionToDiscoursePart(contrib2, threadOne);
 
 		Contribution contrib3 = contribService.createTypedContribution(ContributionTypes.THREAD_STARTER);
 		Content content3 = contentService.createContent();
-		content3.setText("Contribution three 😆😆😆");
+		content3.setText("Mei in eros mucius, usu labore debitis id, duo ei dolorem imperdiet. Nam te agam honestatis delicatissimi, labore debitis eam in. Usu eu omittam pertinacia, ferri nominavi ad pri, eam option ancillae ea. Ei quo wisi solum iriure, quod utinam cu vel. Vix te suavitate gloriatur intellegat.");
 		contrib3.setFirstRevision(content3);
 		contrib3.setCurrentRevision(content3);
 		discoursePartService.addContributionToDiscoursePart(contrib3, threadTwo);
@@ -84,16 +84,16 @@ public class TestDiscourseGenerator implements CommandLineRunner {
 		/////
 		
 		AnnotationInstance anno1 = annoService.createTypedAnnotation("DDB_LABEL_1");
-//		annoService.addFeature(anno1, annoService.createFeature("1.0"));
+		annoService.addFeature(anno1, annoService.createFeature("1.0"));
 		annoService.addAnnotation(contrib1, anno1);
-//		
-//		AnnotationInstance anno2 = annoService.createTypedAnnotation("DDB_LABEL_2");
-//		annoService.addFeature(anno2, annoService.createFeature("two"));
-//		annoService.addAnnotation(contrib2, anno2);
-//		
-//		AnnotationInstance anno3 = annoService.createTypedAnnotation("DDB_LABEL_3");
-//		annoService.addFeature(anno3, annoService.createFeature("3"));
-//		annoService.addAnnotation(contrib3, anno3);
+		
+		AnnotationInstance anno2 = annoService.createTypedAnnotation("DDB_LABEL_2");
+		annoService.addFeature(anno2, annoService.createFeature("two"));
+		annoService.addAnnotation(contrib2, anno2);
+		
+		AnnotationInstance anno3 = annoService.createTypedAnnotation("DDB_LABEL_3");
+		annoService.addFeature(anno3, annoService.createFeature("3"));
+		annoService.addAnnotation(contrib3, anno3);
 
 	}
 }

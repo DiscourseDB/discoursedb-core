@@ -147,7 +147,7 @@ public class BratService {
 			// offset correction will be done later
 			BratAnnotation bratAnno = new BratAnnotation(bratStandoffEncodedString);				
 
-			if (bratAnno.getType() == BratAnnotationType.T) {					
+			if (bratAnno.getType() == BratAnnotationType.TEXT) {					
 				
 				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
 				
@@ -220,7 +220,7 @@ public class BratService {
 					}
 				}
 				
-			} else if (bratAnno.getType() == BratAnnotationType.A) {
+			} else if (bratAnno.getType() == BratAnnotationType.NOTE) {
 				
 				VersionInfo entityInfo = featureBratIdToVersionInfo.get(bratAnno.getId());
 				
@@ -245,7 +245,7 @@ public class BratService {
 					VersionInfo referenceAnnotationInfo = annotationBratIdToVersionInfo.get(bratAnno.getSourceAnnotationId());
 					if(referenceAnnotationInfo!=null){
 						AnnotationInstance referenceAnno = annoService.findOneAnnotationInstance(referenceAnnotationInfo.getDiscourseDBEntityId()).get();
-						Feature newFeature = annoService.createTypedFeature(bratAnno.getType().name(), bratAnno.getAnnotationLabel());
+						Feature newFeature = annoService.createTypedFeature(bratAnno.getType().toString(), bratAnno.getAnnotationLabel());
 						//update version file
 						featureBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.FEATURE,bratAnno.getId(),newFeature.getId(), newFeature.getEntityVersion())); 
 						annoService.addFeature(referenceAnno, newFeature);						
@@ -255,7 +255,7 @@ public class BratService {
 				}
 			} else {
 				//Implement import capabilities for other Brat Annotation types here
-				log.error("Unsupported Annotation type " + bratAnno.getType().name()+" Skipping.");
+				log.error("Unsupported Annotation type " + bratAnno.getType()+" Skipping.");
 			}
 		}
 
@@ -369,64 +369,42 @@ public class BratService {
 
 		//one DiscourseDB annotation could result in multiple BRAT annotations 
 		List<BratAnnotation> newAnnotations = new ArrayList<>();
+		
+		//PRODUCE Text-Bound Annotation for ALL other annotations		
+		BratAnnotation textBoundAnnotation = new BratAnnotation();
+		textBoundAnnotation.setType(BratAnnotationType.TEXT);			
+		textBoundAnnotation.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.TEXT, dbAnno.getId()));
+		textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
 
-		if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.R.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type R
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type R annotations are not supported yet.");
-		}
-		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.E.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type E			
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type E annotations are not supported yet.");
-		}
-		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.M.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type M
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type M annotations are not supported yet.");
-		}
-		else if (dbAnno.getType() != null&&dbAnno.getType().equals(BratAnnotationType.N.name())) {
-			//specifically handle DiscourseDB annotation that have the Brat Type N			
-			//to produce the corresponding BRAT annotation
-			log.warn("BRAT Type N annotations are not supported yet.");
-		}
-		else {
-			//PRODUCE Text-Bound Annotation for ALL other annotations		
-			BratAnnotation textBoundAnnotation = new BratAnnotation();
-			textBoundAnnotation.setType(BratAnnotationType.T);			
-			textBoundAnnotation.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.T, dbAnno.getId()));
-			textBoundAnnotation.setAnnotationLabel(dbAnno.getType());
-
-			//CALC OFFSET			
-			if (entity instanceof Contribution) {
-				//annotations on contributions are always annotated on the contribution separator as an entity label 
-				textBoundAnnotation.setBeginIndex(spanOffset);
-				textBoundAnnotation.setEndIndex(spanOffset+ BratTypes.CONTRIB_SEPARATOR.length());
-				textBoundAnnotation.setCoveredText(BratTypes.CONTRIB_SEPARATOR);															
-			}else if (entity instanceof Content) {
-				//content labels are always annotated as text spans on the currentRevision content entity
-				if(dbAnno.getEndOffset()==0){
-					log.warn("Labels on Content entites should define a span and should not be entity labels."); 
-				}
-				textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
-				textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
-				textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
-			}		
-			textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
-			newAnnotations.add(textBoundAnnotation);
-			
-			//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES. Feature types are ignored.
-			//TODO: only nominal/binary attributes are supported. need to be registered in the conf file. Maybe store them as Notes instead of Attributes?
-			for(Feature f:dbAnno.getFeatures()){			
-				BratAnnotation newAttribute = new BratAnnotation();
-				newAttribute.setType(BratAnnotationType.A);			
-				newAttribute.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.A, f.getId()));
-				newAttribute.setAnnotationLabel(f.getValue());
-				newAttribute.setSourceAnnotationId(textBoundAnnotation.getId());
-				newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getId(), f.getId(), f.getEntityVersion()));
-				newAnnotations.add(newAttribute);				
+		//CALC OFFSET			
+		if (entity instanceof Contribution) {
+			//annotations on contributions are always annotated on the contribution separator as an entity label 
+			textBoundAnnotation.setBeginIndex(spanOffset);
+			textBoundAnnotation.setEndIndex(spanOffset+ BratTypes.CONTRIB_SEPARATOR.length());
+			textBoundAnnotation.setCoveredText(BratTypes.CONTRIB_SEPARATOR);															
+		}else if (entity instanceof Content) {
+			//content labels are always annotated as text spans on the currentRevision content entity
+			if(dbAnno.getEndOffset()==0){
+				log.warn("Labels on Content entites should define a span and should not be entity labels."); 
 			}
-    	}
+			textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
+			textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
+			textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
+		}		
+		textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
+		newAnnotations.add(textBoundAnnotation);
+		
+		//FEATURE VALUES ARE USED TO CREATE BRAT ANNOTATION ATTRIBUTES. Feature types are ignored.
+		for(Feature f:dbAnno.getFeatures()){			
+			BratAnnotation newAttribute = new BratAnnotation();
+			newAttribute.setType(BratAnnotationType.NOTE);			
+			newAttribute.setId(bratIdGenerator.getNextAvailableBratId(BratAnnotationType.NOTE, f.getId()));
+			newAttribute.setAnnotationLabel(f.getValue());
+			newAttribute.setSourceAnnotationId(textBoundAnnotation.getId());
+			newAttribute.setVersionInfo(new VersionInfo(AnnotationSourceType.FEATURE, newAttribute.getId(), f.getId(), f.getEntityVersion()));
+			newAnnotations.add(newAttribute);				
+		}
+    	
 		return newAnnotations;
 	}	
 	
@@ -486,10 +464,10 @@ public class BratService {
 		
 		public String getNextAvailableBratId(BratAnnotationType type, long baseId){
 			long offsetId = BRAT_ID_OFFSET+baseId;
-			String curBratId = type.name()+offsetId;
+			String curBratId = type.toString()+offsetId;
 			while(ids.contains(curBratId)){
 				offsetId++;
-				curBratId = type.name()+offsetId;
+				curBratId = type.toString()+offsetId;
 			}
 			ids.add(curBratId);
 			return curBratId;
