@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.Table;
 
 import org.apache.commons.io.FileUtils;
@@ -37,11 +38,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -51,6 +54,7 @@ import lombok.extern.log4j.Log4j;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 public class BratService {
 
+	private final @NonNull DiscourseService discourseService;
 	private final @NonNull ContributionService contribService;
 	private final @NonNull ContentService contentService;
 	private final @NonNull AnnotationService annoService;
@@ -448,6 +452,45 @@ public class BratService {
 
 	
 	/**
+	 * Generates a Brat annotation.conf file with all DiscourseDB annotation types that occur in the set of annotations on contributions or current revisions within the provided discourse registered as Brat annotations.
+	 * Relations, events and attribute sections are left empty and not further configuration is generated.
+	 *     
+	 * @param discourseName the name of the discourse for which to export annotation types
+	 * @param outputFolder the folder to which the config file should be written
+	 * @throws IOException if an exception occurs writing the config file
+	 */
+	public void generateBratConfig(String discourseName, String outputFolder) throws IOException{
+		generateBratConfig(discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist.")), outputFolder);		
+		
+	}
+	
+	/**
+	 * Generates a Brat annotation.conf file with all DiscourseDB annotation types that occur in the set of annotations on contributions or current revisions within the provided discourse registered as Brat annotations.
+	 * Relations, events and attribute sections are left empty and not further configuration is generated.
+	 *     
+	 * @param discourse the discourse for which to export annotation types
+	 * @param outputFolder the folder to which the config file should be written
+	 * @throws IOException if an exception occurs writing the config file
+	 */
+	public void generateBratConfig(Discourse discourse, String outputFolder) throws IOException{
+		Set<String> annoTypes = new HashSet<>();
+		List<String> annotationConf = new ArrayList<>();
+
+		for(DiscoursePart dp: dpService.findAllByDiscourse(discourse)){
+			annoTypes.addAll(annoService.findContributionAnnotationsByDiscoursePart(dp).stream().map(anno->anno.getType()).collect(Collectors.toSet()));
+			annoTypes.addAll(annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp).stream().map(anno->anno.getType()).collect(Collectors.toSet()));
+		}	
+		
+		annotationConf.add("[relations]");
+		annotationConf.add("[events]");
+		annotationConf.add("[attributes]");
+		annotationConf.add("[entities]");
+		annotationConf.addAll(annoTypes);
+		
+		FileUtils.writeLines(new File(outputFolder,"annotation.conf"), annotationConf);
+	}
+	
+	/**
 	 * The Brat UI auto-generates annotations starting with ID 1. 
 	 * If an annotation with id 1 is deleted, the next annotation created will again get id 1.
 	 * If we delete an annotation that exists in DiscourseDB that has brat id 1 and then create a new annotation that does not yet exist in discoursedb it
@@ -471,7 +514,8 @@ public class BratService {
 			}
 			ids.add(curBratId);
 			return curBratId;
-		}
-		
+		}		
 	}
+	
+	
 }
