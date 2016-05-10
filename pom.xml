@@ -96,6 +96,11 @@
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-annotation-io-brat</artifactId>
+				<version>0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-model</artifactId>
 				<version>0.6-SNAPSHOT</version>
 			</dependency>
