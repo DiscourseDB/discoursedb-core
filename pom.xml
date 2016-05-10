@@ -48,7 +48,7 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-edx</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<!-- Override mysql due to utf issues -->
 			
@@ -92,12 +92,12 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-api-rest</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-model</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.interceptor</groupId>
@@ -107,17 +107,17 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-bazaar</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-prosolo</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-tags</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jooq</groupId>
@@ -148,12 +148,12 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-piazza</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-coursera</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
@@ -168,12 +168,27 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-annotation</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-annotation-ui</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-annotation-io-brat</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-habworlds</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-neuwirth</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
