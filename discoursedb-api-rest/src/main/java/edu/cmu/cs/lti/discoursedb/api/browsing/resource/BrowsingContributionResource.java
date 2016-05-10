@@ -16,6 +16,7 @@ import org.springframework.hateoas.Resources;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -49,14 +50,14 @@ public class BrowsingContributionResource extends ResourceSupport {
 				new BrowsingAnnotationResource(a))
 				.collect(Collectors.toList()));
 		} catch (NullPointerException npe) {
-			annotations = null;
+			
 		}
 		try {
 			annotations.addAll(c.getCurrentRevision().getAnnotations().getAnnotations().stream().map(a ->
 				new BrowsingAnnotationResource(a))
 				.collect(Collectors.toList()));
 		} catch (NullPointerException npe) {
-			annotations = null;
+			
 		}
    	    discourseParts = (c.getContributionPartOfDiscourseParts()).stream().map( cdp -> cdp.getDiscoursePart().getName()).collect(Collectors.toList());
 	}
