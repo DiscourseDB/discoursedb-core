@@ -376,4 +376,8 @@ public class UserService {
         return unannotated;
     }
 
+	public Optional<User> findOne(Long id) {
+		return userRepo.findOne(id);
+	}
+
 }
