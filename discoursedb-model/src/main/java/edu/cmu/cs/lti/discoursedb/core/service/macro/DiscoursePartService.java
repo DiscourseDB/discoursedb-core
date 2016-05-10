@@ -26,6 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRep
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import lombok.NonNull;
@@ -42,6 +43,94 @@ public class DiscoursePartService {
 	private final @NonNull DiscoursePartContributionRepository discoursePartContributionRepo;
 	private final @NonNull DiscourseToDiscoursePartRepository discourseToDiscoursePartRepo;
 
+	
+	/**
+	 * Retrieves existing or creates a new DiscoursePartType entity with the
+	 * provided type. It then creates a new empty DiscoursePart entity,
+	 * connects it with the type and the provided discourse.<br/>
+	 * 
+	 * All changed/created entities are committed to the db and the DiscoursePart is returned.<br/>
+	 * 
+	 * The discoursePartName is constructed like this: <code>discourseName_DiscoursePartType</code>.<br/>
+	 * Use {@link #createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type)} to explicitly set the discoursePartName. 
+	 * 
+	 * @param discourse
+	 *            the discourse of which the new DiscoursePart is a part of
+	 * @param type
+	 *            the value for the DiscoursePartType
+	 * @return a new empty DiscoursePart that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");		
+
+		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
+	}
+	
+	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.hasText (entitySourceId, "");		
+		
+		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
+		DiscoursePart dp = null;
+		if (odp.isPresent()) {
+			dp = odp.get();
+		} else {
+			dp = new DiscoursePart();
+			discoursePartRepo.save(dp);
+			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+			dataSourceService.addSource(dp, ds);
+		}
+		
+		
+		
+		return dp;
+	}
+	
+	/**
+	 * Retrieves existing or creates a new DiscoursePartType entity with the
+	 * provided type. It then creates a new empty DiscoursePart entity,
+	 * connects it with the type and the provided discourse.<br/>
+	 * 
+	 * All changed/created entities are committed to the db and the DiscoursePart is returned.<br/>
+	 * 
+	 * The discoursePartName is constructed like this: <code>discourseName_DiscoursePartType</code>.<br/>
+	 * Use {@link #createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type)} to explicitly set the discoursePartName. 
+	 * 
+	 * @param discourse
+	 *            the discourse of which the new DiscoursePart is a part of
+	 * @param type
+	 *            the value for the DiscoursePartType
+	 * @return a new empty DiscoursePart that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");		
+
+		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
+	}
+	
+	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.hasText (entitySourceId, "");		
+		
+		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
+		DiscoursePart dp = null;
+		if (odp.isPresent()) {
+			dp = odp.get();
+		} else {
+			dp = new DiscoursePart();
+			discoursePartRepo.save(dp);
+			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+			dataSourceService.addSource(dp, ds);
+		}
+		
+		
+		
+		return dp;
+	}
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,
@@ -333,11 +422,20 @@ public class DiscoursePartService {
 			return Optional.empty();
 		}
 	}
+
 	
+    /**
+	 * Retrieves a discourse part that has a source which exactly matches the given parameter.
+	 * 
+	 * @param entityId the id of the discourse part  
+	 * @return an optional DiscoursePart that meets the requested parameters
+	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Optional<DiscoursePart> findOne(Long id){
+	public Optional<DiscoursePart> findOne(Long id) {
 		return discoursePartRepo.findOne(id);
 	}
+
+
 	
 	/**
 	 * Get the set of all discourse parts that do NOT contain a particular annotation type
@@ -345,22 +443,8 @@ public class DiscoursePartService {
 	 * @param badAnnotation
 	 * @return a set of discourse part names
 	 */
-    public Set<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
-        Set<DiscoursePart> unannotated = new HashSet<DiscoursePart>();
-        for(DiscoursePart dp : discoursePartRepo.findAll()) {
-                boolean addme = true;
-                AnnotationAggregate ag = dp.getAnnotations();
-                if (ag != null) {
-                        Set<AnnotationInstance> sai = ag.getAnnotations();
-                        if (sai != null) {
-                                for (AnnotationInstance ai : sai) {
-                                        if (ai.getType() == badAnnotation) { addme = false; break; }
-                                }
-                        }
-                }
-                if (addme) { unannotated.add(dp); }
-        }
-        return unannotated;
+    public List<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
+    	return discoursePartRepo.findAllNotAnnotatedWithType(badAnnotation);
     }
 
 }

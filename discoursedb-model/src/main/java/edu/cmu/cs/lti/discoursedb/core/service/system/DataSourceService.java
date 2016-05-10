@@ -109,6 +109,19 @@ public class DataSourceService {
 		}
 	}	
 
+    /**
+	 * Retrieves a discourse part that has a source which exactly matches the given parameter.
+	 * 
+	 * @param entityId the id of the discourse part  
+	 * @return an optional DiscoursePart that meets the requested parameters
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Optional<DataSourceInstance> findOne(Long id) {
+		return dataSourceInstanceRepo.findOne(id);
+	}
+	
+	
+	
 	/**
 	 * Finds the datasource with the given descriptor for the given entity 
 	 * 
