@@ -2,6 +2,7 @@ package edu.cmu.cs.lti.discoursedb.io.neuwirth.converter;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.opencsv.CSVReader;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -58,9 +60,10 @@ public class NeuwirthConverterService {
 
 	public void mapFile(String dataSetName, File file) {
 		String fileName = file.getName();
+		log.info("Processing "+fileName);
 
 		try (CSVReader reader = new CSVReader(new FileReader(file))) {
-
+			
 			// read the first line of csv file, get column names which are used
 			// to build annotation entities
 			// build a HashMap annoMap, key: annotation column name, value:
@@ -98,10 +101,9 @@ public class NeuwirthConverterService {
 			while ((nextLine = reader.readNext()) != null) {
 
 				/*
-				 * get necessary information from each line to create DiscourDB
-				 * entities a response is regarded as a contribution in the
+				 * Extract information from each line to create DiscourseDB
+				 * entities. A response is regarded as a contribution in the
 				 * corresponding discourse
-				 * 
 				 */
 
 				String discourseName = nextLine[resMap.get(TITLE_COLUMN)];
@@ -114,17 +116,14 @@ public class NeuwirthConverterService {
 						DiscoursePartTypes.CHATROOM);
 
 				/*
-				 * check whether the response contribution exists in
-				 * DiscourseDB. if not, create a new Contribution object and add
-				 * it to data source and also create related User and Content
-				 * object the contribution id is created by combination of n and
-				 * filename.
-				 * 
+				 * Check if the response contribution exists in DiscourseDB. 
+				 * If not, create a new Contribution, add it to data source and also create 
+				 * related User and Content.
+				 * The contribution id is created by combination of n and filename.
 				 */
 
 				String resId = fileName + "_" + String.valueOf(num);
-				Optional<Contribution> existingRes = contributionService.findOneByDataSource(resId,
-						NeuwirthSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName);
+				Optional<Contribution> existingRes = contributionService.findOneByDataSource(resId, NeuwirthSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName);
 				if (!existingRes.isPresent()) {
 					Contribution curRes = contributionService.createTypedContribution(ContributionTypes.POST);
 
@@ -152,8 +151,7 @@ public class NeuwirthConverterService {
 					// set content
 					Content curContent = contentService.createContent();
 					curContent.setText(response);
-					dataSourceService.addSource(curContent, new DataSourceInstance(resId,
-							NeuwirthSourceMapping.ID_STR_TO_CONTENT, DataSourceTypes.NEUWIRTH, dataSetName));
+					dataSourceService.addSource(curContent, new DataSourceInstance(resId, NeuwirthSourceMapping.ID_STR_TO_CONTENT, DataSourceTypes.NEUWIRTH, dataSetName));
 					curRes.setCurrentRevision(curContent);
 					curRes.setFirstRevision(curContent);
 
@@ -173,22 +171,23 @@ public class NeuwirthConverterService {
 					 */
 
 					for (Map.Entry<String, Integer> entry : annoMap.entrySet()) {
-						if (nextLine[entry.getValue()].length() == 0) {
-							continue;
+						String featureValue = nextLine[entry.getValue()];
+						if (featureValue!=null&&!featureValue.trim().isEmpty()) {
+							AnnotationInstance newContribAnno = annoService.createTypedAnnotation(entry.getKey());
+							Feature newFeature = annoService.createFeature(featureValue);
+							annoService.addAnnotation(curRes, newContribAnno);														
+							annoService.addFeature(newContribAnno, newFeature);
 						}
-						AnnotationInstance newContribAnno = annoService.createTypedAnnotation(entry.getKey());
-						annoService.addFeature(newContribAnno, annoService.createFeature(nextLine[entry.getValue()]));
-						annoService.addAnnotation(curRes, newContribAnno);
 					}
 
 					discoursepartService.addContributionToDiscoursePart(curRes, question);
 
 				}
-				if (num++ % 10 == 0) {
-					log.info(num / 10);
+				if (num++ % 100 == 0) {
+					log.info((num / 100)+"%");
 				}
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			log.error("Error parsing csv file. Illegally formatted line.", e);
 			return;
 		}

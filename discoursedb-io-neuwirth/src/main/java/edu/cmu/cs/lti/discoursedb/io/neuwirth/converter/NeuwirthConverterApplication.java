@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 public class NeuwirthConverterApplication {
 
 	public static void main(String[] args) {
-		Assert.isTrue(args.length==2, "Usage: NeuwirthConverterApplication <DataSetName> <NeuwirthFileFolderPath>");
+		Assert.isTrue(args.length==2, "Usage: NeuwirthConverterApplication <DataSetName> <InputDataFolder>");		
 		SpringApplication.run(NeuwirthConverterApplication.class, args);
 	}
 
