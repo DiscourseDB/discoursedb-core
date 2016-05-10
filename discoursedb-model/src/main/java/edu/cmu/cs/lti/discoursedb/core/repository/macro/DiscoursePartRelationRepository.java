@@ -24,14 +24,7 @@ public interface DiscoursePartRelationRepository extends BaseRepository<Discours
 	Page<DiscoursePart> findAllTargetsBySource(@Param("source") DiscoursePart source, Pageable page);
 	
 	List<DiscoursePartRelation> findAllBySource(DiscoursePart source);
-	Page<DiscoursePartRelation> findAllByTarget(DiscoursePart discoursePart, Pageable page);
+	Page<DiscoursePartRelation> findAllByTarget(DiscoursePart discoursePart, Pageable page);	
 
-	@Query("select targ from DiscoursePartRelation dpr left join dpr.target targ left join dpr.source src where src=:source order by targ.startTime")
-	Page<DiscoursePart> findAllTargetsBySource(@Param("source") DiscoursePart source, Pageable page);
-	
-	Page<DiscoursePartRelation> findAllBySource(DiscoursePart source, Pageable page);
-	//List<DiscoursePartRelation> findAllBySource(DiscoursePart source);
-
-	Page<DiscoursePartRelation> findAllByTarget(DiscoursePart discoursePart, Pageable page);
 
 }

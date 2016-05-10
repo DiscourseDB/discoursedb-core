@@ -61,32 +61,9 @@ public class DiscoursePartService {
 	 * @return a new empty DiscoursePart that is already saved to the db and
 	 *         connected with its requested type
 	 */
-	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
-		Assert.notNull(discourse, "Discourse cannot be null.");
-		Assert.notNull(type, "Type cannot be null.");		
 
-		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
-	}
 	
-	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
-		Assert.notNull(discourse, "Discourse cannot be null.");
-		Assert.hasText (entitySourceId, "");		
-		
-		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
-		DiscoursePart dp = null;
-		if (odp.isPresent()) {
-			dp = odp.get();
-		} else {
-			dp = new DiscoursePart();
-			discoursePartRepo.save(dp);
-			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
-			dataSourceService.addSource(dp, ds);
-		}
-		
-		
-		
-		return dp;
-	}
+
 	
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
@@ -111,7 +88,8 @@ public class DiscoursePartService {
 
 		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
 	}
-	
+
+
 	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
 		Assert.notNull(discourse, "Discourse cannot be null.");
 		Assert.hasText (entitySourceId, "");		
@@ -131,6 +109,8 @@ public class DiscoursePartService {
 		
 		return dp;
 	}
+	
+	
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,

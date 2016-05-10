@@ -45,21 +45,7 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ "((select count(ai) from dp.annotations aa join aa.annotations ai where ai.type like 'Degenerate') = 0)"
 			+ " and type=:discoursePartType")
 	Page<DiscoursePart> findAllNonDegenerateByType(@Param("discoursePartType") String discoursePartType, Pageable pageable);
-	
-	List<DiscoursePart> findAllByName(String name);
-	List<DiscoursePart> findAllByType(String type);
-
-	@Query("select dp from DiscoursePart dp left join fetch dp.annotations aa "
-			+ "left join fetch aa.annotations ai left join fetch ai.features feat "
-			+ " where dp.type=:discoursePartType")
-	List<DiscoursePart> findExtendedByType(@Param("discoursePartType") String discoursePartType);
-	
-	
-	@Query("select dp from DiscoursePart dp where "
-			+ "((select count(ai) from dp.annotations aa join aa.annotations ai where ai.type like 'Degenerate') = 0)"
-			+ " and type=:discoursePartType")
-	Page<DiscoursePart> findAllNonDegenerateByType(@Param("discoursePartType") String discoursePartType, Pageable pageable);
-	
+		
 	@Query("select dp from DiscoursePart dp left join dp.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id")
 	Optional<DiscoursePart> findOneByDataSourceId(@Param("id") String id);
 		
