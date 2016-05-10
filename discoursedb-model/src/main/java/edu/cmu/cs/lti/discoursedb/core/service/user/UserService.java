@@ -376,8 +376,7 @@ public class UserService {
         return unannotated;
     }
 
-	
-    /**
+       /**
 	 * Retrieves a discourse part that has a source which exactly matches the given parameter.
 	 * 
 	 * @param entityId the id of the discourse part  
@@ -387,6 +386,5 @@ public class UserService {
 	public Optional<User> findOne(Long id) {
 		return userRepo.findOne(id);
 	}
-	
 	
 }

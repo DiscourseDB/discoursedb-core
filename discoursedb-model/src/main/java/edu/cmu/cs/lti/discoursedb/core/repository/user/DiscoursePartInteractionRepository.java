@@ -9,6 +9,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
 public interface DiscoursePartInteractionRepository extends BaseRepository<DiscoursePartInteraction,Long>{
-	Optional<DiscoursePartInteraction> findOneByUserAndDiscoursePartAndType(User user, DiscoursePart dp, String type);	
-    List<DiscoursePartInteraction> findAllByDiscoursePart(DiscoursePart dp);
+	Optional<DiscoursePartInteraction> findOneByUserAndDiscoursePartAndType(User user, DiscoursePart dp, String type);
+
+	List<DiscoursePartInteraction> findAllByDiscoursePart(DiscoursePart dp);	
 }

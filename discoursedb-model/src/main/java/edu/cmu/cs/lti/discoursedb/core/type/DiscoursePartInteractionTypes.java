@@ -46,17 +46,21 @@ public enum DiscoursePartInteractionTypes {
 	 * Push a set of changes to a software repository
 	 * (along with a natural language message associated with each change)
 	 */
-	GIT_PUSH,
-	/*
-	 *  Close a github issue
-	 */
-	GITHUB_ISSUE_CLOSE,
-	/*
-	 *  Merge a pull request with a project branch
+	GIT_PUSH, 
+	/* 
+	 * Merge a pull request in Git 
+	 * (something a repository owner/committer does to accept a
+	 * proposed software change, possibly from someone without
+	 * the right to commit the change themselves)
 	 */
 	GIT_PULL_REQUEST_MERGE, 
+	/* 
+	 * Close a github issue discussion thread.  This is sometimes
+	 * done by a commit message that mentions the issue number. 
+	 */
+	GITHUB_ISSUE_CLOSE, 
 	/*
-	 * Refer to an entity in a message via a tagging convention or url
+	 * A pointer in one discussion linking to another
 	 */
 	REFER
 

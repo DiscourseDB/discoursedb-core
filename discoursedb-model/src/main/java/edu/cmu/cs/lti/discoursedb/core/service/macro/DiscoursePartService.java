@@ -43,6 +43,51 @@ public class DiscoursePartService {
 	private final @NonNull DiscoursePartContributionRepository discoursePartContributionRepo;
 	private final @NonNull DiscourseToDiscoursePartRepository discourseToDiscoursePartRepo;
 
+	
+	/**
+	 * Retrieves existing or creates a new DiscoursePartType entity with the
+	 * provided type. It then creates a new empty DiscoursePart entity,
+	 * connects it with the type and the provided discourse.<br/>
+	 * 
+	 * All changed/created entities are committed to the db and the DiscoursePart is returned.<br/>
+	 * 
+	 * The discoursePartName is constructed like this: <code>discourseName_DiscoursePartType</code>.<br/>
+	 * Use {@link #createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type)} to explicitly set the discoursePartName. 
+	 * 
+	 * @param discourse
+	 *            the discourse of which the new DiscoursePart is a part of
+	 * @param type
+	 *            the value for the DiscoursePartType
+	 * @return a new empty DiscoursePart that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, DiscoursePartTypes type){
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.notNull(type, "Type cannot be null.");		
+
+		return createOrGetTypedDiscoursePart(discourse,discourse.getName()+"_"+type.name(),type);
+	}
+	
+	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
+		Assert.notNull(discourse, "Discourse cannot be null.");
+		Assert.hasText (entitySourceId, "");		
+		
+		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
+		DiscoursePart dp = null;
+		if (odp.isPresent()) {
+			dp = odp.get();
+		} else {
+			dp = new DiscoursePart();
+			discoursePartRepo.save(dp);
+			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+			dataSourceService.addSource(dp, ds);
+		}
+		
+		
+		
+		return dp;
+	}
+	
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
 	 * provided type. It then creates a new empty DiscoursePart entity,
@@ -325,6 +370,18 @@ public class DiscoursePartService {
 		return discoursePartRepo.findAllByName(discoursePartName);
 	}
 	
+	/**
+	 * Returns a list of DiscoursePart of the given type associated with the given Discourse
+	 *  
+	 * @param discourse the associated discourse
+	 * @param type the DiscoursePartType
+	 * @return an Iterable with DiscoursePart of the given type associated with the given discourse
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Iterable<DiscoursePart> findAllByDiscourse(Discourse discourse) {
+		Assert.notNull(discourse, "Discourse cannot be null.");		
+		return discoursePartRepo.findAll(DiscoursePartPredicates.discoursePartHasDiscourse(discourse));
+	}
 	
 	/**
 	 * Returns a list of DiscoursePart of the given type associated with the given Discourse

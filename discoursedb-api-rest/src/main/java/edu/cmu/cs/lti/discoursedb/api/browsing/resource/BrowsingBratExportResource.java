@@ -35,7 +35,7 @@ public class BrowsingBratExportResource extends ResourceSupport {
 	public BrowsingBratExportResource(String name, Date lastExport) {
 		setName(name);
 		setLastExport(lastExport);
-		add(BrowsingRestController.makeLink1Arg("/browsing/action/exportBrat", "Import annotations from BRAT", "parentDpId", "42"));
+		add(BrowsingRestController.makeLink1Arg("/browsing/action/importBrat", "Import annotations from BRAT", "bratDirectory", name));
 	}
 
 	public String getName() {

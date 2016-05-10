@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -23,6 +24,14 @@ public interface DiscoursePartRelationRepository extends BaseRepository<Discours
 	Page<DiscoursePart> findAllTargetsBySource(@Param("source") DiscoursePart source, Pageable page);
 	
 	List<DiscoursePartRelation> findAllBySource(DiscoursePart source);
+	Page<DiscoursePartRelation> findAllByTarget(DiscoursePart discoursePart, Pageable page);
+
+	@Query("select targ from DiscoursePartRelation dpr left join dpr.target targ left join dpr.source src where src=:source order by targ.startTime")
+	Page<DiscoursePart> findAllTargetsBySource(@Param("source") DiscoursePart source, Pageable page);
+	
+	Page<DiscoursePartRelation> findAllBySource(DiscoursePart source, Pageable page);
+	//List<DiscoursePartRelation> findAllBySource(DiscoursePart source);
+
 	Page<DiscoursePartRelation> findAllByTarget(DiscoursePart discoursePart, Pageable page);
 
 }

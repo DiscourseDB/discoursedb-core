@@ -4,10 +4,14 @@ public class BratTypes {
 
 	public static final String CONTRIB_SEPARATOR = "[**** NEW CONTRIBUTION ****]";
 
-	public enum EntityTypes{CONTRIBUTION, CONTENT};
-	
-	public enum AnnotationSourceType{ANNOTATION, FEATURE};
-	
+	public enum EntityTypes {
+		DDB_CONTRIBUTION, DDB_CONTENT
+	};
+
+	public enum AnnotationSourceType {
+		DDB_ANNOTATION, DDB_FEATURE
+	};
+
 	/**
 	 * See http://brat.nlplab.org/standoff.html
 	 * 
@@ -16,30 +20,23 @@ public class BratTypes {
 	 */
 	public enum BratAnnotationType {
 
-		/**
-		 * Text-bound (entity) annotation 
-		 */
-		T 
-		/** 
-		 * Attribute 
-		 */
-		,A 
-		/**
-		 * Relation 
-		 */
-		,R 
-		/**
-		 * Event 
-		 */
-		,E 
-		/**
-		/**
-		 * Modification 
-		 */
-		,M 
-		/**
-		 * Normalization 
-		 */
-		,N
+		BRAT_TEXT("T")
+		, BRAT_ATTRIBUTE("A")
+		, BRAT_RELATION("R")
+		, BRAT_EVENT("E")
+		, BRAT_MODIFICATION("M")
+		, BRAT_NORMALIZATION("N")
+		, BRAT_NOTE("#");
+
+		private String value;
+
+		private BratAnnotationType(String value) {
+			this.value = value;
+		}
+
+		public String toString() {
+			return this.value;
+		}
+
 	}
 }

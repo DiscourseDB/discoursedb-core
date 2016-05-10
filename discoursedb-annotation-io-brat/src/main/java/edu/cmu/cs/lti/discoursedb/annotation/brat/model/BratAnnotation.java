@@ -10,38 +10,47 @@ import lombok.extern.log4j.Log4j;
 @Data
 @NoArgsConstructor
 public class BratAnnotation {
-
+	
 	/**
 	 * Populates a BratAnnotation from a String which is formatted like Strings produced by BratAnnotation.toString()
 	 * 
 	 * @param data a String in the BratAnnotation.toString() format
 	 */
 	public BratAnnotation(String data){
-		if(data.startsWith(BratAnnotationType.T.name())){
-			setType(BratAnnotationType.T);
+		if(data.startsWith(BratAnnotationType.BRAT_TEXT.toString())){
+			setType(BratAnnotationType.BRAT_TEXT);
 			int firstTab = data.indexOf("\t");
 			int secondTab = data.indexOf("\t",firstTab+1);			
-			setId(Long.parseLong(data.substring(BratAnnotationType.T.name().length(),firstTab)));
+			setId(data.substring(0,firstTab));
 			String[] fields = data.substring(firstTab+1, secondTab).split(" ");
 			setAnnotationLabel(fields[0]);
 			setBeginIndex(Integer.parseInt(fields[1]));
 			setEndIndex(Integer.parseInt(fields[2]));
 			setCoveredText(data.substring(secondTab+1));
-		}else if(data.startsWith(BratAnnotationType.A.name())){
-			setType(BratAnnotationType.A);
+		}else if(data.startsWith(BratAnnotationType.BRAT_ATTRIBUTE.toString())){
+			setType(BratAnnotationType.BRAT_ATTRIBUTE);
 			int firstTab = data.indexOf("\t");
-			setId(Long.parseLong(data.substring(BratAnnotationType.A.name().length(),firstTab)));
+			setId(data.substring(0,firstTab));
 			String[] fields = data.substring(firstTab+1).split(" ");
 			setAnnotationLabel(fields[0]);
 			setSourceAnnotationId(fields[1]);
+		}else if(data.startsWith(BratAnnotationType.BRAT_NOTE.toString())){
+			setType(BratAnnotationType.BRAT_NOTE);
+			int firstTab = data.indexOf("\t");
+			int secondTab = data.indexOf("\t",firstTab+1);			
+			setId(data.substring(0,firstTab));
+			String[] fields = data.substring(firstTab+1, secondTab).split(" ");
+			setAnnotationLabel(fields[0]);			
+			setSourceAnnotationId(fields[1]);
+			setNoteText(data.substring(secondTab+1));			
 		}else{
 			log.error("Unsupported Annotation Type.");
 			throw new IllegalArgumentException();
 		}		
 	}
 	
-	long id;
-	
+	String id;
+		
 	BratAnnotationType type;
 	
 	/**
@@ -58,6 +67,9 @@ public class BratAnnotation {
 	//if a pair of annotation is referenced, this holds the id of the second annotation
 	String targetAnnotationId;
 
+	//holds the free-form note of a #-type brat note annotations
+	String noteText;
+
 	VersionInfo versionInfo;
 
 	int beginIndex;
@@ -70,16 +82,14 @@ public class BratAnnotation {
 		}
 	}
 	
-	public String getFullAnnotationId(){
-		return type.name()+id;				
-	}
-	
 	@Override
 	public String toString() { 
-		if(type==BratAnnotationType.T){
-			return getFullAnnotationId()+"\t"+annotationLabel+" "+beginIndex+" "+endIndex+"\t"+coveredText;				
-		}else if(type==BratAnnotationType.A){
-			return getFullAnnotationId()+"\t"+annotationLabel+" "+sourceAnnotationId;
+		if(type==BratAnnotationType.BRAT_TEXT){
+			return id+"\t"+annotationLabel+" "+beginIndex+" "+endIndex+"\t"+coveredText;				
+		}else if(type==BratAnnotationType.BRAT_ATTRIBUTE){
+			return id+"\t"+annotationLabel+" "+sourceAnnotationId;
+		}else if(type==BratAnnotationType.BRAT_NOTE){
+			return id+"\t"+annotationLabel+" "+sourceAnnotationId+"\t"+noteText;
 		}else{
 			log.error("Unsupported Annotation Type.");
 			return super.toString();

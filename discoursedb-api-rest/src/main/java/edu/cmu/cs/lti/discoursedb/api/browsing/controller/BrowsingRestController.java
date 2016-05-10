@@ -30,11 +30,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratService;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
@@ -45,15 +47,12 @@ import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 
 @Controller
 @RequestMapping(value = "/browsing", produces = "application/hal+json")
-@PropertySources({
-	@PropertySource(value = "classpath:custom.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
-})
 public class BrowsingRestController {
 
 	private static final Logger logger = LogManager.getLogger(BrowsingRestController.class);
 
-	//@Autowired
-	//private BratService bratService;
+	@Autowired
+	private BratService bratService;
 	
 	@Autowired 
 	private Environment environment;
@@ -161,14 +160,38 @@ public class BrowsingRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/action/exportBrat", method=RequestMethod.PUT)
+	public String discoursePart2BratName(DiscoursePart dp) {
+		return /*"dp_" + dp.getId().toString() + "_" + */dp.getName().replaceAll("[^a-zA-Z0-9]", "_");
+	}
+	/*public Optional<DiscoursePart> bratName2DiscoursePart(String filename) {
+		Long id = Long.getLong(filename.substring(3));
+		return discoursePartRepository.findOne(id);
+	}*/
+	
+	@RequestMapping(value = "/action/exportBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> exportBratAction(@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
-		//bratService.exportDiscoursePart(discoursePartRepository.findOne(parentDpId).get(), bratDataDirectory);
+		DiscoursePart dp = discoursePartRepository.findOne(parentDpId).get();
+		String bratDirectory = bratDataDirectory + "/" + discoursePart2BratName(dp);
+		logger.info(" Exporting dp " + dp.getName());
+		for (DiscoursePartRelation subdp : dp.getSourceOfDiscoursePartRelations()) {
+			logger.info(" Exporting issue " + subdp.getTarget().getName());
+			bratService.exportDiscoursePart(subdp.getTarget(), bratDirectory);
+		}
+		return exportBrat();
+	}
+
+	@RequestMapping(value = "/action/importBrat", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> importBratAction(@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
+		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");		
+		bratService.importDataset(bratDataDirectory + "/" + bratDirectory);
 		
 		return exportBrat();
 	}
+
+	
 	
 	@RequestMapping(value = "/exportBrat", method=RequestMethod.GET)
 	@ResponseBody
