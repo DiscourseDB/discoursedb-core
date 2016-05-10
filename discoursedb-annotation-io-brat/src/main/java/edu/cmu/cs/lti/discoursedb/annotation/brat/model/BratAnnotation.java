@@ -92,9 +92,9 @@ public class BratAnnotation {
 	
 	int endIndex;
 	
-	public void setAnnotationLabel(String category){
-		if(category!=null){
-			annotationLabel = category.replaceAll(" ", "_");
+	public void setAnnotationLabel(String label){
+		if(label!=null){
+			annotationLabel = cleanString(label);
 		}
 	}
 	
@@ -111,4 +111,13 @@ public class BratAnnotation {
 			return super.toString();
 		}
 	}
+	
+	public static String cleanString(String input){		
+		String output = input.replaceAll("[^a-zA-Z0-9_-]", "_");
+		if(!input.equals(output)){
+			log.warn("The label "+input+" contains characters that are not supported by brat. Using the following instead: "+output);
+		}
+		return output;
+	}
+
 }

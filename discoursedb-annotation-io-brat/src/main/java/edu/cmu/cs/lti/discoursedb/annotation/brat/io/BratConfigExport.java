@@ -35,15 +35,17 @@ public class BratConfigExport implements CommandLineRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length ==2, "USAGE: BratConfigExport <DiscourseName> <outputFolder>");
+		Assert.isTrue(args.length >=1 && args.length <=2, "USAGE: BratConfigExport (<DiscourseName>) <outputFolder>");
 		SpringApplication.run(BratConfigExport.class, args);
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
-		String discourseName = args[0];
-		String outputFolder = args[1];
-		bratService.generateBratConfig(discourseName, outputFolder);
+	public void run(String... args) throws Exception {		
+		if(args.length==1){
+			bratService.generateBratConfig(args[0]);			
+		}else{
+			bratService.generateBratConfig(args[0], args[1]);			
+		}
 		
 	}
 
