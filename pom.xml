@@ -182,6 +182,11 @@
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-annotation-io-lightside</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-habworlds</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -776,7 +781,8 @@
 
 		<module>discoursedb-io-neuwirth</module>
     <module>discoursedb-annotation-io-brat</module>
-  </modules>
+    <module>discoursedb-annotation-io-lightside</module>
+	</modules>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://moon.lti.cs.cmu.edu:8080/</url>
