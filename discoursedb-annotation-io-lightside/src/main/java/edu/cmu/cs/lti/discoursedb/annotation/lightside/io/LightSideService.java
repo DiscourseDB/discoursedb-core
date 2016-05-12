@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -56,11 +58,8 @@ public class LightSideService {
 		
 	@Transactional(readOnly=true)
 	public void exportAnnotations(Iterable<DiscoursePart> discourseParts, File outputFolder){
-		List<LightSideData> data = new ArrayList<>();
-		
-		for(DiscoursePart dp:discourseParts){
-			data.addAll(extractAnnotations(dp));
-		}
+		List<LightSideData> data = StreamSupport.stream(discourseParts.spliterator(), false)
+				.flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());		
 		
 		try{
 			FileUtils.writeLines(new File(outputFolder,"lightside.csv"), data);
