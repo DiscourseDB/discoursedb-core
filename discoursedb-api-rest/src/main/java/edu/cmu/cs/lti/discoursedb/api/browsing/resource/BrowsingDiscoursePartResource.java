@@ -1,35 +1,23 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.resource;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.Resources;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
-import edu.cmu.cs.lti.discoursedb.api.recommendation.controller.RecommendationRestController;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
-import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
-import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 
 public class BrowsingDiscoursePartResource extends ResourceSupport {
 	
@@ -40,7 +28,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	private List<String> userInteractions;
 	private Date startTime;
 	private Date endTime;
-	private List<String> containingDiscourseParts;
+	private Map<Long,String> containingDiscourseParts;
 	private DiscoursePart dp;
 	private List<BrowsingAnnotationResource> annotations;
 	
@@ -54,7 +42,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		this.setEndTime(dp.getEndTime());
 		
 		if (dp.getAnnotations() != null) {
-			List annos = new LinkedList<BrowsingAnnotationResource>();
+			List<BrowsingAnnotationResource> annos = new LinkedList<BrowsingAnnotationResource>();
 			for (AnnotationInstance ai: dp.getAnnotations().getAnnotations()) {
 				annos.add(new BrowsingAnnotationResource(ai));
 			}
@@ -79,7 +67,10 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", "contributions"));
 		}
 		
-   	    containingDiscourseParts = dp.getTargetOfDiscoursePartRelations().stream().map(dpr -> dpr.getSource().getName()).collect(Collectors.toList());
+   	    containingDiscourseParts = new HashMap<Long,String>();
+   	    for (DiscoursePartRelation dpr : dp.getTargetOfDiscoursePartRelations()) {
+   	    	containingDiscourseParts.put(dpr.getSource().getId(), dpr.getSource().getName());
+   	    }
 	}
 	
 	public void fillInUserInteractions(DiscoursePartInteractionRepository dpr) {
@@ -107,6 +98,12 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		}
 	}
 
+	/*
+	 * Underscore so that Jackson doesn't pick it up -- this is for internal use only
+	 */
+	public Long _getDpId() {
+		return dp.getId();
+	}
 
 	public String getName() {
 		return name;
@@ -128,13 +125,16 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	}
 
 
-	public List<String> getContainingDiscourseParts() {
+	public Map<Long,String> _getContainingDiscourseParts() {
 		return containingDiscourseParts;
 	}
-
-	public void setContainingDiscourseParts(List<String> containingDiscourseParts) {
-		this.containingDiscourseParts = containingDiscourseParts;
+	public List<String> getContainingDiscourseParts() {
+		return containingDiscourseParts.values().stream().collect(Collectors.toList());
 	}
+
+	/*public void setContainingDiscourseParts(List<String> containingDiscourseParts) {
+		this.containingDiscourseParts = containingDiscourseParts;
+	}*/
 
 
 
