@@ -3,6 +3,7 @@ package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
@@ -93,7 +94,7 @@ public class BrowsingRestController {
 		for (String t: bsr.getDiscourseParts().keySet()) {
 			r.add(makeLink("/browsing/repos?repoType=" + t, t));			
 		}
-
+		r.add(makeLink("/browsing/bratExports", "BRAT markup"));
 		return r;
 	}
 	
@@ -161,12 +162,22 @@ public class BrowsingRestController {
 	}
 	
 	public String discoursePart2BratName(DiscoursePart dp) {
-		return /*"dp_" + dp.getId().toString() + "_" + */dp.getName().replaceAll("[^a-zA-Z0-9]", "_");
+		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + "__" + dp.getId().toString();
 	}
-	/*public Optional<DiscoursePart> bratName2DiscoursePart(String filename) {
-		Long id = Long.getLong(filename.substring(3));
-		return discoursePartRepository.findOne(id);
-	}*/
+	
+	public Optional<DiscoursePart> bratName2DiscoursePart(String filename) {
+		try {
+			String[] parts = filename.split("__");
+			if (parts.length > 1) {
+				long dpid = Long.parseLong(parts[parts.length-1]);
+				logger.info(" final part of " + filename + " is " + dpid);
+				return discoursePartRepository.findOne(dpid);
+			}
+		} catch (Exception e) {
+			logger.info("No success identifying brat import directory " + filename + e.toString());
+		}
+		return Optional.empty();
+	}
 	
 	@RequestMapping(value = "/action/exportBrat", method=RequestMethod.GET)
 	@ResponseBody
@@ -179,26 +190,47 @@ public class BrowsingRestController {
 			logger.info(" Exporting issue " + subdp.getTarget().getName());
 			bratService.exportDiscoursePart(subdp.getTarget(), bratDirectory);
 		}
-		return exportBrat();
+		return bratExports();
+	}
+	
+	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(@RequestParam(value= "parentDpId") long parentDpId,
+			@RequestParam(value="childDpId")  long childDpId) throws IOException {
+		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		DiscoursePart parentDp = discoursePartRepository.findOne(parentDpId).get();
+		DiscoursePart childDp = discoursePartRepository.findOne(childDpId).get();
+		String bratDirectory = bratDataDirectory + "/" + discoursePart2BratName(parentDp);
+		logger.info(" Exporting dp " + childDp.getName() + " in directory for " + parentDp.getName());
+		bratService.exportDiscoursePart(childDp, bratDirectory);
+		return bratExports();
 	}
 
 	@RequestMapping(value = "/action/importBrat", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> importBratAction(@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
+	PagedResources<Resource<BrowsingDiscoursePartResource>> importBratAction(@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");		
 		bratService.importDataset(bratDataDirectory + "/" + bratDirectory);
-		
-		return exportBrat();
+		Optional<DiscoursePart> dp = bratName2DiscoursePart(bratDirectory);
+		if (dp.isPresent()) {
+			return subDiscourseParts(0,20, dp.get().getId());
+		} else {
+			return null;
+		}
 	}
 
 	
 	
-	@RequestMapping(value = "/exportBrat", method=RequestMethod.GET)
+	@RequestMapping(value = "/bratExports", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> exportBrat() {
+	PagedResources<Resource<BrowsingBratExportResource>> bratExports() {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
 		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExported(bratDataDirectory);
 		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
+		for (BrowsingBratExportResource bber: p) {
+			bber.add(makeLink1Arg("/browsing/action/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
+			bber.add(makeBratLink("/index.xhtml#/" + bber.getName(), "Edit BRAT markup"));
+		}
 		return praBratAssembler.toResource(p);
 	}
 	
@@ -216,11 +248,28 @@ public class BrowsingRestController {
 			/*.map(dpr -> dpr.getTarget())*/.map(BrowsingDiscoursePartResource::new);
 			
 			repoResources.forEach(bdp -> bdp.fillInUserInteractions(discoursePartInteractionRepository));
-			repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr.getContainingDiscourseParts().forEach(
-				     dp -> bcr.add(
-				    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)));}});
+			repoResources.forEach(
+			    bcr -> {
+			    	if (bcr.getContainingDiscourseParts().size() > 1) { 
+				        bcr._getContainingDiscourseParts().forEach(
+				             (childDpId,childDpName) -> {
+				            	 bcr.add(
+				    		        //makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp));
+						    		makeLink("/browsing/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
+				             }
+					    );
+				    }
+			    	if (bcr.getContributionCount() > 0) {
+				    	Link check = makeLink2Arg("/browsing/action/exportBratItem","chk:Export to BRAT", "parentDpId", dpId.toString(), "childDpId", Long.toString(bcr._getDpId()));
+				    	bcr.add(check);
+			    	}
+			    }
+			);
 			PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
+			/*
+			 * Disabling exportBrat link overall -- instead add for each thread item as a checkbox
+			 *
 			long threadcount = 0L;
 			for (BrowsingDiscoursePartResource bdpr: repoResources) {
 				threadcount += bdpr.getContributionCount();
@@ -229,6 +278,7 @@ public class BrowsingRestController {
 			if (threadcount > 0) {
 				response.add(makeLink1Arg("/browsing/action/exportBrat", "Export these all to BRAT", "parentDpId", dpId.toString()));
 			}
+			 */
 			
 			return response;
 		} else {
@@ -263,10 +313,28 @@ public class BrowsingRestController {
 			return null;
 		}
 	}
+	public Link makeBratLink(String urlend, String rel) {
+		String brat_base = environment.getProperty("brat.ui_base");
+		if (brat_base != null) {
+			return(new Link(brat_base + urlend, rel));
+		} else {
+			return null;
+		}
+	}
 	public static Link makeLink1Arg(String dest, String rel, String key, String value) {
 		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
 			.replacePath(dest)
 			.replaceQueryParam(key, URLEncoder.encode(value))
+	        .build()
+	        .toUriString();
+	    Link link = new Link(path,rel);
+	    return link;	
+    }
+	public static Link makeLink2Arg(String dest, String rel, String key, String value,String key2, String value2) {
+		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
+			.replacePath(dest)
+			.replaceQueryParam(key, URLEncoder.encode(value))
+			.replaceQueryParam(key2, URLEncoder.encode(value2))
 	        .build()
 	        .toUriString();
 	    Link link = new Link(path,rel);
