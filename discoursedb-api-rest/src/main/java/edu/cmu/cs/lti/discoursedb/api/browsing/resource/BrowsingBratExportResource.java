@@ -11,14 +11,12 @@ import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
-
 
 public class BrowsingBratExportResource extends ResourceSupport {
 	private static final Logger logger = LogManager.getLogger(BrowsingBratExportResource.class);
 	private String name;
 	private Date lastExport;
-	
+
 	static public List<BrowsingBratExportResource> findPreviouslyExported(String dir) {
 		logger.info("Looking for files in " + dir);
 		File folder = new File(dir);
@@ -26,7 +24,9 @@ public class BrowsingBratExportResource extends ResourceSupport {
 		List<BrowsingBratExportResource> returns = new ArrayList<>();
 		if (exports != null) { 
 			for (File exp: exports) {
-				returns.add(new BrowsingBratExportResource(exp.getName(), new Date(exp.lastModified())));
+				if (!exp.getName().startsWith(".")) {
+					returns.add(new BrowsingBratExportResource(exp.getName(), new Date(exp.lastModified())));
+				}
 			}
 		}
 		return returns;
@@ -35,7 +35,6 @@ public class BrowsingBratExportResource extends ResourceSupport {
 	public BrowsingBratExportResource(String name, Date lastExport) {
 		setName(name);
 		setLastExport(lastExport);
-		add(BrowsingRestController.makeLink1Arg("/browsing/action/importBrat", "Import annotations from BRAT", "bratDirectory", name));
 	}
 
 	public String getName() {
