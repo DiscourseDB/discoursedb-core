@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.annotation.lightside.io;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,14 +8,14 @@ import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityNotFoundException;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.cmu.cs.lti.discoursedb.annotation.lightside.model.LightSideData;
+import edu.cmu.cs.lti.discoursedb.annotation.lightside.model.RawDataInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -58,51 +57,57 @@ public class LightSideService {
 		
 	@Transactional(readOnly=true)
 	public void exportAnnotations(Iterable<DiscoursePart> discourseParts, File outputFolder){
-		List<LightSideData> data = StreamSupport.stream(discourseParts.spliterator(), false)
-				.flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());		
-		
-		try{
-			FileUtils.writeLines(new File(outputFolder,"lightside.csv"), data);
-			//TODO: we might want two write two separate files - one based on contribution labels and one based on span annotations
-		}catch(IOException e){
-			log.error("Error writing LightSide file to disk. Skipping...",e);
-		}
-
+		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false).flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());			
+		write(data, outputFolder);
 	}
 	
 	@Transactional(readOnly=true)
-	public List<LightSideData> extractAnnotations(DiscoursePart dp){
+	public List<RawDataInstance> extractAnnotations(DiscoursePart dp){
 		log.info("Processing DiscoursePart "+dp.getName());
 		return extractAnnotations(contribService.findAllByDiscoursePart(dp));
 	}
 	
 	
 	@Transactional(readOnly=true)
-	public List<LightSideData> extractAnnotations(Iterable<Contribution> contribs){
+	public List<RawDataInstance> extractAnnotations(Iterable<Contribution> contribs){
 		//if this is very slow, we could implement a native query for this
 		
-		List<LightSideData> outputList = new ArrayList<>();
+		List<RawDataInstance> outputList = new ArrayList<>();
 
 		for(Contribution contrib: contribs){
-			LightSideData newData = new LightSideData();
-
+			Content curRevision = contrib.getCurrentRevision();
+			
 			for(AnnotationInstance contribAnno: annoService.findAnnotations(contrib)){
-				//TODO process contrib annotation
+				RawDataInstance newContribData = new RawDataInstance();
+				newContribData.setType(contribAnno.getType());
+				newContribData.setText(curRevision.getText());
+				newContribData.setSpanAnnotation(false);						
+				outputList.add(newContribData);								
 			}
-
-
-			/*
-			 * Content-annotations not yet supported 	
-			 */
-//			Content curRevision = contrib.getCurrentRevision();
-//			for(AnnotationInstance contentAnno: annoService.findAnnotations(curRevision)){
-//			}
 			
-			//TODO populate data object
-			
-			outputList.add(newData);
+			for(AnnotationInstance contentAnno: annoService.findAnnotations(curRevision)){
+				RawDataInstance newContentData = new RawDataInstance();
+				newContentData.setType(contentAnno.getType());
+				newContentData.setText(contentAnno.getCoveredText());
+				newContentData.setSpanAnnotation(true);						
+				outputList.add(newContentData);				
+			}
 		}		
 		return outputList;
+	}
+	
+	/**
+	 * 
+	 * @param data the list of data instances
+	 * @param outputFolder the folder to which the lightside files are supposed to be written
+	 */
+	private void write(List<RawDataInstance> data, File outputFolder){
+		//compile list of annotation types
+		//generate header
+		//generate annotation vectors for instance annotations		
+		//generate annotation vectors for span annotations
+		//write instance annotation file
+		//write span annotation file		
 	}
 	
 }
