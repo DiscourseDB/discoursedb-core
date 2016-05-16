@@ -1,17 +1,27 @@
 package edu.cmu.cs.lti.discoursedb.annotation.lightside.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.model.RawDataInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
@@ -34,7 +44,7 @@ import lombok.extern.log4j.Log4j;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 public class LightSideService {
-
+	
 	private final @NonNull DiscourseService discourseService;
 	private final @NonNull ContributionService contribService;
 	private final @NonNull ContentService contentService;
@@ -70,30 +80,56 @@ public class LightSideService {
 	
 	@Transactional(readOnly=true)
 	public List<RawDataInstance> extractAnnotations(Iterable<Contribution> contribs){
-		//if this is very slow, we could implement a native query for this
-		
+		//if this is very slow, we could implement a native query for this		
 		List<RawDataInstance> outputList = new ArrayList<>();
 
 		for(Contribution contrib: contribs){
 			Content curRevision = contrib.getCurrentRevision();
 			
-			for(AnnotationInstance contribAnno: annoService.findAnnotations(contrib)){
-				RawDataInstance newContribData = new RawDataInstance();
-				newContribData.setType(contribAnno.getType());
-				newContribData.setText(curRevision.getText());
-				newContribData.setSpanAnnotation(false);						
-				outputList.add(newContribData);								
-			}
+			//one instance per contribution for entity label annotations
+			RawDataInstance newContribData = new RawDataInstance();
+			newContribData.setText(curRevision.getText());
+			newContribData.setSpanAnnotation(false);
+			newContribData.setAnnotations(convertAnnotationInstances(annoService.findAnnotations(contrib)));
+			outputList.add(newContribData);								
 			
-			for(AnnotationInstance contentAnno: annoService.findAnnotations(curRevision)){
+			//one instance per annotation for span annotations
+			for(AnnotationInstance anno:annoService.findAnnotations(curRevision)){
 				RawDataInstance newContentData = new RawDataInstance();
-				newContentData.setType(contentAnno.getType());
-				newContentData.setText(contentAnno.getCoveredText());
-				newContentData.setSpanAnnotation(true);						
-				outputList.add(newContentData);				
+				newContentData.setText(curRevision.getText());
+				newContentData.setSpanAnnotation(true);
+				newContentData.setAnnotations(convertAnnotationInstance(anno));
+				outputList.add(newContentData);					
 			}
 		}		
 		return outputList;
+	}
+	
+	@Transactional(readOnly=true)
+	private Map<String, String> convertAnnotationInstance(AnnotationInstance annotation){
+		Set<AnnotationInstance> annos = new HashSet<>();
+		annos.add(annotation);
+		return convertAnnotationInstances(annos);
+	}
+	
+
+	@Transactional(readOnly=true)
+	private Map<String, String> convertAnnotationInstances(Set<AnnotationInstance> annotations){
+		Map<String, String> pairs = new HashMap<>();
+		if(annotations==null){
+			return pairs;
+		}
+		//convert each annotation into a FeatureValuePair
+		for(AnnotationInstance anno:annotations){
+			if(anno.getFeatures()!=null&&!anno.getFeatures().isEmpty()){
+				Assert.isTrue(anno.getFeatures().size()==1, "Annotations with more than one features are not supported.");
+				pairs.put(anno.getType().toLowerCase(), anno.getFeatures().iterator().next().getValue());					
+			}else{
+				//if there is no feature, we treat the annotation as a binary label (set to true)
+				pairs.put(anno.getType().toLowerCase(), "true");					
+			}
+		}
+		return pairs;
 	}
 	
 	/**
@@ -102,12 +138,55 @@ public class LightSideService {
 	 * @param outputFolder the folder to which the lightside files are supposed to be written
 	 */
 	private void write(List<RawDataInstance> data, File outputFolder){
-		//compile list of annotation types
-		//generate header
-		//generate annotation vectors for instance annotations		
-		//generate annotation vectors for span annotations
-		//write instance annotation file
-		//write span annotation file		
+		
+		//entity labels
+		List<RawDataInstance> entityLabelData = data.stream().parallel().filter(instance->!instance.isSpanAnnotation()).collect(Collectors.toList());
+		//span annotations
+		List<RawDataInstance> spanLabelData = data.stream().parallel().filter(instance->instance.isSpanAnnotation()).collect(Collectors.toList());
+
+		//process entity labels
+		try{
+			FileUtils.writeLines(new File(outputFolder, "entitylabels.csv"), generateLightSideOutput(entityLabelData));			
+			FileUtils.writeLines(new File(outputFolder, "spanannotations.csv"), generateLightSideOutput(spanLabelData));
+		}catch(IOException e){
+			log.error("Error writing LightSide file to disk",e);
+		}
+		
 	}
+	
+	
+	private List<String> generateLightSideOutput(List<RawDataInstance> data) throws JsonProcessingException{
+		List<String> output = new ArrayList<>();
+		CsvMapper mapper = new CsvMapper();
+
+		//generate header
+		Set<String> types = data.stream().parallel().flatMap(instance -> instance.getAnnotations().entrySet().stream())
+				.map(m -> m.getKey().toLowerCase()).collect(Collectors.toSet());
+		Assert.isTrue(!types.contains("text"), "No feature with the name \"text\" is allowed.");
+		
+		List<String> header = new ArrayList<>(types.size()+1);
+		header.add("text");
+		header.addAll(types);		
+		output.add(mapper.writeValueAsString(header));
+		
+		//generate data vectors
+		for(RawDataInstance instance:data){
+			List<String> featVector = new ArrayList<>(header.size());
+			featVector.add(instance.getText());
+			Map<String,String> curInstAnnos = instance.getAnnotations();
+			for(String type:types){
+				if(curInstAnnos.containsKey(type)){
+					featVector.add(curInstAnnos.get(type));
+				}else{
+					//TODO check if this can be serialized to CSV correctly
+					featVector.add(null); //missing value
+				}					
+			}
+			Assert.isTrue(featVector.size()==header.size(), "Error writing feature vector. Wrong size.");
+			output.add(mapper.writeValueAsString(featVector));
+	    }		
+
+		return output;
+	}	
 	
 }
