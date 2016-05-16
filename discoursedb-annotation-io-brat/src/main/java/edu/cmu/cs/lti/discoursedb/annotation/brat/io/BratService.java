@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Lists;
+
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSourceType;
@@ -342,7 +344,18 @@ public class BratService {
 		
 		int spanOffset = 0;
 		
-		for (Contribution contrib : contribService.findAllByDiscoursePart(dp)) {			
+		/* 
+         * Sort by start time, where availble, so conversations
+         * come out in order
+         */
+		List<Contribution> contribs = Lists.newArrayList(contribService.findAllByDiscoursePart(dp));
+		contribs.sort((c1,c2) -> {
+			if (c1 == null) { return -1; }
+			else if (c2 == null) { return 1; }
+			else { return c1.getStartTime().compareTo(c2.getStartTime()); }
+		});
+		
+		for (Contribution contrib : contribs) {			
 			
 			Content curRevision = contrib.getCurrentRevision();
 			String text = curRevision.getText();
