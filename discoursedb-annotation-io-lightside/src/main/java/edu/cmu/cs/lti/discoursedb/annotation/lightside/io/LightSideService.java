@@ -54,7 +54,8 @@ public class LightSideService {
 	
 	@Transactional(readOnly=true)
 	public void exportAnnotations(String discourseName, DiscoursePartTypes dptype, File outputFolder){
-		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(()->new EntityNotFoundException("Discourse with name "+discourseName+" does not exist."));
+		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(
+				() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
 		exportAnnotations(discourse, dptype, outputFolder);	
 	}
 	
@@ -67,7 +68,8 @@ public class LightSideService {
 		
 	@Transactional(readOnly=true)
 	public void exportAnnotations(Iterable<DiscoursePart> discourseParts, File outputFolder){
-		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false).flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());			
+		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false)
+				.flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());
 		write(data, outputFolder);
 	}
 	
