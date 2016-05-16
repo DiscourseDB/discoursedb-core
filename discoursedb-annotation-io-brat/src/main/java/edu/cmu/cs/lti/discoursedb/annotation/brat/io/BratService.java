@@ -344,10 +344,7 @@ public class BratService {
 		
 		int spanOffset = 0;
 		
-		/* 
-         * Sort by start time, where availble, so conversations
-         * come out in order
-         */
+		// Sort contributions by their start time, without crashing on null
 		List<Contribution> contribs = Lists.newArrayList(contribService.findAllByDiscoursePart(dp));
 		contribs.sort((c1,c2) -> {
 			if (c1 == null) { return -1; }
@@ -355,6 +352,7 @@ public class BratService {
 			else { return c1.getStartTime().compareTo(c2.getStartTime()); }
 		});
 		
+		// Export current revision of sorted contributions
 		for (Contribution contrib : contribs) {			
 			
 			Content curRevision = contrib.getCurrentRevision();
