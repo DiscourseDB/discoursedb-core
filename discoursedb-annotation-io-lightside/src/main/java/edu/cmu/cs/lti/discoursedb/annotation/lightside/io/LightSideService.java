@@ -98,7 +98,7 @@ public class LightSideService {
 			//one instance per annotation for span annotations
 			for(AnnotationInstance anno:annoService.findAnnotations(curRevision)){
 				RawDataInstance newContentData = new RawDataInstance();
-				newContentData.setText(curRevision.getText());
+				newContentData.setText(curRevision.getText().substring(anno.getBeginOffset(), anno.getEndOffset()));
 				newContentData.setSpanAnnotation(true);
 				newContentData.setAnnotations(convertAnnotationInstance(anno));
 				outputList.add(newContentData);					
@@ -148,8 +148,8 @@ public class LightSideService {
 
 		//process entity labels
 		try{
-			FileUtils.writeLines(new File(outputFolder, "entitylabels.csv"), generateLightSideOutput(entityLabelData));			
-			FileUtils.writeLines(new File(outputFolder, "spanannotations.csv"), generateLightSideOutput(spanLabelData));
+			FileUtils.writeStringToFile(new File(outputFolder, "entitylabels.csv"), generateLightSideOutput(entityLabelData));			
+			FileUtils.writeStringToFile(new File(outputFolder, "spanannotations.csv"), generateLightSideOutput(spanLabelData));
 		}catch(IOException e){
 			log.error("Error writing LightSide file to disk",e);
 		}
@@ -157,8 +157,8 @@ public class LightSideService {
 	}
 	
 	
-	private List<String> generateLightSideOutput(List<RawDataInstance> data) throws JsonProcessingException{
-		List<String> output = new ArrayList<>();
+	private String generateLightSideOutput(List<RawDataInstance> data) throws JsonProcessingException{
+		StringBuilder output = new StringBuilder();
 		CsvMapper mapper = new CsvMapper();
 
 		//generate header
@@ -169,7 +169,7 @@ public class LightSideService {
 		List<String> header = new ArrayList<>(types.size()+1);
 		header.add("text");
 		header.addAll(types);		
-		output.add(mapper.writeValueAsString(header));
+		output.append(mapper.writeValueAsString(header));
 		
 		//generate data vectors
 		for(RawDataInstance instance:data){
@@ -180,15 +180,18 @@ public class LightSideService {
 				if(curInstAnnos.containsKey(type)){
 					featVector.add(curInstAnnos.get(type));
 				}else{
-					//TODO check if this can be serialized to CSV correctly
-					featVector.add(null); //missing value
+					if(instance.isSpanAnnotation()){
+						featVector.add(null); //missing value is recorded as "null"						
+					}else{						
+						featVector.add("false"); //missing binary label is recorded as "false"
+					}
 				}					
 			}
 			Assert.isTrue(featVector.size()==header.size(), "Error writing feature vector. Wrong size.");
-			output.add(mapper.writeValueAsString(featVector));
+			output.append(mapper.writeValueAsString(featVector));
 	    }		
 
-		return output;
+		return output.toString();
 	}	
 	
 }
