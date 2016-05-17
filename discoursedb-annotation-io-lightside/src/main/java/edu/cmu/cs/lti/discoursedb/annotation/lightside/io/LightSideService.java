@@ -50,7 +50,15 @@ public class LightSideService {
 	private final @NonNull ContentService contentService;
 	private final @NonNull AnnotationService annoService;
 	private final @NonNull DiscoursePartService dpService;
-	
+
+	/*
+	 * Values used in LightSide output
+	 * Can be adapted to treat missing values differently or to encode booleans with 0 and 1
+	 */
+	private static final String LABEL_ASSIGNED_VAL = "true";
+	private static final String LABEL_MISSING_VAL = "false";
+	private static final String VALUE_MISSING_VAL = null;
+	private static final String TEXT_COL = "text";
 	
 	@Transactional(readOnly=true)
 	public void exportAnnotations(String discourseName, DiscoursePartTypes dptype, File outputFolder){
@@ -88,7 +96,7 @@ public class LightSideService {
 		for(Contribution contrib: contribs){
 			Content curRevision = contrib.getCurrentRevision();
 			
-			//one instance per contribution for entity label annotations
+			//one instance per contribution for entity label annotations			
 			RawDataInstance newContribData = new RawDataInstance();
 			newContribData.setText(curRevision.getText());
 			newContribData.setSpanAnnotation(false);
@@ -128,7 +136,7 @@ public class LightSideService {
 				pairs.put(anno.getType().toLowerCase(), anno.getFeatures().iterator().next().getValue());					
 			}else{
 				//if there is no feature, we treat the annotation as a binary label (set to true)
-				pairs.put(anno.getType().toLowerCase(), "true");					
+				pairs.put(anno.getType().toLowerCase(), LABEL_ASSIGNED_VAL);					
 			}
 		}
 		return pairs;
@@ -161,13 +169,20 @@ public class LightSideService {
 		StringBuilder output = new StringBuilder();
 		CsvMapper mapper = new CsvMapper();
 
+		
+		//generate list of binary label types
+		Set<String> binaryLabelTypes = data.stream().parallel().flatMap(instance -> instance.getAnnotations().entrySet().stream())
+				.filter(m -> m.getValue().toLowerCase().equals(LABEL_ASSIGNED_VAL)).map(m->m.getKey().toLowerCase()).collect(Collectors.toSet());
+		
+		
 		//generate header
 		Set<String> types = data.stream().parallel().flatMap(instance -> instance.getAnnotations().entrySet().stream())
 				.map(m -> m.getKey().toLowerCase()).collect(Collectors.toSet());
-		Assert.isTrue(!types.contains("text"), "No feature with the name \"text\" is allowed.");
+		
+		Assert.isTrue(!types.contains(TEXT_COL), "No feature with the name \""+TEXT_COL+"\" is allowed.");
 		
 		List<String> header = new ArrayList<>(types.size()+1);
-		header.add("text");
+		header.add(TEXT_COL);
 		header.addAll(types);		
 		output.append(mapper.writeValueAsString(header));
 		
@@ -175,15 +190,20 @@ public class LightSideService {
 		for(RawDataInstance instance:data){
 			List<String> featVector = new ArrayList<>(header.size());
 			featVector.add(instance.getText());
-			Map<String,String> curInstAnnos = instance.getAnnotations();
+			Map<String,String> curInstAnnos = instance.getAnnotations();			
 			for(String type:types){
+				//Label assigned to current instance 
 				if(curInstAnnos.containsKey(type)){
 					featVector.add(curInstAnnos.get(type));
-				}else{
-					if(instance.isSpanAnnotation()){
-						featVector.add(null); //missing value is recorded as "null"						
-					}else{						
-						featVector.add("false"); //missing binary label is recorded as "false"
+				}
+				//Label not assigned to current instance - handle missing value 
+				else{
+					if(binaryLabelTypes.contains(type)){
+						//missing binary label interpreted as "false"
+						featVector.add(LABEL_MISSING_VAL); 																			
+					}else{
+						//missing value on interpreted as "null"
+						featVector.add(VALUE_MISSING_VAL); 													
 					}
 				}					
 			}
