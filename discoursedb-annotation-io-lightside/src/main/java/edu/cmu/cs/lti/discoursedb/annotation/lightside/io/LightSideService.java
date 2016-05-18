@@ -25,7 +25,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.model.RawDataInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -55,9 +54,9 @@ public class LightSideService {
 	 * Values used in LightSide output
 	 * Can be adapted to treat missing values differently or to encode booleans with 0 and 1
 	 */
-	private static final String LABEL_ASSIGNED_VAL = "true";
-	private static final String LABEL_MISSING_VAL = "false";
-	private static final String VALUE_MISSING_VAL = null;
+	private static final String LABEL_ASSIGNED_VAL = "1";
+	private static final String LABEL_MISSING_VAL = "0";
+	private static final String VALUE_MISSING_VAL = "?";
 	private static final String TEXT_COL = "text";
 	
 	@Transactional(readOnly=true)
@@ -76,9 +75,13 @@ public class LightSideService {
 		
 	@Transactional(readOnly=true)
 	public void exportAnnotations(Iterable<DiscoursePart> discourseParts, File outputFolder){
-		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false)
-				.flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());
-		write(data, outputFolder);
+		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false).flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());
+		
+		try{
+			FileUtils.writeStringToFile(new File(outputFolder, "lightside.csv"), generateLightSideOutput(data));			
+		}catch(IOException e){
+			log.error("Error writing LightSide file to disk",e);
+		}	
 	}
 	
 	@Transactional(readOnly=true)
@@ -90,28 +93,17 @@ public class LightSideService {
 	
 	@Transactional(readOnly=true)
 	public List<RawDataInstance> extractAnnotations(Iterable<Contribution> contribs){
-		//if this is very slow, we could implement a native query for this		
 		List<RawDataInstance> outputList = new ArrayList<>();
 
+		//one instance per contribution for entity label annotations			
 		for(Contribution contrib: contribs){
-			Content curRevision = contrib.getCurrentRevision();
-			
-			//one instance per contribution for entity label annotations			
 			RawDataInstance newContribData = new RawDataInstance();
-			newContribData.setText(curRevision.getText());
+			newContribData.setText(contrib.getCurrentRevision().getText());
 			newContribData.setSpanAnnotation(false);
 			newContribData.setAnnotations(convertAnnotationInstances(annoService.findAnnotations(contrib)));
-			outputList.add(newContribData);								
-			
-			//one instance per annotation for span annotations
-			for(AnnotationInstance anno:annoService.findAnnotations(curRevision)){
-				RawDataInstance newContentData = new RawDataInstance();
-				newContentData.setText(curRevision.getText().substring(anno.getBeginOffset(), anno.getEndOffset()));
-				newContentData.setSpanAnnotation(true);
-				newContentData.setAnnotations(convertAnnotationInstance(anno));
-				outputList.add(newContentData);					
-			}
-		}		
+			outputList.add(newContribData);											
+		}				
+		//NOTE: we currently don't process span annotations		
 		return outputList;
 	}
 	
@@ -142,29 +134,6 @@ public class LightSideService {
 		return pairs;
 	}
 	
-	/**
-	 * 
-	 * @param data the list of data instances
-	 * @param outputFolder the folder to which the lightside files are supposed to be written
-	 */
-	private void write(List<RawDataInstance> data, File outputFolder){
-		
-		//entity labels
-		List<RawDataInstance> entityLabelData = data.stream().parallel().filter(instance->!instance.isSpanAnnotation()).collect(Collectors.toList());
-		//span annotations
-		List<RawDataInstance> spanLabelData = data.stream().parallel().filter(instance->instance.isSpanAnnotation()).collect(Collectors.toList());
-
-		//process entity labels
-		try{
-			FileUtils.writeStringToFile(new File(outputFolder, "entitylabels.csv"), generateLightSideOutput(entityLabelData));			
-			FileUtils.writeStringToFile(new File(outputFolder, "spanannotations.csv"), generateLightSideOutput(spanLabelData));
-		}catch(IOException e){
-			log.error("Error writing LightSide file to disk",e);
-		}
-		
-	}
-	
-	
 	private String generateLightSideOutput(List<RawDataInstance> data) throws JsonProcessingException{
 		StringBuilder output = new StringBuilder();
 		CsvMapper mapper = new CsvMapper();
@@ -172,8 +141,7 @@ public class LightSideService {
 		
 		//generate list of binary label types
 		Set<String> binaryLabelTypes = data.stream().parallel().flatMap(instance -> instance.getAnnotations().entrySet().stream())
-				.filter(m -> m.getValue().toLowerCase().equals(LABEL_ASSIGNED_VAL)).map(m->m.getKey().toLowerCase()).collect(Collectors.toSet());
-		
+				.filter(m -> m.getValue().toLowerCase().equals(LABEL_ASSIGNED_VAL)).map(m->m.getKey().toLowerCase()).collect(Collectors.toSet());		
 		
 		//generate header
 		Set<String> types = data.stream().parallel().flatMap(instance -> instance.getAnnotations().entrySet().stream())
