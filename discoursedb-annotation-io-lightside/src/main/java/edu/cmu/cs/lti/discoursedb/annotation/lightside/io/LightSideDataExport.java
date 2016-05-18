@@ -18,10 +18,10 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 @Component
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.lightside.io" }, useDefaultFilters = false, includeFilters = {
-				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { LightSideExport.class, BaseConfiguration.class, LightSideService.class }) })
-public class LightSideExport implements CommandLineRunner{
+				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { LightSideDataExport.class, BaseConfiguration.class, LightSideService.class }) })
+public class LightSideDataExport implements CommandLineRunner{
 
-	@Autowired private LightSideService bratService;	
+	@Autowired private LightSideService lsService;	
 	
 	/**
 	 * Launches the SpringBoot application
@@ -29,8 +29,8 @@ public class LightSideExport implements CommandLineRunner{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: LightSideExport <DiscourseName> <outputFolder> <DiscoursePart type to extract (default: THREAD)>");
-		SpringApplication.run(LightSideExport.class, args);
+		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: LightSideDataExport <DiscourseName> <outputFolder> <DiscoursePart type to extract (default: THREAD)>");
+		SpringApplication.run(LightSideDataExport.class, args);
 	}
 
 	@Override
@@ -50,6 +50,7 @@ public class LightSideExport implements CommandLineRunner{
 			dptype = DiscoursePartTypes.valueOf(args[2]);
 		}
 		
-		bratService.exportAnnotations(discourseName, dptype, outputFolder);
+		//TODO launch export
+		
 	}
 }
