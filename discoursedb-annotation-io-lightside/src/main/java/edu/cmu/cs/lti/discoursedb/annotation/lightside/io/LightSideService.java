@@ -21,10 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
 
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.model.RawDataInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -205,9 +208,59 @@ public class LightSideService {
 	}
 
 	public void importAnnotatedData(String inputFile){
-		//TODO implement
+		CsvMapper mapper = new CsvMapper();
+		mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+		File csvFile = new File(inputFile);
+		try{
+			MappingIterator<String[]> it = mapper.readerFor(String[].class).readValues(csvFile);			
+			
+			//process header
+			String[] header = it.next();
+			Map<String, Integer> headerId = new HashMap<>();
+			for(int i=0;i<header.length;i++){
+				headerId.put(header[i], i);
+			}
+
+			//process data
+			while (it.hasNext()) {
+			  String[] row = it.next();
+			  Contribution curContrib = null;
+			  List<AnnotationInstance> curAnnos = new ArrayList<>();
+			  for(int i=0;i<row.length;i++){
+				  String field = row[i];				  
+				  if(i==headerId.get(TEXT_COL)){
+					  //we don't need the text column
+				  }else if(i==headerId.get(ID_COL)){
+					  curContrib=contribService.findOne(Long.parseLong(field)).orElseThrow(()->new EntityNotFoundException("Cannot find annotated entity in database."));					  
+				  }else{
+					  //we don't need to create an annotation if it's a binary label set to false
+					  if(!field.equalsIgnoreCase(LABEL_MISSING_VAL)){
+						  String label = header[i];
+						  if(label.endsWith("_predicted")){
+							  label=label.split("_predicted")[0];
+						  }
+						  AnnotationInstance newAnno =annoService.createTypedAnnotation(label);
+						  annoService.saveAnnotationInstance(newAnno);
+						  curAnnos.add(newAnno);
+						  //if we have any other value than true or false, store this value as a feature
+						  if(!field.equalsIgnoreCase(LABEL_ASSIGNED_VAL)){							  
+							  Feature newFeat = annoService.createFeature(field);
+							  annoService.saveFeature(newFeat);
+							  annoService.addFeature(newAnno, newFeat);
+						  }						  
+					  }
+				  }
+			  }
+			  //add annotations to the contribution it belongs to 
+			  for(AnnotationInstance anno:curAnnos){
+				  annoService.addAnnotation(curContrib, anno);
+			  }
+			}					
+		}catch(IOException e){
+			log.error("Error reading and parsing data from csv");					
+		}
 		
-		//import LightSide annotated csv with text column, classifier predicted columns and contrib id column 
+		
 	}
 
 }
