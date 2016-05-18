@@ -53,36 +53,35 @@ public class LightSideService {
 	private final @NonNull AnnotationService annoService;
 	private final @NonNull DiscoursePartService dpService;
 
-	/*
-	 * Values used in LightSide output
-	 * Can be adapted to treat missing values differently or to encode booleans with 0 and 1
-	 */
 	private static final String LABEL_ASSIGNED_VAL = "1";
 	private static final String LABEL_MISSING_VAL = "0";
 	private static final String VALUE_MISSING_VAL = "?";
+
 	private static final String TEXT_COL = "text";
 	private static final String ID_COL = "id";
-		
+	private static final String LIGHTSIDE_PREDICTION_COL_SUFFIX = "_predicted";
+
+	
 	@Transactional(readOnly=true)
-	public void exportAnnotations(String discourseName, DiscoursePartTypes dptype, File outputFolder){
+	public void exportAnnotations(String discourseName, DiscoursePartTypes dptype, File outputFile){
 		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(
 				() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
-		exportAnnotations(discourse, dptype, outputFolder);	
+		exportAnnotations(discourse, dptype, outputFile);	
 	}
 	
 	@Transactional(readOnly=true)
-	public void exportAnnotations(Discourse discourse, DiscoursePartTypes dptype, File outputFolder){
+	public void exportAnnotations(Discourse discourse, DiscoursePartTypes dptype, File outputFile){
 		log.info("Processing discourse "+discourse.getName()+". Extracting DiscourseParts of type "+dptype.name());
-		exportAnnotations(dpService.findAllByDiscourseAndType(discourse, dptype), outputFolder);	
+		exportAnnotations(dpService.findAllByDiscourseAndType(discourse, dptype), outputFile);	
 	}
 	
 		
 	@Transactional(readOnly=true)
-	public void exportAnnotations(Iterable<DiscoursePart> discourseParts, File outputFolder){
+	public void exportAnnotations(Iterable<DiscoursePart> discourseParts, File outputFile){
 		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false).flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());
 		
 		try{
-			FileUtils.writeStringToFile(new File(outputFolder, "lightside.csv"), generateLightSideOutput(data));			
+			FileUtils.writeStringToFile(outputFile, generateLightSideOutput(data));			
 		}catch(IOException e){
 			log.error("Error writing LightSide file to disk",e);
 		}	
@@ -235,10 +234,7 @@ public class LightSideService {
 				  }else{
 					  //we don't need to create an annotation if it's a binary label set to false
 					  if(!field.equalsIgnoreCase(LABEL_MISSING_VAL)){
-						  String label = header[i];
-						  if(label.endsWith("_predicted")){
-							  label=label.split("_predicted")[0];
-						  }
+						  String label = header[i].split(LIGHTSIDE_PREDICTION_COL_SUFFIX)[0]; //remove suffix from label if it exists
 						  AnnotationInstance newAnno =annoService.createTypedAnnotation(label);
 						  annoService.saveAnnotationInstance(newAnno);
 						  curAnnos.add(newAnno);

@@ -34,7 +34,7 @@ public class LightSideTrainingDataExport implements CommandLineRunner{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: LightSideTrainingDataExport <DiscourseName> <outputFolder> <DiscoursePart type to extract (default: THREAD)>");
+		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: LightSideTrainingDataExport <DiscourseName> <outputFile> <DiscoursePart type to extract (default: THREAD)>");
 		SpringApplication.run(LightSideTrainingDataExport.class, args);
 	}
 
@@ -44,17 +44,17 @@ public class LightSideTrainingDataExport implements CommandLineRunner{
 		String discourseName = args[0];
 		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 
-		String outputFolderPath = args[1];
-		Assert.hasText(outputFolderPath, "Path to the output directory cannot be empty.");		
+		String outputFilePath = args[1];
+		Assert.hasText(outputFilePath, "Path to the output file cannot be empty.");		
 		
-		File outputFolder = new File(outputFolderPath);
-		Assert.isTrue(outputFolder.isDirectory(), outputFolderPath+" is not a directory.");
+		File outputFile = new File(outputFilePath);
+		Assert.isTrue(outputFile.isFile(), outputFilePath+" is not a file.");
 		
 		DiscoursePartTypes dptype = DiscoursePartTypes.THREAD;
 		if(args.length==3){
 			dptype = DiscoursePartTypes.valueOf(args[2]);
 		}
 		
-		lsService.exportAnnotations(discourseName, dptype, outputFolder);
+		lsService.exportAnnotations(discourseName, dptype, outputFile);
 	}
 }
