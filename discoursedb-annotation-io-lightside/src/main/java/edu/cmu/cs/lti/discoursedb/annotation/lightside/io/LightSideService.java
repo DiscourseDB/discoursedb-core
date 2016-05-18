@@ -58,7 +58,8 @@ public class LightSideService {
 	private static final String LABEL_MISSING_VAL = "0";
 	private static final String VALUE_MISSING_VAL = "?";
 	private static final String TEXT_COL = "text";
-	
+	private static final String ID_COL = "id";
+		
 	@Transactional(readOnly=true)
 	public void exportAnnotations(String discourseName, DiscoursePartTypes dptype, File outputFolder){
 		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(
@@ -181,16 +182,32 @@ public class LightSideService {
 	}	
 	
 	
-	public void exportDataForAnnotation(String outputFolder, DiscoursePart dp){
-		exportDataForAnnotation(outputFolder, contribService.findAllByDiscoursePart(dp));
+	public void exportDataForAnnotation(String outputFilePath, DiscoursePart dp){
+		exportDataForAnnotation(outputFilePath, contribService.findAllByDiscoursePart(dp));
 	}
 	
-	public void exportDataForAnnotation(String outputFolder, Iterable<Contribution> contributions){		
-		//TODO implement
+	public void exportDataForAnnotation(String outputFilePath, Iterable<Contribution> contributions){		
+		Assert.hasText(outputFilePath, "Path to the output file cannot be empty.");				
+		File outputFile = new File(outputFilePath);
+		Assert.isTrue(outputFile.isFile(), outputFilePath+" is not a file.");
+		
+		StringBuilder output = new StringBuilder();
+		CsvMapper mapper = new CsvMapper();
+		try{
+			output.append(mapper.writeValueAsString(new String[]{TEXT_COL,ID_COL}));			
+			for(Contribution contrib:contributions){
+				output.append(mapper.writeValueAsString(new String[]{contrib.getCurrentRevision().getText(), String.valueOf(contrib.getId())}));				
+			}
+			FileUtils.writeStringToFile(outputFile, output.toString());						
+		}catch(IOException e){
+			log.error("Error writing exported data to csv");					
+		}
 	}
 
 	public void importAnnotatedData(String inputFile){
 		//TODO implement
+		
+		//import LightSide annotated csv with text column, classifier predicted columns and contrib id column 
 	}
 
 }

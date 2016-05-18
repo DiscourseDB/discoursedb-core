@@ -43,7 +43,7 @@ public class LightSideDataExport implements CommandLineRunner{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: LightSideDataExport <DiscourseName> <outputFolder> <DiscoursePart type to extract (default: THREAD)>");
+		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: LightSideDataExport <DiscourseName> <outputFile> <DiscoursePart type to extract (default: THREAD)>");
 		SpringApplication.run(LightSideDataExport.class, args);
 	}
 
@@ -53,11 +53,11 @@ public class LightSideDataExport implements CommandLineRunner{
 		String discourseName = args[0];
 		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 
-		String outputFolderPath = args[1];
-		Assert.hasText(outputFolderPath, "Path to the output directory cannot be empty.");		
+		String outputFilePath = args[1];
+		Assert.hasText(outputFilePath, "Path to the output file cannot be empty.");		
 		
-		File outputFolder = new File(outputFolderPath);
-		Assert.isTrue(outputFolder.isDirectory(), outputFolderPath+" is not a directory.");
+		File outputFile = new File(outputFilePath);
+		Assert.isTrue(outputFile.isFile(), outputFilePath+" is not a file.");
 		
 		DiscoursePartTypes dptype = DiscoursePartTypes.THREAD;
 		if(args.length==3){
@@ -67,7 +67,7 @@ public class LightSideDataExport implements CommandLineRunner{
 		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
 		
 		for(DiscoursePart dp: discoursePartService.findAllByDiscourseAndType(discourse, dptype)){
-			lsService.exportDataForAnnotation(outputFolderPath, dp);
+			lsService.exportDataForAnnotation(outputFilePath, dp);
 		}			
 	}
 }
