@@ -15,6 +15,11 @@ import org.springframework.util.Assert;
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
+/**
+ * Exports data to LightSide so it can be annotated with a trained model. 
+ * 
+ * @author Oliver Ferschke
+ */
 @Component
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.lightside.io" }, useDefaultFilters = false, includeFilters = {

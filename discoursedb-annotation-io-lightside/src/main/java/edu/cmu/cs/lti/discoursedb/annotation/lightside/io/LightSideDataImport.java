@@ -1,7 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.annotation.lightside.io;
 
-import java.io.File;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,8 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
-import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
+/**
+ * Imports LightSide annotated data into DiscourseDB  
+ * 
+ * @author Oliver Ferschke
+ */
 @Component
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.annotation.lightside.io" }, useDefaultFilters = false, includeFilters = {
@@ -40,6 +42,5 @@ public class LightSideDataImport implements CommandLineRunner{
 		Assert.hasText(inputFilePath, "Path to the input file cannot be empty.");		
 				
 		//TODO launch import
-
 	}
 }
