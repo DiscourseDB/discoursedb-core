@@ -137,7 +137,6 @@ public class LightSideService {
 	private String generateLightSideOutput(List<RawDataInstance> data) throws JsonProcessingException{
 		StringBuilder output = new StringBuilder();
 		CsvMapper mapper = new CsvMapper();
-
 		
 		//generate list of binary label types
 		Set<String> binaryLabelTypes = data.stream().parallel().flatMap(instance -> instance.getAnnotations().entrySet().stream())
@@ -178,8 +177,20 @@ public class LightSideService {
 			Assert.isTrue(featVector.size()==header.size(), "Error writing feature vector. Wrong size.");
 			output.append(mapper.writeValueAsString(featVector));
 	    }		
-
 		return output.toString();
 	}	
 	
+	
+	public void exportDataForAnnotation(String outputFolder, DiscoursePart dp){
+		exportDataForAnnotation(outputFolder, contribService.findAllByDiscoursePart(dp));
+	}
+	
+	public void exportDataForAnnotation(String outputFolder, Iterable<Contribution> contributions){		
+		//TODO implement
+	}
+
+	public void importAnnotatedData(String inputFile){
+		//TODO implement
+	}
+
 }

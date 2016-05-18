@@ -2,6 +2,8 @@ package edu.cmu.cs.lti.discoursedb.annotation.lightside.io;
 
 import java.io.File;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
 /**
@@ -27,6 +33,9 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 public class LightSideDataExport implements CommandLineRunner{
 
 	@Autowired private LightSideService lsService;	
+	@Autowired private DiscoursePartService discoursePartService;	
+	@Autowired private DiscourseService discourseService;	
+	
 	
 	/**
 	 * Launches the SpringBoot application
@@ -55,7 +64,10 @@ public class LightSideDataExport implements CommandLineRunner{
 			dptype = DiscoursePartTypes.valueOf(args[2]);
 		}
 		
-		//TODO launch export
+		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
 		
+		for(DiscoursePart dp: discoursePartService.findAllByDiscourseAndType(discourse, dptype)){
+			lsService.exportDataForAnnotation(outputFolderPath, dp);
+		}			
 	}
 }

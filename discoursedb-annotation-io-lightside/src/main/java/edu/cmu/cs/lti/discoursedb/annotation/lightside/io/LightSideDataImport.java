@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.annotation.lightside.io;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -39,8 +41,11 @@ public class LightSideDataImport implements CommandLineRunner{
 	@Transactional 
 	public void run(String... args) throws Exception {
 		String inputFilePath = args[0];
-		Assert.hasText(inputFilePath, "Path to the input file cannot be empty.");		
+		File inputFile = new File(inputFilePath);
+		Assert.hasText(inputFilePath, "Path to the input file cannot be empty.");
+		Assert.isTrue(inputFile.exists(), "The input file doesn't exist.");
+		Assert.isTrue(inputFile.isFile(), "The path to the input file points to a directory and not to a file.");
 				
-		//TODO launch import
+		lsService.importAnnotatedData(inputFilePath);
 	}
 }
