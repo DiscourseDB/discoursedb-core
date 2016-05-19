@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 
-import edu.cmu.cs.lti.discoursedb.annotation.lightside.model.RawDataInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -37,6 +36,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
+import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -316,8 +316,13 @@ public class LightSideService {
 		}catch(IOException e){
 			log.error("Error reading and parsing data from csv");					
 		}
-		
-		
+	}
+	
+	@Data
+	protected class RawDataInstance {
+		private boolean spanAnnotation;
+		private String text;
+		private Map<String, String> annotations;			
 	}
 
 }
