@@ -48,7 +48,7 @@ public class LightSideTrainingDataExport implements CommandLineRunner{
 		Assert.hasText(outputFilePath, "Path to the output file cannot be empty.");		
 		
 		File outputFile = new File(outputFilePath);
-		Assert.isTrue(outputFile.isFile(), outputFilePath+" is not a file.");
+		Assert.isTrue(!outputFile.isDirectory(), outputFilePath+" points to a directory but has to point to a file.");
 		
 		DiscoursePartTypes dptype = DiscoursePartTypes.THREAD;
 		if(args.length==3){
