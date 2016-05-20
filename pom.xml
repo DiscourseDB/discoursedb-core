@@ -50,10 +50,10 @@
 				<artifactId>discoursedb-io-edx</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- Override mysql due to utf issues -->
-			
-			<!-- Override querydsl versions defined in platform-bom, since we need 
-				to be consitent with our maven plugin -->
+			<!-- 
+				Override versions of all querydsl modules defined in platform-bom. 
+				We need the bugfixes in 3.7.1 
+			-->
 			<dependency>
 				<groupId>com.mysema.querydsl</groupId>
 				<artifactId>querydsl-apt</artifactId>
