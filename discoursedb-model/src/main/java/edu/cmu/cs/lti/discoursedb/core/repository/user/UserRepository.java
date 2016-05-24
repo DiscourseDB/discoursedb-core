@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -20,6 +21,10 @@ public interface UserRepository extends BaseRepository<User,Long>{
 	@RestResource(exported = false)
 	public List<User> findAllByUsername(@Param("username")String username);
 	
-    public Page<User> findAllByUsername(@Param("username")String username, Pageable pageable);    
+    public Page<User> findAllByUsername(@Param("username")String username, Pageable pageable);  
+    
+    @Query("select user from User user where not exists (select a2 from user.annotations a1 left join a1.annotations a2 where a2.type=:annotationType)")
+    public List<User> findAllWithoutAnnotation(@Param("annotationType")String annotationType);
+    
 
 }
