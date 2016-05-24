@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +33,10 @@ import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResour
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
+import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
@@ -40,6 +44,8 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 
 @Controller
 @RequestMapping(value = "/browsing", produces = "application/hal+json")
@@ -60,6 +66,9 @@ public class BrowsingRestController {
 	private DiscoursePartRepository discoursePartRepository;
 
 	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private DiscoursePartRelationRepository discoursePartRelationRepository;
 	
 	@Autowired
@@ -77,6 +86,10 @@ public class BrowsingRestController {
 	@Autowired PagedResourcesAssembler<BrowsingDiscoursePartResource> praDiscoursePartAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingContributionResource> praContributionAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingBratExportResource> praBratAssembler;
+	@Autowired PagedResourcesAssembler<BrowsingUserResource> praUserAssembler;
+
+	@Autowired 
+	private DiscoursePartService discoursePartService;
 	
 	@RequestMapping(value="/stats", method=RequestMethod.GET)
 	@ResponseBody
@@ -100,7 +113,7 @@ public class BrowsingRestController {
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @RequestParam("repoType") String repoType,
 														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
-		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
+		PageRequest p = new PageRequest(page,size);
 		Page<BrowsingDiscoursePartResource> repoResources = 
 				discoursePartRepository.findAllNonDegenerateByType(repoType, p)
 				.map(BrowsingDiscoursePartResource::new)
@@ -108,38 +121,19 @@ public class BrowsingRestController {
 				              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
 				              return bdpr; });
 				
-		repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr.getContainingDiscourseParts().forEach(
-			     dp -> bcr.add(
-			    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)));}});
+		repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr._getContainingDiscourseParts().forEach(
+			     (dpId, dpname) -> {
+			    	 bcr.add(makeLink("/browsing/usersInDiscourseParts/" + dpId, "users in " + dpname));
+			    	 bcr.add(makeLink("/browsing/subDiscourseParts/" + dpId, dpname));
+			     });
+			     }});
 		
 		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
-		response.add(makeLink("/browsing/subDiscoursePartsByName{?discoursePartName}", "search"));
 		return response;
 	}
 	
-	/*@Autowired private BratThreadExport bratThreadExport;
-	
-	@RequestMapping(value = "/export/brat", method = RequestMethod.GET)
-	@ResponseBody
-	void getFile(
-				@RequestParam(value= "discourse", defaultValue = "GITHUB") String discourse, 
-				@RequestParam(value= "splitOnWhich", defaultValue="THREAD") String splitOnWhich,
-				HttpServletResponse response) {
-	    try {
-	      // get your file as InputStream
-	      String zipfile = bratThreadExport.zipBratExport(discourse, splitOnWhich);
-	      InputStream is = new FileInputStream(zipfile);
-	      // copy it to response's OutputStream
-	      IOUtils.copy(is, response.getOutputStream());
-	      response.flushBuffer();
-	    } catch (Exception ex) {
-	      logger.info("Error writing file to output stream. ");
-	      throw new RuntimeException("IOError writing file to output stream");
-	    }
 
-	}
-	*/
 	
 	@RequestMapping(value = "/subDiscoursePartsByName", method=RequestMethod.GET)
 	@ResponseBody
@@ -249,7 +243,6 @@ public class BrowsingRestController {
 				        bcr._getContainingDiscourseParts().forEach(
 				             (childDpId,childDpName) -> {
 				            	 bcr.add(
-				    		        //makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp));
 						    		makeLink("/browsing/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
 				             }
 					    );
@@ -274,13 +267,44 @@ public class BrowsingRestController {
 				response.add(makeLink1Arg("/browsing/action/exportBrat", "Export these all to BRAT", "parentDpId", dpId.toString()));
 			}
 			 */
-			
+			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+
 			return response;
 		} else {
 			logger.info("subdiscourseParts(" + dpId + ") : isPresent==false");
 			return null;
 		}
 	}
+	
+	
+	@RequestMapping(value = "/usersInDiscoursePart/{dpId}", method = RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingUserResource>> users(@RequestParam(value= "page", defaultValue = "0") int page, 
+														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("dpId") Long dpId)  {
+		PageRequest p = new PageRequest(page,size);
+		
+		
+		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
+		
+		if (parent.isPresent()) {
+			List<User> lbcr1 = new ArrayList<User>();
+			lbcr1.addAll(
+					userService.findUsersUnderDiscoursePart(parent.get()));
+			List<BrowsingUserResource> lbcr = lbcr1.subList(page*size, lbcr1.size()).stream()
+					.map(BrowsingUserResource::new)
+					.map(b -> { b.fillInDiscoursePartLinks(discoursePartService); return b; })
+					.collect(Collectors.toList());
+			
+			Page<BrowsingUserResource> pbcr = new PageImpl<BrowsingUserResource>(lbcr, p, lbcr.size());
+			PagedResources<Resource<BrowsingUserResource>> response = praUserAssembler.toResource(pbcr);
+			
+			return response;
+		} else {
+			return null;
+		}
+	}
+	
 	
 	
 	@RequestMapping(value = "/dpContributions/{childOf}", method = RequestMethod.GET)
@@ -297,12 +321,14 @@ public class BrowsingRestController {
 					discoursePartContributionRepository.findByDiscoursePart(parent.get(), p)
 					.map(dpc -> dpc.getContribution())
 					.map(BrowsingContributionResource::new);
-			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr.getDiscourseParts().forEach(
-					     dp -> bcr.add(
-					    		 makeLink1Arg("/browsing/subDiscoursePartsByName", "Contained in: " + dp, "discoursePartName", dp)  )  ); }} );
+			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
+					     (dpId2, dpName2) -> {
+					        if (dpId2 != dpId) { bcr.add(
+						    	makeLink("/browsing/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
 			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
 			
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
+			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
 			return response;
 		} else {
 			return null;
