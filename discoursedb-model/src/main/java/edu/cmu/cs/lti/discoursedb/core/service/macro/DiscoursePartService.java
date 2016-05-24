@@ -295,6 +295,21 @@ public class DiscoursePartService {
 		return returnList;
 	}
 	
+	   /**
+		 * Find all ancestors of a DiscoursePart
+		 * 
+		 * @param descendent the discoursePart  to close under ancestry
+		 * @return all DiscourseParts that are in the set or or ancestors of them
+		 */
+		@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+		public Set<DiscoursePart> findAncestorClosure(DiscoursePart descendent, Optional<DiscoursePartRelationTypes> rel) {
+			
+			Set<DiscoursePart> all = new HashSet<DiscoursePart>();
+			all.add(descendent);
+			return findAncestorClosure(all, rel);
+		}
+	
+	
     /**
 	 * Adds all ancestors to a set of DiscourseParts
 	 * 
@@ -325,11 +340,24 @@ public class DiscoursePartService {
 	}
 	
 	
+	   /**
+		 * Adds all ancestors to a DiscoursePart
+		 * 
+		 * @param ancestor the discoursePart to find descendents of
+		 * @return all DiscourseParts that are in the set or or ancestors of them
+		 */
+		@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+		public Set<DiscoursePart> findDescendentClosure(DiscoursePart ancestor, Optional<DiscoursePartRelationTypes> rel) {
+			Set<DiscoursePart> all = new HashSet<DiscoursePart>();
+			all.add(ancestor);
+			return findDescendentClosure(all, rel);
+		}
+		
     /**
-	 * Adds all ancestors to a set of DiscourseParts
+	 * Adds all descendents to a set of DiscourseParts
 	 * 
 	 * @param descendents the set of discourseParts to close
-	 * @return all DiscourseParts that are in the set or or ancestors of them
+	 * @return all DiscourseParts that are in the set or or descendents of them
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Set<DiscoursePart> findDescendentClosure(Set<DiscoursePart> ancestors, Optional<DiscoursePartRelationTypes> rel) {
