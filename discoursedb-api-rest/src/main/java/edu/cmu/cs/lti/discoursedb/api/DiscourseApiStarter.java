@@ -11,12 +11,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratImport;
-import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratService;
-import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratConfigExport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.sandbox.TestDiscourseGenerator;
-
-import org.springframework.context.annotation.FilterType;
 
 /**
  * A SpringBootApplication that launches a server that hosts the API.
