@@ -13,6 +13,9 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratImport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratConfigExport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.sandbox.TestDiscourseGenerator;
+import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideDataExport;
+import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideDataImport;
+import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideTrainingDataExport;
 
 /**
  * A SpringBootApplication that launches a server that hosts the API.
@@ -23,7 +26,9 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.sandbox.TestDiscourseGenerator
 @EnableAsync
 @EntityScan(basePackageClasses = { DiscourseApiStarter.class, Jsr310JpaConverters.class })
 @ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" }, excludeFilters = {
-		  @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { TestDiscourseGenerator.class, BratConfigExport.class, BratExport.class, BratImport.class }) })
+		  @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
+				  value = { TestDiscourseGenerator.class, BratConfigExport.class, BratExport.class, BratImport.class,
+						  LightSideDataExport.class, LightSideDataImport.class, LightSideTrainingDataExport.class }) })
 public class DiscourseApiStarter {
 
 	public static void main(String[] args) {
