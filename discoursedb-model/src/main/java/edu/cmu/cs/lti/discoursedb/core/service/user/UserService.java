@@ -16,15 +16,18 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelation;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionInteractionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
@@ -43,6 +46,7 @@ public class UserService {
 	private final @NonNull UserRelationRepository userRelationRepo;
 	private final @NonNull ContributionInteractionRepository contribInteractionRepo;
 	private final @NonNull DiscoursePartInteractionRepository discoursePartInteractionRepo;
+	private final @NonNull DiscoursePartService discoursePartService;
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Optional<User> findUserByDiscourseAndSourceIdAndSourceType(Discourse discourse, String sourceId,
@@ -342,7 +346,19 @@ public class UserService {
 		return userRepo.findAllByUsername(username);
 	}
 	
-	
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    public Set<User> findUsersUnderDiscoursePart(DiscoursePart dp) {
+		Set<DiscoursePart> seed = new HashSet<DiscoursePart>();
+		seed.add(dp);
+		Set<DiscoursePart> dps = discoursePartService.findDescendentClosure(seed, Optional.empty());
+		Set<User> results = new HashSet<User>();
+		for (DiscoursePart dp2: dps) {
+			for (DiscoursePartContribution dpc: dp2.getDiscoursePartContributions()) {
+				results.add(dpc.getContribution().getCurrentRevision().getAuthor());
+			}
+		}
+		return results;
+	}
 
 	/**
 	 * Get the set of all usernames that do NOT contain a particular annotation
@@ -350,15 +366,16 @@ public class UserService {
 	 * 
 	 * TODO NOTE OF: This should be implemented as a QueryDSL query that directly retrieves
 	 * 		the desired users. Retrieving all users an then narrowing down might cause
-	 * 		performance issues
+	 * 		performance issues   ((Fixed??))
 	 * 
 	 * @param badAnnotation
 	 * @return a set of user names
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public Set<User> findUsersWithoutAnnotation(String badAnnotation) {
+    public List<User> findUsersWithoutAnnotation(String badAnnotation) {
     	Assert.hasText(badAnnotation);
-    	
+    	return userRepo.findAllWithoutAnnotation(badAnnotation);
+    	/*
         Set<User> unannotated = new HashSet<User>();
         for(User user : userRepo.findAll()) {
                 boolean addme = true;
@@ -374,14 +391,10 @@ public class UserService {
                 if (addme) { unannotated.add(user); }
         }
         return unannotated;
+        */
     }
 
-       /**
-	 * Retrieves a discourse part that has a source which exactly matches the given parameter.
-	 * 
-	 * @param entityId the id of the discourse part  
-	 * @return an optional DiscoursePart that meets the requested parameters
-	 */
+ 
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Optional<User> findOne(Long id) {
 		return userRepo.findOne(id);
