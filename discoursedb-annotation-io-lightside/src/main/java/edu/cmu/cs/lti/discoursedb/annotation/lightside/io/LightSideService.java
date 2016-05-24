@@ -247,7 +247,7 @@ public class LightSideService {
 	public void exportDataForAnnotation(String outputFilePath, Iterable<Contribution> contributions){		
 		Assert.hasText(outputFilePath, "Path to the output file cannot be empty.");				
 		File outputFile = new File(outputFilePath);
-		Assert.isTrue(outputFile.isFile(), outputFilePath+" is not a file.");
+		//Assert.isTrue(outputFile.isFile(), outputFilePath+" is not a file.");
 		
 		StringBuilder output = new StringBuilder();
 		CsvMapper mapper = new CsvMapper();

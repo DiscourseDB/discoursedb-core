@@ -17,7 +17,7 @@ public class BrowsingBratExportResource extends ResourceSupport {
 	private String name;
 	private Date lastExport;
 
-	static public List<BrowsingBratExportResource> findPreviouslyExported(String dir) {
+	static public List<BrowsingBratExportResource> findPreviouslyExportedBrat(String dir) {
 		logger.info("Looking for files in " + dir);
 		File folder = new File(dir);
 		File[] exports = folder.listFiles();
@@ -25,6 +25,20 @@ public class BrowsingBratExportResource extends ResourceSupport {
 		if (exports != null) { 
 			for (File exp: exports) {
 				if (!exp.getName().startsWith(".")) {
+					returns.add(new BrowsingBratExportResource(exp.getName(), new Date(exp.lastModified())));
+				}
+			}
+		}
+		return returns;
+	}
+	static public List<BrowsingBratExportResource> findPreviouslyExportedLightside(String dir) {
+		logger.info("Looking for files in " + dir);
+		File folder = new File(dir);
+		File[] exports = folder.listFiles();
+		List<BrowsingBratExportResource> returns = new ArrayList<>();
+		if (exports != null) { 
+			for (File exp: exports) {
+				if (exp.getName().endsWith(".csv") && !exp.getName().contains("_annotated_")) {
 					returns.add(new BrowsingBratExportResource(exp.getName(), new Date(exp.lastModified())));
 				}
 			}

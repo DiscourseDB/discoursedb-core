@@ -25,6 +25,10 @@
 		</dependency>
 		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-annotation-io-lightside</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
 			<artifactId>discoursedb-model</artifactId>
 		</dependency>
 		<dependency>

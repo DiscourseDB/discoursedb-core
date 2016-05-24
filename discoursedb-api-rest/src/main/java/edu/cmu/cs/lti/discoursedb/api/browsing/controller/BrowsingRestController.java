@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratService;
+import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideService;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
@@ -55,6 +57,9 @@ public class BrowsingRestController {
 
 	@Autowired
 	private BratService bratService;
+	
+	@Autowired
+	private LightSideService lightsideService;
 	
 	@Autowired 
 	private Environment environment;
@@ -103,6 +108,7 @@ public class BrowsingRestController {
 			r.add(makeLink("/browsing/repos?repoType=" + t, t));			
 		}
 		r.add(makeLink("/browsing/bratExports", "BRAT markup"));
+		r.add(makeLink("/browsing/lightsideExports", "Lightside exports"));
 		return r;
 	}
 	
@@ -121,12 +127,19 @@ public class BrowsingRestController {
 				              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
 				              return bdpr; });
 				
-		repoResources.forEach(bcr -> {if (bcr.getContainingDiscourseParts().size() > 1) { bcr._getContainingDiscourseParts().forEach(
+		repoResources.forEach(bcr -> {
+			if (bcr.getContainingDiscourseParts().size() > 1) { 
+				bcr._getContainingDiscourseParts().forEach(
 			     (dpId, dpname) -> {
 			    	 bcr.add(makeLink("/browsing/usersInDiscourseParts/" + dpId, "users in " + dpname));
 			    	 bcr.add(makeLink("/browsing/subDiscourseParts/" + dpId, dpname));
 			     });
-			     }});
+			}  
+			Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
+	    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+	    	bcr.add(check);	
+	    	bcr.add(check2);
+		});
 		
 		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
@@ -168,6 +181,56 @@ public class BrowsingRestController {
 		return Optional.empty();
 	}
 	
+	public Optional<DiscoursePart> lightsideName2DiscoursePartForImport(String filename) {
+		if (filename.endsWith(".csv") && filename.contains("_annotated_")) {
+			return bratName2DiscoursePart(filename.substring(0, filename.length()-4));
+		} else {
+			return Optional.empty();
+		}
+	}
+	
+	public String discoursePart2LightSideName(DiscoursePart dp, boolean withAnnotations) {
+		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated_":"") + "__" + dp.getId() + ".csv".toString();
+	}
+	
+	
+	@RequestMapping(value = "/action/exportLightside", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> exportLightsideAction(
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
+			@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
+		DiscoursePart dp = discoursePartRepository.findOne(parentDpId).get();
+		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		String lsOutputFilename = lsDataDirectory + "/" + discoursePart2LightSideName(dp, withAnnotations);
+		logger.info(" Exporting dp " + dp.getName());
+		Set<DiscoursePart> descendents = discoursePartService.findDescendentClosure(dp, Optional.empty());
+		if (withAnnotations) {
+			java.io.File lsOutputFile = new java.io.File(lsOutputFilename);
+			lightsideService.exportAnnotations(descendents, lsOutputFile);
+		} else {
+			// For multiple discourseParts, need to assemble all the contributions
+			lightsideService.exportDataForAnnotation(lsOutputFilename, 
+					descendents.stream()
+					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
+					.map(dpc -> dpc.getContribution())::iterator);
+		}
+		return lightsideExports();
+	}
+	
+	@RequestMapping(value = "/action/importLightside", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingDiscoursePartResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory) throws IOException {
+		String bratDataDirectory = environment.getRequiredProperty("lightside.data_directory");		
+		lightsideService.importAnnotatedData(bratDataDirectory + "/" + lightsideDirectory);
+		Optional<DiscoursePart> dp = lightsideName2DiscoursePartForImport(lightsideDirectory);
+		if (dp.isPresent()) {
+			return subDiscourseParts(0,20, dp.get().getId());
+		} else {
+			return null;
+		}
+	}	
+	
+	
 	@RequestMapping(value = "/action/exportBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> exportBratAction(@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
@@ -208,13 +271,25 @@ public class BrowsingRestController {
 		}
 	}
 
+	@RequestMapping(value = "/lightsideExports", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> lightsideExports() {
+		
+		String lightsideDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedLightside(lightsideDataDirectory);
+		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
+		for (BrowsingBratExportResource bber: p) {
+			bber.add(makeLink1Arg("/browsing/action/importLightside", "Import Lightside markup", "lightsideDirectory", bber.getName()));
+		}
+		return praBratAssembler.toResource(p);
+	}
 	
 	
 	@RequestMapping(value = "/bratExports", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> bratExports() {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
-		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExported(bratDataDirectory);
+		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedBrat(bratDataDirectory);
 		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingBratExportResource bber: p) {
 			bber.add(makeLink1Arg("/browsing/action/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
@@ -250,7 +325,12 @@ public class BrowsingRestController {
 			    	if (bcr.getContributionCount() > 0) {
 				    	Link check = makeLink2Arg("/browsing/action/exportBratItem","chk:Export to BRAT", "parentDpId", dpId.toString(), "childDpId", Long.toString(bcr._getDpId()));
 				    	bcr.add(check);
-			    	}
+			    	} 
+		    		Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
+			    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			    	bcr.add(check);	
+			    	bcr.add(check2);
+		    	
 			    }
 			);
 			PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
