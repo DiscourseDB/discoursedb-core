@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
@@ -293,6 +295,67 @@ public class DiscoursePartService {
 		return returnList;
 	}
 	
+    /**
+	 * Adds all ancestors to a set of DiscourseParts
+	 * 
+	 * @param descendents the set of discourseParts to close
+	 * @return all DiscourseParts that are in the set or or ancestors of them
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Set<DiscoursePart> findAncestorClosure(Set<DiscoursePart> descendents, Optional<DiscoursePartRelationTypes> rel) {
+		
+		Set<DiscoursePart> all = new HashSet<DiscoursePart>();
+		List<DiscoursePart> unchecked = new ArrayList<DiscoursePart>();
+		all.addAll(descendents);
+		unchecked.addAll(descendents);
+		
+		while (!unchecked.isEmpty()) {
+			DiscoursePart dp = unchecked.remove(0);
+			
+			for (DiscoursePartRelation dpr: dp.getTargetOfDiscoursePartRelations()) {
+				if (!rel.isPresent() || dpr.getType() == rel.get().toString()) {
+					if (!all.contains(dpr.getSource())) {
+						all.add(dpr.getSource());
+						unchecked.add(dpr.getSource());
+					}
+				}
+			}
+		}
+		return all;
+	}
+	
+	
+    /**
+	 * Adds all ancestors to a set of DiscourseParts
+	 * 
+	 * @param descendents the set of discourseParts to close
+	 * @return all DiscourseParts that are in the set or or ancestors of them
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Set<DiscoursePart> findDescendentClosure(Set<DiscoursePart> ancestors, Optional<DiscoursePartRelationTypes> rel) {
+		
+		Set<DiscoursePart> all = new HashSet<DiscoursePart>();
+		List<DiscoursePart> unchecked = new ArrayList<DiscoursePart>();
+		all.addAll(ancestors);
+		unchecked.addAll(ancestors);
+		
+		while (!unchecked.isEmpty()) {
+			DiscoursePart dp = unchecked.remove(0);
+			
+			for (DiscoursePartRelation dpr: dp.getSourceOfDiscoursePartRelations()) {
+				if (!rel.isPresent() || dpr.getType() == rel.get().toString()) {
+					if (!all.contains(dpr.getTarget())) {
+						all.add(dpr.getTarget());
+						unchecked.add(dpr.getTarget());
+					}
+				}
+			}
+		}
+		return all;
+	}
+	
+	
+	
 	
 	/**
 	 * Saves the provided entity to the db using the save method of the corresponding repository
@@ -415,7 +478,31 @@ public class DiscoursePartService {
 		return discoursePartRepo.findOne(id);
 	}
 
+    /**
+	 * Retrieves all discourse parts of a particular type that a user contributed to
+	 * 
+	 * @param user the user to search for
+	 * @param type the type of discoursePart to include
+	 * @return all DiscourseParts that the user contributed to
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Set<DiscoursePart> findAllContainingUserRecursivelyAndOfType(User u, String t) {
+		Set<DiscoursePart> s = findAllContainingUserRecursively(u);
+		s.removeIf(dp -> !dp.getType().equals(t));
+		return s;
+	}
 
+    /**
+	 * Retrieves all discourse parts  that a user contributed to
+	 * 
+	 * @param User the user to search for
+	 * @return all DiscourseParts that the user contributed to
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Set<DiscoursePart> findAllContainingUserRecursively(User u) {
+		Set<DiscoursePart> all = discoursePartRepo.findAllThatIncludesUser(u);
+		return this.findAncestorClosure(all, Optional.empty());
+	}
 	
 	/**
 	 * Get the set of all discourse parts that do NOT contain a particular annotation type
