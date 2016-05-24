@@ -87,6 +87,10 @@ public class DiscourseService {
 		return discourseRepository.save(discourse);
 	}
 	
+	public Iterable<Discourse> findAll(){
+		return discourseRepository.findAll();
+	}
+	
 	
 
 }

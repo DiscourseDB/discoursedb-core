@@ -1,7 +1,6 @@
 /**
+ * Classes for testing purposes
  * 
- */
-/**
  * @author Oliver Ferschke
  *
  */

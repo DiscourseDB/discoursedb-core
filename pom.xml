@@ -41,19 +41,19 @@
 			<dependency>
 				<groupId>io.spring.platform</groupId>
 				<artifactId>platform-bom</artifactId>
-				<version>2.0.3.RELEASE</version>
+				<version>2.0.5.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-edx</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
-			<!-- Override mysql due to utf issues -->
-			
-			<!-- Override querydsl versions defined in platform-bom, since we need 
-				to be consitent with our maven plugin -->
+			<!-- 
+				Override versions of all querydsl modules defined in platform-bom. 
+				We need the bugfixes in 3.7.1 
+			-->
 			<dependency>
 				<groupId>com.mysema.querydsl</groupId>
 				<artifactId>querydsl-apt</artifactId>
@@ -92,7 +92,7 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-api-rest</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
@@ -102,7 +102,7 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-model</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.interceptor</groupId>
@@ -112,17 +112,17 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-bazaar</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-prosolo</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-tags</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jooq</groupId>
@@ -153,12 +153,12 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-piazza</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-coursera</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
@@ -173,12 +173,32 @@
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-annotation</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-annotation-ui</artifactId>
-				<version>0.6-SNAPSHOT</version>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-annotation-io-brat</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-annotation-io-lightside</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-habworlds</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-neuwirth</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -766,7 +786,8 @@
 
 		<module>discoursedb-io-neuwirth</module>
     <module>discoursedb-annotation-io-brat</module>
-  </modules>
+    <module>discoursedb-annotation-io-lightside</module>
+	</modules>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://moon.lti.cs.cmu.edu:8080/</url>

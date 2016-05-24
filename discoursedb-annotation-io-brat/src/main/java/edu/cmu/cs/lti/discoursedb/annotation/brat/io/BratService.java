@@ -500,8 +500,28 @@ public class BratService {
 	public void generateBratConfig(String discourseName, String outputFolder) throws IOException{
 		Assert.hasText(discourseName, "The discourse name cannot be empty.");
 		Assert.hasText(outputFolder, "The output folder path  cannot be empty.");
-		generateBratConfig(discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist.")), outputFolder);		
-		
+		generateBratConfig(discourseService.findOne(discourseName).orElseThrow(() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist.")), outputFolder);				
+	}
+
+	/**
+	 * Generates a Brat annotation.conf file with all DiscourseDB annotation types that occur in the set of annotations on contributions or current revisions within the provided discourse registered as Brat annotations.
+	 * Relations, events and attribute sections are left empty and not further configuration is generated.
+	 *     
+	 * @param discourseName the name of the discourse for which to export annotation types
+	 * @param outputFolder the folder to which the config file should be written
+	 * @throws IOException if an exception occurs writing the config file
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public void generateBratConfig(String outputFolder) throws IOException{
+		Assert.hasText(outputFolder, "The output folder path  cannot be empty.");
+		Set<String> annoTypes = new HashSet<>();
+		for(Discourse curDiscourse:discourseService.findAll()){
+			for(DiscoursePart dp: dpService.findAllByDiscourse(curDiscourse)){
+				annoTypes.addAll(annoService.findContributionAnnotationsByDiscoursePart(dp).stream().map(anno->BratAnnotation.cleanString(anno.getType())).collect(Collectors.toSet()));
+				annoTypes.addAll(annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp).stream().map(anno->BratAnnotation.cleanString(anno.getType())).collect(Collectors.toSet()));
+			}	
+		}		
+		generateBratConfig(outputFolder, annoTypes);
 	}
 	
 	/**
@@ -519,8 +539,8 @@ public class BratService {
 		Set<String> annoTypes = new HashSet<>();
 
 		for(DiscoursePart dp: dpService.findAllByDiscourse(discourse)){
-			annoTypes.addAll(annoService.findContributionAnnotationsByDiscoursePart(dp).stream().map(anno->anno.getType()).collect(Collectors.toSet()));
-			annoTypes.addAll(annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp).stream().map(anno->anno.getType()).collect(Collectors.toSet()));
+			annoTypes.addAll(annoService.findContributionAnnotationsByDiscoursePart(dp).stream().map(anno->BratAnnotation.cleanString(anno.getType())).collect(Collectors.toSet()));
+			annoTypes.addAll(annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp).stream().map(anno->BratAnnotation.cleanString(anno.getType())).collect(Collectors.toSet()));
 		}	
 				
 		generateBratConfig(outputFolder, annoTypes);
@@ -547,7 +567,7 @@ public class BratService {
 		
 		FileUtils.writeLines(new File(outputFolder,"annotation.conf"), annotationConf);
 	}
-
+	
 	/**
 	 * The Brat UI auto-generates annotations starting with ID 1. 
 	 * If an annotation with id 1 is deleted, the next annotation created will again get id 1.
