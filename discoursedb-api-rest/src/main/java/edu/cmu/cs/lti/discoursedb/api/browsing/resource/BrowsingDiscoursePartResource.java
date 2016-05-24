@@ -132,11 +132,6 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		return containingDiscourseParts.values().stream().collect(Collectors.toList());
 	}
 
-	/*public void setContainingDiscourseParts(List<String> containingDiscourseParts) {
-		this.containingDiscourseParts = containingDiscourseParts;
-	}*/
-
-
 
 	public Date getStartTime() {
 		return startTime;

@@ -2,34 +2,22 @@ package edu.cmu.cs.lti.discoursedb.api.browsing.resource;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.Resources;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
-import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
-import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
 public class BrowsingContributionResource extends ResourceSupport {
 	private String type;
 	private String content;
 	private String title;
 	private String contributor;
-	private List<String> discourseParts;
+	private Map<Long,String> discourseParts;
 	private Date startTime;
 	// links to discourseParts
 	private List<String> userInteractions;
@@ -59,7 +47,11 @@ public class BrowsingContributionResource extends ResourceSupport {
 		} catch (NullPointerException npe) {
 			
 		}
-   	    discourseParts = (c.getContributionPartOfDiscourseParts()).stream().map( cdp -> cdp.getDiscoursePart().getName()).collect(Collectors.toList());
+   	    discourseParts = new HashMap<Long,String>();
+   	    for (DiscoursePartContribution dpc : c.getContributionPartOfDiscourseParts()) {
+   	    	discourseParts.put(dpc.getDiscoursePart().getId(), dpc.getDiscoursePart().getName());
+   	    }
+
 	}
 
 	public String getType() {
@@ -114,11 +106,10 @@ public class BrowsingContributionResource extends ResourceSupport {
 	}
 
 	public List<String> getDiscourseParts() {
-		return discourseParts;
+		return discourseParts.values().stream().collect(Collectors.toList());
 	}
-
-	public void setDiscourseParts(List<String> discourseParts) {
-		this.discourseParts = discourseParts;
+	public Map<Long,String> _getDiscourseParts() {
+		return discourseParts;
 	}
 
 
