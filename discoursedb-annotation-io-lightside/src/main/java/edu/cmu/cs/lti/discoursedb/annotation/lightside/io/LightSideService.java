@@ -312,7 +312,7 @@ public class LightSideService {
 				  }
 			  }			  
 			  //wipe old annotations  
-			  //FIXME this doesn't work yet - annotations aren't deleted
+			  //TODO we might not want to delete ALL annotations
 			  delete(annoService.findAnnotations(curContrib));
 			  
 			  //add new annotations to the contribution it belongs to 
