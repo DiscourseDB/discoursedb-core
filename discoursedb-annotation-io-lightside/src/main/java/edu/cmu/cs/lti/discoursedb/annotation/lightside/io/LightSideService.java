@@ -312,8 +312,8 @@ public class LightSideService {
 				  }
 			  }			  
 			  //wipe old annotations  
-			  //FIXME this doesn't work yet - annotations aren't deleted 
-			  annoService.deleteAnnotations(annoService.findAnnotations(curContrib));
+			  //FIXME this doesn't work yet - annotations aren't deleted
+			  delete(annoService.findAnnotations(curContrib));
 			  
 			  //add new annotations to the contribution it belongs to 
 			  for(AnnotationInstance newAnno:curAnnos){
@@ -323,6 +323,11 @@ public class LightSideService {
 		}catch(IOException e){
 			log.error("Error reading and parsing data from csv");					
 		}
+	}
+	
+	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
+	private void delete(Iterable<AnnotationInstance> annos){
+		annoService.deleteAnnotations(annos);		
 	}
 	
 	@Data

@@ -42,7 +42,7 @@ public class AnnotationAggregate extends BaseEntity  implements Identifiable<Lon
 	private Long id;
 	
 	@RestResource(rel="annotationInstances",path="annotationInstances")
-	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}, mappedBy="annotationAggregate")
+	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.REMOVE}, mappedBy="annotationAggregate")
 	@Setter(AccessLevel.PRIVATE) 
 	@JsonIgnore
 	@Description("A set of annotation instances associated with the entity that is represented by this aggregate.")
