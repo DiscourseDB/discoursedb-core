@@ -52,12 +52,18 @@ public class BrowsingUserResource extends ResourceSupport {
 	}
 	
 	public void fillInDiscoursePartLinks(DiscoursePartService dpsv) {
-		Set<DiscoursePart> dps = dpsv.findAllContainingUserRecursivelyAndOfType(this.user,"GITHUB_REPO");
+		Set<DiscoursePart> dps = dpsv.findAllContainingUserRecursively(this.user);
 		
 		inDiscourseParts = new HashMap<Long,String>();
+		int maxelts = 8;
    	    for (DiscoursePart dp : dps) {
-   	    	inDiscourseParts.put(dp.getId(), dp.getName());
-   	    	add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp.getId(), dp.getName()));
+   	    	maxelts -= 1;
+   	    	if (maxelts > 0) {
+	   	    	inDiscourseParts.put(dp.getId(), dp.getName());
+	   	    	add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp.getId(), dp.getName()));
+   	    	} else {
+   	    		break;
+   	    	}
    	    }		
 	}
 	
