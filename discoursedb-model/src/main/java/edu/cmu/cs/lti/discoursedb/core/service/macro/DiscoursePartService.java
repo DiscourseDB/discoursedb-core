@@ -92,7 +92,9 @@ public class DiscoursePartService {
 	}
 
 
-	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
+	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, 
+			String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName,
+			DiscoursePartTypes type) {
 		Assert.notNull(discourse, "Discourse cannot be null.");
 		Assert.hasText (entitySourceId, "");		
 		
@@ -101,13 +103,10 @@ public class DiscoursePartService {
 		if (odp.isPresent()) {
 			dp = odp.get();
 		} else {
-			dp = new DiscoursePart();
-			discoursePartRepo.save(dp);
+			dp = createOrGetTypedDiscoursePart(discourse,"",type);
 			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
 			dataSourceService.addSource(dp, ds);
 		}
-		
-		
 		
 		return dp;
 	}
@@ -309,7 +308,15 @@ public class DiscoursePartService {
 			return findAncestorClosure(all, rel);
 		}
 	
-	
+	/**
+	 * Find root ancestors of a DiscoursePart
+	 * 
+	 * @param set of discourse parts
+	 * @return their least common ancestors
+	 */
+		
+		
+		
     /**
 	 * Adds all ancestors to a set of DiscourseParts
 	 * 
