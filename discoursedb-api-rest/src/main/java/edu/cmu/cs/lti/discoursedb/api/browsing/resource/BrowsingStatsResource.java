@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.hateoas.ResourceSupport;
 
+import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
@@ -35,6 +36,9 @@ public class BrowsingStatsResource extends ResourceSupport {
 		discourseRepository.findAll().forEach(d -> this.discourses.add(d.getName()));
 		this.users = userRepository.count();
 		
+		for (Discourse d: discourseRepository.findAll()) {
+			this.add(BrowsingRestController.makeLink("/browsing/discourses/" + d.getId(), "Discourse " + d.getName()));			
+		}
 		discoursePartRepository.countsByType().forEach(c  -> {
 			this.discourseParts.put(c[0].toString(), (Long)c[1]);
 		});

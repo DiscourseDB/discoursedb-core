@@ -34,8 +34,10 @@ import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideService;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
+import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscourseResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
@@ -89,6 +91,7 @@ public class BrowsingRestController {
 	private UserRepository userRepository;
 	
 	@Autowired PagedResourcesAssembler<BrowsingDiscoursePartResource> praDiscoursePartAssembler;
+	@Autowired PagedResourcesAssembler<BrowsingDiscourseResource> praDiscourseAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingContributionResource> praContributionAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingBratExportResource> praBratAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingUserResource> praUserAssembler;
@@ -111,6 +114,98 @@ public class BrowsingRestController {
 		r.add(makeLink("/browsing/lightsideExports", "Lightside exports"));
 		return r;
 	}
+	
+
+	
+	@RequestMapping(value="/discourses/{discourseId}", method=RequestMethod.GET)
+	@ResponseBody
+	Resource<BrowsingDiscourseResource> discourses(
+			   @PathVariable("discourseId") Long discourseId) {
+		BrowsingDiscourseResource bsr = new BrowsingDiscourseResource(discourseRepository.findOne(discourseId).get(), discoursePartRepository);
+		
+		
+		Resource<BrowsingDiscourseResource> r =  new Resource<BrowsingDiscourseResource>(bsr);
+		
+		return r;
+	}
+	
+	@RequestMapping(value = "/discourses/{discourseId}/discoursePartTypes/{discoursePartType}", method = RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingDiscoursePartResource>> discoursePartsByTypeAndDiscourse(
+														   @RequestParam(value= "page", defaultValue = "0") int page, 
+														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("discourseId") Long discourseId,
+														   @PathVariable("discoursePartType") String discoursePartType,
+														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
+		PageRequest p = new PageRequest(page,size);
+		Page<BrowsingDiscoursePartResource> repoResources = 
+				discoursePartRepository.findAllByDiscourseAndType(discoursePartType, discourseId, p)
+				.map(BrowsingDiscoursePartResource::new)
+				.map(bdpr -> {bdpr.filterAnnotations(annoType); 
+				              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
+				              return bdpr; });
+				
+		repoResources.forEach(bcr -> {
+			if (bcr.getContainingDiscourseParts().size() > 1) { 
+				bcr._getContainingDiscourseParts().forEach(
+			     (dpId, dpname) -> {
+			    	 bcr.add(makeLink("/browsing/usersInDiscourseParts/" + dpId, "users in " + dpname));
+			    	 bcr.add(makeLink("/browsing/subDiscourseParts/" + dpId, dpname));
+			     });
+			}  
+			Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
+	    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+	    	bcr.add(check);	
+	    	bcr.add(check2);
+		});
+		
+		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
+
+		return response;
+	}
+	
+	
+	
+	@RequestMapping(value = "/discourses", method = RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingDiscourseResource>> discourse(@RequestParam(value= "page", defaultValue = "0") int page, 
+														   @RequestParam(value= "size", defaultValue="20") int size)  {
+		PageRequest p = new PageRequest(page,size);
+		
+			Page<BrowsingDiscourseResource> discourseResources = discourseRepository.findAll(p).map(b -> new BrowsingDiscourseResource(b, discoursePartRepository));
+					
+/*			discourseResources.forEach(
+			    bcr -> {
+			    	Long dpId = bcr.getDiscourseId();
+				    Link check0 = makeLink2Arg("/browsing/action/exportBratItem","chk:Export to BRAT", "parentDpId", dpId.toString(), "childDpId", Long.toString(bcr._getDpId()));
+				    bcr.add(check0);
+			    	Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
+			    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			    	bcr.add(check);	
+			    	bcr.add(check2);
+		    	
+			    }
+			);*/
+			PagedResources<Resource<BrowsingDiscourseResource>> response = praDiscourseAssembler.toResource(discourseResources);
+
+			/*
+			 * Disabling exportBrat link overall -- instead add for each thread item as a checkbox
+			 *
+			long threadcount = 0L;
+			for (BrowsingDiscoursePartResource bdpr: repoResources) {
+				threadcount += bdpr.getContributionCount();
+			}
+			
+			if (threadcount > 0) {
+				response.add(makeLink1Arg("/browsing/action/exportBrat", "Export these all to BRAT", "parentDpId", dpId.toString()));
+			}
+			 */
+	//		response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+
+			return response;
+		 
+	}
+
 	
 	
 	@RequestMapping(value = "/repos", method = RequestMethod.GET)
@@ -148,7 +243,7 @@ public class BrowsingRestController {
 	
 
 	
-	@RequestMapping(value = "/subDiscoursePartsByName", method=RequestMethod.GET)
+	/*@RequestMapping(value = "/subDiscoursePartsByName", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscoursePartsByName(@RequestParam(value= "page", defaultValue = "0") int page, 
 			   @RequestParam(value= "size", defaultValue="20") int size,
@@ -161,7 +256,7 @@ public class BrowsingRestController {
 			logger.info("Did not find " + discoursePartName);
 			return subDiscourseParts(page, size, 0L);
 		}
-	}
+	}*/
 	
 	public String discoursePart2BratName(DiscoursePart dp) {
 		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + "__" + dp.getId().toString();
@@ -247,7 +342,8 @@ public class BrowsingRestController {
 	
 	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(@RequestParam(value= "parentDpId") long parentDpId,
+	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(
+			@RequestParam(value= "parentDpId") long parentDpId,
 			@RequestParam(value="childDpId")  long childDpId) throws IOException {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
 		DiscoursePart parentDp = discoursePartRepository.findOne(parentDpId).get();
@@ -260,7 +356,8 @@ public class BrowsingRestController {
 
 	@RequestMapping(value = "/action/importBrat", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingDiscoursePartResource>> importBratAction(@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
+	PagedResources<Resource<BrowsingDiscoursePartResource>> importBratAction(
+			@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");		
 		bratService.importDataset(bratDataDirectory + "/" + bratDirectory);
 		Optional<DiscoursePart> dp = bratName2DiscoursePart(bratDirectory);
@@ -387,6 +484,29 @@ public class BrowsingRestController {
 	
 	
 	
+	/*@RequestMapping(value = "/discourses", method = RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingContributionResource>> discourses()  {
+		
+		
+		List<Discourse> ds = discourseRepository.findAll();
+			Page<BrowsingDiscourseResource> lbcr = 
+					ds.map(BrowsingDiscourseResource::new);
+			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
+					     (dpId2, dpName2) -> {
+					        if (dpId2 != dpId) { bcr.add(
+						    	makeLink("/browsing/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
+			PagedResources<Resource<BrowsingDiscourseResource>> response = praContributionAssembler.toResource(lbcr);
+			
+			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
+			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+			return response;
+		} else {
+			return null;
+		}
+	}*/
+	
+	
 	@RequestMapping(value = "/dpContributions/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingContributionResource>> dpContributions(@RequestParam(value= "page", defaultValue = "0") int page, 
@@ -436,6 +556,17 @@ public class BrowsingRestController {
 			.replacePath(dest)
 			.replaceQueryParam(key, URLEncoder.encode(value))
 			.replaceQueryParam(key2, URLEncoder.encode(value2))
+	        .build()
+	        .toUriString();
+	    Link link = new Link(path,rel);
+	    return link;	
+    }
+	public static Link makeLink3Arg(String dest, String rel, String key, String value,String key2, String value2, String key3, String value3) {
+		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
+			.replacePath(dest)
+			.replaceQueryParam(key, URLEncoder.encode(value))
+			.replaceQueryParam(key2, URLEncoder.encode(value2))
+			.replaceQueryParam(key3, URLEncoder.encode(value3))
 	        .build()
 	        .toUriString();
 	    Link link = new Link(path,rel);

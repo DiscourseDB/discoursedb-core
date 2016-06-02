@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
@@ -28,6 +29,8 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	private List<String> userInteractions;
 	private Date startTime;
 	private Date endTime;
+	private String discourseName;
+	private long discourseId;
 	private Map<Long,String> containingDiscourseParts;
 	private DiscoursePart dp;
 	private List<BrowsingAnnotationResource> annotations;
@@ -51,8 +54,15 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		
 		this.setContributionCount(dp.getDiscoursePartContributions().stream().collect(Collectors.summingLong(f -> 1L)));
 		this.setSubDiscoursePartCount(dp.getSourceOfDiscoursePartRelations().stream().collect(Collectors.summingLong(f -> 1L)));
-		
-		
+		try {
+			// Quick and dirty -- if we're in two discourses, just pick the first one
+			Discourse discourse = dp.getDiscourseToDiscourseParts().iterator().next().getDiscourse();
+			
+			this.setDiscourseId(discourse.getId());
+			this.setDiscourseName(discourse.getName());
+		} catch (Exception e) {
+			// do nothing
+		}
 
 		if (this.getSubDiscoursePartCount() > 0) {
 			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp.getId() + "/", 
@@ -178,6 +188,22 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 
 	public void setContributionCount(long contributionCount) {
 		this.contributionCount = contributionCount;
+	}
+
+	public long getDiscourseId() {
+		return discourseId;
+	}
+
+	public void setDiscourseId(long discourseId) {
+		this.discourseId = discourseId;
+	}
+
+	public String getDiscourseName() {
+		return discourseName;
+	}
+
+	public void setDiscourseName(String discourseName) {
+		this.discourseName = discourseName;
 	}
 
 	
