@@ -31,20 +31,7 @@ public class BrowsingBratExportResource extends ResourceSupport {
 		}
 		return returns;
 	}
-	static public List<BrowsingBratExportResource> findPreviouslyExportedLightside(String dir) {
-		logger.info("Looking for files in " + dir);
-		File folder = new File(dir);
-		File[] exports = folder.listFiles();
-		List<BrowsingBratExportResource> returns = new ArrayList<>();
-		if (exports != null) { 
-			for (File exp: exports) {
-				if (exp.getName().endsWith(".csv") && !exp.getName().contains("_annotated_")) {
-					returns.add(new BrowsingBratExportResource(exp.getName(), new Date(exp.lastModified())));
-				}
-			}
-		}
-		return returns;
-	}
+
 	
 	public BrowsingBratExportResource(String name, Date lastExport) {
 		setName(name);

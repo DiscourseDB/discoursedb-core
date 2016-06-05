@@ -1,13 +1,22 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import javax.persistence.Table;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +30,8 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.TemplateVariables;
+import org.springframework.hateoas.UriTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,12 +40,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.google.common.io.Files;
+
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratService;
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideService;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscourseResource;
+import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingLightsideStubsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -94,6 +108,7 @@ public class BrowsingRestController {
 	@Autowired PagedResourcesAssembler<BrowsingDiscourseResource> praDiscourseAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingContributionResource> praContributionAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingBratExportResource> praBratAssembler;
+	@Autowired PagedResourcesAssembler<BrowsingLightsideStubsResource> praLSAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingUserResource> praUserAssembler;
 
 	@Autowired 
@@ -107,9 +122,9 @@ public class BrowsingRestController {
 		l.add(bsr);
 		
 		Resources<BrowsingStatsResource> r =  new Resources<BrowsingStatsResource>(l);
-		for (String t: bsr.getDiscourseParts().keySet()) {
+		/*for (String t: bsr.getDiscourseParts().keySet()) {
 			r.add(makeLink("/browsing/repos?repoType=" + t, t));			
-		}
+		}*/
 		r.add(makeLink("/browsing/bratExports", "BRAT markup"));
 		r.add(makeLink("/browsing/lightsideExports", "Lightside exports"));
 		return r;
@@ -153,11 +168,15 @@ public class BrowsingRestController {
 			    	 bcr.add(makeLink("/browsing/subDiscourseParts/" + dpId, dpname));
 			     });
 			}  
-			Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
-	    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
+	    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			Link check = makeLightsideExportNameLink("/browsing/action/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+	    	Link check2 = makeLightsideExportNameLink("/browsing/action/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 	    	bcr.add(check);	
 	    	bcr.add(check2);
-		});
+	    	Link check3 = makeBratExportNameLink("/browsing/action/exportBratItem","chk:Export to BRAT", bcr.getName(),  Long.toString(bcr._getDpId()));
+	    	bcr.add(check3);
+ 		});
 		
 		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
 
@@ -179,8 +198,8 @@ public class BrowsingRestController {
 			    	Long dpId = bcr.getDiscourseId();
 				    Link check0 = makeLink2Arg("/browsing/action/exportBratItem","chk:Export to BRAT", "parentDpId", dpId.toString(), "childDpId", Long.toString(bcr._getDpId()));
 				    bcr.add(check0);
-			    	Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
-			    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			    	Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
+			    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
 			    	bcr.add(check);	
 			    	bcr.add(check2);
 		    	
@@ -230,10 +249,14 @@ public class BrowsingRestController {
 			    	 bcr.add(makeLink("/browsing/subDiscourseParts/" + dpId, dpname));
 			     });
 			}  
-			Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
-	    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
+	    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			Link check = makeLightsideExportNameLink("/browsing/action/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+	    	Link check2 = makeLightsideExportNameLink("/browsing/action/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 	    	bcr.add(check);	
 	    	bcr.add(check2);
+	    	Link check3 = makeBratExportNameLink("/browsing/action/exportBratItem","chk:Export to BRAT", repoType,  Long.toString(bcr._getDpId()));
+	    	bcr.add(check3);
 		});
 		
 		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
@@ -241,26 +264,15 @@ public class BrowsingRestController {
 		return response;
 	}
 	
-
-	
-	/*@RequestMapping(value = "/subDiscoursePartsByName", method=RequestMethod.GET)
-	@ResponseBody
-	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscoursePartsByName(@RequestParam(value= "page", defaultValue = "0") int page, 
-			   @RequestParam(value= "size", defaultValue="20") int size,
-			   @RequestParam("discoursePartName") String discoursePartName)  {
-		List<DiscoursePart> dps = discoursePartRepository.findAllByName(discoursePartName);
-		if (dps.size() > 0) {
-			logger.info("Found " + discoursePartName + " as id " + dps.get(0).getId().toString());
-			return subDiscourseParts(page, size, dps.get(0).getId());
-		} else {
-			logger.info("Did not find " + discoursePartName);
-			return subDiscourseParts(page, size, 0L);
-		}
-	}*/
 	
 	public String discoursePart2BratName(DiscoursePart dp) {
 		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + "__" + dp.getId().toString();
 	}
+
+	public String sanitize(String name) {
+		return name.replaceAll("[^a-zA-Z0-9]", "_");
+	}
+
 	
 	public Optional<DiscoursePart> bratName2DiscoursePart(String filename) {
 		try {
@@ -287,16 +299,90 @@ public class BrowsingRestController {
 	public String discoursePart2LightSideName(DiscoursePart dp, boolean withAnnotations) {
 		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated_":"") + "__" + dp.getId() + ".csv".toString();
 	}
+	public String exportFile2LightSideTempName(String exportFile, boolean withAnnotations) {
+		return exportFile.replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated_":"") + ".csv".toString();
+	}
+	public String exportFile2LightSideDir(String exportFile, boolean withAnnotations) {
+		return exportFile.replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated":"").toString();
+	}
 	
+	@RequestMapping(value = "/action/deleteLightside", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingLightsideStubsResource>> deleteLightside(
+			@RequestParam(value= "exportFilename") String exportFilename,
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations) 
+					throws IOException {
+		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideTempName(exportFilename, withAnnotations));
+		for (File f: lsOutputFilename.listFiles()) {
+			f.delete();
+		}
+		lsOutputFilename.delete();
+		return lightsideExports();
+	}
+	
+	@RequestMapping(value = "/action/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
+	@ResponseBody
+	String downloadLightside(
+			HttpServletResponse response,
+			@PathVariable(value= "exportFilename") String exportFilename,
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations) 
+					throws IOException {
+		response.setContentType("application/csv; charset=utf-8");
+		response.setHeader( "Content-Disposition", "attachment");
+		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		File lsOutputFileDir = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
+		File lsOutputFileName = new File(lsDataDirectory , exportFile2LightSideTempName(exportFilename, withAnnotations));
+		Set<DiscoursePart> dps = Arrays.stream(lsOutputFileDir.listFiles())
+				.map((File f) -> discoursePartRepository.findOne(Long.parseLong(f.getName())))
+				.filter((Optional<DiscoursePart> o) -> o.isPresent())
+				.map(o -> o.get())
+				.collect(Collectors.toSet());
+				
+		if (withAnnotations) {
+			logger.info("With annotations ", lsOutputFileName);
+			lightsideService.exportAnnotations(dps, lsOutputFileName);
+		} else {
+			// For multiple discourseParts, need to assemble all the contributions
+			logger.info("Without annotations ", lsOutputFileName);
+			
+			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
+					dps.stream()
+					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
+					.map(dpc -> dpc.getContribution())::iterator);
+		}
+		return FileUtils.readFileToString(lsOutputFileName);
+	}
 	
 	@RequestMapping(value = "/action/exportLightside", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> exportLightsideAction(
+	PagedResources<Resource<BrowsingLightsideStubsResource>> exportLightsideAction(
+			@RequestParam(value= "exportFilename") String exportFilename,
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
+			@RequestParam(value= "dpId") long dpId) throws IOException {
+		DiscoursePart dp = discoursePartRepository.findOne(dpId).get();
+		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
+		logger.info(" Exporting dp " + dp.getName());
+		Set<DiscoursePart> descendents = discoursePartService.findDescendentClosure(dp, Optional.empty());
+		lsOutputFilename.mkdirs();
+		for (DiscoursePart d: descendents) {
+			File child = new File(lsOutputFilename, d.getId().toString());
+			child.createNewFile();
+		}
+		return lightsideExports();
+	}
+	
+	/*@RequestMapping(value = "/action/exportLightsideOld", method=RequestMethod.GET)
+	@ResponseBody
+	@Deprecated
+	PagedResources<Resource<BrowsingBratExportResource>> exportLightsideActionOld(
+			@RequestParam(value= "exportFilename") String exportFilename,
 			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
 			@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
 		DiscoursePart dp = discoursePartRepository.findOne(parentDpId).get();
 		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
-		String lsOutputFilename = lsDataDirectory + "/" + discoursePart2LightSideName(dp, withAnnotations);
+		String lsOutputFilename = lsDataDirectory + "/" + exportFile2LightSideName(exportFilename, withAnnotations);
 		logger.info(" Exporting dp " + dp.getName());
 		Set<DiscoursePart> descendents = discoursePartService.findDescendentClosure(dp, Optional.empty());
 		if (withAnnotations) {
@@ -310,75 +396,102 @@ public class BrowsingRestController {
 					.map(dpc -> dpc.getContribution())::iterator);
 		}
 		return lightsideExports();
-	}
+	}*/
 	
 	@RequestMapping(value = "/action/importLightside", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingDiscoursePartResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory) throws IOException {
+	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory) throws IOException {
 		String bratDataDirectory = environment.getRequiredProperty("lightside.data_directory");		
 		lightsideService.importAnnotatedData(bratDataDirectory + "/" + lightsideDirectory);
 		Optional<DiscoursePart> dp = lightsideName2DiscoursePartForImport(lightsideDirectory);
-		if (dp.isPresent()) {
-			return subDiscourseParts(0,20, dp.get().getId());
-		} else {
-			return null;
-		}
+		//if (dp.isPresent()) {
+		//	return subDiscourseParts(0,20, dp.get().getId());
+		//} else {
+			return lightsideExports();
+		//}
 	}	
-	
-	
-	@RequestMapping(value = "/action/exportBrat", method=RequestMethod.GET)
-	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> exportBratAction(@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
-		DiscoursePart dp = discoursePartRepository.findOne(parentDpId).get();
-		String bratDirectory = bratDataDirectory + "/" + discoursePart2BratName(dp);
-		logger.info(" Exporting dp " + dp.getName());
-		for (DiscoursePartRelation subdp : dp.getSourceOfDiscoursePartRelations()) {
-			logger.info(" Exporting issue " + subdp.getTarget().getName());
-			bratService.exportDiscoursePart(subdp.getTarget(), bratDirectory);
-		}
-		return bratExports();
-	}
 	
 	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(
-			@RequestParam(value= "parentDpId") long parentDpId,
-			@RequestParam(value="childDpId")  long childDpId) throws IOException {
+			@RequestParam(value= "exportDirectory") String exportDirectory,
+			@RequestParam(value="dpId")  long dpId) throws IOException {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
-		DiscoursePart parentDp = discoursePartRepository.findOne(parentDpId).get();
-		DiscoursePart childDp = discoursePartRepository.findOne(childDpId).get();
-		String bratDirectory = bratDataDirectory + "/" + discoursePart2BratName(parentDp);
-		logger.info(" Exporting dp " + childDp.getName() + " in directory for " + parentDp.getName());
-		bratService.exportDiscoursePart(childDp, bratDirectory);
+		DiscoursePart childDp = discoursePartRepository.findOne(dpId).get();
+		
+		String bratDirectory = bratDataDirectory + "/" + sanitize(exportDirectory);
+		logger.info(" Exporting dp " + childDp.getName() + " in BRAT directory " + bratDirectory);
+		exportDiscoursePartRecursively(childDp, bratDirectory, new HashSet<DiscoursePart>());
 		return bratExports();
+	}
+	
+	// TODO: MOVE THIS METHOD TO BRAT SERVICE
+	Set<DiscoursePart> exportDiscoursePartRecursively(DiscoursePart dp, String bratDirectory, Set<DiscoursePart> exported) 
+			throws IOException {
+		if (exported.contains(dp)) { return exported; }
+		
+		Set<DiscoursePart> kids = discoursePartRelationRepository.findAllBySource(dp).
+				stream().map(dpr -> dpr.getTarget()).collect(Collectors.toSet());
+		//logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " kids");
+		kids.removeAll(exported);
+		//logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
+		
+		Set<DiscoursePart> exportedNow = exported;
+		if (kids.size() == 0) {
+			bratService.exportDiscoursePart(dp, bratDirectory);
+			exportedNow.add(dp);
+		} else {
+			logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
+			for(DiscoursePart k: kids) {
+				String kidname = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
+				//logger.info("About to recurse: kidname = " + kidname + " filename = " + (new File(bratDirectory,kidname)).toString());
+				exportedNow.addAll(exportDiscoursePartRecursively(k, (new File(bratDirectory,kidname)).toString(), exportedNow));				
+			}
+		}
+		return exportedNow;
 	}
 
 	@RequestMapping(value = "/action/importBrat", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingDiscoursePartResource>> importBratAction(
+	PagedResources<Resource<BrowsingBratExportResource>> importBratAction(
 			@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");		
+		importBratRecursively(bratDataDirectory + "/" + bratDirectory);
+		return bratExports();
+		/*
 		bratService.importDataset(bratDataDirectory + "/" + bratDirectory);
 		Optional<DiscoursePart> dp = bratName2DiscoursePart(bratDirectory);
-		if (dp.isPresent()) {
-			return subDiscourseParts(0,20, dp.get().getId());
-		} else {
-			return null;
+		//if (dp.isPresent()) {
+		//	return subDiscourseParts(0,20, dp.get().getId());
+		//} else {
+			return bratExports();
+		//}*/
+	}
+	
+	private void importBratRecursively(String directory) throws IOException {
+		bratService.importDataset(directory);
+		File dir = new File(directory);
+		for (File s : dir.listFiles()) {
+			if (s.isDirectory()) {
+				importBratRecursively(s.toString());
+			}
 		}
 	}
 
 	@RequestMapping(value = "/lightsideExports", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> lightsideExports() {
+	PagedResources<Resource<BrowsingLightsideStubsResource>> lightsideExports() {
 		
 		String lightsideDataDirectory = environment.getRequiredProperty("lightside.data_directory");
-		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedLightside(lightsideDataDirectory);
-		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
-		for (BrowsingBratExportResource bber: p) {
-			bber.add(makeLink1Arg("/browsing/action/importLightside", "Import Lightside markup", "lightsideDirectory", bber.getName()));
+		List<BrowsingLightsideStubsResource> exported = BrowsingLightsideStubsResource.findPreviouslyExportedLightside(lightsideDataDirectory);
+		Page<BrowsingLightsideStubsResource> p = new PageImpl<BrowsingLightsideStubsResource>(exported, new PageRequest(0,100), exported.size());
+		for (BrowsingLightsideStubsResource ltstub: p) {
+			ltstub.add(makeLink1Arg("/browsing/action/deleteLightside", "Delete this export", "exportFilename", ltstub.getName()));
+			ltstub.add(makeLightsideDownloadLink("/browsing/action/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
 		}
-		return praBratAssembler.toResource(p);
+		PagedResources<Resource<BrowsingLightsideStubsResource>> ret = praLSAssembler.toResource(p);
+		ret.add(makeLink("/browsing/action/uploadLightside", "Download"));
+		return ret;
 	}
 	
 	
@@ -419,12 +532,14 @@ public class BrowsingRestController {
 				             }
 					    );
 				    }
-			    	if (bcr.getContributionCount() > 0) {
-				    	Link check = makeLink2Arg("/browsing/action/exportBratItem","chk:Export to BRAT", "parentDpId", dpId.toString(), "childDpId", Long.toString(bcr._getDpId()));
-				    	bcr.add(check);
-			    	} 
-		    		Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export Data to Lightside", "parentDpId", Long.toString(bcr._getDpId()));
-			    	Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export Annotations to Lightside", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+			    	//if (bcr.getContributionCount() > 0) {
+				    	Link check3 = makeBratExportNameLink("/browsing/action/exportBratItem","chk:Export to BRAT", parent.get().getName(),  Long.toString(bcr._getDpId()));
+				    	bcr.add(check3);
+			    	//} 
+		    		//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
+			    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
+					Link check = makeLightsideExportNameLink("/browsing/action/exportLightside", false, "chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+			    	Link check2 = makeLightsideExportNameLink("/browsing/action/exportLightside", true, "chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 			    	bcr.add(check);	
 			    	bcr.add(check2);
 		    	
@@ -534,6 +649,7 @@ public class BrowsingRestController {
 			return null;
 		}
 	}
+	
 	public Link makeBratLink(String urlend, String rel) {
 		String brat_base = environment.getProperty("brat.ui_base");
 		if (brat_base != null) {
@@ -561,15 +677,33 @@ public class BrowsingRestController {
 	    Link link = new Link(path,rel);
 	    return link;	
     }
-	public static Link makeLink3Arg(String dest, String rel, String key, String value,String key2, String value2, String key3, String value3) {
+	public static Link makeLightsideExportNameLink(String dest, Boolean withAnnotations, String rel, String filename, String dpid) {
 		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
 			.replacePath(dest)
-			.replaceQueryParam(key, URLEncoder.encode(value))
-			.replaceQueryParam(key2, URLEncoder.encode(value2))
-			.replaceQueryParam(key3, URLEncoder.encode(value3))
+			.replaceQueryParam("dpId", URLEncoder.encode(dpid))
+			.replaceQueryParam("withAnnotations", withAnnotations)
 	        .build()
 	        .toUriString();
-	    Link link = new Link(path,rel);
+	    Link link = new Link(path + "{?exportFilename}",rel);
+	    return link;	
+    }
+	
+	public static Link makeLightsideDownloadLink(String dest, boolean annotated, String rel, String key, String value) {
+		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
+				.replacePath(dest + "/" + value + ".csv")
+				.replaceQueryParam("withAnnotation", annotated?"true":"false")
+		        .build()
+		        .toUriString();
+		    Link link = new Link(path,rel);
+		    return link;	
+	    }
+	public static Link makeBratExportNameLink(String dest, String rel, String filename, String dpid) {
+		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
+			.replacePath(dest)
+			.replaceQueryParam("dpId", URLEncoder.encode(dpid))
+	        .build()
+	        .toUriString();
+	    Link link = new Link(path + "{?exportDirectory}",rel);
 	    return link;	
     }
 	public static Link makeLink(String dest, String rel) {
