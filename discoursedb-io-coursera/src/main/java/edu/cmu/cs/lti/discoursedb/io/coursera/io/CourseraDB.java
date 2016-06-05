@@ -219,7 +219,7 @@ public class CourseraDB {
 	
 	private Connection getConnection() throws SQLException {
 		if (con == null || con.isClosed()) {
-			return DriverManager.getConnection("jdbc:mysql://" + this.host + ":3306/" + this.db, this.user, this.pwd);
+			return DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + 3306 + "/" + this.db+ "?useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&useSSL=false",this.user,this.pwd);
 		} else {
 			return con;
 		}

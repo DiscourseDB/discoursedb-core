@@ -247,16 +247,19 @@ public class LightSideService {
 	public void exportDataForAnnotation(String outputFilePath, Iterable<Contribution> contributions){		
 		Assert.hasText(outputFilePath, "Path to the output file cannot be empty.");				
 		File outputFile = new File(outputFilePath);
-		//Assert.isTrue(outputFile.isFile(), outputFilePath+" is not a file.");
+		Assert.isTrue(!outputFile.isDirectory(), outputFilePath+" points to a directory but should point to a file.");
 		
 		StringBuilder output = new StringBuilder();
 		CsvMapper mapper = new CsvMapper();
 		try{
-			output.append(mapper.writeValueAsString(new String[]{TEXT_COL,ID_COL}));			
+			if(!outputFile.exists()){
+				//only add header once
+				output.append(mapper.writeValueAsString(new String[]{TEXT_COL,ID_COL}));							
+			}
 			for(Contribution contrib:contributions){
 				output.append(mapper.writeValueAsString(new String[]{contrib.getCurrentRevision().getText(), String.valueOf(contrib.getId())}));				
 			}
-			FileUtils.writeStringToFile(outputFile, output.toString());						
+			FileUtils.writeStringToFile(outputFile, output.toString(), true);						
 		}catch(IOException e){
 			log.error("Error writing exported data to csv");					
 		}
@@ -267,7 +270,7 @@ public class LightSideService {
 	 * 
 	 * @param inputFilePath path to the file that should be imported
 	 */
-	public void importAnnotatedData(String inputFilePath){
+	public void importAnnotatedData(String inputFilePath){		
 		CsvMapper mapper = new CsvMapper();
 		mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
 		File csvFile = new File(inputFilePath);
@@ -295,7 +298,7 @@ public class LightSideService {
 				  }else{
 					  //we don't need to create an annotation if it's a binary label set to false
 					  if(!field.equalsIgnoreCase(LABEL_MISSING_VAL)){
-						  String label = header[i].split(LIGHTSIDE_PREDICTION_COL_SUFFIX)[0]; //remove suffix from label if it exists
+						  String label = header[i].split(LIGHTSIDE_PREDICTION_COL_SUFFIX)[0]; //remove suffix from label if it exists						  
 						  AnnotationInstance newAnno =annoService.createTypedAnnotation(label);
 						  annoService.saveAnnotationInstance(newAnno);
 						  curAnnos.add(newAnno);
@@ -307,15 +310,24 @@ public class LightSideService {
 						  }						  
 					  }
 				  }
-			  }
-			  //add annotations to the contribution it belongs to 
-			  for(AnnotationInstance anno:curAnnos){
-				  annoService.addAnnotation(curContrib, anno);
+			  }			  
+			  //wipe old annotations  
+			  //TODO we might not want to delete ALL annotations
+			  delete(annoService.findAnnotations(curContrib));
+			  
+			  //add new annotations to the contribution it belongs to 
+			  for(AnnotationInstance newAnno:curAnnos){
+				  annoService.addAnnotation(curContrib, newAnno);
 			  }
 			}					
 		}catch(IOException e){
 			log.error("Error reading and parsing data from csv");					
 		}
+	}
+	
+	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
+	private void delete(Iterable<AnnotationInstance> annos){
+		annoService.deleteAnnotations(annos);		
 	}
 	
 	@Data

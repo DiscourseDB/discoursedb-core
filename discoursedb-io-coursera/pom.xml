@@ -15,10 +15,6 @@
 			<artifactId>jool</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
 			<artifactId>discoursedb-model</artifactId>
 		</dependency>

@@ -67,7 +67,7 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	@Description("The user who created this annotation instance.")
 	private SystemUser annotator;
 	
-	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH},mappedBy="annotation")
+	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.REMOVE},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")
 	@Setter(AccessLevel.PRIVATE) 
 	private Set<Feature> features = new HashSet<Feature>();
