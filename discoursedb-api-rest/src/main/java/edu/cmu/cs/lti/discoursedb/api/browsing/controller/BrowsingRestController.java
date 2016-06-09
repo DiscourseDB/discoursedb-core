@@ -1,6 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -33,11 +35,13 @@ import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.TemplateVariables;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.google.common.io.Files;
@@ -300,7 +304,7 @@ public class BrowsingRestController {
 		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated_":"") + "__" + dp.getId() + ".csv".toString();
 	}
 	public String exportFile2LightSideTempName(String exportFile, boolean withAnnotations) {
-		return exportFile.replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated_":"") + ".csv".toString();
+		return exportFile.replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated":"") + ".csv".toString();
 	}
 	public String exportFile2LightSideDir(String exportFile, boolean withAnnotations) {
 		return exportFile.replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated":"").toString();
@@ -313,7 +317,10 @@ public class BrowsingRestController {
 			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations) 
 					throws IOException {
 		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
-		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideTempName(exportFilename, withAnnotations));
+		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
+		logger.info("DeleteLightside: dd:" + lsDataDirectory + " ef:" + exportFilename + 
+				" wa:" + withAnnotations + " => "
+				+ lsOutputFilename.toString());
 		for (File f: lsOutputFilename.listFiles()) {
 			f.delete();
 		}
@@ -321,25 +328,50 @@ public class BrowsingRestController {
 		return lightsideExports();
 	}
 	
+	@RequestMapping(value = "/action/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
+	@ResponseBody
+	PagedResources<Resource<BrowsingLightsideStubsResource>> uploadLightside(
+			@RequestParam("file_annotations") MultipartFile file_annotations) 
+					throws IOException {
+		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		logger.info("Someone uploaded something!");
+		if (!file_annotations.isEmpty()) {
+			try {
+				logger.info("Not even empty!");
+				File tempUpload = File.createTempFile("temp-file-name", ".csv");
+				BufferedOutputStream stream = new BufferedOutputStream(
+						new FileOutputStream(tempUpload));
+                FileCopyUtils.copy(file_annotations.getInputStream(), stream);
+				stream.close();
+				lightsideService.importAnnotatedData(tempUpload.toString());
+			} catch (Exception e) {
+				
+			}
+		}
+		return lightsideExports();
+	}
+	
+	
 	@RequestMapping(value = "/action/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
 	@ResponseBody
 	String downloadLightside(
 			HttpServletResponse response,
 			@PathVariable(value= "exportFilename") String exportFilename,
-			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations) 
+			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations) 
 					throws IOException {
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
 		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
-		File lsOutputFileDir = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
-		File lsOutputFileName = new File(lsDataDirectory , exportFile2LightSideTempName(exportFilename, withAnnotations));
+		File lsOutputFileDir = new File(lsDataDirectory , sanitize(exportFilename));
+		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
+		logger.info("Looking in directory " + lsOutputFileDir + " derived from " + exportFilename);
 		Set<DiscoursePart> dps = Arrays.stream(lsOutputFileDir.listFiles())
 				.map((File f) -> discoursePartRepository.findOne(Long.parseLong(f.getName())))
 				.filter((Optional<DiscoursePart> o) -> o.isPresent())
 				.map(o -> o.get())
 				.collect(Collectors.toSet());
 				
-		if (withAnnotations) {
+		if (withAnnotations.equals("true")) {
 			logger.info("With annotations ", lsOutputFileName);
 			lightsideService.exportAnnotations(dps, lsOutputFileName);
 		} else {
@@ -490,7 +522,7 @@ public class BrowsingRestController {
 			ltstub.add(makeLightsideDownloadLink("/browsing/action/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
 		}
 		PagedResources<Resource<BrowsingLightsideStubsResource>> ret = praLSAssembler.toResource(p);
-		ret.add(makeLink("/browsing/action/uploadLightside", "Download"));
+		ret.add(makeLink("/browsing/action/uploadLightside{?file_annotations}", "Upload"));
 		return ret;
 	}
 	
@@ -688,10 +720,10 @@ public class BrowsingRestController {
 	    return link;	
     }
 	
-	public static Link makeLightsideDownloadLink(String dest, boolean annotated, String rel, String key, String value) {
+	public static Link makeLightsideDownloadLink(String dest, Boolean annotated, String rel, String key, String value) {
 		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
 				.replacePath(dest + "/" + value + ".csv")
-				.replaceQueryParam("withAnnotation", annotated?"true":"false")
+				.replaceQueryParam("withAnnotations", annotated?"true":"false")
 		        .build()
 		        .toUriString();
 		    Link link = new Link(path,rel);
