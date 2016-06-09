@@ -1,6 +1,9 @@
 package edu.cmu.cs.lti.discoursedb.configuration;
 
+import javax.servlet.MultipartConfigElement;
+
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -38,5 +41,16 @@ public class RestConfiguration {
         final FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         bean.setOrder(0);
         return bean;
+    }
+    
+    /*
+     * Allow large file uploads (necessary for learned lightside files!)
+     */
+    @Bean
+    MultipartConfigElement multipartConfigElement() {
+        MultipartConfigFactory factory = new MultipartConfigFactory();
+        factory.setMaxFileSize("50MB");
+        factory.setMaxRequestSize("50MB");
+        return factory.createMultipartConfig();
     }
 }
