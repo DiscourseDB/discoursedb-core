@@ -50,7 +50,8 @@ public class BrowsingBratExportResource extends ResourceSupport {
 		return lastExport;
 	}
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss XXX")
+		//, pattern = "yyyy-MM-dd' 'HH:mm:ss")
 	public void setLastExport(Date lastExport) {
 		this.lastExport = lastExport;
 	}
