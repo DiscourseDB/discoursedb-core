@@ -55,6 +55,9 @@ public class BrowsingLightsideStubsResource extends ResourceSupport {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public String getNote() {
+		return "Note: Annotations automatically updated for each download";
+	}
 	public Date getLastExport() {
 		return lastExport;
 	}
