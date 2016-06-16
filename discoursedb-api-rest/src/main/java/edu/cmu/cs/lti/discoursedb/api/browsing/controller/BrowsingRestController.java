@@ -128,9 +128,10 @@ public class BrowsingRestController {
 		Resources<BrowsingStatsResource> r =  new Resources<BrowsingStatsResource>(l);
 		/*for (String t: bsr.getDiscourseParts().keySet()) {
 			r.add(makeLink("/browsing/repos?repoType=" + t, t));			
-		}*/
+		}
 		r.add(makeLink("/browsing/bratExports", "BRAT markup"));
 		r.add(makeLink("/browsing/lightsideExports", "Lightside exports"));
+		*/
 		return r;
 	}
 	
