@@ -338,17 +338,17 @@ public class BrowsingRestController {
 	@RequestMapping(value = "/action/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> uploadLightside(
-			@RequestParam("file_annotations") MultipartFile file_annotations) 
+			@RequestParam("annotatedFileForUpload") MultipartFile annotatedFileForUpload) 
 					throws IOException {
 		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
 		logger.info("Someone uploaded something!");
-		if (!file_annotations.isEmpty()) {
+		if (!annotatedFileForUpload.isEmpty()) {
 			try {
 				logger.info("Not even empty!");
 				File tempUpload = File.createTempFile("temp-file-name", ".csv");
 				BufferedOutputStream stream = new BufferedOutputStream(
 						new FileOutputStream(tempUpload));
-                FileCopyUtils.copy(file_annotations.getInputStream(), stream);
+                FileCopyUtils.copy(annotatedFileForUpload.getInputStream(), stream);
 				stream.close();
 				lightsideService.importAnnotatedData(tempUpload.toString());
 			} catch (Exception e) {
@@ -548,7 +548,7 @@ public class BrowsingRestController {
 			ltstub.add(makeLightsideDownloadLink("/browsing/action/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
 		}
 		PagedResources<Resource<BrowsingLightsideStubsResource>> ret = praLSAssembler.toResource(p);
-		ret.add(makeLink("/browsing/action/uploadLightside{?file_annotations}", "Upload"));
+		ret.add(makeLink("/browsing/action/uploadLightside{?annotatedFileForUpload}", "Upload"));
 		return ret;
 	}
 	
