@@ -125,10 +125,8 @@ public class CourseraConverterService {
 		for (int threadid : database.getIds("thread")) {
 			Thread curThread = (Thread) database.getDbEntity("thread", (long) threadid);
 
-			// only map the thread if the forum has been imported into
-			// DiscourseDB
-			// The forum might have been marked as deleted while the thread was
-			// not.
+			// only map the thread if the forum has been imported into DiscourseDB
+			// The forum might have been marked as deleted while the thread was not.
 			// We shouldn't import threads of deleted forums.
 			discoursepartService.findOneByDataSource(String.valueOf(curThread.getForum_id()),
 					CourseraSourceMapping.ID_STR_TO_DISCOURSEPART, dataSetName).ifPresent(forum -> {
@@ -182,12 +180,11 @@ public class CourseraConverterService {
 		for (int postid : database.getIds("post")) {
 			Post curPost = (Post) database.getDbEntity("post", (long) postid);
 
-			// first check if this contirbution already exists in the database
-			// for some reason.
+			// first check if this contribution for this post already exists in the database for some reason.
 			Optional<Contribution> existingPost = contributionService.findOneByDataSource(
 					String.valueOf(curPost.getId()), CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName);
 
-			// if the contrib doesn't exist, import it
+			// if the contrib for the post doesn't exist, import it
 			if (!existingPost.isPresent()) {
 
 				// before actually importing the contrib, check if the thread
@@ -267,19 +264,24 @@ public class CourseraConverterService {
 		for (int commentid : database.getIds("comment")) {
 			Comment curComment = (Comment) database.getDbEntity("comment", (long) commentid);
 
-			// create contribution if it doesn't exist yet
+			//check if contribution for this comment already exists
 			Optional<Contribution> existingComment = contributionService.findOneByDataSource(
-					String.valueOf(curComment.getId()), CourseraSourceMapping.ID_STR_TO_CONTRIBUTION_COMMENT,
-					dataSetName);
+					String.valueOf(curComment.getId()), CourseraSourceMapping.ID_STR_TO_CONTRIBUTION_COMMENT,dataSetName);
+			
+			// create comment if it doesn't exist yet ...
 			if (!existingComment.isPresent()) {
+				
+				//...but only if its thread exists
 				discoursepartService.findOneByDataSource(String.valueOf(curComment.getThread_id()),CourseraSourceMapping.ID_STR_TO_DISCOURSEPART_THREAD, dataSetName).
 				ifPresent(thread -> {
-						contributionService
+
+					//...and only if its parent post exists
+					contributionService
 						.findOneByDataSource(String.valueOf(curComment.getPost_id()),CourseraSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName)
 						.ifPresent(post -> {
+
 										Date startTime = new Date(curComment.getPost_time() * 1000L);
 
-										// add content entity to database
 										log.trace("Create Content entity");
 										Content curContent = contentService.createContent();
 										curContent.setText(curComment.getText());
