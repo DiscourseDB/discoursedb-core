@@ -35,6 +35,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.TemplateVariables;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -277,6 +278,9 @@ public class BrowsingRestController {
 	public String sanitize(String name) {
 		return name.replaceAll("[^a-zA-Z0-9]", "_");
 	}
+	public String sanitize_dirname(String name) {
+		return name.replaceAll("[^a-zA-Z0-9\\._]", "_");
+	}
 
 	
 	public Optional<DiscoursePart> bratName2DiscoursePart(String filename) {
@@ -328,6 +332,8 @@ public class BrowsingRestController {
 		lsOutputFilename.delete();
 		return lightsideExports();
 	}
+	
+	
 	
 	@RequestMapping(value = "/action/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
 	@ResponseBody
@@ -393,6 +399,8 @@ public class BrowsingRestController {
 			@RequestParam(value= "exportFilename") String exportFilename,
 			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
 			@RequestParam(value= "dpId") long dpId) throws IOException {
+		Assert.hasText(exportFilename, "No exportFilename specified");
+		
 		DiscoursePart dp = discoursePartRepository.findOne(dpId).get();
 		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
 		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
@@ -444,11 +452,28 @@ public class BrowsingRestController {
 		//}
 	}	
 	
+	@RequestMapping(value = "/action/deleteBrat", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> deleteBrat(
+			@RequestParam(value= "bratDirectory") String bratDirectory) 
+					throws IOException {
+		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		File bratDir = new File(bratDataDirectory + "/" + sanitize_dirname(bratDirectory));
+		if (bratDir.isDirectory()) {
+			FileUtils.deleteDirectory(bratDir);
+		} else if (bratDir.isFile()) {
+			bratDir.delete();
+		} 
+		return bratExports();
+	}
+	
 	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(
 			@RequestParam(value= "exportDirectory") String exportDirectory,
 			@RequestParam(value="dpId")  long dpId) throws IOException {
+		Assert.hasText(exportDirectory, "No exportDirectory name specified");
+		
 		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
 		DiscoursePart childDp = discoursePartRepository.findOne(dpId).get();
 		
@@ -537,6 +562,7 @@ public class BrowsingRestController {
 		for (BrowsingBratExportResource bber: p) {
 			bber.add(makeLink1Arg("/browsing/action/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
 			bber.add(makeBratLink("/index.xhtml#/" + bber.getName(), "Edit BRAT markup"));
+			bber.add(makeLink1Arg("/browsing/action/deleteBrat", "Delete BRAT markup", "bratDirectory", bber.getName()));
 		}
 		return praBratAssembler.toResource(p);
 	}
