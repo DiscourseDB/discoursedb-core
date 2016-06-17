@@ -33,7 +33,7 @@ public class CourseraDB {
 	private String db;
 	private String user;
 	private String pwd;
-	
+	private boolean importDeleted =false;
 	/**
 	 * Creates a databse access object for accessing coursera data from a MySQL database.
 	 * 
@@ -48,7 +48,23 @@ public class CourseraDB {
 		this.user = usr;
 		this.pwd = pwd;
 	}
-	
+
+	/**
+	 * Creates a databse access object for accessing coursera data from a MySQL database.
+	 * 
+	 * @param host host of the coursera db
+	 * @param db coursera database
+	 * @param usr username with read access to the coursera db
+	 * @param pwd user password
+	 */
+	public CourseraDB(String host, String db, String usr, String pwd, boolean importDeleted) {
+		this.host = host;
+		this.db = db;
+		this.user = usr;
+		this.pwd = pwd;
+		this.importDeleted = importDeleted;
+	}
+
 	/**
 	 * Returns ids of all entities of a given table in the designated coursera database. 
 	 * An id in an idlist can be used to query one entity in the corresponding table at a time 
@@ -66,16 +82,16 @@ public class CourseraDB {
 		String sql = "";
 		switch(table) {
 		case "forum": 
-			sql = "SELECT id from "+TableConstants.FORUM;
+			sql = "SELECT id from "+TableConstants.FORUM+(importDeleted?"":" where deleted = 0");
 			break;
 		case "thread": 
-			sql = "SELECT id from "+TableConstants.THREAD;
+			sql = "SELECT id from "+TableConstants.THREAD+(importDeleted?"":" where deleted = 0");
 			break;
 		case "post": 
-			sql = "SELECT id from "+TableConstants.POST;
+			sql = "SELECT id from "+TableConstants.POST+(importDeleted?"":" where deleted = 0");
 			break;
 		case "comment": 
-			sql = "SELECT id from "+TableConstants.COMMENTS;
+			sql = "SELECT id from "+TableConstants.COMMENTS+(importDeleted?"":" where deleted = 0");
 			break;
 		case "user": 
 			sql = "SELECT id from "+TableConstants.USER;
