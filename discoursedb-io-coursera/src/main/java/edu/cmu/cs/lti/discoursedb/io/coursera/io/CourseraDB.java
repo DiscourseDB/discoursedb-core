@@ -33,9 +33,10 @@ public class CourseraDB {
 	private String db;
 	private String user;
 	private String pwd;
-	private boolean importDeleted =false;
+	private boolean importDeleted;
 	/**
 	 * Creates a databse access object for accessing coursera data from a MySQL database.
+	 * Entities marked as deleted in the coursera database are ignored by default. Use other constructor to force import of deleted entities.
 	 * 
 	 * @param host host of the coursera db
 	 * @param db coursera database
@@ -47,6 +48,7 @@ public class CourseraDB {
 		this.db = db;
 		this.user = usr;
 		this.pwd = pwd;
+		this.importDeleted = false;
 	}
 
 	/**
@@ -56,6 +58,7 @@ public class CourseraDB {
 	 * @param db coursera database
 	 * @param usr username with read access to the coursera db
 	 * @param pwd user password
+	 * @param importDeleted defines whether to import entities marked as deleted in the coursera database (default: false)
 	 */
 	public CourseraDB(String host, String db, String usr, String pwd, boolean importDeleted) {
 		this.host = host;
