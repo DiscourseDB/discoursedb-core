@@ -14,7 +14,7 @@ public class TwitterConverterApplication {
 	 * @param args 
 	 *     DiscourseName    the name of the dicourse
 	 *     DataSetName      the name of the dataset
-	 *     HabworldsFilePath  the path of open-ended discussions csv file 
+	 *     TwitterDumpPath  the path to the Twitter dump (JSON file(s))
 	 */
 
 	public static void main(String[] args) {
