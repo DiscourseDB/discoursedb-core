@@ -5,7 +5,7 @@
 		<connection>scm:git:https://github.com/discoursedb/discoursedb-core.git</connection>
 		<developerConnection>scm:git:https://github.com/discoursedb/discoursedb-core.git</developerConnection>
 		<url>https://github.com/DiscourseDB/discoursedb-core</url>
-	  <tag>discoursedb-core-0.6</tag>
+	  <tag>HEAD</tag>
   </scm>
 	<issueManagement>
 		<system>GitHub</system>
@@ -19,7 +19,7 @@
 	</distributionManagement>
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-core</artifactId>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 	<name>DiscourseDB Core Parent </name>
 	<description>DiscourseDB Core Parent Project</description>
 	<developers>
