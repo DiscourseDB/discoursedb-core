@@ -1,0 +1,6 @@
+debug=true
+jsonStoreEnabled=true
+oauth.consumerKey=
+oauth.consumerSecret=
+oauth.accessToken=
+oauth.accessTokenSecret=
