@@ -21,11 +21,12 @@ public class TwitterApiConnector {
 	}
 
 	public List<Status> getTimeline(long userid) throws TwitterException{
-	    Twitter twitter = TwitterFactory.getSingleton();
-	    
+	    Twitter twitter = TwitterFactory.getSingleton();	    
 
-	    List<Status> statuses = new ArrayList<>();
-	    for(int i=1;i<17;i++){
+	    List<Status> statuses = new ArrayList<>();	    
+    	//There's an API limit of 3.200 tweets you can get from a timeline and 200 per request (page). 
+	    //This makes 17 requests with 200 tweets per page
+	    for(int i=1;i<17;i++){  
 		    statuses.addAll(twitter.getUserTimeline(userid, new Paging (i, 200)));
 	    }
 
