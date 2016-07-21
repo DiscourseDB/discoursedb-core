@@ -55,7 +55,7 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 		
 	@ManyToOne 
 	@JoinColumn(name = "fk_annotation")
-	@Description("The aggregate entity that aggregares all annotations belonging to the associated/annotated entity.")
+	@Description("The aggregate entity that aggregates all annotations belonging to the associated/annotated entity.")
 	private AnnotationAggregate annotationAggregate;
 	
 	@ManyToOne 
@@ -67,5 +67,15 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	@Description("A set of features that represent the payload of this annotation.")
 	@Setter(AccessLevel.PRIVATE) 
 	private Set<Feature> features = new HashSet<Feature>();
+	
+    @OneToMany(mappedBy="source")
+	@Description("A set of relations that associate this annotation with other annotations. This set contains only those relations of which the present annotation is the source.")
+	@Setter(AccessLevel.PRIVATE) 
+	private Set<AnnotationRelation> sourceOfAnnotationRelations = new HashSet<AnnotationRelation>();
+
+    @OneToMany(mappedBy="target")
+	@Description("A set of relations that associate this annotation with other annotations. This set contains only those relations of which the present annotation is the target.")
+	@Setter(AccessLevel.PRIVATE) 
+	private Set<AnnotationRelation> targetOfAnnotationRelations = new HashSet<AnnotationRelation>();
 		
 }
