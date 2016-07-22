@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -362,7 +362,7 @@ public class UserService {
         Set<User> unannotated = new HashSet<User>();
         for(User user : userRepo.findAll()) {
                 boolean addme = true;
-                AnnotationAggregate ag = user.getAnnotations();
+                AnnotationEntityProxy ag = user.getAnnotations();
                 if (ag != null) {
                         Set<AnnotationInstance> sai = ag.getAnnotations();
                         if (sai != null) {

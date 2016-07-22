@@ -54,9 +54,9 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	private String coveredText;
 		
 	@ManyToOne 
-	@JoinColumn(name = "fk_annotation")
+	@JoinColumn(name = "fk_annotation_entity_proxy")
 	@Description("The aggregate entity that aggregates all annotations belonging to the associated/annotated entity.")
-	private AnnotationAggregate annotationAggregate;
+	private AnnotationEntityProxy annotationEntityProxy;
 	
 	@ManyToOne 
 	@JoinColumn(name = "fk_annotator")

@@ -14,13 +14,13 @@ import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationAggregateRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationEntityProxyRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class AnnotationService {
 
 	private final @NonNull AnnotationInstanceRepository annoInstanceRepo;
-	private final @NonNull AnnotationAggregateRepository annoRepo;
+	private final @NonNull AnnotationEntityProxyRepository annoRepo;
 	private final @NonNull ContributionService contribService;
 	private final @NonNull FeatureRepository featureRepo;
 	
@@ -49,7 +49,7 @@ public class AnnotationService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public <T extends TimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
-		AnnotationAggregate annos = entity.getAnnotations();
+		AnnotationEntityProxy annos = entity.getAnnotations();
 		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
@@ -65,7 +65,7 @@ public class AnnotationService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public <T extends TypedTimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
-		AnnotationAggregate annos = entity.getAnnotations();
+		AnnotationEntityProxy annos = entity.getAnnotations();
 		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
@@ -154,12 +154,12 @@ public class AnnotationService {
 
 		//the annotations aggregate is a proxy for the entity
 		//all annotation instantimeAnnotatableBaseEntityRepo.ces are connected to the aggregate which is finally connected to the annotated entity
-		AnnotationAggregate annoAggregate = entity.getAnnotations();
-		if (annoAggregate == null) {
-			annoAggregate=annoRepo.save(new AnnotationAggregate());
-			entity.setAnnotations(annoAggregate);
+		AnnotationEntityProxy annoProxy = entity.getAnnotations();
+		if (annoProxy == null) {
+			annoProxy=annoRepo.save(new AnnotationEntityProxy());
+			entity.setAnnotations(annoProxy);
 		}
-		annotation.setAnnotationAggregate(annoAggregate);
+		annotation.setAnnotationEntityProxy(annoProxy);
 		annotation = annoInstanceRepo.save(annotation);
 	}
 	
@@ -177,12 +177,12 @@ public class AnnotationService {
 
 		//the annotations aggregate is a proxy for the entity
 		//all annotation instantimeAnnotatableBaseEntityRepo.ces are connected to the aggregate which is finally connected to the annotated entity
-		AnnotationAggregate annoAggregate = entity.getAnnotations();
-		if (annoAggregate == null) {
-			annoAggregate=annoRepo.save(new AnnotationAggregate());
-			entity.setAnnotations(annoAggregate);	
+		AnnotationEntityProxy annoProxy = entity.getAnnotations();
+		if (annoProxy == null) {
+			annoProxy=annoRepo.save(new AnnotationEntityProxy());
+			entity.setAnnotations(annoProxy);	
 		}
-		annotation.setAnnotationAggregate(annoAggregate);
+		annotation.setAnnotationEntityProxy(annoProxy);
 		annotation = annoInstanceRepo.save(annotation);
 	}
 
