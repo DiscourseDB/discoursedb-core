@@ -34,7 +34,7 @@ public class AnnotationRelation extends TypedTimedAnnotatableBE implements Ident
 	
 	@Column(name="first_in_chain", nullable=false)
 	@Description("Determines whether this relation is the first link between two annotations in a chain of annotations. In that case, the source of this relation is the first annotation of the chain. The default value is true.")
-	private boolean firstInChain = true;
+	private boolean headOfChain = true;
 	
 	@OneToOne(cascade=CascadeType.ALL) 
 	@JoinColumn(name = "fk_source")
