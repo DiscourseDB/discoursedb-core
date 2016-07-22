@@ -27,8 +27,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper=true, exclude={"annotationAggregate"})
-@ToString(callSuper=true, exclude={"annotationAggregate"})
+@EqualsAndHashCode(callSuper=true, exclude={"annotationEntityProxy"})
+@ToString(callSuper=true, exclude={"annotationEntityProxy"})
 @Entity
 @Table(name="annotation_instance")
 @Description("A single instance of an annotation")
