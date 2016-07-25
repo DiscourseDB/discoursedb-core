@@ -7,7 +7,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.hateoas.ResourceSupport;
+import org.springframework.http.HttpRequest;
 
 import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -47,6 +50,8 @@ public class BrowsingStatsResource extends ResourceSupport {
 		});
 		
 	}
+
+	
 
 	public Map<String, Long> getDiscourseParts() {
 		return discourseParts;

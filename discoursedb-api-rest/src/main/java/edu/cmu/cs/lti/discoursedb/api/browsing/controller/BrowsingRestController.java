@@ -16,6 +16,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.persistence.Table;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
@@ -34,6 +35,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.TemplateVariables;
 import org.springframework.hateoas.UriTemplate;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
@@ -44,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.WebUtils;
 
 import com.google.common.io.Files;
 
@@ -718,8 +721,8 @@ public class BrowsingRestController {
 		}
 	}
 	public static Link makeLink1Arg(String dest, String rel, String key, String value) {
-		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
-			.replacePath(dest)
+		String path = ServletUriComponentsBuilder.fromCurrentServletMapping() //.fromCurrentRequestUri()
+				.replacePath(dest)
 			.replaceQueryParam(key, URLEncoder.encode(value))
 	        .build()
 	        .toUriString();
@@ -727,8 +730,8 @@ public class BrowsingRestController {
 	    return link;	
     }
 	public static Link makeLink2Arg(String dest, String rel, String key, String value,String key2, String value2) {
-		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
-			.replacePath(dest)
+		String path = ServletUriComponentsBuilder.fromCurrentServletMapping() //.fromCurrentRequestUri()
+				.replacePath(dest)
 			.replaceQueryParam(key, URLEncoder.encode(value))
 			.replaceQueryParam(key2, URLEncoder.encode(value2))
 	        .build()
@@ -737,8 +740,8 @@ public class BrowsingRestController {
 	    return link;	
     }
 	public static Link makeLightsideExportNameLink(String dest, Boolean withAnnotations, String rel, String filename, String dpid) {
-		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
-			.replacePath(dest)
+		String path = ServletUriComponentsBuilder.fromCurrentServletMapping() //.fromCurrentRequestUri()
+				.replacePath(dest)
 			.replaceQueryParam("dpId", URLEncoder.encode(dpid))
 			.replaceQueryParam("withAnnotations", withAnnotations)
 	        .build()
@@ -748,7 +751,7 @@ public class BrowsingRestController {
     }
 	
 	public static Link makeLightsideDownloadLink(String dest, Boolean annotated, String rel, String key, String value) {
-		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
+		String path = ServletUriComponentsBuilder.fromCurrentServletMapping() //.fromCurrentRequestUri()
 				.replacePath(dest + "/" + value + ".csv")
 				.replaceQueryParam("withAnnotations", annotated?"true":"false")
 		        .build()
@@ -757,8 +760,8 @@ public class BrowsingRestController {
 		    return link;	
 	    }
 	public static Link makeBratExportNameLink(String dest, String rel, String filename, String dpid) {
-		String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
-			.replacePath(dest)
+		String path = ServletUriComponentsBuilder.fromCurrentServletMapping() //fromCurrentRequestUri()
+				.replacePath(dest)
 			.replaceQueryParam("dpId", URLEncoder.encode(dpid))
 	        .build()
 	        .toUriString();
@@ -766,15 +769,16 @@ public class BrowsingRestController {
 	    return link;	
     }
 	public static Link makeLink(String dest, String rel) {
-			String path = ServletUriComponentsBuilder.fromCurrentRequestUri()
-				.replacePath(dest)
+			String path = ServletUriComponentsBuilder.fromCurrentServletMapping() //.fromCurrentRequestUri()
+					.replacePath(dest)
 		        .build()
 		        .toUriString();
 		    Link link = new Link(path,rel);
 		    return link;	
 	}
+	
 	public static Link makePageLink(int page, int size, String rel) {
-		String path = ServletUriComponentsBuilder.fromCurrentRequest()
+		String path = ServletUriComponentsBuilder.fromCurrentServletMapping()
 				.replaceQueryParam("page", page)
 		        .replaceQueryParam("size",size)
 		        .build()

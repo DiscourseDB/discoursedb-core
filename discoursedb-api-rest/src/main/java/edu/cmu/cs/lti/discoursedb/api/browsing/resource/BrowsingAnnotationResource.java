@@ -16,7 +16,7 @@ public class BrowsingAnnotationResource extends ResourceSupport {
 	public BrowsingAnnotationResource(AnnotationInstance ai) {
 		this.setType(ai.getType());
 		if (ai.getBeginOffset() == ai.getEndOffset() && ai.getEndOffset() == 0) {
-			this.setRange("");
+			this.setRange("(all)");
 		} else {
 			this.setRange(ai.getBeginOffset() + "-" + ai.getEndOffset());
 		}
