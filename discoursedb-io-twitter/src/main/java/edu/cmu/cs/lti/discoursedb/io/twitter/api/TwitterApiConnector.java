@@ -9,22 +9,10 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.auth.AccessToken;
 
 @Log4j
 public class TwitterApiConnector {
 
-	/**
-	 * Manages available access tokens
-	 */
-	private List<AccessToken> tokens;
-	
-	public TwitterApiConnector(){		
-		tokens = new ArrayList<>();
-		//TODO init tokens
-		
-	}
-	
 	public static void main(String[] args) throws Exception{
 		TwitterApiConnector api = new TwitterApiConnector();
 		List<Status> tweets = api.getTimeline(16067430L);
