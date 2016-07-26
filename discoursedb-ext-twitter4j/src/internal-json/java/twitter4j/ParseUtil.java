@@ -82,16 +82,31 @@ final class ParseUtil {
     }
 
 
-    public static Date getDate(String name, JSONObject json) throws TwitterException {
-        return getDate(name, json, "EEE MMM d HH:mm:ss z yyyy");
-    }
-
     public static Date getDate(String name, JSONObject json, String format) throws TwitterException {
         String dateStr = getUnescapedString(name, json);
         if ("null".equals(dateStr) || null == dateStr) {
             return null;
         } else {
-            return getDate(dateStr, format);
+           return getDate(dateStr, format);
+        }
+    }
+    public static Date getDate(String name, JSONObject json) throws TwitterException {
+        String dateStr = getUnescapedString(name, json);
+        if ("null".equals(dateStr) || null == dateStr) {
+            return null;
+        } else {
+            Date parsed;
+            switch (dateStr.length()) {
+                case 10:
+                    parsed = new Date(Long.parseLong(dateStr) * 1000);
+                    break;
+                case 20:
+                    parsed = getDate(dateStr, "yyyy-MM-dd'T'HH:mm.sssZ");
+                    break;
+                default:
+                    parsed = getDate(dateStr, "EEE MMM d HH:mm:ss z yyyy");
+            }
+            return parsed;
         }
     }
 
@@ -99,7 +114,11 @@ final class ParseUtil {
             LinkedBlockingQueue<SimpleDateFormat>>();
 
     public static Date getDate(String dateString, String format) throws TwitterException {
-        LinkedBlockingQueue<SimpleDateFormat> simpleDateFormats = formatMapQueue.get(format);
+        if(dateString.toLowerCase().contains("date")){
+        	dateString=dateString.substring(dateString.indexOf(":")+1, dateString.lastIndexOf("}"));
+        	dateString=dateString.replaceAll("\"", "");
+        }
+    	LinkedBlockingQueue<SimpleDateFormat> simpleDateFormats = formatMapQueue.get(format);
         if (simpleDateFormats == null) {
             simpleDateFormats = new LinkedBlockingQueue<SimpleDateFormat>();
             formatMapQueue.put(format, simpleDateFormats);
@@ -148,7 +167,11 @@ final class ParseUtil {
         if (null == str || "".equals(str) || "null".equals(str)) {
             return -1;
         } else {
-            // some count over 100 will be expressed as "100+"
+        	if(str.toLowerCase().contains("numberlong")){
+        		str=str.substring(str.lastIndexOf(":")+1, str.lastIndexOf("}"));
+        		str=str.replaceAll("\"", "");
+        	}
+        	// some count over 100 will be expressed as "100+"
             if (str.endsWith("+")) {
                 str = str.substring(0, str.length() - 1);
                 return Long.valueOf(str) + 1;
