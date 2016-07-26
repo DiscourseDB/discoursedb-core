@@ -15,12 +15,17 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.twitter4j</groupId>
-			<artifactId>twitter4j-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>edu.cmu.cs.lti</groupId>
 			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>edu.cmu.cs.lti.discoursedb</groupId>
+			<artifactId>twitter4j-core</artifactId>
+			<version>0.7-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
