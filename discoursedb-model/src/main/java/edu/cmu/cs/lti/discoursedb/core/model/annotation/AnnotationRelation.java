@@ -10,10 +10,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
-import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
+import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedBE;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +24,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper=true)
 @Entity
 @Table(name="annotation_relation")
-public class AnnotationRelation extends TypedTimedAnnotatableBE implements Identifiable<Long> {
+public class AnnotationRelation extends TypedTimedBE implements Identifiable<Long> {
 
 	@Id
 	@Column(name="id_annotation_relation", nullable=false)
@@ -33,6 +34,7 @@ public class AnnotationRelation extends TypedTimedAnnotatableBE implements Ident
 	private Long id;
 	
 	@Column(name="first_in_chain", nullable=false)
+	@Type(type = "org.hibernate.type.NumericBooleanType")
 	@Description("Determines whether this relation is the first link between two annotations in a chain of annotations. In that case, the source of this relation is the first annotation of the chain. The default value is true.")
 	private boolean headOfChain = true;
 	

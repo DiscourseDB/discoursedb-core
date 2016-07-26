@@ -392,7 +392,7 @@ public class AnnotationService {
 		Assert.notNull(targetAnnotation, "Target annotation cannot be null.");
 		Assert.notNull(type, "Relation type cannot be null.");
 								
-		//check if a relation of the given type already exists between the two contributions
+		//check if a relation of the given type already exists between the two annotations
 		//if so, return it. if not, create new relation, configure it and return it.
 		return annoRelRepo
 				.findOneBySourceAndTargetAndType(sourceAnnotation, targetAnnotation, type.name())
