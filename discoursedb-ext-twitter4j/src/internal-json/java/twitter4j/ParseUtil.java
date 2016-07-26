@@ -92,6 +92,11 @@ final class ParseUtil {
     }
     public static Date getDate(String name, JSONObject json) throws TwitterException {
         String dateStr = getUnescapedString(name, json);
+        if(dateStr.toLowerCase().contains("date")){
+        	dateStr=dateStr.substring(dateStr.indexOf(":")+1, dateStr.lastIndexOf("}"));
+        	dateStr=dateStr.replaceAll("\"", "");
+        }
+
         if ("null".equals(dateStr) || null == dateStr) {
             return null;
         } else {
@@ -100,8 +105,8 @@ final class ParseUtil {
                 case 10:
                     parsed = new Date(Long.parseLong(dateStr) * 1000);
                     break;
-                case 20:
-                    parsed = getDate(dateStr, "yyyy-MM-dd'T'HH:mm.sssZ");
+                case 28:
+                    parsed = getDate(dateStr, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
                     break;
                 default:
                     parsed = getDate(dateStr, "EEE MMM d HH:mm:ss z yyyy");
@@ -130,8 +135,8 @@ final class ParseUtil {
         }
         try {
             return sdf.parse(dateString);
-        } catch (ParseException pe) {
-            throw new TwitterException("Unexpected date format(" + dateString + ") returned from twitter.com", pe);
+        } catch (ParseException pe) {        	
+        	throw new TwitterException("Unexpected date format (" + dateString + ")", pe);
         } finally {
             try {
                 simpleDateFormats.put(sdf);

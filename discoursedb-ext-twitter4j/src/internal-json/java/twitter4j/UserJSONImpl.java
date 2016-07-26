@@ -138,7 +138,7 @@ import java.util.Date;
             isDefaultProfile = ParseUtil.getBoolean("default_profile", json);
             showAllInlineMedia = ParseUtil.getBoolean("show_all_inline_media", json);
             friendsCount = ParseUtil.getInt("friends_count", json);
-            createdAt = ParseUtil.getDate("created_at", json, "EEE MMM dd HH:mm:ss z yyyy");
+            createdAt = ParseUtil.getDate("created_at", json);
             favouritesCount = ParseUtil.getInt("favourites_count", json);
             utcOffset = ParseUtil.getInt("utc_offset", json);
             timeZone = ParseUtil.getRawString("time_zone", json);

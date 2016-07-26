@@ -16,12 +16,12 @@
 
 package twitter4j;
 
-import twitter4j.conf.Configuration;
+import static twitter4j.ParseUtil.getDate;
 
 import java.util.Arrays;
 import java.util.Date;
 
-import static twitter4j.ParseUtil.getDate;
+import twitter4j.conf.Configuration;
 
 /**
  * A data class representing one single status of a user.
@@ -29,7 +29,6 @@ import static twitter4j.ParseUtil.getDate;
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
 /*package*/ final class StatusJSONImpl extends TwitterResponseImpl implements Status, java.io.Serializable {
-    private static final Logger logger = Logger.getLogger(StatusJSONImpl.class);
     private static final long serialVersionUID = -6461195536943679985L;
 
     private Date createdAt;

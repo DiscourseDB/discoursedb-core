@@ -12,7 +12,7 @@ import twitter4j.TwitterObjectFactory;
 public class TweetParser {
 
 	public static void main(String[] args) throws IOException, TwitterException{
-		String json = FileUtils.readFileToString(new File("/home/oliverf/Desktop/tweet.json"));
+		String json = FileUtils.readFileToString(new File("/home/oliverf/Desktop/tweet.json.mongo"));
 		Status s = parseJson(json);
 		System.out.println(s.getId());
 		System.out.println(s.getText());
