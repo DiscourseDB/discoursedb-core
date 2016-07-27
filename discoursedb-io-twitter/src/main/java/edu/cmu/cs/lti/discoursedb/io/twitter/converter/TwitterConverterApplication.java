@@ -14,11 +14,13 @@ public class TwitterConverterApplication {
 	 * @param args 
 	 *     DiscourseName    the name of the dicourse
 	 *     DataSetName      the name of the dataset
-	 *     TwitterDumpPath  the path to the Twitter dump (JSON file(s))
+	 *     MongoDbHost		the hostname of the mongo db server
+	 *     MongoDatabaseName  the name of the mongo database
+	 *     MongoCollectionName  the name of the collection that contains the tweets
 	 */
 
 	public static void main(String[] args) {
-		Assert.isTrue(args.length==3, "Usage: TwitterConverterApplication <DiscourseName> <DataSetName> <TwitterDumpPath>");
+		Assert.isTrue(args.length==5, "Usage: TwitterConverterApplication <DiscourseName> <DataSetName> <MongoDbHost> <MongoDatabaseName> <MongoCollectionName");
 		SpringApplication.run(TwitterConverterApplication.class, args);
 	}
 
