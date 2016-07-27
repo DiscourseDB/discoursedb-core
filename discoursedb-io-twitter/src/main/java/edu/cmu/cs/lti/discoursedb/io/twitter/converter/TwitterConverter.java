@@ -2,17 +2,14 @@ package edu.cmu.cs.lti.discoursedb.io.twitter.converter;
 
 import java.text.ParseException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 
 import lombok.extern.log4j.Log4j;
 import twitter4j.Status;
@@ -24,18 +21,12 @@ import twitter4j.TwitterObjectFactory;
 @Component
 public class TwitterConverter implements CommandLineRunner {
 	
-	private static final Logger logger = LogManager.getLogger(TwitterConverter.class);
-	
 	@Autowired 
 	TwitterConverterService converterService;
 	
 	@Override
-	public void run(String... args) throws ParseException {
-		
-		if (args.length != 5) {
-			logger.error("Usage: TwitterConverterApplication <DiscourseName> <DataSetName> <MongoDbHost> <MongoDatabaseName> <MongoCollectionName");
-			return;
-		}
+	public void run(String... args) throws ParseException {		
+		Assert.isTrue(args.length == 5, "Usage: TwitterConverterApplication <DiscourseName> <DataSetName> <MongoDbHost> <MongoDatabaseName> <MongoCollectionName");
 		
 		String discourseName = args[0];
 		String datasetName = args[1];		
@@ -43,9 +34,9 @@ public class TwitterConverter implements CommandLineRunner {
 		String dbName = args[3];
 		String collectionName = args[4];		
 		
-		logger.info("Starting Twitter data conversion");
+		log.info("Starting Twitter data conversion");
 		this.convert(discourseName, datasetName, dbHost, dbName, collectionName);
-		logger.info("Twitter data conversion completed");
+		log.info("Twitter data conversion completed");
 	}
 	
 	/**
@@ -58,6 +49,11 @@ public class TwitterConverter implements CommandLineRunner {
 	 * @param collectionName the name of the collection containing the tweet documents
 	 */
 	private void convert(String discourseName, String datasetName, String dbHost, String dbName, String collectionName) {
+		Assert.hasText(discourseName, "The discourse name has to be specified and cannot be empty.");
+		Assert.hasText(datasetName, "The dataset name has to be specified and cannot be empty.");
+		Assert.hasText(dbHost, "The MongoDB database host has to be specified and cannot be empty.");
+		Assert.hasText(dbName, "The database name has to be specified and cannot be empty.");
+		Assert.hasText(collectionName, "The collection name has to be specified and cannot be empty.");
 		
 		MongoClient mongoClient = new MongoClient(dbHost); //assuming standard port
 		
@@ -76,6 +72,10 @@ public class TwitterConverter implements CommandLineRunner {
 	 * @param tweet the Tweet to store in DiscourseDB
 	 */
 	private void mapTweet(String discourseName, String datasetName, Status tweet ) {
+		Assert.hasText(discourseName, "The discourse name has to be specified and cannot be empty.");
+		Assert.hasText(datasetName, "The dataset name has to be specified and cannot be empty.");
+		Assert.notNull(tweet, "The tweet that is to be mapped to DiscourseDB cannot be null.");
+		
 		//TODO process tweet and store in DiscourseDB
 	}
 	
@@ -86,6 +86,8 @@ public class TwitterConverter implements CommandLineRunner {
 	 * @return a Twitter4J Status object representing the tweet
 	 */
 	private Status parseDocument(Document tweetDocument){
+		Assert.notNull(tweetDocument, "The mongodb document representing the tweet to be parsed cannot be null.");
+
 		Status stat = null;
 		try{
 			stat = TwitterObjectFactory.createStatus(tweetDocument.toJson());			
