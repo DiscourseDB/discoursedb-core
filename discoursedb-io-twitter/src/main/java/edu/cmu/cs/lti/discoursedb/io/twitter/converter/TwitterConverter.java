@@ -60,10 +60,8 @@ public class TwitterConverter implements CommandLineRunner {
 	private void convert(String discourseName, String datasetName, String dbHost, String dbName, String collectionName) {
 		
 		MongoClient mongoClient = new MongoClient(dbHost); //assuming standard port
-		MongoDatabase db = mongoClient.getDatabase(dbName);
-		MongoCollection<Document> col = db.getCollection(collectionName);
 		
-		col.find().forEach((Block<Document>) d -> {
+		mongoClient.getDatabase(dbName).getCollection(collectionName).find().forEach((Block<Document>) d -> {
 			mapTweet(discourseName, datasetName, parseDocument(d));
 		});
 		
