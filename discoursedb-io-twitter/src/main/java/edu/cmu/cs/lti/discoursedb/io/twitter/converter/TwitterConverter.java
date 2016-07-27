@@ -74,9 +74,11 @@ public class TwitterConverter implements CommandLineRunner {
 	private void mapTweet(String discourseName, String datasetName, Status tweet ) {
 		Assert.hasText(discourseName, "The discourse name has to be specified and cannot be empty.");
 		Assert.hasText(datasetName, "The dataset name has to be specified and cannot be empty.");
-		Assert.notNull(tweet, "The tweet that is to be mapped to DiscourseDB cannot be null.");
-		
-		//TODO process tweet and store in DiscourseDB
+
+		//skip tweets that are null. Warnings are already emitted in parseDocument(). 
+		if(tweet!=null){
+			//TODO process tweet and store in DiscourseDB			
+		}
 	}
 	
 	/**
