@@ -105,11 +105,14 @@ final class ParseUtil {
                 case 10:
                     parsed = new Date(Long.parseLong(dateStr) * 1000);
                     break;
+                case 13:
+                    parsed = new Date(Long.parseLong(dateStr));
+                    break;
                 case 28:
                     parsed = getDate(dateStr, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
                     break;
                 default:
-                    parsed = getDate(dateStr, "EEE MMM d HH:mm:ss z yyyy");
+                    parsed = getDate(dateStr, "EEE MMM d HH:mm:ss z yyyy");                    
             }
             return parsed;
         }

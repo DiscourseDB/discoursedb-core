@@ -94,7 +94,7 @@ import twitter4j.conf.Configuration;
     }
 
     private void init(JSONObject json) throws TwitterException {
-        id = ParseUtil.getLong("id", json);
+    	id = ParseUtil.getLong("id", json);
         source = ParseUtil.getUnescapedString("source", json);
         createdAt = getDate("created_at", json);
         isTruncated = ParseUtil.getBoolean("truncated", json);
