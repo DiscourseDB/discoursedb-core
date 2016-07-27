@@ -90,7 +90,7 @@ public class TwitterConverter implements CommandLineRunner {
 	private Status parseDocument(Document tweetDocument){
 		Assert.notNull(tweetDocument, "The mongodb document representing the tweet to be parsed cannot be null.");
 
-		Status stat = null;
+		Status stat = null; //if parsing fails, null will be returns and mapper will skip the tweet 
 		try{
 			stat = TwitterObjectFactory.createStatus(tweetDocument.toJson());			
 		}catch(TwitterException e){
