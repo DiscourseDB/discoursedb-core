@@ -58,9 +58,9 @@ public class TwitterConverter implements CommandLineRunner {
 		MongoClient mongoClient = new MongoClient(dbHost); //assuming standard port
 		
 		mongoClient.getDatabase(dbName).getCollection(collectionName).find().forEach((Block<Document>) d -> {
-			mapTweet(discourseName, datasetName, parseDocument(d));
+			mapTweet(discourseName, datasetName, document2Tweet(d));
 		});
-		
+
 		mongoClient.close();		
 	}
 	
@@ -77,7 +77,7 @@ public class TwitterConverter implements CommandLineRunner {
 
 		//skip tweets that are null. Warnings are already emitted in parseDocument(). 
 		if(tweet!=null){
-			//TODO process tweet and store in DiscourseDB			
+			converterService.mapTweet(discourseName,datasetName,tweet);			
 		}
 	}
 	
@@ -87,7 +87,7 @@ public class TwitterConverter implements CommandLineRunner {
 	 * @param tweetDocument a MongoDB document representing a tweet
 	 * @return a Twitter4J Status object representing the tweet
 	 */
-	private Status parseDocument(Document tweetDocument){
+	private Status document2Tweet(Document tweetDocument){
 		Assert.notNull(tweetDocument, "The mongodb document representing the tweet to be parsed cannot be null.");
 
 		Status stat = null; //if parsing fails, null will be returns and mapper will skip the tweet 
