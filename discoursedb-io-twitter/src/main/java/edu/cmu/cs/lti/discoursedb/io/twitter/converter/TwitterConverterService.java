@@ -24,6 +24,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import twitter4j.GeoLocation;
+import twitter4j.HashtagEntity;
+import twitter4j.MediaEntity;
 import twitter4j.Place;
 import twitter4j.Status;
 
@@ -95,9 +97,43 @@ public class TwitterConverterService {
 		curContrib.setStartTime(tweet.getCreatedAt());
 		dataSourceService.addSource(curContrib, contribSource);		
 
+		
+		AnnotationInstance tweetInfo = annoService.createTypedAnnotation("twitter_tweet_info");
+		if(tweet.getSource()!=null){
+			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getSource(), "tweet_source"));			
+		}
+		
+		annoService.addFeature(tweetInfo, annoService.createTypedFeature(String.valueOf(tweet.getFavoriteCount()), "favorites_count"));			
+		
+		if(tweet.getHashtagEntities()!=null){
+			for(HashtagEntity hashtag:tweet.getHashtagEntities()){
+				annoService.addFeature(tweetInfo, annoService.createTypedFeature(hashtag.getText(), "hashtag"));				
+			}
+		}
+
+		if(tweet.getMediaEntities()!=null){
+			for(MediaEntity media:tweet.getMediaEntities()){
+				//NOTE: additional info is available for MediaEntities
+				annoService.addFeature(tweetInfo, annoService.createTypedFeature(media.getMediaURL(), "media_url"));				
+			}
+		}
+
+		//TODO this has to be represented as a relation
+		if(tweet.getInReplyToStatusId()!=0){
+			annoService.addFeature(tweetInfo, annoService.createTypedFeature(String.valueOf(tweet.getInReplyToStatusId()), "in_reply_to_status_id"));			
+		}		
+
+		//TODO this has to be represented as a relation
+		if(tweet.getInReplyToScreenName()!=null){
+			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getInReplyToScreenName(), "in_reply_to_screen_name"));			
+		}		
+		annoService.addAnnotation(curContrib, tweetInfo);			
+
+		
+		
 		GeoLocation geo = tweet.getGeoLocation();
 		if(geo!=null){
-			AnnotationInstance coord = annoService.createTypedAnnotation("tweet_geo_location");
+			AnnotationInstance coord = annoService.createTypedAnnotation("twitter_tweet_geo_location");
 			annoService.addFeature(coord, annoService.createTypedFeature(String.valueOf(geo.getLongitude()), "long"));
 			annoService.addFeature(coord, annoService.createTypedFeature(String.valueOf(geo.getLatitude()), "lat"));
 			annoService.addAnnotation(curContrib, coord);
@@ -105,7 +141,7 @@ public class TwitterConverterService {
 		
 		Place place = tweet.getPlace();
 		if(place!=null){
-			AnnotationInstance placeAnno = annoService.createTypedAnnotation("tweet_place");			
+			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_tweet_place");			
 			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getPlaceType()), "place_type"));
 			if(place.getGeometryType()!=null){
 				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getGeometryType()), "geo_type"));				
