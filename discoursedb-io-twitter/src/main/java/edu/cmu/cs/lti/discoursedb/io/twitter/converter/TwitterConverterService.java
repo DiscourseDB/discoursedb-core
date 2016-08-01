@@ -147,7 +147,7 @@ public class TwitterConverterService {
 				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getGeometryType()), "geo_type"));				
 			}
 			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getBoundingBoxType()), "bounding_box_type"));
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getFullName()), "name"));
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getFullName()), "place_name"));
 			if(place.getStreetAddress()!=null){
 				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getStreetAddress()), "street_address"));				
 			}
