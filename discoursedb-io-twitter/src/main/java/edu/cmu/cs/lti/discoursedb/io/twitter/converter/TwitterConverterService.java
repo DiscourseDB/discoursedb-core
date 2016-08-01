@@ -130,14 +130,20 @@ public class TwitterConverterService {
 		dataSourceService.addSource(curContent, contentSource);
 	}
 	
+	/**
+	 * Converts a 2D-array of GeoLocation objects to a list-style String representation of latitude-longitude pairs. 
+	 * 
+	 * @param location a 2d-array of geolocations represening a point or polygon type bounding box
+	 * @return a String representation of the 2D GeoLocation array
+	 */
 	private String convertGeoLocationArray(GeoLocation[][] location){
 		StringBuilder str = new StringBuilder();
-		for(int x = 0;x<location.length;x++){
-			for(int y = 0;y<location[x].length;y++){
+		for(int row = 0;row<location.length;row++){
+			for(int col = 0;col<location[row].length;col++){
 				if(str.length()>0){
 					str.append(",");
 				}
-				str.append("[").append(location[x][y].getLatitude()).append(",").append(location[x][y].getLongitude()).append("]");
+				str.append("[").append(location[row][col].getLatitude()).append(",").append(location[row][col].getLongitude()).append("]");
 			}			
 		}
 		return str.toString();
