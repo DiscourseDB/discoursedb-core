@@ -62,6 +62,13 @@ public class TwitterConverter implements CommandLineRunner {
 		});
 
 		log.info("Finished importing tweets.");
+		
+		
+		// TODO we need a second pass to create relations between tweets. 
+		// right now, they are stored as annotations (ids). 
+		// we might be able to collect information about the relations in the first pass that we can use to
+		// create relations without doing a full iteration over the whole mongo database again
+		
 		mongoClient.close();		
 	}
 	
