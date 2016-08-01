@@ -85,6 +85,15 @@ public class UserService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	public Optional<User> findUserByDiscourseAndUsername(Discourse discourse, String username) {
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		Assert.hasText(username, "The username cannot be empty.");
+
+		return Optional.ofNullable(
+				userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasUserName(username))));
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Iterable<User> findUsersBySourceId(String sourceId) {
 		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 
