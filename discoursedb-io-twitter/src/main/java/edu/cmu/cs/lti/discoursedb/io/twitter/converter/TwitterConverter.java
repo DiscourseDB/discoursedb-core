@@ -34,9 +34,7 @@ public class TwitterConverter implements CommandLineRunner {
 		String dbName = args[3];
 		String collectionName = args[4];		
 		
-		log.info("Starting Twitter data conversion");
 		this.convert(discourseName, datasetName, dbHost, dbName, collectionName);
-		log.info("Twitter data conversion completed");
 	}
 	
 	/**
@@ -57,10 +55,13 @@ public class TwitterConverter implements CommandLineRunner {
 		
 		MongoClient mongoClient = new MongoClient(dbHost); //assuming standard port
 		
+		log.info("Starting to import tweets from MongoDB database \""+dbName+"\" collection \""+collectionName+"\"");
+		
 		mongoClient.getDatabase(dbName).getCollection(collectionName).find().forEach((Block<Document>) d -> {
 			mapTweet(discourseName, datasetName, document2Tweet(d));
 		});
 
+		log.info("Finished importing tweets.");
 		mongoClient.close();		
 	}
 	
