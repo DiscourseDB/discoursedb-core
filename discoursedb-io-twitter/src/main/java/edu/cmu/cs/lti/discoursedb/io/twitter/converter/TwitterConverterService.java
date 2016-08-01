@@ -27,6 +27,12 @@ import twitter4j.GeoLocation;
 import twitter4j.Place;
 import twitter4j.Status;
 
+/**
+ * Service for mapping data retrieved from the Twitter4j API to DiscourseDB
+ * 
+ * @author Oliver Ferschke
+ *
+ */
 @Log4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -43,7 +49,7 @@ public class TwitterConverterService {
 	
 
 	/**
-	 * Maps a tweet represented as a Twitter4J Status object to DiscourseDB
+	 * Maps a Tweet represented as a Twitter4J Status object to DiscourseDB
 	 * 
 	 * @param discourseName the name of the discourse
 	 * @param datasetName the dataset identifier
