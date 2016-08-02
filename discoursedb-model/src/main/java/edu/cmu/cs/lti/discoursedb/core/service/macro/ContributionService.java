@@ -166,6 +166,13 @@ public class ContributionService {
 			return contributionRepo.findAll();
 	}
 	
+	/**
+	 * Deletes a given contribution entity
+	 */
+	public void delete(Contribution contrib){
+			contributionRepo.delete(contrib);
+	}
+	
 	
 	/**
 	 * Creates a new DiscourseRelation of the given type between the two provided contributions.

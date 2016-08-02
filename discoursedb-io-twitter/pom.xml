@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.cmu.cs.lti</groupId>
+		<artifactId>discoursedb-core</artifactId>
+		<version>0.7-SNAPSHOT</version>
+	</parent>
+	<artifactId>discoursedb-io-twitter</artifactId>
+	<name>Twitter data converter</name>
+	<description>Imports json data from the Twitter API</description>
+	<dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>edu.cmu.cs.lti.discoursedb</groupId>
+			<artifactId>twitter4j-core</artifactId>
+			<version>0.7-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+	</dependencies>
+</project>

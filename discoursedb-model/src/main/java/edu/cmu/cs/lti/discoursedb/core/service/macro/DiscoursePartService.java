@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -547,6 +547,24 @@ public class DiscoursePartService {
 	 */
     public List<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
     	return discoursePartRepo.findAllNotAnnotatedWithType(badAnnotation);
+/*=======
+    public Set<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
+        Set<DiscoursePart> unannotated = new HashSet<DiscoursePart>();
+        for(DiscoursePart dp : discoursePartRepo.findAll()) {
+                boolean addme = true;
+                AnnotationEntityProxy ag = dp.getAnnotations();
+                if (ag != null) {
+                        Set<AnnotationInstance> sai = ag.getAnnotations();
+                        if (sai != null) {
+                                for (AnnotationInstance ai : sai) {
+                                        if (ai.getType() == badAnnotation) { addme = false; break; }
+                                }
+                        }
+                }
+                if (addme) { unannotated.add(dp); }
+        }
+        return unannotated;
+>>>>>>> dbd08d8a223c81909f84fd71a2b2ac65c571b20a*/
     }
 
 }

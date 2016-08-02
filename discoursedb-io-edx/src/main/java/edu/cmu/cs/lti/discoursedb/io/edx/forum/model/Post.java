@@ -1,5 +1,7 @@
 package edu.cmu.cs.lti.discoursedb.io.edx.forum.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -11,16 +13,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import lombok.extern.log4j.Log4j;
 
 /**
  * Object model of an edX forum post. Field descriptions according to @see
  * <a href=
- * "https://edx.readthedocs.org/en/latest/internal_data_formats/discussion_data.html">
+ * "https://edx.readthedocs.org/en/latest/internal_data_formats/discussion_data.html">date
  * the edX Research Guide</a>
  * 
  * @author Oliver Ferschke
  *
  */
+@Log4j
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Post {
@@ -249,15 +253,37 @@ public class Post {
 	@JsonProperty("created_at")
 	public void setCreatedAt(Map<String, Object> created_at) {
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis((Long) created_at.get("$date"));
-		this.createdAt = calendar.getTime();
+		String dateString = (String)created_at.get("$date");
+		if(dateString.length()==13){
+			calendar.setTimeInMillis(Long.parseLong(dateString));
+			this.createdAt = calendar.getTime();			
+		}else{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			try{
+				this.createdAt=sdf.parse(dateString);				
+			}catch(ParseException e){
+				log.warn("Error parsing date "+dateString,e);
+			}
+		}
+
 	}
 
 	@JsonProperty("updated_at")
 	public void setUpdatedAt(Map<String, Object> updated_at) {
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis((Long) updated_at.get("$date"));
-		this.updatedAt = calendar.getTime();
+		String dateString = (String)updated_at.get("$date");
+		if(dateString.length()==13){
+			calendar.setTimeInMillis(Long.parseLong(dateString));
+			this.updatedAt = calendar.getTime();			
+		}else{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			try{
+				this.updatedAt=sdf.parse(dateString);				
+			}catch(ParseException e){
+				log.warn("Error parsing date "+dateString,e);
+			}
+		}
+		
 	}
 
 	@JsonProperty("comment_thread_id")
@@ -288,8 +314,18 @@ public class Post {
 	@JsonProperty("last_activity_at")
 	public void setLastActivityAt(Map<String, Object> lastActivityAt) {
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis((Long) lastActivityAt.get("$date"));
-		this.lastActivityAt = calendar.getTime();
+		String dateString = (String) lastActivityAt.get("$date");
+		if (dateString.length() == 13) {
+			calendar.setTimeInMillis(Long.parseLong(dateString));
+			this.lastActivityAt = calendar.getTime();
+		} else {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			try {
+				this.lastActivityAt = sdf.parse(dateString);
+			} catch (ParseException e) {
+				log.warn("Error parsing date " + dateString, e);
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -300,9 +336,19 @@ public class Post {
 			this.endorsementUserId = userId;
 			Calendar calendar = Calendar.getInstance();
 			Map<String, Object> timeEntry =  (Map<String, Object>)endorsements.get("time");
-			Long timeInMillis = (Long)timeEntry.get("$date");
-			calendar.setTimeInMillis(timeInMillis);
-			this.endorsementTime = calendar.getTime();			
+			
+			String dateString = (String) timeEntry.get("$date");
+			if (dateString.length() == 13) {
+				calendar.setTimeInMillis(Long.parseLong(dateString));
+				this.endorsementTime = calendar.getTime();
+			} else {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+				try {
+					this.endorsementTime = sdf.parse(dateString);
+				} catch (ParseException e) {
+					log.warn("Error parsing date " + dateString, e);
+				}
+			}		
 		}
 	}
 

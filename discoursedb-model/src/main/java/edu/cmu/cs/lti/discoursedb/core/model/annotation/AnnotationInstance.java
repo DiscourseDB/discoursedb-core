@@ -31,8 +31,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper=true, exclude={"annotationAggregate"})
-@ToString(callSuper=true, exclude={"annotationAggregate"})
+@EqualsAndHashCode(callSuper=true, exclude={"annotationEntityProxy"})
+@ToString(callSuper=true, exclude={"annotationEntityProxy"})
 @Entity
 @Table(name="annotation_instance")
 @Description("A single instance of an annotation")
@@ -58,9 +58,9 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	private String coveredText;
 		
 	@ManyToOne 
-	@JoinColumn(name = "fk_annotation")
-	@Description("The aggregate entity that aggregares all annotations belonging to the associated/annotated entity.")
-	private AnnotationAggregate annotationAggregate;
+	@JoinColumn(name = "fk_annotation_entity_proxy")
+	@Description("The aggregate entity that aggregates all annotations belonging to the associated/annotated entity.")
+	private AnnotationEntityProxy annotationEntityProxy;
 	
 	@ManyToOne 
 	@JoinColumn(name = "fk_annotator")
@@ -71,5 +71,15 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	@Description("A set of features that represent the payload of this annotation.")
 	@Setter(AccessLevel.PRIVATE) 
 	private Set<Feature> features = new HashSet<Feature>();
+	
+    @OneToMany(mappedBy="source")
+	@Description("A set of relations that associate this annotation with other annotations. This set contains only those relations of which the present annotation is the source.")
+	@Setter(AccessLevel.PRIVATE) 
+	private Set<AnnotationRelation> sourceOfAnnotationRelations = new HashSet<AnnotationRelation>();
+
+    @OneToMany(mappedBy="target")
+	@Description("A set of relations that associate this annotation with other annotations. This set contains only those relations of which the present annotation is the target.")
+	@Setter(AccessLevel.PRIVATE) 
+	private Set<AnnotationRelation> targetOfAnnotationRelations = new HashSet<AnnotationRelation>();
 		
 }

@@ -11,6 +11,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -32,5 +33,5 @@ public abstract class TypedTimedAnnotatableBE extends TypedTimedBE{
 	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_annotation")
 	@Description("An aggregate that contains links to all annotations associated with this entity.")
-	private AnnotationAggregate annotations;
+	private AnnotationEntityProxy annotations;
 }

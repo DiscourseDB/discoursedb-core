@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -88,6 +88,15 @@ public class UserService {
 				userRepo.findOne(UserPredicates.hasSourceId(sourceId).and(UserPredicates.hasUserName(username))));
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	public Optional<User> findUserByDiscourseAndUsername(Discourse discourse, String username) {
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		Assert.hasText(username, "The username cannot be empty.");
+
+		return Optional.ofNullable(
+				userRepo.findOne(UserPredicates.hasDiscourse(discourse).and(UserPredicates.hasUserName(username))));
+	}
+	
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Iterable<User> findUsersBySourceId(String sourceId) {
 		Assert.hasText(sourceId, "The sourceId cannot be empty.");
@@ -379,7 +388,7 @@ public class UserService {
         Set<User> unannotated = new HashSet<User>();
         for(User user : userRepo.findAll()) {
                 boolean addme = true;
-                AnnotationAggregate ag = user.getAnnotations();
+                AnnotationEntityProxy ag = user.getAnnotations();
                 if (ag != null) {
                         Set<AnnotationInstance> sai = ag.getAnnotations();
                         if (sai != null) {

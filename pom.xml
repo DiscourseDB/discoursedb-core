@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<scm>
-		<connection>scm:git:git@github.com:discoursedb/discoursedb-core.git</connection>
-		<developerConnection>scm:git:git@github.com:discoursedb/discoursedb-core.git</developerConnection>
+		<connection>scm:git:https://github.com/discoursedb/discoursedb-core.git</connection>
+		<developerConnection>scm:git:https://github.com/discoursedb/discoursedb-core.git</developerConnection>
 		<url>https://github.com/DiscourseDB/discoursedb-core</url>
+		<tag>HEAD</tag>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
@@ -18,7 +20,7 @@
 	</distributionManagement>
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-core</artifactId>
-	<version>0.6-SNAPSHOT</version>
+	<version>0.7-SNAPSHOT</version>
 	<name>DiscourseDB Core Parent </name>
 	<description>DiscourseDB Core Parent Project</description>
 	<developers>
@@ -33,7 +35,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.surefire.heap>512m</maven.surefire.heap>
-		<maven.surefire.argLine/>
+		<maven.surefire.argLine />
 		<querydsl.version>3.7.1</querydsl.version>
 	</properties>
 	<dependencyManagement>
@@ -46,14 +48,22 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.twitter4j</groupId>
+				<artifactId>twitter4j-core</artifactId>
+				<version>[4.0,)</version>
+			</dependency>
+			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-io-edx</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- 
-				Override versions of all querydsl modules defined in platform-bom. 
-				We need the bugfixes in 3.7.1 
-			-->
+			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-twitter</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- Override versions of all querydsl modules defined in platform-bom. 
+				We need the bugfixes in 3.7.1 -->
 			<dependency>
 				<groupId>com.mysema.querydsl</groupId>
 				<artifactId>querydsl-apt</artifactId>
@@ -422,7 +432,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore/>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -717,7 +727,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore/>
+												<ignore />
 											</action>
 										</pluginExecution>
 										<pluginExecution>
@@ -730,7 +740,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore/>
+												<ignore />
 											</action>
 										</pluginExecution>
 										<pluginExecution>
@@ -743,7 +753,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore/>
+												<ignore />
 											</action>
 										</pluginExecution>
 										<pluginExecution>
@@ -756,7 +766,7 @@
 												</goals>
 											</pluginExecutionFilter>
 											<action>
-												<ignore/>
+												<ignore />
 											</action>
 										</pluginExecution>
 									</pluginExecutions>
@@ -780,13 +790,14 @@
 		<module>discoursedb-io-coursera</module>
 		<module>discoursedb-io-piazza</module>
 		<module>discoursedb-annotation</module>
-		<module>discoursedb-annotation-ui</module>
 		<module>discoursedb-io-classroomsalon</module>
 		<module>discoursedb-io-habworlds</module>
-
+		<module>twitter4j-core</module>
 		<module>discoursedb-io-neuwirth</module>
-    <module>discoursedb-annotation-io-brat</module>
-    <module>discoursedb-annotation-io-lightside</module>
+		<module>discoursedb-annotation-io-brat</module>
+		<module>discoursedb-annotation-io-lightside</module>
+		<module>discoursedb-io-twitter</module>
+		<module>discoursedb-io-pems</module>
 	</modules>
 	<ciManagement>
 		<system>Jenkins</system>

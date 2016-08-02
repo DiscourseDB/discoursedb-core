@@ -14,16 +14,19 @@ import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationAggregateRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationEntityProxyRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.core.type.AnnotationRelationTypes;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -33,9 +36,10 @@ import lombok.RequiredArgsConstructor;
 public class AnnotationService {
 
 	private final @NonNull AnnotationInstanceRepository annoInstanceRepo;
-	private final @NonNull AnnotationAggregateRepository annoRepo;
+	private final @NonNull AnnotationEntityProxyRepository annoRepo;
 	private final @NonNull ContributionService contribService;
 	private final @NonNull FeatureRepository featureRepo;
+	private final @NonNull AnnotationRelationRepository annoRelRepo;
 	
 	/**
 	 * Retrieves all annotations for the given entity.
@@ -49,7 +53,7 @@ public class AnnotationService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public <T extends TimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
-		AnnotationAggregate annos = entity.getAnnotations();
+		AnnotationEntityProxy annos = entity.getAnnotations();
 		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
@@ -65,7 +69,7 @@ public class AnnotationService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public <T extends TypedTimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
-		AnnotationAggregate annos = entity.getAnnotations();
+		AnnotationEntityProxy annos = entity.getAnnotations();
 		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
@@ -154,12 +158,12 @@ public class AnnotationService {
 
 		//the annotations aggregate is a proxy for the entity
 		//all annotation instantimeAnnotatableBaseEntityRepo.ces are connected to the aggregate which is finally connected to the annotated entity
-		AnnotationAggregate annoAggregate = entity.getAnnotations();
-		if (annoAggregate == null) {
-			annoAggregate=annoRepo.save(new AnnotationAggregate());
-			entity.setAnnotations(annoAggregate);
+		AnnotationEntityProxy annoProxy = entity.getAnnotations();
+		if (annoProxy == null) {
+			annoProxy=annoRepo.save(new AnnotationEntityProxy());
+			entity.setAnnotations(annoProxy);
 		}
-		annotation.setAnnotationAggregate(annoAggregate);
+		annotation.setAnnotationEntityProxy(annoProxy);
 		annotation = annoInstanceRepo.save(annotation);
 	}
 	
@@ -177,12 +181,12 @@ public class AnnotationService {
 
 		//the annotations aggregate is a proxy for the entity
 		//all annotation instantimeAnnotatableBaseEntityRepo.ces are connected to the aggregate which is finally connected to the annotated entity
-		AnnotationAggregate annoAggregate = entity.getAnnotations();
-		if (annoAggregate == null) {
-			annoAggregate=annoRepo.save(new AnnotationAggregate());
-			entity.setAnnotations(annoAggregate);	
+		AnnotationEntityProxy annoProxy = entity.getAnnotations();
+		if (annoProxy == null) {
+			annoProxy=annoRepo.save(new AnnotationEntityProxy());
+			entity.setAnnotations(annoProxy);	
 		}
-		annotation.setAnnotationAggregate(annoAggregate);
+		annotation.setAnnotationEntityProxy(annoProxy);
 		annotation = annoInstanceRepo.save(annotation);
 	}
 
@@ -343,7 +347,7 @@ public class AnnotationService {
 	        	}
 	        }
 	        return annos;
-	}
+	}	
 
 	public Optional<AnnotationInstance> findOneAnnotationInstance(Long id){
 		return annoInstanceRepo.findOne(id);
@@ -366,5 +370,40 @@ public class AnnotationService {
 	public void saveFeature(Feature feature){
 		Assert.notNull(feature, "Feature cannot be null.");
 		featureRepo.save(feature);		
+	}
+	
+	/**
+	 * Creates a new DiscourseRelation of the given type between the two provided contributions.
+	 * Depending on the type, the relation might be directed or not. This information should be given in the type definition.
+	 * e.g. a REPLY relation would be interpreted as the target(child) being the reply to the source(parent).
+	 * 
+	 * If a AnnotationRelation of the given type already exists between the two annotations (taking into account the direction of the relation),
+	 * then the existing relation is returned. 
+	 * DiscourseDB does not enforce the uniqueness of these relations by default, but enforcing it in this service method will cater to most of the use cases we will see.
+	 * 
+	 * @param sourceAnnotation the source or parent annotation of the relation
+	 * @param targetAnnotation the target or child annotation of the relation
+	 * @param type the AnnotationRelationType
+	 * @param isHeadOfAnnoChain determines whether this is the first relation in a chain of multiple relations. In that case, the sourceAnnotation of this relation is the source of this chain.
+	 * @return a AnnotationRelation between the two provided annotations with the given type that has already been saved to the database 
+	 */
+	public AnnotationRelation createAnnotationRelation(AnnotationInstance sourceAnnotation, AnnotationInstance targetAnnotation, AnnotationRelationTypes type, boolean isHeadOfAnnoChain) {
+		Assert.notNull(sourceAnnotation, "Source annotation cannot be null.");
+		Assert.notNull(targetAnnotation, "Target annotation cannot be null.");
+		Assert.notNull(type, "Relation type cannot be null.");
+								
+		//check if a relation of the given type already exists between the two annotations
+		//if so, return it. if not, create new relation, configure it and return it.
+		return annoRelRepo
+				.findOneBySourceAndTargetAndType(sourceAnnotation, targetAnnotation, type.name())
+				.orElseGet(() -> {
+					AnnotationRelation newRelation = new AnnotationRelation();
+					newRelation.setSource(sourceAnnotation);
+					newRelation.setTarget(targetAnnotation);
+					newRelation.setType(type.name());
+					newRelation.setHeadOfChain(isHeadOfAnnoChain);
+					return annoRelRepo.save(newRelation);
+					}
+				);
 	}
 }
