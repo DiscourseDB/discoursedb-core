@@ -119,7 +119,7 @@ public class TwitterConverterService {
 		}
 
 		//TODO this has to be represented as a relation
-		if(tweet.getInReplyToStatusId()!=0){
+		if(tweet.getInReplyToStatusId()>0){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(String.valueOf(tweet.getInReplyToStatusId()), "in_reply_to_status_id"));			
 		}		
 
@@ -175,7 +175,7 @@ public class TwitterConverterService {
 	/**
 	 * Converts a 2D-array of GeoLocation objects to a list-style String representation of latitude-longitude pairs. 
 	 * 
-	 * @param location a 2d-array of geolocations represening a point or polygon type bounding box
+	 * @param location a 2d-array of geolocations representing a point or polygon type bounding box
 	 * @return a String representation of the 2D GeoLocation array
 	 */
 	private String convertGeoLocationArray(GeoLocation[][] location){
