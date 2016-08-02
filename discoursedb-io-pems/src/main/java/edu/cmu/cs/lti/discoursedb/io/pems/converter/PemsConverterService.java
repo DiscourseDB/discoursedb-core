@@ -1,6 +1,5 @@
 package edu.cmu.cs.lti.discoursedb.io.pems.converter;
 
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,7 +37,5 @@ public class PemsConverterService {
 	private final @NonNull AnnotationService annoService;
 	
 
-	public void mapDocument(String discourseName, String datasetName, Document d){
-		log.warn("Not implemented yet.");	
-	}
+
 }
