@@ -792,7 +792,6 @@
 		<module>discoursedb-annotation-io-brat</module>
 		<module>discoursedb-annotation-io-lightside</module>
 		<module>discoursedb-io-twitter</module>
-		<module>discoursedb-io-pems</module>
 	</modules>
 	<ciManagement>
 		<system>Jenkins</system>

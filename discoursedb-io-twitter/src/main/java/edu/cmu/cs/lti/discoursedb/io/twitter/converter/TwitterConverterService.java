@@ -20,6 +20,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.io.twitter.model.PemsStationMetaData;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -57,11 +58,12 @@ public class TwitterConverterService {
 	 * @param datasetName the dataset identifier
 	 * @param tweet the Tweet to store in DiscourseDB
 	 */
-	public void mapTweet(String discourseName, String datasetName, Status tweet ) {
+	public void mapTweet(String discourseName, String datasetName, Status tweet, PemsStationMetaData pemsMetaData ) {
+		if(tweet==null){return;}
+
 		Assert.hasText(discourseName, "The discourse name has to be specified and cannot be empty.");
 		Assert.hasText(datasetName, "The dataset name has to be specified and cannot be empty.");
-		Assert.notNull(tweet, "The tweet to be mapped to DiscourseDB cannot be null.");
-		
+
 		if(dataSourceService.dataSourceExists(String.valueOf(tweet.getId()), TweetSourceMapping.ID_TO_CONTRIBUTION, datasetName)){
 			log.trace("Tweet with id "+tweet.getId()+" already exists in database. Skipping");
 			return;
@@ -170,6 +172,14 @@ public class TwitterConverterService {
 
 		DataSourceInstance contentSource = dataSourceService.createIfNotExists(new DataSourceInstance(String.valueOf(tweet.getId()),TweetSourceMapping.ID_TO_CONTENT,datasetName));
 		dataSourceService.addSource(curContent, contentSource);
+					
+		if(pemsMetaData!=null){
+			log.warn("PEMS station meta data mapping not implemented yet");
+			//TODO map pems meta data if available
+			//this could mean that we create a DiscoursePart for the station and assign the contribution to that station
+			//once we import the actual station data, we can assign it e.g. as context to the contribs in the corresp. DiscoursePart
+			
+		}
 	}
 	
 	/**
