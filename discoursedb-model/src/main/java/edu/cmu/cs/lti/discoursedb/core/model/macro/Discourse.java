@@ -71,5 +71,6 @@ public class Discourse extends BaseEntity implements Identifiable<Long> {
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "discourses")
 	@Setter(AccessLevel.PRIVATE) 
 	private Set<User> users;
+
 	
 }

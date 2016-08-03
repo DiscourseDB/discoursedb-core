@@ -792,12 +792,13 @@
 		<module>discoursedb-annotation</module>
 		<module>discoursedb-io-classroomsalon</module>
 		<module>discoursedb-io-habworlds</module>
-		<module>twitter4j-core</module>
+		
 		<module>discoursedb-io-neuwirth</module>
 		<module>discoursedb-annotation-io-brat</module>
 		<module>discoursedb-annotation-io-lightside</module>
 		<module>discoursedb-io-twitter</module>
 		<module>discoursedb-io-pems</module>
+		<module>discoursedb-ext-twitter4j</module>
 	</modules>
 	<ciManagement>
 		<system>Jenkins</system>
