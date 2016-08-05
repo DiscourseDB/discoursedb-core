@@ -36,6 +36,7 @@ import lombok.extern.log4j.Log4j;
 public class EdxForumConverterService{
 
 	private static final String EDX_COMMENT_TYPE = "Comment";
+	private static final String THREAD_NAME_PREFIX = "Thread_";
 	
 	private final @NonNull DiscourseService discourseService;
 	private final @NonNull UserService userService;
@@ -92,8 +93,14 @@ public class EdxForumConverterService{
 				curContribution.setStartTime(p.getCreatedAt());
 				curContribution.setUpvotes(p.getUpvoteCount());
 				dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,DataSourceTypes.EDX,dataSetName));
-	
-				//Add contribution to DiscoursePart
+
+				//If contribution is a ThreadStarter, add it to a new Thread
+				if(mappedType == ContributionTypes.THREAD_STARTER){
+					DiscoursePart curThread = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse, THREAD_NAME_PREFIX+curContribution.getId(), DiscoursePartTypes.THREAD);
+					discoursePartService.addContributionToDiscoursePart(curContribution, curThread);
+				}
+				
+				//Add contribution to Forum
 				discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
 				return curContribution; //only necessary because orElseGet requires a return
 			}
@@ -115,6 +122,8 @@ public class EdxForumConverterService{
 		Assert.hasText(dataSetName,"Cannot map post. DataSetName not specified.");
 
 		log.trace("Mapping relations for post " + p.getId());
+		
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(p.getCourseId());
 	
 		//check if a contribution for the given Post already exists in DiscourseDB (imported in Phase1)
 		contributionService.findOneByDataSource(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(
@@ -122,13 +131,20 @@ public class EdxForumConverterService{
 					//If current contribution is not a thread starter then create a DiscourseRelation of DESCENDANT type that connects it with the thread starter 
 					if(p.getCommentThreadId()!=null){
 						contributionService.findOneByDataSource(p.getCommentThreadId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(
-								threadStarter -> contributionService.createDiscourseRelation(threadStarter, curContribution, DiscourseRelationTypes.DESCENDANT));				
+								threadStarter -> {
+									//add DESCENDANT RELATION
+									contributionService.createDiscourseRelation(threadStarter, curContribution, DiscourseRelationTypes.DESCENDANT);
+									
+									//add contribution to THREAD
+									DiscoursePart curThread = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse, THREAD_NAME_PREFIX+threadStarter.getId(), DiscoursePartTypes.THREAD);
+									discoursePartService.addContributionToDiscoursePart(curContribution, curThread);
+								});						
 					}
 
 					//If post is a reply to another post, then create a DiscourseRelation that connects it with its immediate parent			
 					if(p.getParentId()!=null){
 						contributionService.findOneByDataSource(p.getParentId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(
-								parent -> contributionService.createDiscourseRelation(parent , curContribution, DiscourseRelationTypes.REPLY));				
+								parent -> contributionService.createDiscourseRelation(parent , curContribution, DiscourseRelationTypes.REPLY));
 					}
 				}
 		);
