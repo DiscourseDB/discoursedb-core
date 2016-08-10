@@ -1,5 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.io.twitter.converter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -27,8 +30,12 @@ import lombok.extern.log4j.Log4j;
 import twitter4j.GeoLocation;
 import twitter4j.HashtagEntity;
 import twitter4j.MediaEntity;
+import twitter4j.Paging;
 import twitter4j.Place;
 import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 
 /**
  * Service for mapping data retrieved from the Twitter4j API to DiscourseDB
@@ -120,12 +127,12 @@ public class TwitterConverterService {
 			}
 		}
 
-		//TODO this has to be represented as a relation
+		//TODO this should be represented as a relation if the related tweet is part of the dataset
 		if(tweet.getInReplyToStatusId()>0){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(String.valueOf(tweet.getInReplyToStatusId()), "in_reply_to_status_id"));			
 		}		
 
-		//TODO this has to be represented as a relation
+		//TODO this should be represented as a relation if the related tweet is part of the dataset
 		if(tweet.getInReplyToScreenName()!=null){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getInReplyToScreenName(), "in_reply_to_screen_name"));			
 		}		
@@ -175,10 +182,7 @@ public class TwitterConverterService {
 					
 		if(pemsMetaData!=null){
 			log.warn("PEMS station meta data mapping not implemented yet");
-			//TODO map pems meta data if available
-			//this could mean that we create a DiscoursePart for the station and assign the contribution to that station
-			//once we import the actual station data, we can assign it e.g. as context to the contribs in the corresp. DiscoursePart
-			
+			//TODO map pems meta data if available			
 		}
 	}
 	
@@ -199,5 +203,41 @@ public class TwitterConverterService {
 			}			
 		}
 		return str.toString();
+	}
+	
+	/**
+	 * For each user in the mongodb dataset, import the whole timeline of that user (API limit: latest 3,200 tweets)
+	 * 
+	 * @param users
+	 * @param discourseName
+	 * @param datasetName
+	 */
+	public void importUserTimelines(List<String> users, String discourseName, String datasetName){
+		Twitter twitter = TwitterFactory.getSingleton();
+		
+		log.info("Importing timelines for "+users.size()+" users into DiscourseDB");
+		
+		for(String screenname:users){
+		    log.info("Retrieving timeline for user "+screenname);
+			List<Status> tweets = new ArrayList<>();
+			
+	    	//There's an API limit of 3,200 tweets you can get from a timeline and 200 per request (page). 
+		    //This makes 16 requests with 200 tweets per page (pages 1 to 17)
+			//This also works if the users has less than 3,200 tweets
+		    for(int i=1;i<17;i++){  
+			    try{
+			    	tweets.addAll(twitter.getUserTimeline(screenname, new Paging (i, 200)));			    	
+			    }catch(TwitterException e){
+			    	log.error("Error retrieving timeline for user "+screenname,e);
+			    }
+		    }
+
+		    log.info("Retrieved timeline ("+tweets.size()+" Tweets) for user "+screenname);
+		    log.info("Mapping tweets for user "+screenname);
+		    for(Status tweet:tweets){
+			    log.info("Mapping tweet "+tweet.getId());
+		    	mapTweet(discourseName, datasetName, tweet, null);
+		    }
+		}
 	}
 }
