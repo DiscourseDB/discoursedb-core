@@ -23,9 +23,8 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>edu.cmu.cs.lti.discoursedb</groupId>
-			<artifactId>twitter4j-core</artifactId>
-			<version>0.7-SNAPSHOT</version>
+			<groupId>edu.cmu.cs.lti</groupId>
+			<artifactId>discoursedb-ext-twitter4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.mongodb</groupId>
