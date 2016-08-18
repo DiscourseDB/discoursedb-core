@@ -385,4 +385,9 @@ public class UserService {
         return unannotated;
     }
 
+    @Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+    public Optional<User> findOne(Long id) {
+            return userRepo.findOne(id);
+    }
+
 }

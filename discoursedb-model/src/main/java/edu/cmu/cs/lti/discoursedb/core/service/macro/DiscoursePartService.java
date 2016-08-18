@@ -26,6 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRep
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import lombok.NonNull;
@@ -362,5 +363,27 @@ public class DiscoursePartService {
         }
         return unannotated;
     }
+
+
+
+    public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId,
+            String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName,
+            DiscoursePartTypes type) {
+	    Assert.notNull(discourse, "Discourse cannot be null.");
+	    Assert.hasText (entitySourceId, "");
+	
+	    Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
+	    DiscoursePart dp = null;
+	    if (odp.isPresent()) {
+	            dp = odp.get();
+	    } else {
+	            dp = createOrGetTypedDiscoursePart(discourse,"",type);
+	            DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+	            dataSourceService.addSource(dp, ds);
+	    }
+	
+	    return dp;
+	}
+
 
 }

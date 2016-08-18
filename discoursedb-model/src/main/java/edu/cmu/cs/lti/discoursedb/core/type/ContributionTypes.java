@@ -81,7 +81,19 @@ PIAZZA_STUDENT_ANSWER,
 /*
  * A reply a question by an instructor on Piazza
  */
-PIAZZA_INSTRUCTOR_ANSWER
+PIAZZA_INSTRUCTOR_ANSWER, 
+/*
+ * The message attached to a code commit in Git
+ */
+GIT_COMMIT_MESSAGE,
+/*
+ * A comment appended to a GIT_COMMIT_MESSAGE, in Github
+ */
+GITHUB_COMMIT_COMMENT,
+/*
+ * A wiki page
+ */
+WIKI_PAGE
 
 
 

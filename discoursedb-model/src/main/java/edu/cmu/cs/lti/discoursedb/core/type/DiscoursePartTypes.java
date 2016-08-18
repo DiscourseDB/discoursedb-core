@@ -60,7 +60,17 @@ public enum DiscoursePartTypes {
 	/*
 	 * A note on Piazza
 	 */
-	PIAZZA_NOTE
+	PIAZZA_NOTE, 
+	/*
+	 * A "push" in git contains a bunch of
+	 * source code revisions, and a message for each one,
+	 * and possible comments about those revisions/messages
+	 */
+	GIT_PUSH,
+	/*
+	 * A wiki associated with a project within github's infrastructure
+	 */
+	GITHUB_WIKI
 
 	
 }
