@@ -403,10 +403,10 @@ public class UserService {
         */
     }
 
- 
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Optional<User> findOne(Long id) {
-		return userRepo.findOne(id);
-	}
-	
+
+    @Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+    public Optional<User> findOne(Long id) {
+            return userRepo.findOne(id);
+    }
+
 }

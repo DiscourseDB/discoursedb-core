@@ -1,5 +1,8 @@
 package edu.cmu.cs.lti.discoursedb.io.twitter.converter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,14 +23,19 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.io.twitter.model.PemsStationMetaData;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import twitter4j.GeoLocation;
 import twitter4j.HashtagEntity;
 import twitter4j.MediaEntity;
+import twitter4j.Paging;
 import twitter4j.Place;
 import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 
 /**
  * Service for mapping data retrieved from the Twitter4j API to DiscourseDB
@@ -57,11 +65,12 @@ public class TwitterConverterService {
 	 * @param datasetName the dataset identifier
 	 * @param tweet the Tweet to store in DiscourseDB
 	 */
-	public void mapTweet(String discourseName, String datasetName, Status tweet ) {
+	public void mapTweet(String discourseName, String datasetName, Status tweet, PemsStationMetaData pemsMetaData ) {
+		if(tweet==null){return;}
+
 		Assert.hasText(discourseName, "The discourse name has to be specified and cannot be empty.");
 		Assert.hasText(datasetName, "The dataset name has to be specified and cannot be empty.");
-		Assert.notNull(tweet, "The tweet to be mapped to DiscourseDB cannot be null.");
-		
+
 		if(dataSourceService.dataSourceExists(String.valueOf(tweet.getId()), TweetSourceMapping.ID_TO_CONTRIBUTION, datasetName)){
 			log.trace("Tweet with id "+tweet.getId()+" already exists in database. Skipping");
 			return;
@@ -118,12 +127,12 @@ public class TwitterConverterService {
 			}
 		}
 
-		//TODO this has to be represented as a relation
+		//TODO this should be represented as a relation if the related tweet is part of the dataset
 		if(tweet.getInReplyToStatusId()>0){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(String.valueOf(tweet.getInReplyToStatusId()), "in_reply_to_status_id"));			
 		}		
 
-		//TODO this has to be represented as a relation
+		//TODO this should be represented as a relation if the related tweet is part of the dataset
 		if(tweet.getInReplyToScreenName()!=null){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getInReplyToScreenName(), "in_reply_to_screen_name"));			
 		}		
@@ -170,6 +179,11 @@ public class TwitterConverterService {
 
 		DataSourceInstance contentSource = dataSourceService.createIfNotExists(new DataSourceInstance(String.valueOf(tweet.getId()),TweetSourceMapping.ID_TO_CONTENT,datasetName));
 		dataSourceService.addSource(curContent, contentSource);
+					
+		if(pemsMetaData!=null){
+			log.warn("PEMS station meta data mapping not implemented yet");
+			//TODO map pems meta data if available			
+		}
 	}
 	
 	/**
@@ -189,5 +203,41 @@ public class TwitterConverterService {
 			}			
 		}
 		return str.toString();
+	}
+	
+	/**
+	 * For each user in the mongodb dataset, import the whole timeline of that user (API limit: latest 3,200 tweets)
+	 * 
+	 * @param users
+	 * @param discourseName
+	 * @param datasetName
+	 */
+	public void importUserTimelines(List<String> users, String discourseName, String datasetName){
+		Twitter twitter = TwitterFactory.getSingleton();
+		
+		log.info("Importing timelines for "+users.size()+" users into DiscourseDB");
+		
+		for(String screenname:users){
+		    log.info("Retrieving timeline for user "+screenname);
+			List<Status> tweets = new ArrayList<>();
+			
+	    	//There's an API limit of 3,200 tweets you can get from a timeline and 200 per request (page). 
+		    //This makes 16 requests with 200 tweets per page (pages 1 to 17)
+			//This also works if the users has less than 3,200 tweets
+		    for(int i=1;i<17;i++){  
+			    try{
+			    	tweets.addAll(twitter.getUserTimeline(screenname, new Paging (i, 200)));			    	
+			    }catch(TwitterException e){
+			    	log.error("Error retrieving timeline for user "+screenname,e);
+			    }
+		    }
+
+		    log.info("Retrieved timeline ("+tweets.size()+" Tweets) for user "+screenname);
+		    log.info("Mapping tweets for user "+screenname);
+		    for(Status tweet:tweets){
+			    log.info("Mapping tweet "+tweet.getId());
+		    	mapTweet(discourseName, datasetName, tweet, null);
+		    }
+		}
 	}
 }

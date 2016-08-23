@@ -83,10 +83,15 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ "where conte.author=?1")
 	Set<DiscoursePart> findAllThatIncludesUser(User u);
 	
+
 	@Query("select dp1 from DiscoursePartContribution cpdp "
 			+ "inner join cpdp.contribution contr  "
 			+ "inner join contr.firstRevision conte "
 			+ "left join cpdp.discoursePart dp1 "
 			+ "where conte.author=?1")
 	Page<DiscoursePart> findAllThatIncludesUserPaged(User u, Pageable p);
+
+
+
+
 }

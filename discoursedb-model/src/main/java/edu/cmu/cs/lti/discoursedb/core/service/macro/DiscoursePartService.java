@@ -110,7 +110,8 @@ public class DiscoursePartService {
 		
 		return dp;
 	}
-	
+
+
 	
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
@@ -547,7 +548,8 @@ public class DiscoursePartService {
 	 */
     public List<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
     	return discoursePartRepo.findAllNotAnnotatedWithType(badAnnotation);
-/*=======
+    }
+/*
     public Set<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
         Set<DiscoursePart> unannotated = new HashSet<DiscoursePart>();
         for(DiscoursePart dp : discoursePartRepo.findAll()) {
@@ -564,7 +566,12 @@ public class DiscoursePartService {
                 if (addme) { unannotated.add(dp); }
         }
         return unannotated;
->>>>>>> dbd08d8a223c81909f84fd71a2b2ac65c571b20a*/
-    }
+	}
+*/
+    
+
+
+
+
 
 }

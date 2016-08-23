@@ -1,0 +1,13 @@
+ 
+ COPY THIS FILE TO custom.properties AND FILL IN DETAILS
+ issues, actors, and project_events files come from the "giterator" project
+    which scans github data into a standards set of CSV files for input
+
+jdbc.database= 
+jdbc.host=
+jdbc.username=
+jdbc.password=
+
+gitdata.issues= <issues directory containing repo_owner_proj_commits.csv and repo_owner_proj_issue#.csv>
+gitdata.actors= <full path of actor_info.csv>
+gitdata.project_events= <full path of events directory>

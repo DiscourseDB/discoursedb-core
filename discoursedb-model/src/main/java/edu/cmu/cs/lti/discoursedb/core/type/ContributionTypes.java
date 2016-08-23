@@ -89,8 +89,10 @@ GIT_COMMIT_MESSAGE,
 /*
  * A comment appended to a GIT_COMMIT_MESSAGE, in Github
  */
-GITHUB_COMMIT_COMMENT, 
-
+GITHUB_COMMIT_COMMENT,
+/*
+ * A wiki page
+ */
 WIKI_PAGE
 
 
