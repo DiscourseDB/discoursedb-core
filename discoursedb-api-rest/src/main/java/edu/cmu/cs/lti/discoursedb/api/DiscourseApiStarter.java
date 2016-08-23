@@ -13,6 +13,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratImport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratConfigExport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.sandbox.TestDiscourseGenerator;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.util.UnannotatedContributionRemover;
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideDataExport;
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideDataImport;
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideTrainingDataExport;
@@ -27,7 +28,8 @@ import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideTrainingDataE
 @EntityScan(basePackageClasses = { DiscourseApiStarter.class, Jsr310JpaConverters.class })
 @ComponentScan(value = { "edu.cmu.cs.lti.discoursedb" }, excludeFilters = {
 		  @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
-				  value = { TestDiscourseGenerator.class, BratConfigExport.class, BratExport.class, BratImport.class,
+				  value = { UnannotatedContributionRemover.class, 
+						  TestDiscourseGenerator.class, BratConfigExport.class, BratExport.class, BratImport.class,
 						  LightSideDataExport.class, LightSideDataImport.class, LightSideTrainingDataExport.class }) })
 public class DiscourseApiStarter {
 
