@@ -135,6 +135,11 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>edu.cmu.cs.lti</groupId>
+				<artifactId>discoursedb-io-github</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.jooq</groupId>
 				<artifactId>jool</artifactId>
 				<version>0.9.7</version>
@@ -789,6 +794,7 @@
 		<module>discoursedb-io-bazaar</module>
 		<module>discoursedb-io-tags</module>
 		<module>discoursedb-io-prosolo</module>
+		<module>discoursedb-io-github</module>
 		<module>discoursedb-model</module>
 		<module>discoursedb-api-rest</module>
 		<module>discoursedb-io-wikipedia</module>
