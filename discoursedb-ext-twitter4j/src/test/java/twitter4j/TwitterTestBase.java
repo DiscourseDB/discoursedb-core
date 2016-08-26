@@ -16,12 +16,12 @@
 
 package twitter4j;
 
+import java.io.InputStream;
+import java.util.Properties;
+
 import junit.framework.TestCase;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.PropertyConfiguration;
-
-import java.io.InputStream;
-import java.util.Properties;
 
 public class TwitterTestBase extends TestCase {
     public TwitterTestBase(String name) {

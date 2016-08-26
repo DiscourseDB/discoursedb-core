@@ -16,9 +16,9 @@
 
 package twitter4j;
 
-import twitter4j.auth.Authorization;
-
 import java.util.Map;
+
+import twitter4j.auth.Authorization;
 
 /**
  * A utility class to handle HTTP request/response.

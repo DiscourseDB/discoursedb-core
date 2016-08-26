@@ -17,7 +17,6 @@
 package twitter4j;
 
 import junit.framework.TestCase;
-import twitter4j.*;
 
 public class HTMLEntityTest extends TestCase {
     public HTMLEntityTest(String name) {

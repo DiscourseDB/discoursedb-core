@@ -16,11 +16,11 @@
 
 package twitter4j;
 
-import twitter4j.conf.Configuration;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
+
+import twitter4j.conf.Configuration;
 
 /**
  * A data class representing Basic list information element

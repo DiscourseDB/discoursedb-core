@@ -15,14 +15,20 @@
  */
 package twitter4j;
 
-import twitter4j.management.APIStatistics;
-import twitter4j.management.APIStatisticsMBean;
-import twitter4j.management.APIStatisticsOpenMBean;
-
-import javax.management.*;
 import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+
+import twitter4j.management.APIStatistics;
+import twitter4j.management.APIStatisticsMBean;
+import twitter4j.management.APIStatisticsOpenMBean;
 
 /**
  * Singleton instance of all Twitter API monitoring. Handles URL parsing and "wire off" logic.

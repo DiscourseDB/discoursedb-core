@@ -16,14 +16,14 @@
 
 package twitter4j.auth;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 import twitter4j.HttpResponse;
 import twitter4j.JSONException;
 import twitter4j.JSONObject;
 import twitter4j.TwitterException;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 
 public class OAuth2Token implements java.io.Serializable {

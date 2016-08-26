@@ -16,10 +16,10 @@
 
 package twitter4j.auth;
 
+import javax.crypto.spec.SecretKeySpec;
+
 import twitter4j.HttpResponse;
 import twitter4j.TwitterException;
-
-import javax.crypto.spec.SecretKeySpec;
 
 abstract class OAuthToken implements java.io.Serializable {
 

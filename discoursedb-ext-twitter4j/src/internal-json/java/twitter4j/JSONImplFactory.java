@@ -16,10 +16,10 @@
  */
 package twitter4j;
 
+import java.util.Map;
+
 import twitter4j.api.HelpResources;
 import twitter4j.conf.Configuration;
-
-import java.util.Map;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

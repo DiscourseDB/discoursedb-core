@@ -16,12 +16,12 @@
 
 package twitter4j;
 
-import twitter4j.conf.Configuration;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import twitter4j.conf.Configuration;
 
 /**
  * A data class representing Twitter REST API's rate limit status

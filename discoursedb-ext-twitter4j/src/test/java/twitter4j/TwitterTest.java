@@ -16,13 +16,13 @@
 
 package twitter4j;
 
-import junit.framework.Assert;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
+
+import junit.framework.Assert;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

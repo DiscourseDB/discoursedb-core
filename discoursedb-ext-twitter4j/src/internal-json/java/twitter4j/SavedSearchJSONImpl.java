@@ -16,9 +16,9 @@
 
 package twitter4j;
 
-import twitter4j.conf.Configuration;
-
 import java.util.Date;
+
+import twitter4j.conf.Configuration;
 
 /**
  * A data class representing a Saved Search

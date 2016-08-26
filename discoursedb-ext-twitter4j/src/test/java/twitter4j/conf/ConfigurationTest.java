@@ -17,11 +17,18 @@
 
 package twitter4j.conf;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Properties;
+
 import junit.framework.TestCase;
 import twitter4j.auth.RequestToken;
-
-import java.io.*;
-import java.util.Properties;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

@@ -16,11 +16,11 @@
 
 package twitter4j;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

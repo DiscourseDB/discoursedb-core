@@ -16,15 +16,15 @@
 
 package twitter4j.conf;
 
-import twitter4j.HttpClientConfiguration;
-import twitter4j.Logger;
-
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import twitter4j.HttpClientConfiguration;
+import twitter4j.Logger;
 
 /**
  * Configuration base class with default settings.

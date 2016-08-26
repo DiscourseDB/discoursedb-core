@@ -16,7 +16,13 @@
 
 package twitter4j.api;
 
-import twitter4j.*;
+import twitter4j.Friendship;
+import twitter4j.IDs;
+import twitter4j.PagableResponseList;
+import twitter4j.Relationship;
+import twitter4j.ResponseList;
+import twitter4j.TwitterException;
+import twitter4j.User;
 
 /**
  * @author Joern Huxhorn - jhuxhorn at googlemail.com
