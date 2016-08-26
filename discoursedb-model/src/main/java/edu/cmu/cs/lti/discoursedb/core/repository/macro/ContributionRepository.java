@@ -1,7 +1,6 @@
 package edu.cmu.cs.lti.discoursedb.core.repository.macro;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.jpa.repository.Query;
 

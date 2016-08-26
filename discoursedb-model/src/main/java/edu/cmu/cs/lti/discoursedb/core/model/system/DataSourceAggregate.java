@@ -14,8 +14,6 @@ import javax.persistence.Table;
 
 import org.springframework.hateoas.Identifiable;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Data;

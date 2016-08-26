@@ -12,10 +12,6 @@ import javax.persistence.Table;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import edu.cmu.cs.lti.discoursedb.core.model.TypedBE;
 import lombok.AccessLevel;
 import lombok.Data;

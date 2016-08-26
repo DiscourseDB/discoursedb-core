@@ -18,10 +18,6 @@ import javax.persistence.Table;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import edu.cmu.cs.lti.discoursedb.core.model.TypedSourcedBE;
 import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
 import lombok.AccessLevel;
