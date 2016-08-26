@@ -95,37 +95,31 @@ public class EdxForumConverterService{
 		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthorUsername());
 		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthorId(),EdxSourceMapping.AUTHOR_ID_TO_USER,DataSourceTypes.EDX, dataSetName));
 
-		// ---------- Create Contribution and Content -----------
-		//Check if contribution exists already. This could only happen if we import the same dump multiple times.
-		contributionService.findOneByDataSource(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION, dataSetName).orElseGet(()->
-			{
-				ContributionTypes mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST:ContributionTypes.THREAD_STARTER;
+		ContributionTypes mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST:ContributionTypes.THREAD_STARTER;
 	
-				log.trace("Create Content entity");
-				Content curContent = contentService.createContent();
-				curContent.setText(p.getBody());
-				curContent.setStartTime(p.getCreatedAt());
-				curContent.setAuthor(curUser);
+		log.trace("Create Content entity");
+		Content curContent = contentService.createContent();
+		curContent.setText(p.getBody());
+		curContent.setStartTime(p.getCreatedAt());
+		curContent.setAuthor(curUser);
 				
-				log.trace("Create Contribution entity");
-				Contribution curContribution = contributionService.createTypedContribution(mappedType);
-				curContribution.setCurrentRevision(curContent);
-				curContribution.setFirstRevision(curContent);
-				curContribution.setStartTime(p.getCreatedAt());
-				curContribution.setUpvotes(p.getUpvoteCount());
-				dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,DataSourceTypes.EDX,dataSetName));
+		log.trace("Create Contribution entity");
+		Contribution curContribution = contributionService.createTypedContribution(mappedType);
+		curContribution.setCurrentRevision(curContent);
+		curContribution.setFirstRevision(curContent);
+		curContribution.setStartTime(p.getCreatedAt());
+		curContribution.setUpvotes(p.getUpvoteCount());
+		dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,DataSourceTypes.EDX,dataSetName));
 
-				//If contribution is a ThreadStarter, add it to a new Thread
-				if(mappedType == ContributionTypes.THREAD_STARTER){
-					DiscoursePart curThread = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse, THREAD_NAME_PREFIX+curContribution.getId(), DiscoursePartTypes.THREAD);
-					discoursePartService.addContributionToDiscoursePart(curContribution, curThread);
-				}
+		//If contribution is a ThreadStarter, add it to a new Thread
+		//Contributions that are not ThreadStartes will be added to their respective Thread in Phase2 - in the mapRelations method
+		if(mappedType == ContributionTypes.THREAD_STARTER){
+			DiscoursePart curThread = discoursePartService.createOrGetTypedDiscoursePart(curDiscourse, THREAD_NAME_PREFIX+curContribution.getId(), DiscoursePartTypes.THREAD);
+			discoursePartService.addContributionToDiscoursePart(curContribution, curThread);
+		}
 				
-				//Add contribution to Forum
-				discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
-				return curContribution; //only necessary because orElseGet requires a return
-			}
-		);
+		//Add contribution to Forum
+		discoursePartService.addContributionToDiscoursePart(curContribution, curDiscoursePart);
 				
 		log.trace("Post mapping completed.");
 	}
