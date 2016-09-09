@@ -34,6 +34,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
@@ -44,6 +45,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.twitter.model.PemsStationMetaData;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -99,7 +101,8 @@ public class TwitterConverterService {
 		log.trace("Mapping Tweet "+tweet.getId());		
 		
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
-		
+		DiscoursePart discoursePart = discoursepartService.createOrGetTypedDiscoursePart(discourse,
+                          "All Tweets", DiscoursePartTypes.CHATROOM);
 		twitter4j.User tUser = tweet.getUser();
 		User user = null;
 		if(!userService.findUserByDiscourseAndUsername(discourse,tUser.getScreenName()).isPresent()){
@@ -116,20 +119,21 @@ public class TwitterConverterService {
 			annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getFriendsCount()), "friends_count"));
 			annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getStatusesCount()), "statuses_count"));
 			annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getListedCount()), "listed_count"));
-			if(tUser.getDescription()!=null){
+			if(tUser.getDescription()!=null && tUser.getDescription().length() > 0){
 				annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getDescription()), "description"));				
 			}
 			annoService.addAnnotation(user, userInfo);			
 		}
 		
 		Contribution curContrib = contributionService.createTypedContribution(ContributionTypes.TWEET);
+		discoursepartService.addContributionToDiscoursePart(curContrib, discoursePart);
 		DataSourceInstance contribSource = dataSourceService.createIfNotExists(new DataSourceInstance(String.valueOf(tweet.getId()),TweetSourceMapping.ID_TO_CONTRIBUTION,datasetName));
 		curContrib.setStartTime(tweet.getCreatedAt());
 		dataSourceService.addSource(curContrib, contribSource);		
 
 		
 		AnnotationInstance tweetInfo = annoService.createTypedAnnotation("twitter_tweet_info");
-		if(tweet.getSource()!=null){
+		if(tweet.getSource()!=null && tweet.getSource().length() > 0){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getSource(), "tweet_source"));			
 		}
 		
@@ -154,7 +158,7 @@ public class TwitterConverterService {
 		}		
 
 		//TODO this should be represented as a relation if the related tweet is part of the dataset
-		if(tweet.getInReplyToScreenName()!=null){
+		if(tweet.getInReplyToScreenName()!=null && tweet.getInReplyToScreenName().length() > 0){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getInReplyToScreenName(), "in_reply_to_screen_name"));			
 		}		
 		annoService.addAnnotation(curContrib, tweetInfo);			
@@ -173,12 +177,12 @@ public class TwitterConverterService {
 		if(place!=null){
 			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_tweet_place");			
 			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getPlaceType()), "place_type"));
-			if(place.getGeometryType()!=null){
+			if(place.getGeometryType()!=null && place.getGeometryType().length() > 0){
 				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getGeometryType()), "geo_type"));				
 			}
 			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getBoundingBoxType()), "bounding_box_type"));
 			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getFullName()), "place_name"));
-			if(place.getStreetAddress()!=null){
+			if(place.getStreetAddress()!=null && place.getStreetAddress().length() > 0){
 				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getStreetAddress()), "street_address"));				
 			}
 			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getCountry()), "country"));
