@@ -170,17 +170,22 @@ public class TwitterConverter implements CommandLineRunner {
 		Assert.notNull(tweetDocument, "The mongodb document representing the tweet to be parsed cannot be null.");
 		PemsStationMetaData pems = null;
 
-		Document location = (Document) tweetDocument.get("location");
+		Document coordinates = (Document) tweetDocument.get("coordinates");
 		Document place = (Document) tweetDocument.get("place");
-		if (location != null && !location.isEmpty()) {
+		if (coordinates != null && !coordinates.isEmpty()) {
 			// if available, map gps tag to station
-			log.trace("Mapping gps location to PEMS station data.");
+			log.trace("Mapping gps coordinates to PEMS station data.");
 
-			BasicDBObject query = (BasicDBObject) JSON.parse("{location:{$near:{$geometry:" + location.toJson()
+			BasicDBObject query = (BasicDBObject) JSON.parse("{location:{$near:{$geometry:" + coordinates.toJson()
 					+ ",$minDistance:0,$maxDistance: " + MAX_DIST + "}}}");
 			Document metaData = (Document) mongoClient.getDatabase(pemsMetaDb).getCollection(pemsMetaCollection)
 					.find(query).first();
-			pems = new PemsStationMetaData(metaData);
+                        if (metaData != null) {
+                            log.trace("Assigning PEMS data to a tweet");
+			    pems = new PemsStationMetaData(metaData);
+                        } else {
+                            log.trace("NOT assigning PEMS data to a tweet");
+                        }
 		} else if (place != null && !place.isEmpty()) {
 			// if no gps tag is available, map place to station if available
 			log.trace("Mapping place tag to PEMS station data.");

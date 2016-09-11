@@ -102,7 +102,7 @@ public class TwitterConverterService {
 		
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
 		DiscoursePart discoursePart = discoursepartService.createOrGetTypedDiscoursePart(discourse,
-                          "All Tweets", DiscoursePartTypes.CHATROOM);
+                          "All Tweets", DiscoursePartTypes.TWEETS);
 		twitter4j.User tUser = tweet.getUser();
 		User user = null;
 		if(!userService.findUserByDiscourseAndUsername(discourse,tUser.getScreenName()).isPresent()){
@@ -123,7 +123,9 @@ public class TwitterConverterService {
 				annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getDescription()), "description"));				
 			}
 			annoService.addAnnotation(user, userInfo);			
-		}
+		} else {
+			user = userService.createOrGetUser(discourse, tUser.getScreenName());
+                }
 		
 		Contribution curContrib = contributionService.createTypedContribution(ContributionTypes.TWEET);
 		discoursepartService.addContributionToDiscoursePart(curContrib, discoursePart);
@@ -206,8 +208,12 @@ public class TwitterConverterService {
 		dataSourceService.addSource(curContent, contentSource);
 					
 		if(pemsMetaData!=null){
-			log.warn("PEMS station meta data mapping not implemented yet");
-			//TODO map pems meta data if available			
+			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_nearest_pems");			
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getStationId()), "pems_station_id"));
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getLongitude()), "pems_longitude"));
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getLatitdue()), "pems_latitude"));
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getStationName()), "pems_station_name"));
+			annoService.addAnnotation(curContrib, placeAnno);
 		}
 	}
 	
