@@ -59,6 +59,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
 
 /**
  * Service for mapping data retrieved from the Twitter4j API to DiscourseDB
@@ -79,6 +80,8 @@ public class TwitterConverterService {
 	private final @NonNull DiscoursePartService discoursepartService;
 	private final @NonNull DiscourseService discourseService;
 	private final @NonNull AnnotationService annoService;
+        @Autowired private org.springframework.core.env.Environment environment;
+
 	
 
 	/**
@@ -245,6 +248,12 @@ public class TwitterConverterService {
 	 */
 	public void importUserTimelines(List<String> users, String discourseName, String datasetName){
 		Twitter twitter = TwitterFactory.getSingleton();
+            	if (!twitter.getAuthorization().isEnabled()) {
+                	twitter.setOAuthConsumer(environment.getRequiredProperty("oauth.consumerKey"),
+                        	environment.getRequiredProperty("oauth.consumerSecret"));
+                	twitter.setOAuthAccessToken(new AccessToken(environment.getRequiredProperty("oauth.accessToken"),
+                        	environment.getRequiredProperty("oauth.accessTokenSecret")));
+            	}
 		
 		log.info("Importing timelines for "+users.size()+" users into DiscourseDB");
 		

@@ -22,6 +22,7 @@
 package edu.cmu.cs.lti.discoursedb.io.twitter.model;
 
 import org.bson.Document;
+import java.util.List;
 
 import lombok.Data;
 
@@ -65,11 +66,11 @@ public class PemsStationMetaData {
 	*	"state_pm" : 0.71
 	************************************/
 	public PemsStationMetaData(Document metaData){
-		setStationId(metaData.getLong("station_id"));
+		setStationId(Long.valueOf(metaData.getInteger("station_id")));
 		setStationName(metaData.getString("name"));
-		double[] coordinates = (double[])((Document)metaData.get("location")).get("coordinates");
-		setLatitdue(coordinates[0]);
-		setLongitude(coordinates[1]);
+        	List<Double> ld = ((Document)metaData.get("location")).get("coordinates", List.class);
+        	setLatitdue(ld.get(0));
+        	setLongitude(ld.get(1));
 	}
 
 	
