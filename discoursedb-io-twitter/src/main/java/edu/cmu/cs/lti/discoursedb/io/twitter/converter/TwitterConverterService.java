@@ -170,7 +170,6 @@ public class TwitterConverterService {
 		annoService.addAnnotation(curContrib, tweetInfo);			
 
 		
-		log.info(tweet.toString());
 		GeoLocation geo = tweet.getGeoLocation();
 		if(geo!=null){
 			AnnotationInstance coord = annoService.createTypedAnnotation("twitter_tweet_geo_location");
