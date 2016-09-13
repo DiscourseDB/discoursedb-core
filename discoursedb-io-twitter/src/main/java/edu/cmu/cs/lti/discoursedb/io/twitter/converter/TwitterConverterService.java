@@ -24,6 +24,7 @@ package edu.cmu.cs.lti.discoursedb.io.twitter.converter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -82,7 +83,7 @@ public class TwitterConverterService {
 	private final @NonNull AnnotationService annoService;
         @Autowired private org.springframework.core.env.Environment environment;
 
-	
+	private boolean nonblank(String s) { return s != null && s.length() > 0; }
 
 	/**
 	 * Maps a Tweet represented as a Twitter4J Status object to DiscourseDB
@@ -169,7 +170,7 @@ public class TwitterConverterService {
 		annoService.addAnnotation(curContrib, tweetInfo);			
 
 		
-		
+		log.info(tweet.toString());
 		GeoLocation geo = tweet.getGeoLocation();
 		if(geo!=null){
 			AnnotationInstance coord = annoService.createTypedAnnotation("twitter_tweet_geo_location");
@@ -180,17 +181,25 @@ public class TwitterConverterService {
 		
 		Place place = tweet.getPlace();
 		if(place!=null){
-			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_tweet_place");			
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getPlaceType()), "place_type"));
-			if(place.getGeometryType()!=null && place.getGeometryType().length() > 0){
-				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getGeometryType()), "geo_type"));				
+			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_tweet_place");		
+			if(this.nonblank(place.getPlaceType())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getPlaceType(), "place_type"));
 			}
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getBoundingBoxType()), "bounding_box_type"));
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getFullName()), "place_name"));
-			if(place.getStreetAddress()!=null && place.getStreetAddress().length() > 0){
-				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getStreetAddress()), "street_address"));				
+			if(this.nonblank(place.getGeometryType())){
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getGeometryType() , "geo_type"));				
 			}
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getCountry()), "country"));
+			if(this.nonblank(place.getBoundingBoxType())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getBoundingBoxType(), "bounding_box_type"));
+			}
+			if (this.nonblank(place.getFullName())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getFullName(), "place_name"));
+			}
+			if(this.nonblank(place.getStreetAddress())){
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getStreetAddress(), "street_address"));				
+			}
+			if(this.nonblank(place.getCountry())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getCountry(), "country"));
+			}
 			if(place.getBoundingBoxCoordinates()!=null){
 				annoService.addFeature(placeAnno, annoService.createTypedFeature(convertGeoLocationArray(place.getBoundingBoxCoordinates()), "bounding_box_lat_lon_array"));							
 			}
@@ -239,45 +248,4 @@ public class TwitterConverterService {
 		return str.toString();
 	}
 	
-	/**
-	 * For each user in the mongodb dataset, import the whole timeline of that user (API limit: latest 3,200 tweets)
-	 * 
-	 * @param users
-	 * @param discourseName
-	 * @param datasetName
-	 */
-	public void importUserTimelines(List<String> users, String discourseName, String datasetName){
-		Twitter twitter = TwitterFactory.getSingleton();
-            	if (!twitter.getAuthorization().isEnabled()) {
-                	twitter.setOAuthConsumer(environment.getRequiredProperty("oauth.consumerKey"),
-                        	environment.getRequiredProperty("oauth.consumerSecret"));
-                	twitter.setOAuthAccessToken(new AccessToken(environment.getRequiredProperty("oauth.accessToken"),
-                        	environment.getRequiredProperty("oauth.accessTokenSecret")));
-            	}
-		
-		log.info("Importing timelines for "+users.size()+" users into DiscourseDB");
-		
-		for(String screenname:users){
-		    log.info("Retrieving timeline for user "+screenname);
-			List<Status> tweets = new ArrayList<>();
-			
-	    	//There's an API limit of 3,200 tweets you can get from a timeline and 200 per request (page). 
-		    //This makes 16 requests with 200 tweets per page (pages 1 to 17)
-			//This also works if the users has less than 3,200 tweets
-		    for(int i=1;i<17;i++){  
-			    try{
-			    	tweets.addAll(twitter.getUserTimeline(screenname, new Paging (i, 200)));			    	
-			    }catch(TwitterException e){
-			    	log.error("Error retrieving timeline for user "+screenname,e);
-			    }
-		    }
-
-		    log.info("Retrieved timeline ("+tweets.size()+" Tweets) for user "+screenname);
-		    log.info("Mapping tweets for user "+screenname);
-		    for(Status tweet:tweets){
-			    log.info("Mapping tweet "+tweet.getId());
-		    	mapTweet(discourseName, datasetName, tweet, null);
-		    }
-		}
-	}
 }
