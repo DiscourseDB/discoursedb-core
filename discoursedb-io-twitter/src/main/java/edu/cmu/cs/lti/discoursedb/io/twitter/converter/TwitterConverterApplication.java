@@ -41,7 +41,7 @@ public class TwitterConverterApplication {
 	 */
 
 	public static void main(String[] args) {
-		Assert.isTrue(args.length == 5 || args.length == 7, "Usage: TwitterConverterApplication <DiscourseName> <DataSetName> <MongoDbHost> <MongoTwitterDatabaseName> <MongoTwitterCollectionName> [ <PemsMetaMongoDataDatabaseName> <PemsMetaDataMongoCollectionName> optional]");
+		Assert.isTrue(args.length == 5 || (args.length >= 6 && args.length <=8), "Usage: TwitterConverterApplication <DiscourseName> <DataSetName> <MongoDbHost> <MongoTwitterDatabaseName> <MongoTwitterCollectionName> [<StationsFilePath> <PemsMetaMongoDataDatabaseName> <PemsMetaDataMongoCollectionName> optional]");
 		SpringApplication.run(TwitterConverterApplication.class, args);
 	}
 

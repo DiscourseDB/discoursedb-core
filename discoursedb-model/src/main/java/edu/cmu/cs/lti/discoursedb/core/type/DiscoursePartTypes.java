@@ -91,7 +91,10 @@ public enum DiscoursePartTypes {
 	/*
 	 * A wiki associated with a project within github's infrastructure
 	 */
-	GITHUB_WIKI
-
+	GITHUB_WIKI,
+	/*
+	 * A selection of twitter status postings
+	 */
+	TWEETS
 	
 }

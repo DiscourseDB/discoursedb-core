@@ -21,9 +21,14 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.io.twitter.converter;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,6 +39,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
@@ -44,6 +50,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.io.twitter.model.PemsStationMetaData;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +64,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
 
 /**
  * Service for mapping data retrieved from the Twitter4j API to DiscourseDB
@@ -77,7 +85,9 @@ public class TwitterConverterService {
 	private final @NonNull DiscoursePartService discoursepartService;
 	private final @NonNull DiscourseService discourseService;
 	private final @NonNull AnnotationService annoService;
-	
+        @Autowired private org.springframework.core.env.Environment environment;
+
+	private boolean nonblank(String s) { return s != null && s.length() > 0; }
 
 	/**
 	 * Maps a Tweet represented as a Twitter4J Status object to DiscourseDB
@@ -86,7 +96,7 @@ public class TwitterConverterService {
 	 * @param datasetName the dataset identifier
 	 * @param tweet the Tweet to store in DiscourseDB
 	 */
-	public void mapTweet(String discourseName, String datasetName, Status tweet, PemsStationMetaData pemsMetaData ) {
+	public void mapTweet(String discourseName, String datasetName, Status tweet, String stationLocations, PemsStationMetaData pemsMetaData ) {
 		if(tweet==null){return;}
 
 		Assert.hasText(discourseName, "The discourse name has to be specified and cannot be empty.");
@@ -99,7 +109,8 @@ public class TwitterConverterService {
 		log.trace("Mapping Tweet "+tweet.getId());		
 		
 		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
-		
+		DiscoursePart discoursePart = discoursepartService.createOrGetTypedDiscoursePart(discourse,
+                          "All Tweets", DiscoursePartTypes.TWEETS);
 		twitter4j.User tUser = tweet.getUser();
 		User user = null;
 		if(!userService.findUserByDiscourseAndUsername(discourse,tUser.getScreenName()).isPresent()){
@@ -116,20 +127,23 @@ public class TwitterConverterService {
 			annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getFriendsCount()), "friends_count"));
 			annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getStatusesCount()), "statuses_count"));
 			annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getListedCount()), "listed_count"));
-			if(tUser.getDescription()!=null){
+			if(tUser.getDescription()!=null && tUser.getDescription().length() > 0){
 				annoService.addFeature(userInfo, annoService.createTypedFeature(String.valueOf(tUser.getDescription()), "description"));				
 			}
 			annoService.addAnnotation(user, userInfo);			
-		}
+		} else {
+			user = userService.createOrGetUser(discourse, tUser.getScreenName());
+                }
 		
 		Contribution curContrib = contributionService.createTypedContribution(ContributionTypes.TWEET);
+		discoursepartService.addContributionToDiscoursePart(curContrib, discoursePart);
 		DataSourceInstance contribSource = dataSourceService.createIfNotExists(new DataSourceInstance(String.valueOf(tweet.getId()),TweetSourceMapping.ID_TO_CONTRIBUTION,datasetName));
 		curContrib.setStartTime(tweet.getCreatedAt());
 		dataSourceService.addSource(curContrib, contribSource);		
 
 		
 		AnnotationInstance tweetInfo = annoService.createTypedAnnotation("twitter_tweet_info");
-		if(tweet.getSource()!=null){
+		if(tweet.getSource()!=null && tweet.getSource().length() > 0){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getSource(), "tweet_source"));			
 		}
 		
@@ -154,12 +168,11 @@ public class TwitterConverterService {
 		}		
 
 		//TODO this should be represented as a relation if the related tweet is part of the dataset
-		if(tweet.getInReplyToScreenName()!=null){
+		if(tweet.getInReplyToScreenName()!=null && tweet.getInReplyToScreenName().length() > 0){
 			annoService.addFeature(tweetInfo, annoService.createTypedFeature(tweet.getInReplyToScreenName(), "in_reply_to_screen_name"));			
 		}		
 		annoService.addAnnotation(curContrib, tweetInfo);			
 
-		
 		
 		GeoLocation geo = tweet.getGeoLocation();
 		if(geo!=null){
@@ -167,21 +180,71 @@ public class TwitterConverterService {
 			annoService.addFeature(coord, annoService.createTypedFeature(String.valueOf(geo.getLongitude()), "long"));
 			annoService.addFeature(coord, annoService.createTypedFeature(String.valueOf(geo.getLatitude()), "lat"));
 			annoService.addAnnotation(curContrib, coord);
+			
+			AnnotationInstance distancesToStation = annoService.createTypedAnnotation("twitter_tweet_quantized_distance");
+			//Add the quantized location string to the tweet
+			try
+			{
+				FileReader fileReader = new FileReader(stationLocations);
+				BufferedReader buffReader = new BufferedReader(fileReader);
+				String line = "";
+				//values start from the second line in the file
+				line = buffReader.readLine();
+				String[] splitLine = null;
+				String locName, quantDistance;
+				double latitude, longitute;
+				
+				while((line = buffReader.readLine()) != null)
+				{
+					splitLine = line.trim().split(",");
+					//System.out.println("File line length:" + splitLine.length);
+					locName = splitLine[0].trim();
+					//System.out.println("station name:" + locName);
+					longitute = Double.parseDouble(splitLine[1].trim());
+					latitude = Double.parseDouble(splitLine[2].trim());
+					quantDistance = CalculateDistanceFromStation(geo.getLongitude(),
+										geo.getLatitude(),
+										longitute,
+										latitude);
+					annoService.addFeature(distancesToStation, annoService.createTypedFeature(quantDistance, locName));
+				}
+				
+				buffReader.close();
+			}
+			catch(FileNotFoundException ex) {
+	            System.out.println(
+	                "Unable to open file '" + 
+	                		stationLocations + "'");                
+	        }
+	        catch(IOException ex) {
+	            System.out.println(
+	                "Error reading file '" 
+	                + stationLocations + "'"); 
+	        }
+			annoService.addAnnotation(curContrib, distancesToStation);
 		}
-		
+			
 		Place place = tweet.getPlace();
 		if(place!=null){
-			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_tweet_place");			
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getPlaceType()), "place_type"));
-			if(place.getGeometryType()!=null){
-				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getGeometryType()), "geo_type"));				
+			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_tweet_place");		
+			if(this.nonblank(place.getPlaceType())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getPlaceType(), "place_type"));
 			}
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getBoundingBoxType()), "bounding_box_type"));
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getFullName()), "place_name"));
-			if(place.getStreetAddress()!=null){
-				annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getStreetAddress()), "street_address"));				
+			if(this.nonblank(place.getGeometryType())){
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getGeometryType() , "geo_type"));				
 			}
-			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(place.getCountry()), "country"));
+			if(this.nonblank(place.getBoundingBoxType())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getBoundingBoxType(), "bounding_box_type"));
+			}
+			if (this.nonblank(place.getFullName())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getFullName(), "place_name"));
+			}
+			if(this.nonblank(place.getStreetAddress())){
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getStreetAddress(), "street_address"));				
+			}
+			if(this.nonblank(place.getCountry())) {
+				annoService.addFeature(placeAnno, annoService.createTypedFeature(place.getCountry(), "country"));
+			}
 			if(place.getBoundingBoxCoordinates()!=null){
 				annoService.addFeature(placeAnno, annoService.createTypedFeature(convertGeoLocationArray(place.getBoundingBoxCoordinates()), "bounding_box_lat_lon_array"));							
 			}
@@ -191,20 +254,53 @@ public class TwitterConverterService {
 			annoService.addAnnotation(curContrib, placeAnno);
 		}
 
+		//System.out.println("Tweet text: " + tweet.getText());
 		Content curContent = contentService.createContent();
 		curContent.setText(tweet.getText());
 		curContent.setAuthor(user);
 		curContent.setStartTime(tweet.getCreatedAt());
 		curContrib.setCurrentRevision(curContent);
 		curContrib.setFirstRevision(curContent);		
-
+		//System.out.println("Tweet ID: " + String.valueOf(tweet.getId()));
 		DataSourceInstance contentSource = dataSourceService.createIfNotExists(new DataSourceInstance(String.valueOf(tweet.getId()),TweetSourceMapping.ID_TO_CONTENT,datasetName));
+		
 		dataSourceService.addSource(curContent, contentSource);
 					
 		if(pemsMetaData!=null){
-			log.warn("PEMS station meta data mapping not implemented yet");
-			//TODO map pems meta data if available			
+			AnnotationInstance placeAnno = annoService.createTypedAnnotation("twitter_nearest_pems");			
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getStationId()), "pems_station_id"));
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getLongitude()), "pems_longitude"));
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getLatitdue()), "pems_latitude"));
+			annoService.addFeature(placeAnno, annoService.createTypedFeature(String.valueOf(pemsMetaData.getStationName()), "pems_station_name"));
+			annoService.addAnnotation(curContrib, placeAnno);
 		}
+	}
+	
+	private String CalculateDistanceFromStation(double tweetLongitude, double tweetLatitude, 
+			double stationLongitute, double stationLatitude)
+	{
+		String quantString = "";
+		tweetLongitude = Math.toRadians(tweetLongitude);
+		tweetLatitude = Math.toRadians(tweetLatitude);
+		stationLongitute = Math.toRadians(stationLongitute);
+		stationLatitude = Math.toRadians(stationLatitude);
+		
+		// Using equirectangular distance approximation since distances are not that large
+		double R = 6371000;  // radius of the earth in meters
+		double x = (tweetLongitude - stationLongitute) * Math.cos( 0.5*(tweetLatitude + stationLatitude));
+		double y = (tweetLatitude - stationLatitude);
+		double d = R * Math.sqrt( x*x + y*y );
+		
+		if(d < 500)
+			quantString = "NEAR";
+		else if((d >= 500) && (d < 2000))
+			quantString = "IN2KM";
+		else if((d >= 2000) && (d < 4000))
+			quantString = "IN4KM";
+		else
+			quantString = "FAR";
+	
+		return quantString;
 	}
 	
 	/**
@@ -257,7 +353,7 @@ public class TwitterConverterService {
 		    log.info("Mapping tweets for user "+screenname);
 		    for(Status tweet:tweets){
 			    log.info("Mapping tweet "+tweet.getId());
-		    	mapTweet(discourseName, datasetName, tweet, null);
+		    	mapTweet(discourseName, datasetName, tweet, null, null);
 		    }
 		}
 	}
