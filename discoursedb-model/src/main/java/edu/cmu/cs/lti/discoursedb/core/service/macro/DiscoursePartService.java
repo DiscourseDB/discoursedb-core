@@ -28,6 +28,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,7 +124,7 @@ public class DiscoursePartService {
 		if (odp.isPresent()) {
 			dp = odp.get();
 		} else {
-			dp = createOrGetTypedDiscoursePart(discourse,"",type);
+			dp = createOrGetTypedDiscoursePart(discourse,"dummy_name",type);
 			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
 			dataSourceService.addSource(dp, ds);
 		}
@@ -149,7 +152,7 @@ public class DiscoursePartService {
 	 */
 	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type){		
 		Assert.notNull(discourse, "Discourse cannot be null.");
-		Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty");
+		//Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty");
 		Assert.notNull(type, "Type cannot be null.");		
 
 		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
@@ -334,7 +337,24 @@ public class DiscoursePartService {
 	 * @return their least common ancestors
 	 */
 		
-		
+    /**
+	 * Adds all contributions recursively under a discourse part
+	 * 
+	 * @param ancestor the discourse part to start from
+	 * @return all Contributions that are in discoursepart or its descendents
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Page<Contribution> findContributionsRecursively(DiscoursePart ancestor, Optional<DiscoursePartRelationTypes> rel, Pageable p) {
+		Set<DiscoursePart> descendents = this.findDescendentClosure(ancestor,  rel);
+		Set<Contribution> contributions = new HashSet<Contribution>();
+		for (DiscoursePart d : descendents) {
+			for (DiscoursePartContribution dpc: d.getDiscoursePartContributions()) {
+				contributions.add(dpc.getContribution());
+			}
+		}
+		return new PageImpl<Contribution>(new ArrayList<Contribution>(contributions),p,contributions.size());
+	}
+
 		
     /**
 	 * Adds all ancestors to a set of DiscourseParts
