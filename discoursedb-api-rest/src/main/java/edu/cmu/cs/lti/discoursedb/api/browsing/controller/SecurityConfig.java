@@ -1,21 +1,10 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
-import java.util.Properties;
-
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-/*import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;*/
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-
-import edu.cmu.cs.lti.discoursedb.configuration.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
