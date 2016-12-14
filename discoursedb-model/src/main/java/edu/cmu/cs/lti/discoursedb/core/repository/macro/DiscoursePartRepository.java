@@ -59,6 +59,11 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ " and dp.type=:discoursePartType")
 	Page<DiscoursePart> findAllByDiscourseAndType(@Param("discoursePartType") String discoursePartType, @Param("discourseId") Long discourseId, Pageable pageable);
 
+	@Query("select dp from DiscourseToDiscoursePart dpd left join dpd.discourse d "
+			+ " left join dpd.discoursePart dp "
+			+ " where d.id=:discourseId ")
+	Page<DiscoursePart> findAllByDiscourse(@Param("discourseId") Long discourseId, Pageable pageable);
+
 	/*@Query(value = "select dp.* from discourse_has_discourse_part dpd left join discourse d on d.id_discourse=dpd.fk_discourse "
 			+ " left join discourse_part dp on dp.id_discourse_part = dpd.fk_discourse_part "
 			+ " where d.id=:discourseId "
