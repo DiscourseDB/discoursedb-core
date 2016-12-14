@@ -34,8 +34,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
+import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
 public class BrowsingContributionResource extends ResourceSupport {
+	private Long id;
 	private String type;
 	private String content;
 	private String title;
@@ -45,9 +47,16 @@ public class BrowsingContributionResource extends ResourceSupport {
 	// links to discourseParts
 	private List<String> userInteractions;
 	private List<BrowsingAnnotationResource> annotations;
+	private Long parentId;
 	
 	public BrowsingContributionResource(Contribution c) {
 		type = c.getType();
+		id = c.getId();
+		if (c.getTargetOfDiscourseRelations().size() > 0) {
+			parentId = c.getTargetOfDiscourseRelations().iterator().next().getSource().getId();
+		} else { 
+			parentId = 0L;
+		}
 		content = c.getCurrentRevision().getText();
 		title = c.getCurrentRevision().getTitle();
 		startTime = c.getStartTime();
@@ -76,6 +85,16 @@ public class BrowsingContributionResource extends ResourceSupport {
    	    }
 
 	}
+
+	public Long getContributionId() {
+		return id;
+	}
+
+	public void setContributionId(Long id) {
+		this.id = id;
+	}
+
+
 
 	public String getType() {
 		return type;
@@ -135,5 +154,11 @@ public class BrowsingContributionResource extends ResourceSupport {
 		return discourseParts;
 	}
 
+	public Long getParentId() {
+		return parentId;
+	}
 
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
+	}
 }

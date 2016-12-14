@@ -53,6 +53,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	private Date endTime;
 	private String discourseName;
 	private long discourseId;
+	private long discoursePartId;
 	private Map<Long,String> containingDiscourseParts;
 	private DiscoursePart dp;
 	private List<BrowsingAnnotationResource> annotations;
@@ -65,6 +66,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		this.setType(dp.getType());
 		this.setStartTime(dp.getStartTime());
 		this.setEndTime(dp.getEndTime());
+		this.setDiscoursePartId(dp.getId());
 		
 		if (dp.getAnnotations() != null) {
 			List<BrowsingAnnotationResource> annos = new LinkedList<BrowsingAnnotationResource>();
@@ -135,6 +137,15 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	 */
 	public Long _getDpId() {
 		return dp.getId();
+	}
+
+	
+	public long getDiscoursePartId() {
+		return discoursePartId;
+	}
+
+	public void setDiscoursePartId(long discoursePartId) {
+		this.discoursePartId = discoursePartId;
 	}
 
 	public String getName() {

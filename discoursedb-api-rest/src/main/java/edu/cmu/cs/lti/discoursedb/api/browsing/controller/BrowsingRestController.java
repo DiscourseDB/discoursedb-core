@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,11 +38,13 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Table;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,15 +55,27 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.converter.json.GsonFactoryBean;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratService;
@@ -82,8 +98,16 @@ import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionR
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 
-@Controller
+
+
+@RestController
+@CrossOrigin(origins="*", maxAge=3600)
 @RequestMapping(value = "/browsing", produces = "application/hal+json")
 public class BrowsingRestController {
 
@@ -122,6 +146,9 @@ public class BrowsingRestController {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private HttpSession httpSession;
+	
 	@Autowired PagedResourcesAssembler<BrowsingDiscoursePartResource> praDiscoursePartAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingDiscourseResource> praDiscourseAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingContributionResource> praContributionAssembler;
@@ -149,36 +176,51 @@ public class BrowsingRestController {
 		return r;
 	}
 	
-
-	
 	@RequestMapping(value="/discourses/{discourseId}", method=RequestMethod.GET)
+	@CrossOrigin(origins="*", maxAge=3600)
 	@ResponseBody
+	@Secured("USER_AUTH0RITY")
 	Resource<BrowsingDiscourseResource> discourses(
-			   @PathVariable("discourseId") Long discourseId) {
+			   @PathVariable("discourseId") Long discourseId
+			   ) {
 		BrowsingDiscourseResource bsr = new BrowsingDiscourseResource(discourseRepository.findOne(discourseId).get(), discoursePartRepository);
 		
 		
 		Resource<BrowsingDiscourseResource> r =  new Resource<BrowsingDiscourseResource>(bsr);
-		
+		logger.info("currently logged in is "+ SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+	    logger.info("another check " + httpSession.getAttribute("sch"));
 		return r;
 	}
 	
-	@RequestMapping(value = "/discourses/{discourseId}/discoursePartTypes/{discoursePartType}", method = RequestMethod.GET)
+	@RequestMapping(value = {"/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
+			"/discourses/{discourseId}/discoursePartTypes"} , method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> discoursePartsByTypeAndDiscourse(
 														   @RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @PathVariable("discourseId") Long discourseId,
-														   @PathVariable("discoursePartType") String discoursePartType,
+														   @PathVariable("discoursePartType") Optional<String> discoursePartType,
 														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
 		PageRequest p = new PageRequest(page,size);
-		Page<BrowsingDiscoursePartResource> repoResources = 
-				discoursePartRepository.findAllByDiscourseAndType(discoursePartType, discourseId, p)
+		
+		Page<BrowsingDiscoursePartResource> repoResources = null;
+		
+		if (!discoursePartType.isPresent()) {
+			repoResources = 
+					discoursePartRepository.findAllByDiscourse(discourseId, p)
+					.map(BrowsingDiscoursePartResource::new)
+					.map(bdpr -> {bdpr.filterAnnotations(annoType); 
+					              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
+					              return bdpr; });
+		} else {
+			repoResources = 
+				discoursePartRepository.findAllByDiscourseAndType(discoursePartType.get(), discourseId, p)
 				.map(BrowsingDiscoursePartResource::new)
 				.map(bdpr -> {bdpr.filterAnnotations(annoType); 
 				              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
 				              return bdpr; });
-				
+		}
+		
 		repoResources.forEach(bcr -> {
 			if (bcr.getContainingDiscourseParts().size() > 1) { 
 				bcr._getContainingDiscourseParts().forEach(
@@ -203,7 +245,7 @@ public class BrowsingRestController {
 	}
 	
 	
-	
+	//@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/discourses", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscourseResource>> discourse(@RequestParam(value= "page", defaultValue = "0") int page, 
@@ -346,6 +388,58 @@ public class BrowsingRestController {
 		return lightsideExports();
 	}
 	
+	@CrossOrigin(origins="*", maxAge=3600)
+    @RequestMapping(value="/tokensigningoogle", method = RequestMethod.POST, headers = "content-type=application/x-www-form-urlencoded")
+    public String processRegistration(@RequestParam("idtoken") String idTokenString) //, ModelMap model)
+            throws GeneralSecurityException, IOException {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                .setAudience(Arrays.asList(environment.getRequiredProperty("google.client_id"))).setIssuer("accounts.google.com").build();
+
+        GoogleIdToken idToken = verifier.verify(idTokenString);
+        if (idToken != null) {
+            Payload payload = idToken.getPayload();
+            // Print user identifier
+            String userId = payload.getSubject();
+            // Get profile information from payload
+            String email = payload.getEmail();
+            logger.info("Logged in " + userId + " " + email);
+            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+            //List<User> users = DbFunction.listHqlNew("FROM User WHERE email = :email", "email", email);
+
+            if (!emailVerified ) { //|| users.isEmpty()) {
+                return "/error.html";
+            } else {
+                //List<String> roles = DbFunction.listSQLNew(
+                //        "SELECT role.name FROM user_role_association JOIN role ON role.id = role_id JOIN user on user.id = user_id WHERE user.email = :email",
+                //        "email", email);
+
+                List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+                //for (String role : roles) {
+                //    authorities.add(new SimpleGrantedAuthority(role));
+                //}
+                authorities.add(new SimpleGrantedAuthority("USER_AUTH0RITY"));
+
+                UserDetails userDetails = new org.springframework.security.core.userdetails.User(userId,
+                                "xxy", true, true, true, true, authorities);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null,
+                        userDetails.getAuthorities());
+                //UserDetails userDetails = new org.springframework.security.core.userdetails.User(users.get(0).getName(),
+                //        "xx", users.get(0).isEnabled(), true, true, true, authorities);
+                //Authentication authentication = new UsernamePasswordAuthenticationToken(users.get(0).getName(), null,
+                //        userDetails.getAuthorities());
+                SecurityContextHolder.clearContext();
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                httpSession.setAttribute("sch", userDetails);
+        	    logger.info("first check " + httpSession.getAttribute("sch"));
+
+                return "/browsing/stats";
+            }
+        } else {
+            System.out.println("Invalid ID token.");
+        }
+        return "/error.html";
+    }
+
 	
 	
 	@RequestMapping(value = "/action/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
@@ -701,12 +795,37 @@ public class BrowsingRestController {
 														   @PathVariable("childOf") Long dpId)  {
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
-		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
 			Page<BrowsingContributionResource> lbcr = 
 					discoursePartContributionRepository.findByDiscoursePart(parent.get(), p)
 					.map(dpc -> dpc.getContribution())
+					.map(BrowsingContributionResource::new);
+			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
+					     (dpId2, dpName2) -> {
+					        if (dpId2 != dpId) { bcr.add(
+						    	makeLink("/browsing/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
+			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
+			
+			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
+			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+			return response;
+		} else {
+			return null;
+		}
+	}
+	
+	@RequestMapping(value = "/dpContributionsRecursive/{childOf}", method = RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingContributionResource>> dpContributionsRecursive(@RequestParam(value= "page", defaultValue = "0") int page, 
+														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("childOf") Long dpId)  {
+		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
+		
+		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
+		if (parent.isPresent()) {
+			Page<BrowsingContributionResource> lbcr = 
+					discoursePartService.findContributionsRecursively(parent.get(), Optional.empty(), p)
 					.map(BrowsingContributionResource::new);
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
 					     (dpId2, dpName2) -> {
