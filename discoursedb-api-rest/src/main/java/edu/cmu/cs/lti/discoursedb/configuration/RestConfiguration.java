@@ -27,9 +27,15 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
+
+import edu.cmu.cs.lti.discoursedb.api.browsing.controller.SecurityConfig;
 
 @Configuration
 public class RestConfiguration {
@@ -74,4 +80,16 @@ public class RestConfiguration {
         factory.setMaxRequestSize("50MB");
         return factory.createMultipartConfig();
     }
+    
+    // Make json api output prettier for debugging
+    // http://stackoverflow.com/questions/14878890/can-i-configure-jackson-json-pretty-printing-from-annotations-or-from-spring-mvc
+    @Bean
+    public Jackson2ObjectMapperBuilder jacksonBuilder()
+    {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        builder.indentOutput(true);
+        return builder;
+    }
+
+
 }
