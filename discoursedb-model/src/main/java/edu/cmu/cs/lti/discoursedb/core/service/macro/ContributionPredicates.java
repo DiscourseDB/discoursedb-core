@@ -21,6 +21,10 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
+import java.util.Set;
+
+import org.springframework.data.domain.Sort;
+
 import com.mysema.query.types.expr.BooleanExpression;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -85,6 +89,14 @@ public final class ContributionPredicates {
 			return QContribution.contribution.isNull();
 		} else {
 			return QContribution.contribution.firstRevision.author.eq(user);
+		}
+	}
+
+	public static BooleanExpression contributionInAnyDiscourseParts(Set<DiscoursePart> descendents) {
+		if (descendents == null || descendents.size() == 0) {
+			return QContribution.contribution.isNull();
+		} else {
+			return QContribution.contribution.contributionPartOfDiscourseParts.any().discoursePart.in(descendents);
 		}
 	}
 

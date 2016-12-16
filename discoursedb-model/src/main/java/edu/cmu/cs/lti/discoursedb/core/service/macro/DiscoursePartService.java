@@ -44,6 +44,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
@@ -61,6 +62,7 @@ import lombok.RequiredArgsConstructor;
 public class DiscoursePartService {
 
 	private final @NonNull DiscoursePartRepository discoursePartRepo;
+	private final @NonNull ContributionRepository contributionRepo;
 	private final @NonNull DataSourceService dataSourceService;
 	private final @NonNull DiscoursePartRelationRepository discoursePartRelationRepo;
 	private final @NonNull DiscoursePartContributionRepository discoursePartContributionRepo;
@@ -346,13 +348,18 @@ public class DiscoursePartService {
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public Page<Contribution> findContributionsRecursively(DiscoursePart ancestor, Optional<DiscoursePartRelationTypes> rel, Pageable p) {
 		Set<DiscoursePart> descendents = this.findDescendentClosure(ancestor,  rel);
-		Set<Contribution> contributions = new HashSet<Contribution>();
+		Page<Contribution> conts = contributionRepo.findAll(
+				ContributionPredicates.contributionInAnyDiscourseParts(descendents), p);
+		return conts;
+		/*Set<Contribution> contributions = new HashSet<Contribution>();
 		for (DiscoursePart d : descendents) {
 			for (DiscoursePartContribution dpc: d.getDiscoursePartContributions()) {
 				contributions.add(dpc.getContribution());
 			}
 		}
-		return new PageImpl<Contribution>(new ArrayList<Contribution>(contributions),p,contributions.size());
+		List<Contribution> al = new ArrayList<Contribution>(contributions);
+		return new PageImpl<Contribution>(al.subList(p.getOffset(), p.getPageSize()+p.getOffset()),p,contributions.size());
+		*/
 	}
 
 		
