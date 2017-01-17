@@ -6,10 +6,11 @@ Java import application:
 Command-line arguments:
    * &lt;Dataset> &lt;SalonID number>
 
-The `custom.properties` file should have the DiscourseDB database information to write to (host, database name, username, and password).
+The `custom.properties` file should have the DiscourseDB jdbc information to write to (jdbc.host, jdbc.database, jdbc.username, and jdbc.password).  See `custom.properties.template` for the file's format.
 
 ## How ClassroomSalon data is mapped to the DiscourseDB schema
 
+The DiscourseDB `DiscoursePart`s are highly tested, using `FOLDER`-type `DiscoursePart`s to hold students' annotations as a whole, then annotations on each particular instructor-assigned source document.  The source documents are kept in their own `FOLDER`.
 
 ### Data Sources
 
