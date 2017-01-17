@@ -55,31 +55,30 @@ public class SalonConverter implements CommandLineRunner {
 		log.info("Starting to import Salon data from MySQL database \"" + env.getRequiredProperty("salon.database") + "\" found at \""
 				+ env.getRequiredProperty("salon.host") + "\"");
 		
-		//try {
-			converterService.configure(discourseName, salonID, salonDB);
-			long salon = converterService.createSalon(salonID);
+		converterService.configure(discourseName, salonID, salonDB);
+		long salon = converterService.createSalon(salonID);
+		
+		// Map from salon doc id to ddb discoursepart id for that document
+		Map<Long,Long> docs = converterService.mapDocumentsAsContributions(salon);
+		for (long s_doc: docs.keySet()) {
+			//List<Long> paras = converterService.mapParagraphs(salon,doc);
+			Map<Long,Long> questions = converterService.mapQuestions(salon, s_doc);
+			//for (long para: paras) {
+			Map<Long,Long> s_annos = converterService.mapSalonAnnotations2DiscourseContributions(salon,s_doc, docs.get(s_doc));
+			//}
 			
-			// Map from salon doc id to ddb discoursepart id for that document
-			Map<Long,Long> docs = converterService.mapDocumentsAsContributions(salon);
-			for (long s_doc: docs.keySet()) {
-				//List<Long> paras = converterService.mapParagraphs(salon,doc);
-				Map<Long,Long> questions = converterService.mapQuestions(salon, s_doc);
-				//for (long para: paras) {
-				Map<Long,Long> s_annos = converterService.mapSalonAnnotations2DiscourseContributions(salon,s_doc, docs.get(s_doc));
-				//}
+			for (long question:questions.keySet()) {
+				Map<Long, Long> responses = converterService.mapResponses(salon, s_doc, question);
 				
-				for (long question:questions.keySet()) {
-					Map<Long, Long> responses = converterService.mapResponses(salon, s_doc, question);
-					//for (long response: responses) {
-					//	converterService.mapResponseParagraphs(salon, s_doc, question, response, paras);
-					//}
-				}
+				//Not implemented yet
+				//for (long response: responses) {
+				//	converterService.mapResponseParagraphs(salon, s_doc, question, response, paras);
+				//}
 			}
-			List<Long> discs = converterService.mapDiscussions(salon);
-			converterService.linkDiscussions(salon, discs);
-		//} catch (SQLException sqle) {
-		//	log.error(sqle);
-		//}
+		}
+		List<Long> discs = converterService.mapDiscussions(salon);
+		converterService.linkDiscussions(salon, discs);
+	
 			
 	}
 
