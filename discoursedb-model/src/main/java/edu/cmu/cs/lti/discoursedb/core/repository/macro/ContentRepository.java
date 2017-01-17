@@ -22,11 +22,14 @@
 package edu.cmu.cs.lti.discoursedb.core.repository.macro;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
 public interface ContentRepository extends BaseRepository<Content,Long>{
@@ -39,5 +42,8 @@ public interface ContentRepository extends BaseRepository<Content,Long>{
 	@Modifying
 	@Query(value="update content c set c.fk_previous_revision = ?2 where c.id_content = ?1",nativeQuery=true)
 	public void setPreviousRevisionId(Long id, Long previousRevId);
+
+	@Query("select c from Content c left join c.dataSourceAggregate ca left join ca.sources ci where ci.entitySourceId=:id")
+	public Optional<Content> findOneByDataSourceId(@Param("id") String id);
     
 }

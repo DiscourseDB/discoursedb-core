@@ -91,7 +91,20 @@ public enum DiscoursePartTypes {
 	/*
 	 * A wiki associated with a project within github's infrastructure
 	 */
-	GITHUB_WIKI
+	GITHUB_WIKI, 
+	/*
+	 * A document under discussion in Salon
+	 */
+	DOCUMENT,
+	/*
+	 * A paragraph in a document under discussion in Salon
+	 */
+	PARAGRAPH, 
+	/*
+	 * Any generic discourse part that just sorts/holds other ones
+	 */
+	FOLDER
+	 
 
 	
 }

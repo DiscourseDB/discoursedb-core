@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (C)  2015 - 2016  Carnegie Mellon University
- * Author: Oliver Ferschke
+ * Copyright (C)  2016  Carnegie Mellon University
+ * Author: Chris Bogart
  *
  * This file is part of DiscourseDB.
  *
@@ -19,66 +19,9 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.type;
-
 /**
- * Defines the types of data sources supported by DiscourseDB.
- * This is used in the DataSourceInstance entities in addition to the entity source ids and concrete dataset names. 
- * 
- * @author Oliver Ferschke
+ * @author Chris Bogart
+ *
+ * Data converter for Salon data stored in a mysql database
  */
-public enum DataSourceTypes {
-	/**
-	 * An edX dataset
-	 */
-	EDX,
-	/**
-	 * A ProSolo dataset
-	 */
-	PROSOLO,
-	/**
-	 * A ProSolo blog dataset
-	 */
-	PROSOLO_BLOG,
-	/**
-	 * A TAGS dataset 
-	 */
-	TAGS,
-	/**
-	 * Github dataset
-	 */
-	GITHUB,
-	/**
-	 * Google Groups dataset
-	 */
-	GOOGLE_GROUPS,
-	/**
-	 * A Bazaar chat dataset
-	 */
-	BAZAAR,
-	/**
-	 * A Coursera dataset
-	 */
-	COURSERA,
-	/**
-	 * A Piazza dataset
-	 */
-	PIAZZA,
-	/**
-	 * A Habworlds dataset
-	 */
-	HABWORLDS,
-	/**
-	 * A Neuwirth dataset
-	 */
-	NEUWIRTH,
-	/*
-	 * A Ravelry dataset
-	 */
-	RAVELRY,
-	/*
-	 * A Salon dataset
-	 */
-	SALON
-
-}
+package edu.cmu.cs.lti.discoursedb.io.salon;

@@ -114,7 +114,16 @@ GITHUB_COMMIT_COMMENT,
 /*
  * A wiki page
  */
-WIKI_PAGE
+WIKI_PAGE, 
+/*
+ * A context document: something discussed, not created by participants
+ */
+CONTEXT_DOCUMENT, 
+/*
+ * Salon questions and answers
+ */
+QUESTION,
+RESPONSE
 
 
 
