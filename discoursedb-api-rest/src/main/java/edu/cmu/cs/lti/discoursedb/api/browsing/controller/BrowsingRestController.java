@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.Table;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -161,7 +162,7 @@ public class BrowsingRestController {
 	
 	@RequestMapping(value="/stats", method=RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingStatsResource> stats() {
+	Resources<BrowsingStatsResource> stats(HttpServletRequest httpServletRequest) {
 		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository);
 		List<BrowsingStatsResource> l = new ArrayList<BrowsingStatsResource>();
 		l.add(bsr);
@@ -173,13 +174,15 @@ public class BrowsingRestController {
 		r.add(makeLink("/browsing/bratExports", "BRAT markup"));
 		r.add(makeLink("/browsing/lightsideExports", "Lightside exports"));
 		*/
+		
+		r.add(makeLink("/browsing/dummy", httpServletRequest.getRemoteUser() != null?httpServletRequest.getRemoteUser():"unknown_user"));
 		return r;
 	}
 	
 	@RequestMapping(value="/discourses/{discourseId}", method=RequestMethod.GET)
 	@CrossOrigin(origins="*", maxAge=3600)
 	@ResponseBody
-	@Secured("USER_AUTH0RITY")
+	@Secured("ADMIN")
 	Resource<BrowsingDiscourseResource> discourses(
 			   @PathVariable("discourseId") Long discourseId
 			   ) {
@@ -326,10 +329,6 @@ public class BrowsingRestController {
 	}
 	
 	
-	public String discoursePart2BratName(DiscoursePart dp) {
-		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + "__" + dp.getId().toString();
-	}
-
 	public String sanitize(String name) {
 		return name.replaceAll("[^a-zA-Z0-9]", "_");
 	}
@@ -590,6 +589,8 @@ public class BrowsingRestController {
 		return bratExports();
 	}
 	
+
+	
 	// TODO: MOVE THIS METHOD TO BRAT SERVICE
 	Set<DiscoursePart> exportDiscoursePartRecursively(DiscoursePart dp, String bratDirectory, Set<DiscoursePart> exported) 
 			throws IOException {
@@ -603,12 +604,15 @@ public class BrowsingRestController {
 		
 		Set<DiscoursePart> exportedNow = exported;
 		if (kids.size() == 0) {
-			bratService.exportDiscoursePart(dp, bratDirectory);
+			bratService.exportDiscoursePart(dp, bratDirectory, true);
 			exportedNow.add(dp);
 		} else {
 			logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
 			for(DiscoursePart k: kids) {
-				String kidname = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
+				String kidname = bratService.discoursePart2BratName(dp); 
+				//dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
+				//delete me
+				
 				//logger.info("About to recurse: kidname = " + kidname + " filename = " + (new File(bratDirectory,kidname)).toString());
 				exportedNow.addAll(exportDiscoursePartRecursively(k, (new File(bratDirectory,kidname)).toString(), exportedNow));				
 			}

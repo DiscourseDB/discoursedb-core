@@ -49,10 +49,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import antlr.Utils;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratAnnotation;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratSeparator;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.AnnotationSourceType;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.BratTypes.BratAnnotationType;
+import edu.cmu.cs.lti.discoursedb.annotation.brat.util.UtilService;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.CleanupInfo;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.OffsetInfo;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.model.VersionInfo;
@@ -78,11 +81,11 @@ import lombok.extern.log4j.Log4j;
 public class BratService {
 
 	private final @NonNull DiscourseService discourseService;
-	private final @NonNull ContributionService contribService;
+	@Autowired private final @NonNull ContributionService contribService;
 	private final @NonNull ContentService contentService;
 	private final @NonNull AnnotationService annoService;
 	private final @NonNull DiscoursePartService dpService;
-	
+	@Autowired private final @NonNull UtilService utilService;
 	
 	/**
 	 * Imports the annotations of all brat-annotated documents located in the provided folder.  
@@ -188,7 +191,7 @@ public class BratService {
 				Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
 				Content content = contentService.findOne(offset.getValue().getDiscourseDbContentId()).get();
 				long separatorStartIndex = offset.getKey();
-				long separatorEndIndex = separatorStartIndex+ BratTypes.CONTRIB_SEPARATOR.length();
+				long separatorEndIndex = separatorStartIndex+ BratSeparator.length;
 				long textEndIndex = separatorEndIndex + content.getText().length();
 				
 				// CONTRIBUTION LABEL: Annotation is completely within a separator
@@ -226,8 +229,8 @@ public class BratService {
 				else if (bratAnno.getBeginIndex() > separatorEndIndex && bratAnno.getBeginIndex() <= textEndIndex&&bratAnno.getEndIndex() > separatorEndIndex && bratAnno.getEndIndex() <= textEndIndex) {
 
 					// calculate offset corrected index values for span annotation
-					int offsetCorrectedBeginIdx = bratAnno.getBeginIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
-					int offsetCorrectedEndIdx = bratAnno.getEndIndex() - offset.getKey() - BratTypes.CONTRIB_SEPARATOR.length() - 1;
+					int offsetCorrectedBeginIdx = bratAnno.getBeginIndex() - offset.getKey() - BratSeparator.length - 1;
+					int offsetCorrectedEndIdx = bratAnno.getEndIndex() - offset.getKey() - BratSeparator.length - 1;
 
 					// check if annotation already existed before
 					if (annotationBratIdToVersionInfo.keySet().contains(bratAnno.getId())) {
@@ -349,14 +352,26 @@ public class BratService {
 	}
 
 	
-	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
 	public void exportDiscoursePart(DiscoursePart dp, String outputFolder) throws IOException{
+		 exportDiscoursePart(dp, outputFolder, false);
+	}
+	
+	public String discoursePart2BratName(DiscoursePart dp) {
+		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + "_" + dp.getId().toString();
+	}
+
+	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public void exportDiscoursePart(DiscoursePart dp, String outputFolder, Boolean threaded) throws IOException{
 		Assert.notNull(dp, "The DiscoursePart cannot be null");
 		Assert.hasText(outputFolder, "The outputFolder has to be specified");
 		
 		//define a common base filename for all files associated with this DiscoursePart
-		String baseFileName = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();  
+		String baseFileName = discoursePart2BratName(dp);
+		//dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();  
+		// delete me
+		
 		//The offset mapping keeps track of the start positions of each contribution/content in the aggregated txt file
 		List<OffsetInfo> entityOffsetMapping = new ArrayList<>();  					
 		List<String> discoursePartText = new ArrayList<>();
@@ -366,29 +381,40 @@ public class BratService {
 		int spanOffset = 0;
 		
 		// Sort contributions by their start time, without crashing on null
-		List<Contribution> contribs = Lists.newArrayList(contribService.findAllByDiscoursePart(dp));
-		contribs.sort((c1,c2) -> {
+		List<Contribution> contribsTimeOrdered = Lists.newArrayList(contribService.findAllByDiscoursePart(dp));
+		//This should be (maybe, optionally) a depth-first sort, with start time as a tiebreaker.
+		contribsTimeOrdered.sort((c1,c2) -> {
 			if (c1 == null) { return -1; }
 			else if (c2 == null) { return 1; }
 			else { return c1.getStartTime().compareTo(c2.getStartTime()); }
 		});
-		
+		List<Contribution> contribs = null;
+		if (threaded) {
+			contribs = utilService.threadsort(contribsTimeOrdered, c -> c.getId(), 
+				c -> { Contribution p = contribService.getOneRelatedContribution(c);
+						if (p == null) { return 0L; } else { return p.getId(); }
+						});
+		} else {
+			contribs = contribsTimeOrdered;
+		}
+
 		// Export current revision of sorted contributions
 		for (Contribution contrib : contribs) {			
 			
 			Content curRevision = contrib.getCurrentRevision();
 			String text = curRevision.getText();
 			
-			discoursePartText.add(BratTypes.CONTRIB_SEPARATOR);
+			String sep = new BratSeparator(0, contrib.getCurrentRevision().getAuthor().getUsername(), contrib.getStartTime()).get();
+			discoursePartText.add(sep);
 			discoursePartText.add(text);
 								
 			//annotations on content
 			for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, curRevision, bratIdGenerator));					
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, sep, text, curRevision, bratIdGenerator));					
 			}
 			//annotations on contributions
 			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, text, contrib, bratIdGenerator));					
+				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, sep, text, contrib, bratIdGenerator));					
 			}
 
 			//keep track of offsets
@@ -396,7 +422,7 @@ public class BratService {
 
 			//update span offsets
 			spanOffset+=text.length()+1;
-			spanOffset+=BratTypes.CONTRIB_SEPARATOR.length()+1;				
+			spanOffset+=BratSeparator.length+1;				
 		}
 	
 		FileUtils.writeLines(new File(outputFolder,baseFileName+".txt"),discoursePartText);				
@@ -417,7 +443,7 @@ public class BratService {
 	 * @return a list of BratAnnotations 
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String text, T entity, BratIdGenerator bratIdGenerator) {
+	private <T extends BaseEntity & Identifiable<Long>> List<BratAnnotation> convertAnnotationToBrat(AnnotationInstance dbAnno, int spanOffset, String sep, String text, T entity, BratIdGenerator bratIdGenerator) {
 		Assert.notNull(dbAnno, "The annotation instance to be converted cannot be null.");
 		Assert.notNull(text, "The text may be empty, but not null.");
 		Assert.notNull(entity, "The entity associated with the annotation cannot be null.");
@@ -436,15 +462,15 @@ public class BratService {
 		if (entity instanceof Contribution) {
 			//annotations on contributions are always annotated on the contribution separator as an entity label 
 			textBoundAnnotation.setBeginIndex(spanOffset);
-			textBoundAnnotation.setEndIndex(spanOffset+ BratTypes.CONTRIB_SEPARATOR.length());
-			textBoundAnnotation.setCoveredText(BratTypes.CONTRIB_SEPARATOR);															
+			textBoundAnnotation.setEndIndex(spanOffset+ sep.length());
+			textBoundAnnotation.setCoveredText(sep);															
 		}else if (entity instanceof Content) {
 			//content labels are always annotated as text spans on the currentRevision content entity
 			if(dbAnno.getEndOffset()==0){
 				log.warn("Labels on Content entites should define a span and should not be entity labels."); 
 			}
-			textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
-			textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+BratTypes.CONTRIB_SEPARATOR.length()+1);
+			textBoundAnnotation.setBeginIndex(spanOffset+dbAnno.getBeginOffset()+sep.length()+1);
+			textBoundAnnotation.setEndIndex(spanOffset+dbAnno.getEndOffset()+sep.length()+1);
 			textBoundAnnotation.setCoveredText(text.substring(dbAnno.getBeginOffset(),dbAnno.getEndOffset()));											
 		}		
 		textBoundAnnotation.setVersionInfo(new VersionInfo(AnnotationSourceType.DDB_ANNOTATION, textBoundAnnotation.getId(), dbAnno.getId(), dbAnno.getEntityVersion()));
