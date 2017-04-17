@@ -386,6 +386,7 @@ public class BratService {
 		contribsTimeOrdered.sort((c1,c2) -> {
 			if (c1 == null) { return -1; }
 			else if (c2 == null) { return 1; }
+			else if (c1.getStartTime() == c2.getStartTime()) {return c1.getId().compareTo(c2.getId()); }
 			else { return c1.getStartTime().compareTo(c2.getStartTime()); }
 		});
 		List<Contribution> contribs = null;
