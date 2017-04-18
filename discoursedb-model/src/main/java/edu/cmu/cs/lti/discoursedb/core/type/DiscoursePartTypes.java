@@ -103,8 +103,15 @@ public enum DiscoursePartTypes {
 	/*
 	 * Any generic discourse part that just sorts/holds other ones
 	 */
-	FOLDER
-	 
+	FOLDER,
+	/*
+	 * Transcript of a class session with identifiable people
+	 */
+	CLASS_TRANSCRIPT,
+	/*
+	 * Transcript of an interview
+	 */
+	INTERVIEW
 
 	
 }

@@ -3,8 +3,3 @@ jdbc.host=localhost
 jdbc.database=discoursedb_salon
 jdbc.username=local
 jdbc.password=local
-
-salon.host = localhost
-salon.database = ClassroomSalon_db
-salon.username = local
-salon.password = local

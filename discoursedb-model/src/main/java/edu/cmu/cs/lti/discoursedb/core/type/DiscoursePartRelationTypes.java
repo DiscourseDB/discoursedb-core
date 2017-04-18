@@ -38,5 +38,9 @@ public enum DiscoursePartRelationTypes {
 	/**
 	 * Generic meronomy relationships
 	 */
-	SUBPART
+	SUBPART,
+	/*
+	 * Discourse about a prior discourse
+	 */
+	TALK_ABOUT_TALK
 }
