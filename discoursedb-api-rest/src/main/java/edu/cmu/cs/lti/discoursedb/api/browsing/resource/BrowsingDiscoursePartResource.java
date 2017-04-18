@@ -90,7 +90,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 
 		if (this.getSubDiscoursePartCount() > 0) {
 			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp.getId() + "/", 
-					 dp.getName() ));			
+					this.getSubDiscoursePartCount() + " related discourse part(s)" ));			
 		}
 /*		for (DiscoursePartRelation dp1 : dp.getSourceOfDiscoursePartRelations()) {
 			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp1.getTarget().getId() + "/", 
@@ -98,7 +98,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		} */
 		
 		if (this.getContributionCount() > 0) {
-			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", "contributions"));
+			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", this.getContributionCount() + " contribution(s)"));
 		}
 		
    	    containingDiscourseParts = new HashMap<Long,String>();

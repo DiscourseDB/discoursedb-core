@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -35,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 
 public class BrowsingContributionResource extends ResourceSupport {
 	private Long id;
@@ -48,10 +50,17 @@ public class BrowsingContributionResource extends ResourceSupport {
 	private List<String> userInteractions;
 	private List<BrowsingAnnotationResource> annotations;
 	private Long parentId;
+	@Autowired ContributionService contributionService;
 	
 	public BrowsingContributionResource(Contribution c) {
 		type = c.getType();
 		id = c.getId();
+		/*Contribution parent = contributionService.getOneRelatedContribution(c);
+		if (parent == null) {
+			parentId = 0L;
+		} else {
+			parentId = parent.getId();
+		}*/
 		if (c.getTargetOfDiscourseRelations().size() > 0) {
 			parentId = c.getTargetOfDiscourseRelations().iterator().next().getSource().getId();
 		} else { 

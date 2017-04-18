@@ -21,62 +21,80 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.model.system;
 
-import java.util.Set;
-
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBE;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A DiscourseDB user. 
- * Used for authentication and tracking of annotation authorship.
- * Might be complemented with Domain ACLs in the future for domain object-level permissions.
+ * A DiscourseDB user's rights to data. 
+ * Used for authentication and tracking of permission to access a discourse
+ * This is a simpler, coarser access method than ACLs
  * 
- * @author Oliver Ferschke
+ * @author Chris Bogart
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "system_user")
-public class SystemUser extends TimedBE {
+@Table(name = "system_user_right")
+public class SystemUserRight extends TimedBE {
 
 	@Id
-	@Column(name = "id_system_user", nullable = false)
+	@Column(name = "id_system_user_right", nullable = false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Setter(AccessLevel.PRIVATE)
 	private Long id;
 
-	private String realname;
+	@Override public String toString() { return super.toString(); }
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="fk_system_user", nullable=false)
+	@JsonIgnore
+	private SystemUser systemUser;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="fk_discourse", nullable=false)
+	private Discourse discourse;
 
-	private String username;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SystemUserRight other = (SystemUserRight) obj;
+		
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		
+		return true;
+	}
 
-	private String email;
-
-	@Column(name = "password_hash")
-	private String passwordHash;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "system_user_roles", joinColumns = @JoinColumn(name = "id_system_user"))
-    @Column(name = "role", nullable = false, length = 171)
-    @Enumerated(EnumType.STRING)
-	private Set<SystemUserRole> roles;
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="systemUser")
-    private Set<SystemUserRight> rights;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+	
 }

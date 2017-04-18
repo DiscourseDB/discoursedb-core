@@ -30,6 +30,7 @@ import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +57,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.GsonFactoryBean;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,6 +67,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
@@ -74,6 +77,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -95,6 +99,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributio
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
@@ -156,17 +161,20 @@ public class BrowsingRestController {
 	@Autowired PagedResourcesAssembler<BrowsingBratExportResource> praBratAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingLightsideStubsResource> praLSAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingUserResource> praUserAssembler;
-
+	@Autowired SecurityUtils securityUtils;
 	@Autowired 
 	private DiscoursePartService discoursePartService;
+	@Autowired private SystemUserRepository sysUserRepo;
+	
 	
 	@RequestMapping(value="/stats", method=RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingStatsResource> stats(HttpServletRequest httpServletRequest) {
-		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository);
+	Resources<BrowsingStatsResource> stats(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.authenticate(httpServletRequest, null, session);
+
+		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository, securityUtils);
 		List<BrowsingStatsResource> l = new ArrayList<BrowsingStatsResource>();
 		l.add(bsr);
-		
 		Resources<BrowsingStatsResource> r =  new Resources<BrowsingStatsResource>(l);
 		/*for (String t: bsr.getDiscourseParts().keySet()) {
 			r.add(makeLink("/browsing/repos?repoType=" + t, t));			
@@ -175,17 +183,24 @@ public class BrowsingRestController {
 		r.add(makeLink("/browsing/lightsideExports", "Lightside exports"));
 		*/
 		
-		r.add(makeLink("/browsing/dummy", httpServletRequest.getRemoteUser() != null?httpServletRequest.getRemoteUser():"unknown_user"));
 		return r;
 	}
+	
+	@ResponseStatus(value=HttpStatus.UNAUTHORIZED, reason="User does not have access to this Discourse") 
+	static public class UnauthorizedDiscourseAccess extends RuntimeException {
+		
+	}
+
 	
 	@RequestMapping(value="/discourses/{discourseId}", method=RequestMethod.GET)
 	@CrossOrigin(origins="*", maxAge=3600)
 	@ResponseBody
 	@Secured("ADMIN")
 	Resource<BrowsingDiscourseResource> discourses(
-			   @PathVariable("discourseId") Long discourseId
+			   @PathVariable("discourseId") Long discourseId, HttpServletRequest hsr, HttpSession session
 			   ) {
+		securityUtils.authenticate(hsr, null, session);
+		securityUtils.authorizedDiscourseCheck(discourseRepository.findOne(discourseId).get());
 		BrowsingDiscourseResource bsr = new BrowsingDiscourseResource(discourseRepository.findOne(discourseId).get(), discoursePartRepository);
 		
 		
@@ -193,6 +208,7 @@ public class BrowsingRestController {
 		logger.info("currently logged in is "+ SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 	    logger.info("another check " + httpSession.getAttribute("sch"));
 		return r;
+		
 	}
 	
 	@RequestMapping(value = {"/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
@@ -203,7 +219,10 @@ public class BrowsingRestController {
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @PathVariable("discourseId") Long discourseId,
 														   @PathVariable("discoursePartType") Optional<String> discoursePartType,
-														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
+														   @RequestParam(value="annoType", defaultValue="*") String annoType,
+														   HttpServletRequest hsr, HttpSession session) {
+		securityUtils.authenticate(hsr, null, session);
+		securityUtils.authorizedDiscourseCheck(discourseRepository.findOne(discourseId).get());
 		PageRequest p = new PageRequest(page,size);
 		
 		Page<BrowsingDiscoursePartResource> repoResources = null;
@@ -387,10 +406,12 @@ public class BrowsingRestController {
 		return lightsideExports();
 	}
 	
+	@Deprecated
 	@CrossOrigin(origins="*", maxAge=3600)
-    @RequestMapping(value="/tokensigningoogle", method = RequestMethod.POST, headers = "content-type=application/x-www-form-urlencoded")
+    @RequestMapping(value="/tokensigningoogle_deprecated", method = RequestMethod.POST, headers = "content-type=application/x-www-form-urlencoded")
     public String processRegistration(@RequestParam("idtoken") String idTokenString) //, ModelMap model)
             throws GeneralSecurityException, IOException {
+		logger.info("Doing tokensigningoogle");
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAudience(Arrays.asList(environment.getRequiredProperty("google.client_id"))).setIssuer("accounts.google.com").build();
 

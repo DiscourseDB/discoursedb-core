@@ -115,6 +115,17 @@ public class DiscoursePartService {
 	}
 
 
+	/*
+	 * Gets a discourse part by data source
+	 * 
+	 * @param discourse The discourse this belongs to
+	 * @param entitySourceId          (actual source id)
+	 * @param entitySourceDescriptor   (describes the kind of sourceid provided)
+	 * @param sourceType  (DataSourceTypes.*)
+	 * @param datasetName
+	 * @param type    (DiscoursePartTypes.*)
+	 * 
+	 */
 	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, 
 			String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName,
 			DiscoursePartTypes type) {

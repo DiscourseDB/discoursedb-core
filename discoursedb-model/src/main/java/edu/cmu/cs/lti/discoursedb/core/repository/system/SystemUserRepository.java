@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (C)  2015 - 2016  Carnegie Mellon University
- * Author: Oliver Ferschke
+ * Copyright (C)  2015 - 2017  Carnegie Mellon University
+ * Author: Chris Bogart
  *
  * This file is part of DiscourseDB.
  *
@@ -19,27 +19,21 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.model.system;
+package edu.cmu.cs.lti.discoursedb.core.repository.system;
 
-/**
- * User roles used in DiscourseDB.
- * Might be superseded or complemented by Domain ACLs in the future.
- * 
- * @author Oliver Ferschke
- *
- */
-public enum SystemUserRole {
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
+
+public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
+
+	//@Query("select u from SystemUser su where su.email=:email")
+	Optional<SystemUser> findOneByEmail(@Param("email") String email);
 	
-	/**
-	 * Role for creators of DiscourseDB annotations (limited to certain discoursed)
-	 */
-	ANNOTATOR, 
-	/**
-	 * Role for readers of DiscourseDB; read only access to certain discourses 
-	 */
-	READER, 
-	/**
-	 * Role for DiscourseDB administrators with full access and manipulation rights. 
-	 */
-	ADMIN 
+    //@Query("select u from SystemUser su where su.username=:username")
+	Optional<SystemUser> findOneByUsername(@Param("username") String username);
 }

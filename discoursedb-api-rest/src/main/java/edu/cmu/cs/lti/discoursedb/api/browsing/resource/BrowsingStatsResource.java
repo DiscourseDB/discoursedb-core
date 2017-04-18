@@ -22,13 +22,20 @@
 package edu.cmu.cs.lti.discoursedb.api.browsing.resource;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.hateoas.ResourceSupport;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
+import edu.cmu.cs.lti.discoursedb.api.browsing.controller.SecurityUtils;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
@@ -45,18 +52,23 @@ public class BrowsingStatsResource extends ResourceSupport {
 	public BrowsingStatsResource(DiscourseRepository discourseRepository, 
 			DiscoursePartRepository discoursePartRepository, 
 			ContributionRepository contributionRepository, 
-			UserRepository userRepository) {
+			UserRepository userRepository,
+			SecurityUtils securityUtils) {
 
 		this.discourses = new ArrayList<String>();
 		this.discourseParts = new HashMap<String,Long>();
 		this.contributions = new HashMap<String,Long>();
 		this.users = 0;
 		
-		discourseRepository.findAll().forEach(d -> this.discourses.add(d.getName()));
+		
+		discourseRepository.findAll().forEach(d -> 
+			this.discourses.add(d.getName()));
 		this.users = userRepository.count();
 		
-		for (Discourse d: discourseRepository.findAll()) {
-			this.add(BrowsingRestController.makeLink("/browsing/discourses/" + d.getId(), "Discourse " + d.getName()));			
+        for (Discourse d: discourseRepository.findAll()) {
+        	if (securityUtils.canSeeDiscourse(d)) {
+        		this.add(BrowsingRestController.makeLink("/browsing/discourses/" + d.getId(), "Discourse " + d.getName()));			
+        	} 
 		}
 		discoursePartRepository.countsByType().forEach(c  -> {
 			this.discourseParts.put(c[0].toString(), (Long)c[1]);

@@ -55,7 +55,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideTrainingDataE
 public class DiscourseApiStarter {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DiscourseApiStarter.class, args);
+		SpringApplication.run(DiscourseApiStarter.class, args); 
 	}
 
 }
