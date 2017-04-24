@@ -92,6 +92,7 @@ import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscourseResourc
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingLightsideStubsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
@@ -99,6 +100,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributio
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
@@ -133,6 +135,9 @@ public class BrowsingRestController {
 
 	@Autowired
 	private DiscoursePartRepository discoursePartRepository;
+
+	@Autowired
+	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
 
 	@Autowired
 	private UserService userService;
@@ -844,11 +849,19 @@ public class BrowsingRestController {
 	@ResponseBody
 	PagedResources<Resource<BrowsingContributionResource>> dpContributionsRecursive(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("childOf") Long dpId)  {
+														   @PathVariable("childOf") Long dpId,
+														   HttpServletRequest hsr, HttpSession session)  {
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
+		securityUtils.authenticate(hsr, null, session);
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
+			List<Discourse> discs = discourseToDiscoursePartRepository.findDiscoursesOfDiscoursePart(parent.get());
+			if (discs.size() == 0) {
+				securityUtils.authorizedDiscourseCheck(discourseRepository.findOne(discs.get(0).getId()).get());	
+			} else {
+				securityUtils.authorizedDiscourseFail();
+			}
 			Page<BrowsingContributionResource> lbcr = 
 					discoursePartService.findContributionsRecursively(parent.get(), Optional.empty(), p)
 					.map(BrowsingContributionResource::new);

@@ -148,6 +148,9 @@ public class SecurityUtils {
 			throw new BrowsingRestController.UnauthorizedDiscourseAccess();
 		}
 	}
+	public void authorizedDiscourseFail() {
+		throw new BrowsingRestController.UnauthorizedDiscourseAccess();
+	}
 	 
 	public boolean hasRole(String roleName) {
 		return authoritiesContains("ROLE:" + roleName);
