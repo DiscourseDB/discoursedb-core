@@ -149,6 +149,7 @@ public class SecurityUtils {
 		}
 	}
 	public void authorizedDiscourseFail() {
+		logger.info("No discourse identified -- so authorization fails");
 		throw new BrowsingRestController.UnauthorizedDiscourseAccess();
 	}
 	 
