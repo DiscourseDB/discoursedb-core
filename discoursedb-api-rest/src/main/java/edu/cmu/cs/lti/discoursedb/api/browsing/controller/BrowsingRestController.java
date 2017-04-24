@@ -857,7 +857,7 @@ public class BrowsingRestController {
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
 			List<Discourse> discs = discourseToDiscoursePartRepository.findDiscoursesOfDiscoursePart(parent.get());
-			if (discs.size() == 0) {
+			if (discs.size() > 0) {
 				securityUtils.authorizedDiscourseCheck(discourseRepository.findOne(discs.get(0).getId()).get());	
 			} else {
 				securityUtils.authorizedDiscourseFail();
