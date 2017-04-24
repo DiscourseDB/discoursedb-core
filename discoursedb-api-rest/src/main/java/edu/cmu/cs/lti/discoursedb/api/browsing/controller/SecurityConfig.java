@@ -25,6 +25,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 @EnableOAuth2Sso
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
+	private static Boolean USE_HTTPS = null;
 	@Autowired Environment env;
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -39,7 +40,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-	  boolean USE_HTTPS = env.getProperty("https.enabled") == "true";
+	  if (USE_HTTPS == null) {
+		  USE_HTTPS = env.getProperty("https.enabled").equals("true");
+	  }
 	  if (USE_HTTPS) {
 		  http.requiresChannel().anyRequest().requiresSecure();
 		  

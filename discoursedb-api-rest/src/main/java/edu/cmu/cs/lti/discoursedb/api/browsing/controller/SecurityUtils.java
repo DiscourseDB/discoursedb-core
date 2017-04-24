@@ -53,9 +53,9 @@ public class SecurityUtils {
 	private static  Logger logger = LogManager.getLogger(SecurityUtils.class);
 	@Autowired private SystemUserRepository sysUserRepo;
 	@Autowired private Environment env;
-    private   String GOOGLE_CLIENT_ID = null;
-	private   String GOOGLE_CLIENT_SECRET = null;
-	private String  URL = null;
+    private static  String GOOGLE_CLIENT_ID = null;
+	private static  String GOOGLE_CLIENT_SECRET = null;
+	private static String  URL = null;
     private boolean securityEnabled = false;
 
 	SecurityUtils() {
@@ -66,7 +66,7 @@ public class SecurityUtils {
 			GOOGLE_CLIENT_ID = env.getRequiredProperty("google.client_id");
 			GOOGLE_CLIENT_SECRET = env.getRequiredProperty("google.client_secret");
 			URL = env.getRequiredProperty("google.registered.url");
-			securityEnabled = env.getProperty("https.enabled") == "true";
+			securityEnabled = env.getProperty("https.enabled").equals("true");
 		}
 	}
 	public  void authenticate(HttpServletRequest req, HttpServletResponse resp, HttpSession s) {
