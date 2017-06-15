@@ -162,7 +162,7 @@ public class SecurityUtils {
 	 public boolean authoritiesContains(String roledescription) {
 		if (!securityEnabled) { return true; }   
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-			if (ga.getAuthority() == roledescription) {
+			if (ga.getAuthority().equals(roledescription)) {
 				logger.info("Authority " + ga.getAuthority() + " matches role description");
 				return true;
 			}
