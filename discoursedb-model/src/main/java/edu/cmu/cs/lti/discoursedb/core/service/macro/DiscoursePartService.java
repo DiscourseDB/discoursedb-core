@@ -132,7 +132,7 @@ public class DiscoursePartService {
 		Assert.notNull(discourse, "Discourse cannot be null.");
 		Assert.hasText (entitySourceId, "");		
 		
-		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
+		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSource(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
 		DiscoursePart dp = null;
 		if (odp.isPresent()) {
 			dp = odp.get();

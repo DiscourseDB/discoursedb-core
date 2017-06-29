@@ -111,7 +111,16 @@ public enum DiscoursePartTypes {
 	/*
 	 * Transcript of an interview
 	 */
-	INTERVIEW
+	INTERVIEW, 
+	/*
+	 * Collection of communication by a group
+	 */
+	GROUP, 
+	/* 
+	 * Collection of communication by a team 
+	 */ 
+	TEAM
+
 
 	
 }

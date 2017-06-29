@@ -1,6 +1,7 @@
 /*******************************************************************************
  * Copyright (C)  2015 - 2016  Carnegie Mellon University
  * Author: Oliver Ferschke
+ * Contributor Haitian Gong
  *
  * This file is part of DiscourseDB.
  *
@@ -19,17 +20,11 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.repository.user;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.repository.query.Param;
-import edu.cmu.cs.lti.discoursedb.core.model.user.Group;
-import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
-
-public interface GroupRepository extends BaseRepository<Group,Long>{
-    
-	public Optional<Group> findGroupByName(@Param("groupname")String groupname);
-    
-}
+/**
+ * This package contains the converter for data in Bazaar platform and the corresponding SpringBoot starter
+ * 
+ * @author Haitian Gong
+ * @author Oliver Ferschke
+ *
+ */
+package edu.cmu.cs.lti.discoursedb.io.mturk.converter;

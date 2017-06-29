@@ -809,7 +809,8 @@
 		<module>discoursedb-io-twitter</module>
 		<module>discoursedb-io-ravelry</module>
     <module>discoursedb-io-salon</module>
-  </modules>
+    <module>discoursedb-io-mturk</module>
+	</modules>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://moon.lti.cs.cmu.edu:8080/</url>
