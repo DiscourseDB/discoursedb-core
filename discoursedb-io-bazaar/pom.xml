@@ -27,5 +27,4 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 	</dependencies>
-	<packaging>pom</packaging>
 </project>
