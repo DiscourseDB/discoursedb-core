@@ -629,19 +629,18 @@ public class BrowsingRestController {
 		//logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
 		
 		Set<DiscoursePart> exportedNow = exported;
-		if (kids.size() == 0) {
-			bratService.exportDiscoursePart(dp, bratDirectory, true);
-			exportedNow.add(dp);
-		} else {
-			logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
-			for(DiscoursePart k: kids) {
-				String kidname = bratService.discoursePart2BratName(dp); 
-				//dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
-				//delete me
-				
-				//logger.info("About to recurse: kidname = " + kidname + " filename = " + (new File(bratDirectory,kidname)).toString());
-				exportedNow.addAll(exportDiscoursePartRecursively(k, (new File(bratDirectory,kidname)).toString(), exportedNow));				
-			}
+
+		//NB: used to do this only if len(kids) == 0; but sometimes DPs can contain contributions *and* other DPs
+		bratService.exportDiscoursePart(dp, bratDirectory, true);
+		exportedNow.add(dp);
+		logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
+		for(DiscoursePart k: kids) {
+			String kidname = bratService.discoursePart2BratName(dp); 
+			//dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
+			//delete me
+			
+			//logger.info("About to recurse: kidname = " + kidname + " filename = " + (new File(bratDirectory,kidname)).toString());
+			exportedNow.addAll(exportDiscoursePartRecursively(k, (new File(bratDirectory,kidname+"_")).toString(), exportedNow));				
 		}
 		return exportedNow;
 	}

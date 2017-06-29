@@ -398,14 +398,16 @@ public class BratService {
 		} else {
 			contribs = contribsTimeOrdered;
 		}
-
+		
+		
 		// Export current revision of sorted contributions
 		for (Contribution contrib : contribs) {			
 			
 			Content curRevision = contrib.getCurrentRevision();
 			String text = curRevision.getText();
 			
-			String sep = new BratSeparator(0, contrib.getCurrentRevision().getAuthor().getUsername(), contrib.getStartTime()).get();
+			String sep = new BratSeparator(0, contrib.getCurrentRevision().getAuthor().getUsername(), 
+					contrib.getCurrentRevision().getTitle(), contrib.getStartTime()).get();
 			discoursePartText.add(sep);
 			discoursePartText.add(text);
 								
@@ -426,10 +428,12 @@ public class BratService {
 			spanOffset+=BratSeparator.length+1;				
 		}
 	
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".txt"),discoursePartText);				
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".ann"),bratAnnotations);
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".offsets"),entityOffsetMapping);
-		FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),bratAnnotations.stream().map(anno->anno.getVersionInfo()).filter(Objects::nonNull).collect(Collectors.toList()));
+		if (contribs.size() > 0) {	
+			FileUtils.writeLines(new File(outputFolder,baseFileName+".txt"),discoursePartText);				
+			FileUtils.writeLines(new File(outputFolder,baseFileName+".ann"),bratAnnotations);
+			FileUtils.writeLines(new File(outputFolder,baseFileName+".offsets"),entityOffsetMapping);
+			FileUtils.writeLines(new File(outputFolder,baseFileName+".versions"),bratAnnotations.stream().map(anno->anno.getVersionInfo()).filter(Objects::nonNull).collect(Collectors.toList()));
+		}
 	}
 	
 	/**
