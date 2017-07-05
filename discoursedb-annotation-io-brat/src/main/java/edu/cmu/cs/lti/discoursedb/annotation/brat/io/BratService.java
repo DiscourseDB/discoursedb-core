@@ -66,11 +66,14 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscourseService;
+import edu.cmu.cs.lti.discoursedb.core.service.system.SystemUserService;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -84,6 +87,7 @@ public class BratService {
 	@Autowired private final @NonNull ContributionService contribService;
 	private final @NonNull ContentService contentService;
 	private final @NonNull AnnotationService annoService;
+	private final @NonNull SystemUserService sysUserService;
 	private final @NonNull DiscoursePartService dpService;
 	@Autowired private final @NonNull UtilService utilService;
 	
@@ -91,6 +95,7 @@ public class BratService {
 	 * Imports the annotations of all brat-annotated documents located in the provided folder.  
 	 * 
 	 * @param inputFolder the path to the brat corpus folder to import 
+	 * @param system_user 
 	 * @throws IOException if an Exception occurs accessing the folder
 	 */
 	public void importDataset(String inputFolder) throws IOException{
@@ -110,6 +115,7 @@ public class BratService {
 	 * 
 	 * @param inputFolder the folder with the annotation and meta data files
 	 * @param baseFileName the base file name of the current thread
+	 * @param system_user 
 	 * @throws IOException in case an error occurs reading the files
 	 */
 	public void importThread(String inputFolder, String baseFileName) throws IOException{
@@ -133,6 +139,7 @@ public class BratService {
 	 * 
 	 * @param inputFolder folder with the brat annotation and meta data
 	 * @param baseFileName the base filename for the current thread to be imported
+	 * @param system_user 
 	 * @return an info object containing lists of ids of annotations and featured to be deleted after the import 
 	 * @throws IOException if any exception occurs while reading the brat annotations or meta data
 	 */
@@ -154,6 +161,7 @@ public class BratService {
 
 		
 		DiscoursePart dp = dpService.findOne(Long.parseLong(baseFileName.substring(baseFileName.lastIndexOf("_")+1))).get();			
+		SystemUser sysUser = sysUserService.getSystemUser().get();
 		
 		//Init ddb annotation stats for deletion handling
 		Set<Long> ddbAnnotationIds = new HashSet<>();
@@ -161,6 +169,7 @@ public class BratService {
 		//extract annotations on Contributions
 		for(AnnotationInstance anno:annoService.findContributionAnnotationsByDiscoursePart(dp)){
 			ddbAnnotationIds.add(anno.getId());
+			anno.setAnnotator(sysUser);;
 			if(anno.getFeatures()!=null){
 				ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
 			}
@@ -168,6 +177,7 @@ public class BratService {
 		//extract annotations on Content entities
 		for(AnnotationInstance anno:annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp)){
 			ddbAnnotationIds.add(anno.getId());
+			anno.setAnnotator(sysUser);
 			if(anno.getFeatures()!=null){
 				ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
 			}
