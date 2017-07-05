@@ -45,14 +45,21 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.expression.BeanExpressionContextAccessor;
+import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
@@ -104,7 +111,9 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePart
 import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
+import edu.cmu.cs.lti.discoursedb.core.service.system.SystemUserService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -169,15 +178,32 @@ public class BrowsingRestController {
 	@Autowired SecurityUtils securityUtils;
 	@Autowired 
 	private DiscoursePartService discoursePartService;
-	@Autowired private SystemUserRepository sysUserRepo;
-	
+	//@Autowired private SystemUserRepository sysUserRepo;
+	@Autowired private SystemUserService sysUserSvc;
+	@Autowired private ApplicationContext appContext;
+	@Autowired private AnnotationService annoService;
 	
 	@RequestMapping(value="/stats", method=RequestMethod.GET)
 	@ResponseBody
 	Resources<BrowsingStatsResource> stats(HttpServletRequest httpServletRequest, HttpSession session) {
 		securityUtils.authenticate(httpServletRequest, null, session);
 
+		
 		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository, securityUtils);
+		
+		/*
+		 This code is completely pointless -- just trying to understand SpEL in context of a real application
+		 
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		context.setBeanResolver(new BeanFactoryResolver(this.appContext));
+		ExpressionParser parser = new SpelExpressionParser(); 
+		context.addPropertyAccessor(new BeanExpressionContextAccessor());
+		
+		System.out.println(parser.parseExpression("'hello, world'").getValue(context));
+		System.out.println(parser.parseExpression("@SystemUserRepository.getSystemUser()").getValue(context));
+		System.out.println(parser.parseExpression("principal").getValue(context));
+		*/
+		
 		List<BrowsingStatsResource> l = new ArrayList<BrowsingStatsResource>();
 		l.add(bsr);
 		Resources<BrowsingStatsResource> r =  new Resources<BrowsingStatsResource>(l);
@@ -574,8 +600,8 @@ public class BrowsingRestController {
 	@RequestMapping(value = "/action/importLightside", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory) throws IOException {
-		String bratDataDirectory = environment.getRequiredProperty("lightside.data_directory");		
-		lightsideService.importAnnotatedData(bratDataDirectory + "/" + lightsideDirectory);
+		String liteDataDirectory = environment.getRequiredProperty("lightside.data_directory");		
+		lightsideService.importAnnotatedData(liteDataDirectory + "/" + lightsideDirectory);
 		Optional<DiscoursePart> dp = lightsideName2DiscoursePartForImport(lightsideDirectory);
 		//if (dp.isPresent()) {
 		//	return subDiscourseParts(0,20, dp.get().getId());
@@ -587,32 +613,40 @@ public class BrowsingRestController {
 	@RequestMapping(value = "/action/deleteBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> deleteBrat(
-			@RequestParam(value= "bratDirectory") String bratDirectory) 
+			@RequestParam(value= "bratDirectory") String bratDirectory, HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		securityUtils.authenticate(hsr, null, session);
+		String bratDataDirectory = bratDataDirectory(SecurityContextHolder.getContext().
+				getAuthentication().getPrincipal().toString());
 		File bratDir = new File(bratDataDirectory + "/" + sanitize_dirname(bratDirectory));
 		if (bratDir.isDirectory()) {
 			FileUtils.deleteDirectory(bratDir);
 		} else if (bratDir.isFile()) {
 			bratDir.delete();
 		} 
-		return bratExports();
+		return bratExports(hsr,session);
+	}
+	
+	public String bratDataDirectory(String currUser) {
+		return environment.getRequiredProperty("brat.data_directory") + "/" + currUser;
 	}
 	
 	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(
 			@RequestParam(value= "exportDirectory") String exportDirectory,
-			@RequestParam(value="dpId")  long dpId) throws IOException {
+			@RequestParam(value="dpId")  long dpId, HttpServletRequest hsr, HttpSession session
+			) throws IOException {
+		securityUtils.authenticate(hsr, null, session);
 		Assert.hasText(exportDirectory, "No exportDirectory name specified");
 		
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		String bratDataDirectory = bratDataDirectory(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 		DiscoursePart childDp = discoursePartRepository.findOne(dpId).get();
 		
 		String bratDirectory = bratDataDirectory + "/" + sanitize(exportDirectory);
 		logger.info(" Exporting dp " + childDp.getName() + " in BRAT directory " + bratDirectory);
 		exportDiscoursePartRecursively(childDp, bratDirectory, new HashSet<DiscoursePart>());
-		return bratExports();
+		return bratExports(hsr,session);
 	}
 	
 
@@ -648,10 +682,15 @@ public class BrowsingRestController {
 	@RequestMapping(value = "/action/importBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> importBratAction(
-			@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");		
+			@RequestParam(value= "bratDirectory") String bratDirectory, HttpServletRequest hsr, HttpSession session
+			) throws IOException {
+		securityUtils.authenticate(hsr, null, session);
+		String who = SecurityContextHolder.getContext().
+				getAuthentication().getPrincipal().toString();
+		String bratDataDirectory = bratDataDirectory(who);
+
 		importBratRecursively(bratDataDirectory + "/" + bratDirectory);
-		return bratExports();
+		return bratExports(hsr,session);
 		/*
 		bratService.importDataset(bratDataDirectory + "/" + bratDirectory);
 		Optional<DiscoursePart> dp = bratName2DiscoursePart(bratDirectory);
@@ -691,13 +730,16 @@ public class BrowsingRestController {
 	
 	@RequestMapping(value = "/bratExports", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> bratExports() {
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+	PagedResources<Resource<BrowsingBratExportResource>> bratExports(HttpServletRequest hsr, HttpSession session) {
+		securityUtils.authenticate(hsr, null, session);
+		String who = SecurityContextHolder.getContext().
+				getAuthentication().getPrincipal().toString();
+		String bratDataDirectory = bratDataDirectory(who);
 		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedBrat(bratDataDirectory);
 		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingBratExportResource bber: p) {
 			bber.add(makeLink1Arg("/browsing/action/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
-			bber.add(makeBratLink("/index.xhtml#/" + bber.getName(), "Edit BRAT markup"));
+			bber.add(makeBratLink("/index.xhtml#/" + who + "/" + bber.getName(), "Edit BRAT markup"));
 			bber.add(makeLink1Arg("/browsing/action/deleteBrat", "Delete BRAT markup", "bratDirectory", bber.getName()));
 		}
 		return praBratAssembler.toResource(p);
@@ -821,7 +863,11 @@ public class BrowsingRestController {
 	@ResponseBody
 	PagedResources<Resource<BrowsingContributionResource>> dpContributions(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("childOf") Long dpId)  {
+														   @PathVariable("childOf") Long dpId
+														   , HttpServletRequest hsr, HttpSession session)  {
+		securityUtils.authenticate(hsr, null, session);
+		
+		
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
@@ -829,7 +875,7 @@ public class BrowsingRestController {
 			Page<BrowsingContributionResource> lbcr = 
 					discoursePartContributionRepository.findByDiscoursePart(parent.get(), p)
 					.map(dpc -> dpc.getContribution())
-					.map(BrowsingContributionResource::new);
+					.map( c -> new BrowsingContributionResource(c,annoService));
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
 					     (dpId2, dpName2) -> {
 					        if (dpId2 != dpId) { bcr.add(
@@ -863,7 +909,7 @@ public class BrowsingRestController {
 			}
 			Page<BrowsingContributionResource> lbcr = 
 					discoursePartService.findContributionsRecursively(parent.get(), Optional.empty(), p)
-					.map(BrowsingContributionResource::new);
+					.map(c -> new BrowsingContributionResource(c,annoService));
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
 					     (dpId2, dpName2) -> {
 					        if (dpId2 != dpId) { bcr.add(

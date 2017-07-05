@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,15 +43,22 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationEntityProxyRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.core.service.system.SystemUserService;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.AnnotationRelationTypes;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
+
+@Log4j
 @Service
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
@@ -61,6 +69,7 @@ public class AnnotationService {
 	private final @NonNull ContributionService contribService;
 	private final @NonNull FeatureRepository featureRepo;
 	private final @NonNull AnnotationRelationRepository annoRelRepo;
+	private final @NonNull SystemUserService userSvc;
 	
 	/**
 	 * Retrieves all annotations for the given entity.
@@ -75,7 +84,9 @@ public class AnnotationService {
 	public <T extends TimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
+		System.out.println("Finding annotations for user " + userSvc.getSystemUser());
+		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
+//		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
 	/**
@@ -91,7 +102,9 @@ public class AnnotationService {
 	public <T extends TypedTimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
+		System.out.println("Finding annotations for user " + userSvc.getSystemUser());
+		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
+//		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
 	/**
@@ -100,14 +113,18 @@ public class AnnotationService {
 	 * 
 	 * @param type
 	 *            the value for the AnnotationType
+	 * @param sysUser 
 	 * @return a new empty AnnotationInstance that is already saved to the db and
 	 *         connected with its requested type
 	 */
 	public AnnotationInstance createTypedAnnotation(String type){
 		Assert.hasText(type,"Type cannot be empty. Provide an annotation type or create untyped AnnotationInstance.");
 		
+		SystemUser sysUser = userSvc.getSystemUser().orElse(null);
+				
 		AnnotationInstance annotation = new AnnotationInstance();
 		annotation.setType(type);
+		annotation.setAnnotator(sysUser);
 		return annoInstanceRepo.save(annotation);
 	}	
 	
@@ -337,6 +354,7 @@ public class AnnotationService {
  	 * FIXME: this is not very generic and also the way the annotations are retrieved should be revised
 	 * 
 	 * @param dp the discoursepart that contains the contributions which hold the annotations 
+	 * @param sysUser 
 	 * @return a List of annotations
 	 */
 	public List<AnnotationInstance> findContributionAnnotationsByDiscoursePart(DiscoursePart dp) {
@@ -344,7 +362,8 @@ public class AnnotationService {
 	        List<AnnotationInstance> annos = new ArrayList<>();
 	        for(Contribution contrib: contribService.findAllByDiscoursePart(dp)){
 	        	if(contrib.getAnnotations()!=null){
-		        	annos.addAll(contrib.getAnnotations().getAnnotations());	        		
+	        		//Only if they're readable by sysUser
+		        	annos.addAll(this.findAnnotations(contrib));	        		
 	        	}
 	        }
 	        return annos;
@@ -364,15 +383,26 @@ public class AnnotationService {
 	        for(Contribution contrib: contribService.findAllByDiscoursePart(dp)){
 	        	Content curRevision = contrib.getCurrentRevision();
 	        	if(curRevision.getAnnotations()!=null){
-		        	annos.addAll(curRevision.getAnnotations().getAnnotations());	        		
+	        		//Only if they're readable by sysUser
+		        	annos.addAll(this.findAnnotations(curRevision));	        		
 	        	}
 	        }
 	        return annos;
 	}	
 
 	public Optional<AnnotationInstance> findOneAnnotationInstance(Long id){
-		return annoInstanceRepo.findOne(id);
+		Optional<AnnotationInstance> oai = annoInstanceRepo.findOne(id); 
+		if (oai.isPresent()) {
+			if (oai.get().getAnnotator() == null || oai.get().getAnnotator().equals(userSvc.getSystemUser().orElse(null))) {
+				return oai;
+			} else {
+				return Optional.empty();
+			}
+		} else {
+			return oai;
+		}
 	}
+	
 	public Optional<Feature> findOneFeature(Long id){
 		return featureRepo.findOne(id);
 	}

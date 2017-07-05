@@ -21,6 +21,9 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.model.system;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -36,6 +39,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails; 
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBE;
 import lombok.AccessLevel;
@@ -54,7 +62,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "system_user")
-public class SystemUser extends TimedBE {
+public class SystemUser extends TimedBE implements UserDetails {
 
 	@Id
 	@Column(name = "id_system_user", nullable = false)
@@ -71,6 +79,12 @@ public class SystemUser extends TimedBE {
 	@Column(name = "password_hash")
 	private String passwordHash;
 
+	@Override
+	public String toString() {
+		return username;
+	}
+	
+	
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "system_user_roles", joinColumns = @JoinColumn(name = "id_system_user"))
     @Column(name = "role", nullable = false, length = 171)
@@ -79,4 +93,52 @@ public class SystemUser extends TimedBE {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy="systemUser")
     private Set<SystemUserRight> rights;
+
+    @Transient
+    private List<GrantedAuthority> authorities = null;
+    @Transient
+    @Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		if (authorities == null) {
+			authorities = new ArrayList<GrantedAuthority>();
+			for (SystemUserRole r : this.getRoles()) {
+				authorities.add(new SimpleGrantedAuthority("ROLE:" + r.name()));
+			}
+			for (SystemUserRight r : this.getRights()) {
+				authorities.add(new SimpleGrantedAuthority(r.getDiscourse().getName()));
+			}
+		}
+		return authorities;
+	}	
+
+	@Override
+	public String getPassword() {
+		return passwordHash;
+	}
+
+	@Transient
+    @Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Transient
+    @Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Transient
+    @Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Transient
+    @Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+
 }

@@ -28,14 +28,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.Lifecycle;
 import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
+import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
 
 public class BrowsingContributionResource extends ResourceSupport {
@@ -50,9 +57,13 @@ public class BrowsingContributionResource extends ResourceSupport {
 	private List<String> userInteractions;
 	private List<BrowsingAnnotationResource> annotations;
 	private Long parentId;
-	@Autowired ContributionService contributionService;
+	private Contribution c;
 	
-	public BrowsingContributionResource(Contribution c) {
+	//@Autowired ContributionService contributionService;
+	private static final Logger logger = LogManager.getLogger(BrowsingContributionResource.class);
+
+	public BrowsingContributionResource(Contribution c, AnnotationService annoService) {
+	
 		type = c.getType();
 		id = c.getId();
 		/*Contribution parent = contributionService.getOneRelatedContribution(c);
@@ -75,24 +86,27 @@ public class BrowsingContributionResource extends ResourceSupport {
 				.collect(Collectors.toList());
 		annotations = new ArrayList<BrowsingAnnotationResource>();
 		try {
-			annotations.addAll(c.getAnnotations().getAnnotations().stream().map(a ->
+			annotations.addAll(annoService.findAnnotations(c).stream().map(a ->
 				new BrowsingAnnotationResource(a))
 				.collect(Collectors.toList()));
+			
 		} catch (NullPointerException npe) {
 			
 		}
 		try {
-			annotations.addAll(c.getCurrentRevision().getAnnotations().getAnnotations().stream().map(a ->
+			annotations.addAll(annoService.findAnnotations(c.getCurrentRevision()).stream().map(a ->
 				new BrowsingAnnotationResource(a))
 				.collect(Collectors.toList()));
+			
 		} catch (NullPointerException npe) {
+			
 			
 		}
    	    discourseParts = new HashMap<Long,String>();
    	    for (DiscoursePartContribution dpc : c.getContributionPartOfDiscourseParts()) {
    	    	discourseParts.put(dpc.getDiscoursePart().getId(), dpc.getDiscoursePart().getName());
    	    }
-
+   	    
 	}
 
 	public Long getContributionId() {
@@ -170,4 +184,6 @@ public class BrowsingContributionResource extends ResourceSupport {
 	public void setParentId(Long parentId) {
 		this.parentId = parentId;
 	}
+
+
 }

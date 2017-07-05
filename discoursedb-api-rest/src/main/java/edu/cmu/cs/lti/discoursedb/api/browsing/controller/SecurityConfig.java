@@ -2,6 +2,7 @@ package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,6 +38,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	  auth.inMemoryAuthentication().withUser("discoursedb").password("123456").roles("DBA");
 	}
 	
+	 @Bean
+	    EvaluationContextExtension securityExtension() {
+	        return new SecurityEvaluationContextExtension();
+	    }
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

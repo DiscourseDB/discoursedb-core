@@ -21,13 +21,21 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.repository.annotation;
 
+import java.util.HashSet;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
 @RepositoryRestResource(collectionResourceRel = "annotations", path = "annotations")
 public interface AnnotationEntityProxyRepository extends BaseRepository<AnnotationEntityProxy,Long>{
     
+    @Query("Select a FROM AnnotationInstance a left join a.annotator su where a.annotationEntityProxy=:aip and (su is null or su.username=?#{principal.username})")
+    HashSet<AnnotationInstance> findAllMyAnnotations(@Param("aip") AnnotationEntityProxy aip);
     
 }

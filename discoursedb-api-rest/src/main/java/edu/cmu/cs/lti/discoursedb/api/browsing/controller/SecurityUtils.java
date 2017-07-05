@@ -115,6 +115,7 @@ public class SecurityUtils {
 			}
 		}
 		logger.info("AFTER AUTHENTICATE: " + SecurityContextHolder.getContext().toString());
+        logger.info("Logging in2 with [{}]", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
 	}
 	
@@ -123,7 +124,7 @@ public class SecurityUtils {
 		Optional<SystemUser> su = email != null?sysUserRepo.findOneByEmail(email):Optional.empty();
 		
 		if (su.isPresent()) {
-			List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+			/*List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 			for (SystemUserRole r : su.get().getRoles()) {
 				authorities.add(new SimpleGrantedAuthority("ROLE:" + r.name()));
 			}
@@ -131,11 +132,16 @@ public class SecurityUtils {
 				authorities.add(new SimpleGrantedAuthority(r.getDiscourse().getName()));
 			}
 	        UserDetails userDetails = new org.springframework.security.core.userdetails.User(email,
-	                password, true, true, true, true, authorities);		
+	                password, true, true, true, true, authorities);	
 			Authentication authentication = new UsernamePasswordAuthenticationToken(email, password,
-	                userDetails.getAuthorities());
+	                userDetails.getAuthorities());*/
+			Authentication authentication = new UsernamePasswordAuthenticationToken(
+					su.get(), password,
+	                su.get().getAuthorities());
+			
 	        SecurityContextHolder.clearContext();
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
+	        logger.info("Logging in with [{}]", authentication.getPrincipal());
 		}
 	}
 	public boolean canSeeDiscourse(Discourse d) {
