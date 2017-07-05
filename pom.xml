@@ -46,6 +46,7 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			
 			<dependency>
 				<groupId>org.twitter4j</groupId>
 				<artifactId>twitter4j-core</artifactId>
