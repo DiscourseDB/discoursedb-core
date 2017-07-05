@@ -616,8 +616,7 @@ public class BrowsingRestController {
 			@RequestParam(value= "bratDirectory") String bratDirectory, HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
 		securityUtils.authenticate(hsr, null, session);
-		String bratDataDirectory = bratDataDirectory(SecurityContextHolder.getContext().
-				getAuthentication().getPrincipal().toString());
+		String bratDataDirectory = bratDataDirectory();
 		File bratDir = new File(bratDataDirectory + "/" + sanitize_dirname(bratDirectory));
 		if (bratDir.isDirectory()) {
 			FileUtils.deleteDirectory(bratDir);
@@ -627,8 +626,8 @@ public class BrowsingRestController {
 		return bratExports(hsr,session);
 	}
 	
-	public String bratDataDirectory(String currUser) {
-		return environment.getRequiredProperty("brat.data_directory") + "/" + currUser;
+	public String bratDataDirectory() {
+		return environment.getRequiredProperty("brat.data_directory") + "/" + sysUserSvc.getSystemUser().get().getEmail();
 	}
 	
 	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
@@ -640,7 +639,7 @@ public class BrowsingRestController {
 		securityUtils.authenticate(hsr, null, session);
 		Assert.hasText(exportDirectory, "No exportDirectory name specified");
 		
-		String bratDataDirectory = bratDataDirectory(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+		String bratDataDirectory = bratDataDirectory();
 		DiscoursePart childDp = discoursePartRepository.findOne(dpId).get();
 		
 		String bratDirectory = bratDataDirectory + "/" + sanitize(exportDirectory);
@@ -685,9 +684,8 @@ public class BrowsingRestController {
 			@RequestParam(value= "bratDirectory") String bratDirectory, HttpServletRequest hsr, HttpSession session
 			) throws IOException {
 		securityUtils.authenticate(hsr, null, session);
-		String who = SecurityContextHolder.getContext().
-				getAuthentication().getPrincipal().toString();
-		String bratDataDirectory = bratDataDirectory(who);
+		
+		String bratDataDirectory = bratDataDirectory();
 
 		importBratRecursively(bratDataDirectory + "/" + bratDirectory);
 		return bratExports(hsr,session);
@@ -734,7 +732,7 @@ public class BrowsingRestController {
 		securityUtils.authenticate(hsr, null, session);
 		String who = SecurityContextHolder.getContext().
 				getAuthentication().getPrincipal().toString();
-		String bratDataDirectory = bratDataDirectory(who);
+		String bratDataDirectory = bratDataDirectory();
 		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedBrat(bratDataDirectory);
 		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingBratExportResource bber: p) {
