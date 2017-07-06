@@ -285,6 +285,7 @@ public class AnnotationService {
 	}
 	
 	public boolean myAnnoToWrite(SystemUser me, AnnotationInstance anno) {
+		Assert.notNull(anno, "Cannot write null annotation");
 		if (me == null) return true;
 		if (anno.getAnnotator() != null && me.getEmail() == anno.getAnnotator().getEmail()) return true;
 		return false;
@@ -450,7 +451,6 @@ public class AnnotationService {
 	}
 	public void saveFeature(Feature feature){
 		Assert.notNull(feature, "Feature cannot be null.");
-		Assert.isTrue(myAnnoToWrite(feature.getAnnotation()), "No permission to write annotation");
 		featureRepo.save(feature);		
 	}
 	
