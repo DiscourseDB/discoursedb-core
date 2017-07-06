@@ -84,7 +84,7 @@ public class AnnotationService {
 	public <T extends TimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		System.out.println("Finding annotations for user " + userSvc.getSystemUser());
+		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName()  + " user " + userSvc.getSystemUser());
 		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
 //		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
@@ -102,7 +102,7 @@ public class AnnotationService {
 	public <T extends TypedTimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		System.out.println("Finding annotations for user " + userSvc.getSystemUser());
+		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName() + " for user " + userSvc.getSystemUser());
 		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
 //		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
@@ -262,12 +262,27 @@ public class AnnotationService {
 	public void deleteAnnotation(AnnotationInstance annotation) {		
 		Assert.notNull(annotation,"Annotation to delete cannot be null.");
 		Set<Feature> features = annotation.getFeatures();
-		if(features!=null&&!features.isEmpty()){
-			featureRepo.delete(annotation.getFeatures());			
+		if (myAnno(annotation)) {
+			if(features!=null&&!features.isEmpty()){
+				featureRepo.delete(annotation.getFeatures());			
+			}
+			annoInstanceRepo.delete(annotation);
 		}
-		annoInstanceRepo.delete(annotation);
 	}
 
+	public boolean myAnno(AnnotationInstance anno) {
+		SystemUser me = userSvc.getSystemUser().orElse(null);
+		if (me == null) return true;
+		if (anno.getAnnotator() != null && me.getEmail() == anno.getAnnotator().getEmail()) return true;
+		return false;
+	}
+	
+	public boolean myAnno(SystemUser me, AnnotationInstance anno) {
+		if (me == null) return true;
+		if (anno.getAnnotator() != null && me.getEmail() == anno.getAnnotator().getEmail()) return true;
+		return false;
+	}
+	
 	/**
 	 * Deletes an annotation from DiscourseDB
 	 * 
@@ -278,10 +293,13 @@ public class AnnotationService {
 		Assert.notNull(annotations, "Annotation iterable cannot be null.");
 
 		List<Feature> featuresToDelete = new ArrayList<>();
+		SystemUser sysUser = userSvc.getSystemUser().orElse(null);
 		for(AnnotationInstance anno:annotations){
-			Set<Feature> features = anno.getFeatures();
-			if(features!=null&&!features.isEmpty()){
-				featuresToDelete.addAll(features);
+			if (myAnno(sysUser, anno)) {
+				Set<Feature> features = anno.getFeatures();
+				if(features!=null&&!features.isEmpty()){
+					featuresToDelete.addAll(features);
+				}
 			}
 		}
 		featureRepo.delete(featuresToDelete);
@@ -299,7 +317,7 @@ public class AnnotationService {
 	public <T extends TypedTimedAnnotatableBE> boolean hasAnnotationType(T entity, String type) {		
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");
 		Assert.hasText(type,"Type cannot be empty. Provide an annotation type.");		
-		return entity.getAnnotations().getAnnotations().stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
+		return findAnnotations(entity).stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
 	}
 	
 	/**
@@ -313,7 +331,7 @@ public class AnnotationService {
 	public <T extends TimedAnnotatableBE> boolean hasAnnotationType(T entity, String type) {		
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");
 		Assert.hasText(type,"Type cannot be empty. Provide an annotation type.");		
-		return entity.getAnnotations().getAnnotations().stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
+		return findAnnotations(entity).stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
 	}
 	
 	/**
@@ -327,7 +345,9 @@ public class AnnotationService {
 	public void addFeature(AnnotationInstance annotation, Feature feature) {		
 		Assert.notNull(annotation, "Annotation cannot be null.");
 		Assert.notNull(feature, "Feature cannot be null.");		
-		feature.setAnnotation(annotation);
+		if (myAnno(annotation)) {
+			feature.setAnnotation(annotation);
+		}
 	}
 
 	/**
@@ -343,7 +363,9 @@ public class AnnotationService {
 	        List<Feature> features = featureRepo.findAllByTypeAndValue(type, value);
 	        List<AnnotationInstance> annotations = new ArrayList<AnnotationInstance>();
 	        for(Feature f : features) {
+	        		if (myAnno(f.getAnnotation())) {
 	                annotations.add(f.getAnnotation());
+	        		}
 	        }
 	        return annotations;
 	}
@@ -393,7 +415,7 @@ public class AnnotationService {
 	public Optional<AnnotationInstance> findOneAnnotationInstance(Long id){
 		Optional<AnnotationInstance> oai = annoInstanceRepo.findOne(id); 
 		if (oai.isPresent()) {
-			if (oai.get().getAnnotator() == null || oai.get().getAnnotator().equals(userSvc.getSystemUser().orElse(null))) {
+			if (myAnno(oai.get())) {
 				return oai;
 			} else {
 				return Optional.empty();
