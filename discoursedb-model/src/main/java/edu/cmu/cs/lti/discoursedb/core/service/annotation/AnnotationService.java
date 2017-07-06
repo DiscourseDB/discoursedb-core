@@ -262,7 +262,7 @@ public class AnnotationService {
 	public void deleteAnnotation(AnnotationInstance annotation) {		
 		Assert.notNull(annotation,"Annotation to delete cannot be null.");
 		Set<Feature> features = annotation.getFeatures();
-		if (myAnno(annotation)) {
+		if (myAnnoToWrite(annotation)) {
 			if(features!=null&&!features.isEmpty()){
 				featureRepo.delete(annotation.getFeatures());			
 			}
@@ -270,19 +270,26 @@ public class AnnotationService {
 		}
 	}
 
-	public boolean myAnno(AnnotationInstance anno) {
-		SystemUser me = userSvc.getSystemUser().orElse(null);
+	public boolean myAnnoToRead(AnnotationInstance anno) {
+		return myAnnoToRead( userSvc.getSystemUser().orElse(null), anno);
+	}
+	
+	public boolean myAnnoToRead(SystemUser me, AnnotationInstance anno) {
+		if (me == null) return true;
+		if (anno.getAnnotator() == null || me.getEmail() == anno.getAnnotator().getEmail()) return true;
+		return false;
+	}
+
+	public boolean myAnnoToWrite(AnnotationInstance anno) {
+		return myAnnoToWrite( userSvc.getSystemUser().orElse(null), anno);
+	}
+	
+	public boolean myAnnoToWrite(SystemUser me, AnnotationInstance anno) {
 		if (me == null) return true;
 		if (anno.getAnnotator() != null && me.getEmail() == anno.getAnnotator().getEmail()) return true;
 		return false;
 	}
-	
-	public boolean myAnno(SystemUser me, AnnotationInstance anno) {
-		if (me == null) return true;
-		if (anno.getAnnotator() != null && me.getEmail() == anno.getAnnotator().getEmail()) return true;
-		return false;
-	}
-	
+
 	/**
 	 * Deletes an annotation from DiscourseDB
 	 * 
@@ -295,7 +302,7 @@ public class AnnotationService {
 		List<Feature> featuresToDelete = new ArrayList<>();
 		SystemUser sysUser = userSvc.getSystemUser().orElse(null);
 		for(AnnotationInstance anno:annotations){
-			if (myAnno(sysUser, anno)) {
+			if (myAnnoToWrite(sysUser, anno)) {
 				Set<Feature> features = anno.getFeatures();
 				if(features!=null&&!features.isEmpty()){
 					featuresToDelete.addAll(features);
@@ -345,7 +352,7 @@ public class AnnotationService {
 	public void addFeature(AnnotationInstance annotation, Feature feature) {		
 		Assert.notNull(annotation, "Annotation cannot be null.");
 		Assert.notNull(feature, "Feature cannot be null.");		
-		if (myAnno(annotation)) {
+		if (myAnnoToWrite(annotation)) {
 			feature.setAnnotation(annotation);
 		}
 	}
@@ -363,7 +370,7 @@ public class AnnotationService {
 	        List<Feature> features = featureRepo.findAllByTypeAndValue(type, value);
 	        List<AnnotationInstance> annotations = new ArrayList<AnnotationInstance>();
 	        for(Feature f : features) {
-	        		if (myAnno(f.getAnnotation())) {
+	        		if (myAnnoToRead(f.getAnnotation())) {
 	                annotations.add(f.getAnnotation());
 	        		}
 	        }
@@ -415,7 +422,7 @@ public class AnnotationService {
 	public Optional<AnnotationInstance> findOneAnnotationInstance(Long id){
 		Optional<AnnotationInstance> oai = annoInstanceRepo.findOne(id); 
 		if (oai.isPresent()) {
-			if (myAnno(oai.get())) {
+			if (myAnnoToRead(oai.get())) {
 				return oai;
 			} else {
 				return Optional.empty();
@@ -438,10 +445,12 @@ public class AnnotationService {
 	
 	public void saveAnnotationInstance(AnnotationInstance anno){
 		Assert.notNull(anno, "AnnotationInstance cannot be null.");
+		Assert.isTrue(myAnnoToWrite(anno), "No permission to write annotation");
 		annoInstanceRepo.save(anno);		
 	}
 	public void saveFeature(Feature feature){
 		Assert.notNull(feature, "Feature cannot be null.");
+		Assert.isTrue(myAnnoToWrite(feature.getAnnotation()), "No permission to write annotation");
 		featureRepo.save(feature);		
 	}
 	
@@ -464,6 +473,8 @@ public class AnnotationService {
 		Assert.notNull(sourceAnnotation, "Source annotation cannot be null.");
 		Assert.notNull(targetAnnotation, "Target annotation cannot be null.");
 		Assert.notNull(type, "Relation type cannot be null.");
+		Assert.isTrue(myAnnoToWrite(sourceAnnotation), "No permission to write to source annotation");
+		Assert.isTrue(myAnnoToWrite(targetAnnotation), "No permission to write to target annotation");
 								
 		//check if a relation of the given type already exists between the two annotations
 		//if so, return it. if not, create new relation, configure it and return it.
