@@ -195,7 +195,7 @@ public class BratService {
 			if (bratAnno.getType() == BratAnnotationType.BRAT_TEXT) {					
 				
 				Entry<Integer, OffsetInfo> offset = offsetToOffsetInfo.floorEntry(bratAnno.getBeginIndex());
-				//Contribution contribx = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
+				Contribution contrib = contribService.findOne(offset.getValue().getDiscourseDbContributionId()).get();
 				Content content = contentService.findOne(offset.getValue().getDiscourseDbContentId()).get();
 				long separatorStartIndex = offset.getKey();
 				long separatorEndIndex = separatorStartIndex+ BratSeparator.length;
@@ -226,8 +226,8 @@ public class BratService {
 					} else {
 						// anno is new and didn't exist in ddb before
 						AnnotationInstance newAnno = annoService.createTypedAnnotation(bratAnno.getAnnotationLabel());
-						annoService.addAnnotation(content, newAnno);
-						contentService.save(content); //this should happen in addAnnotation. Filed Issue #15
+						annoService.addAnnotation(contrib, newAnno);
+						contribService.save(contrib); //this should happen in addAnnotation. Filed Issue #15
 						//update version file
 						annotationBratIdToVersionInfo.put(bratAnno.getId(), new VersionInfo(AnnotationSourceType.DDB_ANNOTATION,bratAnno.getId(),newAnno.getId(), newAnno.getEntityVersion())); 
 					}
