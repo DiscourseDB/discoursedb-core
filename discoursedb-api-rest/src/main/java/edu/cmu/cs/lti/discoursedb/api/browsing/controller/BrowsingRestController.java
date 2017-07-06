@@ -302,7 +302,10 @@ public class BrowsingRestController {
 	@RequestMapping(value = "/discourses", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscourseResource>> discourse(@RequestParam(value= "page", defaultValue = "0") int page, 
-														   @RequestParam(value= "size", defaultValue="20") int size)  {
+														   @RequestParam(value= "size", defaultValue="20") int size,
+														   HttpServletRequest hsr, HttpSession session
+														   )  {
+		securityUtils.authenticate(hsr, null, session);
 		PageRequest p = new PageRequest(page,size);
 		
 			Page<BrowsingDiscourseResource> discourseResources = discourseRepository.findAll(p).map(b -> new BrowsingDiscourseResource(b, discoursePartRepository));
@@ -346,7 +349,9 @@ public class BrowsingRestController {
 	PagedResources<Resource<BrowsingDiscoursePartResource>> discourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   @RequestParam("repoType") String repoType,
-														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
+														   @RequestParam(value="annoType", defaultValue="*") String annoType,
+														   HttpServletRequest hsr, HttpSession session) {
+		securityUtils.authenticate(hsr, null, session);
 		PageRequest p = new PageRequest(page,size);
 		Page<BrowsingDiscoursePartResource> repoResources = 
 				discoursePartRepository.findAllNonDegenerateByType(repoType, p)
@@ -423,9 +428,11 @@ public class BrowsingRestController {
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> deleteLightside(
 			@RequestParam(value= "exportFilename") String exportFilename,
-			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations) 
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		securityUtils.authenticate(hsr, null, session);
+		String lsDataDirectory = lsDataDirectory();
 		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
 		logger.info("DeleteLightside: dd:" + lsDataDirectory + " ef:" + exportFilename + 
 				" wa:" + withAnnotations + " => "
@@ -434,7 +441,7 @@ public class BrowsingRestController {
 			f.delete();
 		}
 		lsOutputFilename.delete();
-		return lightsideExports();
+		return lightsideExports(hsr, session);
 	}
 	
 	@Deprecated
@@ -496,9 +503,11 @@ public class BrowsingRestController {
 	@RequestMapping(value = "/action/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> uploadLightside(
-			@RequestParam("file_annotatedFileForUpload") MultipartFile file_annotatedFileForUpload) 
+			@RequestParam("file_annotatedFileForUpload") MultipartFile file_annotatedFileForUpload,
+			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		securityUtils.authenticate(hsr, null, session);
+		String lsDataDirectory = lsDataDirectory();
 		logger.info("Someone uploaded something!");
 		if (!file_annotatedFileForUpload.isEmpty()) {
 			try {
@@ -513,7 +522,7 @@ public class BrowsingRestController {
 				
 			}
 		}
-		return lightsideExports();
+		return lightsideExports(hsr, session);
 	}
 	
 	
@@ -522,11 +531,14 @@ public class BrowsingRestController {
 	String downloadLightside(
 			HttpServletResponse response,
 			@PathVariable(value= "exportFilename") String exportFilename,
-			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations) 
+			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
+		
+		securityUtils.authenticate(hsr, null, session);
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		String lsDataDirectory = lsDataDirectory();
 		File lsOutputFileDir = new File(lsDataDirectory , sanitize(exportFilename));
 		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
 		logger.info("Looking in directory " + lsOutputFileDir + " derived from " + exportFilename);
@@ -556,20 +568,23 @@ public class BrowsingRestController {
 	PagedResources<Resource<BrowsingLightsideStubsResource>> exportLightsideAction(
 			@RequestParam(value= "exportFilename") String exportFilename,
 			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
-			@RequestParam(value= "dpId") long dpId) throws IOException {
+			@RequestParam(value= "dpId") long dpId,
+			   HttpServletRequest hsr, HttpSession session) throws IOException {
 		Assert.hasText(exportFilename, "No exportFilename specified");
+		securityUtils.authenticate(hsr, null, session);
 		
 		DiscoursePart dp = discoursePartRepository.findOne(dpId).get();
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		String lsDataDirectory = lsDataDirectory();
 		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
 		logger.info(" Exporting dp " + dp.getName());
 		Set<DiscoursePart> descendents = discoursePartService.findDescendentClosure(dp, Optional.empty());
+		System.out.println(lsOutputFilename.getAbsoluteFile().toString());
 		lsOutputFilename.mkdirs();
 		for (DiscoursePart d: descendents) {
 			File child = new File(lsOutputFilename, d.getId().toString());
 			child.createNewFile();
 		}
-		return lightsideExports();
+		return lightsideExports(hsr, session);
 	}
 	
 	/*@RequestMapping(value = "/action/exportLightsideOld", method=RequestMethod.GET)
@@ -599,14 +614,16 @@ public class BrowsingRestController {
 	
 	@RequestMapping(value = "/action/importLightside", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory) throws IOException {
-		String liteDataDirectory = environment.getRequiredProperty("lightside.data_directory");		
+	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory,
+			   HttpServletRequest hsr, HttpSession session) throws IOException {
+		securityUtils.authenticate(hsr, null, session);
+		String liteDataDirectory = lsDataDirectory();		
 		lightsideService.importAnnotatedData(liteDataDirectory + "/" + lightsideDirectory);
 		Optional<DiscoursePart> dp = lightsideName2DiscoursePartForImport(lightsideDirectory);
 		//if (dp.isPresent()) {
 		//	return subDiscourseParts(0,20, dp.get().getId());
 		//} else {
-			return lightsideExports();
+			return lightsideExports(hsr, session);
 		//}
 	}	
 	
@@ -629,6 +646,10 @@ public class BrowsingRestController {
 	public String bratDataDirectory() {
 		return environment.getRequiredProperty("brat.data_directory") + "/" + sysUserSvc.getSystemUser().get().getEmail();
 	}
+	public String lsDataDirectory() {
+		return environment.getRequiredProperty("lightside.data_directory") + "/" + sysUserSvc.getSystemUser().get().getEmail();
+	}
+
 	
 	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
@@ -711,9 +732,11 @@ public class BrowsingRestController {
 
 	@RequestMapping(value = "/lightsideExports", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingLightsideStubsResource>> lightsideExports() {
+	PagedResources<Resource<BrowsingLightsideStubsResource>> lightsideExports(
+			   HttpServletRequest hsr, HttpSession session) {
+		securityUtils.authenticate(hsr, null, session);
 		
-		String lightsideDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		String lightsideDataDirectory = lsDataDirectory();
 		List<BrowsingLightsideStubsResource> exported = BrowsingLightsideStubsResource.findPreviouslyExportedLightside(lightsideDataDirectory);
 		Page<BrowsingLightsideStubsResource> p = new PageImpl<BrowsingLightsideStubsResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingLightsideStubsResource ltstub: p) {
@@ -747,7 +770,9 @@ public class BrowsingRestController {
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("childOf") Long dpId)  {
+														   @PathVariable("childOf") Long dpId,
+														   HttpServletRequest hsr, HttpSession session)  {
+		securityUtils.authenticate(hsr, null, session);
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
@@ -808,7 +833,9 @@ public class BrowsingRestController {
 	@ResponseBody
 	PagedResources<Resource<BrowsingUserResource>> users(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("dpId") Long dpId)  {
+														   @PathVariable("dpId") Long dpId,
+														   HttpServletRequest hsr, HttpSession session)  {
+		securityUtils.authenticate(hsr, null, session);
 		PageRequest p = new PageRequest(page,size);
 		
 		
