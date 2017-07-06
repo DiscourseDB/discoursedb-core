@@ -519,7 +519,7 @@ public class BrowsingRestController {
 				stream.close();
 				lightsideService.importAnnotatedData(tempUpload.toString());
 			} catch (Exception e) {
-				
+				logger.error("Error importing to lightside: " + e);
 			}
 		}
 		return lightsideExports(hsr, session);
