@@ -898,7 +898,7 @@ public class BrowsingRestController {
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
 			Page<BrowsingContributionResource> lbcr = 
-					discoursePartContributionRepository.findByDiscoursePart(parent.get(), p)
+					discoursePartContributionRepository.findByDiscoursePartSorted(parent.get(), p)
 					.map(dpc -> dpc.getContribution())
 					.map( c -> new BrowsingContributionResource(c,annoService));
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
