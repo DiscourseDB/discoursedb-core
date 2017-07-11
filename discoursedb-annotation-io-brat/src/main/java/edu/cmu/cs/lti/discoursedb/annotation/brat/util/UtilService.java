@@ -121,6 +121,9 @@ public class UtilService {
 			Long id = contributionId.apply(d);
 			Long parent = parentId.apply(d);
 			Integer tail = tails.get(parent);
+			if (tail == null) {
+				tail = -1;
+			}
 			reordered.add(tail+1,d);
 			tails.put(id, tail+1);
 			if (!parents.containsKey(id)) { parents.put(id, new ArrayList<Long>()); }
