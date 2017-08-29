@@ -21,12 +21,15 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.repository.system;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserProperty;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
 public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
@@ -36,4 +39,23 @@ public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
 	
     //@Query("select u from SystemUser su where su.username=:username")
 	Optional<SystemUser> findOneByUsername(@Param("username") String username);
+	
+	@Query("select sup from SystemUserProperty  sup where sup.systemUser=:username and sup.propType like :prop_type")
+	List<SystemUserProperty> findProperties(@Param("username") SystemUser username, @Param("prop_type") String prop_type);
+
+	@Query("select sup from SystemUserProperty sup where sup.systemUser=:username and sup.propName=:prop_name and sup.propType=:prop_type")
+	Optional<SystemUserProperty> getProperty(@Param("username") SystemUser username, 
+			@Param("prop_type") String prop_type, 
+			@Param("prop_name") String prop_name);
+
+	@Query("delete from SystemUserProperty sup  where sup.systemUser=:username and sup.propName=:prop_name and sup.propType=:prop_type")
+	Optional<SystemUserProperty> deleteProperty(@Param("username") SystemUser username, 
+			@Param("prop_type") String prop_type, 
+			@Param("prop_name") String prop_name);
+	
+	@Modifying
+	@Query(value="insert into SystemUserProperty (prop_type, prop_name, prop_value, fk_system_user) VALUES "
+			+ "(:prop_type, :prop_name, :prop_value, :system_user_id)", nativeQuery=true)
+	int createProperty(@Param("prop_type") String prop_type, @Param("prop_name") String prop_name, 
+			@Param("prop_value") String prop_value, @Param("system_user_id") long system_user_id );
 }

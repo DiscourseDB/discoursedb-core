@@ -21,6 +21,7 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.service.system;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserProperty;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +55,52 @@ public class SystemUserService {
 		return this.getSystemUser(SecurityContextHolder.getContext().
 				getAuthentication().getPrincipal().toString());
 	}
+	
+	public List<SystemUserProperty> getPropertyList(String ptype) {
+		Optional<SystemUser> su = getSystemUser();
+		Assert.isTrue(su.isPresent(), "Invalid user");
+		// TODO: do we need to substitute * -> %  in ptype to make "like" work inside findProperties?
+		// TODO: do we need to sanitize ptype?  Can it bust out of the string and do '"; drop TABLES;' or whatever?
+		return sysUserRepo.findProperties(su.get(), ptype);
+	}
+	
+	public Optional<SystemUserProperty> getProperty(String ptype, String pname) {
+		Optional<SystemUser> su = getSystemUser();
+		Assert.isTrue(su.isPresent(), "Invalid user");
+		Assert.doesNotContain(ptype, "*","Can't get property with wildcard type");
+		Assert.doesNotContain(ptype, "%","Can't get property with wildcard type");
+		return sysUserRepo.getProperty(su.get(), ptype, pname);
+	}
+	
+	public Optional<SystemUserProperty> deleteProperty(String ptype, String pname) {
+		Optional<SystemUser> su = getSystemUser();
+		Assert.isTrue(su.isPresent(), "Invalid user");
+		Assert.doesNotContain(ptype, "*","Can't get property with wildcard type");
+		Assert.doesNotContain(ptype, "%","Can't get property with wildcard type");
+		return sysUserRepo.deleteProperty(su.get(), ptype, pname);
+	}
+	
+	
+	public Optional<SystemUserProperty> renameProperty(String ptype, String pname, String newPname, String newPtype) {
+		Optional<SystemUser> su = getSystemUser();
+		Assert.isTrue(su.isPresent(), "Invalid user");
+		Assert.doesNotContain(ptype, "*","Can't get property with wildcard type");
+		Assert.doesNotContain(ptype, "%","Can't get property with wildcard type");
+		Optional<SystemUserProperty> old = getProperty(ptype, pname);
+		if (!old.isPresent()) { return old; }
+		Optional<SystemUserProperty> nuevo = getProperty(newPtype, newPname);
+		if (nuevo.isPresent()) { return Optional.empty(); }
+		deleteProperty(ptype, pname);
+		createProperty(newPtype, newPname, old.get().getPropValue());
+		return getProperty(newPname, newPtype);
+	}
+	
+	public int createProperty(String ptype, String pname, String pvalue) {
+		Optional<SystemUser> su = getSystemUser();
+		Assert.isTrue(su.isPresent(), "Invalid user");
+		return sysUserRepo.createProperty(ptype, pname, pvalue, su.get().getId());
+	}
 
+	
+	
 }

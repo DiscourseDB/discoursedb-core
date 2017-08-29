@@ -99,8 +99,12 @@ import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscourseResourc
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingLightsideStubsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
+import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery;
+import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery.DdbQueryParseException;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserProperty;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
@@ -115,6 +119,9 @@ import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.core.service.system.SystemUserService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -148,6 +155,9 @@ public class BrowsingRestController {
 	@Autowired
 	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
 
+	@Autowired
+	private SystemUserService systemUserService;
+	
 	@Autowired
 	private UserService userService;
 
@@ -915,38 +925,80 @@ public class BrowsingRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/dpContributionsRecursive/{childOf}", method = RequestMethod.GET)
+	
+	/* Set of endpoints for manipulating system_user properties
+	*
+	*/
+	@RequestMapping(value = "/prop_list", method = RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingContributionResource>> dpContributionsRecursive(@RequestParam(value= "page", defaultValue = "0") int page, 
-														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("childOf") Long dpId,
-														   HttpServletRequest hsr, HttpSession session)  {
-		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
+	String prop_list(@RequestParam(value="ptype", defaultValue="*") String ptype,
+			                                                HttpServletRequest hsr, HttpSession session)  {
 		securityUtils.authenticate(hsr, null, session);
 		
-		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
-		if (parent.isPresent()) {
-			List<Discourse> discs = discourseToDiscoursePartRepository.findDiscoursesOfDiscoursePart(parent.get());
-			if (discs.size() > 0) {
-				securityUtils.authorizedDiscourseCheck(discourseRepository.findOne(discs.get(0).getId()).get());	
-			} else {
-				securityUtils.authorizedDiscourseFail();
-			}
-			Page<BrowsingContributionResource> lbcr = 
-					discoursePartService.findContributionsRecursively(parent.get(), Optional.empty(), p)
-					.map(c -> new BrowsingContributionResource(c,annoService));
-			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
-					     (dpId2, dpName2) -> {
-					        if (dpId2 != dpId) { bcr.add(
-						    	makeLink("/browsing/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
+		logger.info("Requested property list of type " + ptype + " for user " + SecurityContextHolder.getContext().
+				getAuthentication().getPrincipal().toString());
+	
+		List<SystemUserProperty> props = systemUserService.getPropertyList(ptype);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(props);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.info("Could not output property list!");
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	@RequestMapping(value = "/prop_add", method = RequestMethod.GET)
+	@ResponseBody
+	String prop_add(@RequestParam(value="ptype") String ptype,
+			@RequestParam(value="pname") String pname,
+			@RequestParam(value="pvalue") String pvalue,
+			HttpServletRequest hsr, HttpSession session)  {
+		securityUtils.authenticate(hsr, null, session);
+		
+		logger.info("Creating property of type " + ptype + " named " + pname + " value= string of length " 
+				+ Integer.toString(pvalue.length()) + " for user " + SecurityContextHolder.getContext().
+				getAuthentication().getPrincipal().toString());
+	
+		systemUserService.createProperty(ptype, pname, pvalue);
+		return prop_list(ptype, hsr, session);
+	}
+	
+	
+	
+	// Note: the page/size parameters have different names here: "start" and "length" to make it
+	// play well with a convenient Javascript component, dataTables per
+	// documentation here: https://datatables.net/manual/server-side
+	// Unfortunately it's not very configurable for things like this.
+	@RequestMapping(value = "/query", method = RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingContributionResource>> query(@RequestParam(value= "start", defaultValue = "0") int startposn, 
+														   @RequestParam(value= "length", defaultValue="20") int size,
+														   @RequestParam("query") String query,
+														   HttpServletRequest hsr, HttpSession session)  {
+		int page = (startposn/size);
+		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
+		securityUtils.authenticate(hsr, null, session);
+		try {
+			logger.info("Got query " + query +"    page=" + Integer.toString(page) + "  size=" + Integer.toString(size));
+		    
+			DdbQuery q = new DdbQuery(discoursePartService, query);
+			Page<BrowsingContributionResource> lbcr =  
+					q.retrieveAll(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
+
+						
+				
 			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
-			
-			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
-			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+				
 			return response;
-		} else {
+		} catch (DdbQueryParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return null;
 		}
+	
 	}
 	
 	public Link makeBratLink(String urlend, String rel) {
