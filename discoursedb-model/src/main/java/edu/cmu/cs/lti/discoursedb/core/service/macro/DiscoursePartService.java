@@ -343,12 +343,23 @@ public class DiscoursePartService {
 			return findAncestorClosure(all, rel);
 		}
 	
-	/**
-	 * Find root ancestors of a DiscoursePart
-	 * 
-	 * @param set of discourse parts
-	 * @return their least common ancestors
-	 */
+		/**
+		 * Adds all contributions recursively under a discourse part
+		 * 
+		 * @param ancestor the discourse part to start from
+		 * @return all Contributions that are in discoursepart or its descendents
+		 */
+		@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+		public Page<Contribution> findContributionsRecursively(Set<DiscoursePart> ancestors, Optional<DiscoursePartRelationTypes> rel, Pageable p) {
+			Set<DiscoursePart> descendents = new HashSet<DiscoursePart>();
+			for (DiscoursePart anc: ancestors) {
+				descendents.addAll(this.findDescendentClosure(anc,  rel));
+			}
+			Page<Contribution> conts = contributionRepo.findAll(
+					ContributionPredicates.contributionInAnyDiscourseParts(descendents), p);
+			return conts;
+			
+		}
 		
     /**
 	 * Adds all contributions recursively under a discourse part
