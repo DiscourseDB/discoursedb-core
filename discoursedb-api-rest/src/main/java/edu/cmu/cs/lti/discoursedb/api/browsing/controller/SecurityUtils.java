@@ -366,6 +366,7 @@ public class SecurityUtils {
     private  String isGoogleSignIn(HttpServletRequest req) {
         String googleAuthCode = req.getParameter("googleAuthCode");
         if (googleAuthCode != null) return googleAuthCode;
+        if (req.getHeader("Authorization") == null) { return null; }
         if (req.getHeader("Authorization").startsWith("BEARER ")) {
         	return req.getHeader("Authorization").substring(7);
         }
