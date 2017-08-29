@@ -67,8 +67,9 @@ public class MturkConverter implements CommandLineRunner {
 
 	private String directory;
 	private String dataset;
-	String xuDiscourseName = "Xu Study";
+	String xuDiscourseName = "Summer School Study";
 	String wenDiscourseName = "Wen Study";
+	String summerDiscourseName = "Summer School Study";
 	
 	@Autowired private MturkConverterService mcs;
 
@@ -122,17 +123,37 @@ public class MturkConverter implements CommandLineRunner {
 	  return list;
 	}
 	
+	private static String wenGroup(String wenGroupTeam) {
+		String group = wenGroupTeam.substring(0, wenGroupTeam.length()-1);
+		if (wenGroupTeam.endsWith("10")) {
+			group = wenGroupTeam.substring(0, wenGroupTeam.length()-2);
+		} 
+		return group;
+	}
+	private static String wenTeam(String wenGroupTeam) {
+		String team = wenGroupTeam.substring(wenGroupTeam.length()-1);
+		if (wenGroupTeam.endsWith("10")) {
+			team = wenGroupTeam.substring(wenGroupTeam.length()-2);
+		} 
+		return team;
+	}
+	
 	private void convert(String directory, String datasetName) throws ParseException, IOException {
 		
 		// xu_end_id is string: group + _ team + _ + id
 		// username is group:username
 		Map<String,String> xu_id2username = new HashMap<String,String>();
 		Map<String,String> wen_username2groupteam = new HashMap<String,String>();
+		Map<String,String> wen_wenHandle2discId = new HashMap<String,String>();
+		Map<String,String> discId2expHandle = new HashMap<String,String>();
 		Map<String,Long> ddb_user_ids = new HashMap<String,Long>();
-		Map<String,String> discforum_id2username = new HashMap<String,String>();
-		Map<String,String> username2group = new HashMap<String,String>();
-		Map<String,String> username2team = new HashMap<String,String>();
-		Map<String,String> username2experiment = new HashMap<String,String>();
+		Map<String,String> discId2discHandle = new HashMap<String,String>();
+		Map<String,String> discHandle2discId = new HashMap<String,String>();
+		Map<String,String> expHandle2group = new HashMap<String,String>();
+		Map<String,String> expHandle2team = new HashMap<String,String>();
+		Map<String,String> expHandle2experiment = new HashMap<String,String>();
+		
+		Boolean summerSchool = true;
 		
 		Pattern forum_team_user0 = Pattern.compile("(\\d\\d\\d)_(\\d+)_(\\d+)");
 		Matcher m11 = forum_team_user0.matcher("234pre234_2_3.csv");
@@ -152,20 +173,58 @@ public class MturkConverter implements CommandLineRunner {
 		 * 
 		 * 1,222_1,222,222_1,Bobs,222_1_1,1,1,mturk987641,4,10,23...
 		 */
-		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/xustudy/individualdata_0622.csv")) {
+		//for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/xustudy/individualdata_0622.csv")) {
+		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/summerschool/individualuser_0710.csv")) {
 			String group = row.get("id").split("_")[0];
 			String team = row.get("id").split("_")[1];
-			String username = group + ":" + row.get("username");
-			xu_id2username.put(row.get("id"), username);
+			String groupteam = group + "_" + team;
+			String xuHandle = group + ":" + row.get("username");
+			xu_id2username.put(row.get("id"), xuHandle);
 
-			ddb_user_ids.put(username,  
-					mcs.mapUser(username, xuDiscourseName, datasetName,
+			ddb_user_ids.put(xuHandle,  
+					mcs.mapUser(xuHandle, xuDiscourseName, datasetName,
 							"individualdata_0622", "id", row.get("id")));
-			username2group.put(username,  group);
-			username2team.put(username, team);
-			username2experiment.put(username,  xuDiscourseName);
+			expHandle2group.put(xuHandle,  group);
+			expHandle2team.put(xuHandle, team);
+			expHandle2experiment.put(xuHandle,  xuDiscourseName);
 			mcs.mapTeamAndGroup(xuDiscourseName, group, team,
 					datasetName, "individualdata_0622", "id", row.get("id"));
+		}
+		
+		
+		
+		/* discforum2wenstudy.csv
+		 * 
+		 * wenHandle,discId,forum,discName
+			c1:Shan,726,10,shan
+			c1:StickyWicket,707,10,StickyWicket
+			c1:WT89,701,10,WT89
+			c1:hjo,712,10,hjo
+		 */
+		if (!summerSchool) {
+		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/discforum2wenstudy.csv")) {
+			String groupteam = row.get("wenHandle").split(":")[0];
+			String group = wenGroup(groupteam);
+			String team = wenTeam(groupteam);
+			if (row.get("discId") == "") {
+				System.out.println("Skipping user " + row.get("wenHandle") + ": discussionforum id is not known");
+				continue;
+			}
+			String wenHandle = row.get("wenHandle");
+			
+			discId2expHandle.put(row.get("discId"), wenHandle);
+			wen_wenHandle2discId.put(wenHandle, row.get("discId"));
+
+			ddb_user_ids.put(wenHandle,  
+					mcs.mapUser(wenHandle, wenDiscourseName, datasetName,
+							"discforum2wenstudy", "discId", row.get("discId")));
+			expHandle2group.put(wenHandle,  group);
+			expHandle2team.put(wenHandle, team);
+			expHandle2experiment.put(wenHandle,  wenDiscourseName);
+			mcs.mapTeamAndGroup(wenDiscourseName, group, team,
+					datasetName, "discforum2wenstudy", "id", row.get("discId"));
+		}
+		
 		}
 		
 		/*
@@ -209,9 +268,11 @@ public class MturkConverter implements CommandLineRunner {
 		 * "2603","Amber","Amber64","64","Amber","1",""
 		 * "173","64","64","1","64","1",""
 		 */
-		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/user.csv")) {
-			discforum_id2username.put(row.get("user_uid"), 
+		//for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/user.csv")) {
+		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "summerschool/user0710.csv")) {
+				discId2discHandle.put(row.get("user_uid"), 
 							row.get("forum_uid") + ":" + row.get("user_name"));
+			discHandle2discId.put(row.get("forum_uid") + ":" + row.get("user_name"), row.get("user_uid"));
 		}
 
 		
@@ -223,28 +284,26 @@ public class MturkConverter implements CommandLineRunner {
 		 * 		4/4/15 20:20,4584DA50-EDFC-B74D-EEAAA78C8CF4F2DC
 		 */
 		Map<Long,Long> sourceDiscId2ddbDiscId = new HashMap<Long,Long>();
-		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/discussionforum.csv")) {
-			//if (true) break;
-			String username = discforum_id2username.getOrDefault(row.get("user_uid"), row.get("forum_uid") + ":User" + row.get("user_uid"));
+		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/summerschool/forum0710.csv")) {
+			String discHandle = discId2discHandle.getOrDefault(row.get("user_uid"), row.get("forum_uid") + ":User" + row.get("user_uid"));
+			String expHandle = discId2expHandle.getOrDefault(row.get("user_uid"), discHandle);
 			
-			//TODO: get group, team, experiment for each user
+			String thisDiscourse = expHandle2experiment.getOrDefault(expHandle, "discussionforum");
 			
-			String thisDiscourse = username2experiment.getOrDefault(username, "discussionforum");
-			
-			if (!ddb_user_ids.containsKey(username)) {
-				ddb_user_ids.put(username,  
-					mcs.mapUser(username, thisDiscourse, datasetName,
+			if (!ddb_user_ids.containsKey(expHandle)) {
+				ddb_user_ids.put(expHandle,  
+					mcs.mapUser(expHandle, thisDiscourse, datasetName,
 							"discussionforum", "post_uid(User)", row.get("post_uid")));
 			}
 			Long post_uid = Long.valueOf(row.get("post_uid"));
-			System.out.println("Mapping post " + row.get("post_uid") + " by user " + username + " aka " + sourceDiscId2ddbDiscId.getOrDefault(Long.valueOf(row.get("user_uid")), 0L));
+			System.out.println("Mapping post " + row.get("post_uid") + " by user " + expHandle + " aka " + sourceDiscId2ddbDiscId.getOrDefault(Long.valueOf(row.get("user_uid")), 0L));
 			
 			Long post_ddbid = mcs.mapDiscussionPost(
 							row.get("subject"),
 							row.get("content"),
 							row.get("forum_uid"),
-							row.get("thread_uid"), username2group.get(username), username2team.get(username),
-							ddb_user_ids.getOrDefault(username,0L),
+							row.get("thread_uid"), expHandle2group.get(expHandle), expHandle2team.get(expHandle),
+							ddb_user_ids.getOrDefault(expHandle,0L),
 							row.get("posted_at"),
 							Long.valueOf(row.get("replyto_uid")),
 							thisDiscourse,
@@ -264,11 +323,13 @@ public class MturkConverter implements CommandLineRunner {
 		 * 224,11010,79865
 		 */
 		Map<String,String> xu_forumname2forum = new HashMap<String,String>();
-		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/xustudy/newmapping.csv")) {
+//		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/xustudy/newmapping.csv")) {
+		for (Map<String,String> row : csvIteratorExistingHeaders(directory + "/summerschool/newmapping.csv")) {
 			xu_forumname2forum.put(row.get("forumname"), row.get("forumid"));
 		}
 		
-		File[] listOfFiles = new File(directory + "/xustudy/chatlogs_transactivity_annotated/").listFiles();
+		File[] listOfFiles = new File(directory + "/summerschool/chats/").listFiles();
+//		File[] listOfFiles = new File(directory + "/xustudy/chatlogs_transactivity_annotated/").listFiles();
 
 		for (File file : listOfFiles) {
 		    if (file.isFile() && file.getName().endsWith(".csv")) {
@@ -284,7 +345,7 @@ public class MturkConverter implements CommandLineRunner {
 		    		team_id = n.substring(n.length() - 5, n.length()-4);
 		    		if (!forum_id.equals("0")) {
 		    			int lineno = 0;
-		    			if (n.startsWith("mturkno")) {
+		    			if (summerSchool || n.startsWith("mturkno")) {
 		    				/* ,type,username,useraddress,userid,timestamp,roomname,content,neg,
 		    				 * 1,presence,BazaarAgent,128.2.220.133:35582,N,6/4/16 21:24,mturkno798238,join,bazaar,
 		    				 */
@@ -304,7 +365,7 @@ public class MturkConverter implements CommandLineRunner {
 		    				 * 7/11/16,20:54:07,0,UKCats,1.46828E+12,Hi all,neg,neg,,,
 		    				 */
 		    				System.out.println("Trying to scan " + file.getAbsolutePath());
-		    				for (Map<String,String> row : csvIteratorNoHeaders(file.getAbsolutePath(), "date,time,zero,username,number,content,fld1,fld2,fld3,fld4,fld5,ign1,ign2,ign3,ign4,ign5,ign6")) {
+		    				for (Map<String,String> row : csvIteratorNoHeaders(file.getAbsolutePath(), "date,time,zero,username,number,content,fld1,transactivity,fld3,fld4,fld5,ign1,ign2,ign3,ign4,ign5,ign6")) {
 		    					if (row.get("username") != null && row.get("username").length() > 0) {
 		    						mcs.mapChat(row.get("date") + " " + row.get("time"), forum_id + ":" + row.get("username"), forum_id, team_id, row.get("content"),
 		    							xuDiscourseName, datasetName, "chats/" + file.getName(), "lineno", Long.toString(lineno));
@@ -332,10 +393,11 @@ public class MturkConverter implements CommandLineRunner {
 			    * */
 		System.out.println("Doing pre/post tests");
 		Pattern forum_team_user = Pattern.compile("(\\d\\d\\d)_(\\d+)_(\\d+)");
-		Matcher m1 = forum_team_user.matcher("234_2_3");
+		Matcher m1 = forum_team_user.matcher("234pre234_2_3.csv");
 		m1.find();
 		assert m1.group(1) == "234";
-		Iterator<File> it =  FileUtils.iterateFiles(new File(directory + "/xustudy/preposttest"), null, true);
+		//Iterator<File> it =  FileUtils.iterateFiles(new File(directory + "/xustudy/preposttest"), null, true);
+		Iterator<File> it =  FileUtils.iterateFiles(new File(directory + "/summerschool/242_pretest"), null, true);
 		while (it.hasNext()) {
 			File test = it.next();
 		    if (test.isFile() && test.getName().endsWith(".csv")) {
@@ -362,8 +424,9 @@ public class MturkConverter implements CommandLineRunner {
 		}
 		
 		
-		System.out.println("Doing proposals");
-		Iterable<File> it2 =  () -> FileUtils.iterateFiles(new File(directory + "/xustudy/group_proposals_txt/"), null, false);
+		System.out.println("Doing xu proposals");
+		//Iterable<File> it2 =  () -> FileUtils.iterateFiles(new File(directory + "/xustudy/group_proposals_txt/"), null, false);
+		Iterable<File> it2 =  () -> FileUtils.iterateFiles(new File(directory + "/summerschool/proposals/"), null, false);
 		for (File prop : it2) {
 			//if (true) break;
 		    if (prop.isFile() && prop.getName().endsWith(".txt")) {
@@ -378,6 +441,72 @@ public class MturkConverter implements CommandLineRunner {
 		    		mcs.mapFile(forum_id, team_id, forum_id + "_" + team_id, "Proposal by " + forum_id + "_" + team_id, ContributionTypes.PROPOSAL,
 		    				content, xuDiscourseName, datasetName, "proposals", "for_team", forum_id + "_" + team_id);   		
 		    }
+		}
+	
+		if (!summerSchool) {
+		System.out.println("Doing wen proposals");
+		Iterable<File> it3 =  () -> FileUtils.iterateFiles(new File(directory + "/wenstudy/proposals/"), null, false);
+		for (File prop : it3) {
+			//if (true) break;
+		    if (prop.isFile() && prop.getName().endsWith(".csv")) {
+		    		System.out.println("Doing proposal " + prop.getName());
+				String n = prop.getName();
+		    		String group_id = "", team_id = "";
+		    		group_id = wenGroup(n.substring(0,n.length()-4));
+		    		team_id = wenTeam(n.substring(0,n.length()-4));
+		    		System.out.println("Scanning proposal " + n + " by " + group_id + "_" + team_id + ": " + prop.getAbsolutePath());
+		    		
+		    		// This kludgey code handles the fact that:
+		    		//   * These look like csv files, but quoted strings contain unescaped quotes
+		    		//   * Sometimes there are multiple columns, sometimes not, but we only care about the first column
+		    		//   * Usually if there are extra columns, the first few are empty, so we can ignore anything after ,,
+		    		//   * First row is column names, but first column name is usually (not always) blank
+		    		String [] content2 = FileUtils.readFileToString(prop).split("\n");
+		    		content2[0] = "";    // Skip header row
+		    		String content = "";
+		    		for (String row: content2) {
+		    			String keep = "";
+		    			if (row.length() >= 2 && row.startsWith("\"")) {
+		    				keep += row.substring(1, row.length()-1);
+		    			} else {
+		    				keep += row + "\n";
+		    			}
+		    			content += keep.split(",,")[0];  // Sometimes these have multiple rows and we only care about the first column
+		    		}
+		    		mcs.mapFile(group_id, team_id, group_id + "_" + team_id, "Proposal by " + group_id + "_" + team_id, ContributionTypes.PROPOSAL,
+		    				content, wenDiscourseName, datasetName, "proposals", "for_team", group_id + "_" + team_id);   		
+		    }
+		}
+		
+		System.out.println("Doing wen study chats");
+		File [] listOfFiles2 = new File(directory + "/wenstudy/chats/").listFiles();
+
+		for (File file : listOfFiles2) {
+		    if (file.isFile() && file.getName().endsWith(".csv")) {
+				//if (true) break;
+		    		String n = file.getName();
+		    		String group_id = "", team_id = "";
+		    		group_id = wenGroup(n.substring(0,n.length()-4));
+		    		team_id = wenTeam(n.substring(0,n.length()-4));
+		    		int lineno = 0;
+    				/* userid,chat,,
+				 * asdf,"Plan 2 exceeds the total budget, though.",,
+				 * asdf,"Plan 1 is the only one that falls within their ""tight"" budget.",1,
+    				 */
+    				for (Map<String,String> row : csvIteratorExistingHeaders(file.getAbsolutePath())) {
+    					System.out.println(group_id + team_id + " " + row.get("userid") + " says " + row.get("chat").substring(0, java.lang.Math.min(30,row.get("chat").length())));
+    					if (row.get("userid") != null && row.get("userid").length() > 0 && row.get("userid").length() < 50) {
+    						mcs.mapChat(null, group_id + ":" + row.get("userid"), group_id, team_id, row.get("chat"),
+    								wenDiscourseName, datasetName, "chats/" + file.getName(), "lineno", Long.toString(lineno));
+    					}
+    					lineno += 1;
+    				}
+	    				
+					
+		    		
+		    		
+		    }
+		}
 		}
 		
 		/*

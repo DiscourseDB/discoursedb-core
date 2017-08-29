@@ -30,6 +30,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -286,6 +287,8 @@ public class MturkConverterService {
 		discoursepartService.addContributionToDiscoursePart(curContribution, team_dp);		
 	}
 	
+	static java.util.Date dummyTime = new java.util.Date();   // For undated things, use a date to keep convos sorted
+	
 	/**
 	 * Maps a discussion forum message to DiscourseDB
 	 * 
@@ -311,6 +314,13 @@ public class MturkConverterService {
 			String discourse_name,
 			String dataset_name,
 			String source_file_name, String source_column_name, String source_unique_index) {
+		
+		if (when == null) {
+			when = sdf.format(dummyTime);
+			dummyTime = DateUtils.addMinutes(dummyTime,1);
+		}
+		
+		
 		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourse_name);
 		 
 		User curUser = userService.createOrGetUser(curDiscourse,  author);
