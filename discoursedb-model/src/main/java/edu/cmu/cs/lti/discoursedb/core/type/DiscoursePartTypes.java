@@ -119,7 +119,12 @@ public enum DiscoursePartTypes {
 	/* 
 	 * Collection of communication by a team 
 	 */ 
-	TEAM
+	TEAM, 
+	/*
+	 * Some Coursera course organization items
+	 */
+	 LESSON_ITEM, LESSON, COURSE_REVISION, MODULE
+	 
 
 
 	

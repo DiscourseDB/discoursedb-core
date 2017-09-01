@@ -135,7 +135,11 @@ INTERVIEW_ANSWER,
  * Mturk study elements
  */
 PRETEST, POSTTEST,
-PROPOSAL
+PROPOSAL, 
+/*
+ * Coursera elements
+ */
+FEEDBACK
 
 
 }

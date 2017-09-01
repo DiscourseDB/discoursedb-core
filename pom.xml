@@ -45,8 +45,7 @@
 				<version>2.0.5.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-			
+			</dependency>		
 			<dependency>
 				<groupId>org.twitter4j</groupId>
 				<artifactId>twitter4j-core</artifactId>
@@ -811,7 +810,8 @@
 		<module>discoursedb-io-ravelry</module>
     <module>discoursedb-io-salon</module>
     <module>discoursedb-io-mturk</module>
-	</modules>
+    <module>discoursedb-io-courseraUPenn</module>
+ </modules>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://moon.lti.cs.cmu.edu:8080/</url>
