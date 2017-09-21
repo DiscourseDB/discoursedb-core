@@ -79,7 +79,7 @@ public class DdbQuery {
 				rows.get("discourse_part").forEach((JsonNode dp) -> {
 					System.out.println("Dereferencing dp " + dp);
 					System.out.println("Looking up in " + discoursePartService);
-					Optional<DiscoursePart> dpOpt =discoursePartService.findOne(dp.asLong());
+					Optional<DiscoursePart> dpOpt =discoursePartService.findOne(dp.get("dpid").asLong());
 					assert dpOpt.isPresent(): "Unknown discourse_part id " + dp.asText() + " mentioned in query";
 					discourseParts.add(dpOpt.get());			
 				});
