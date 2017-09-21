@@ -926,6 +926,11 @@ public class BrowsingRestController {
 	}
 	
 	
+	/* TO DO:
+	 *     /prop_get  :  (pname, ptype) -> pvalue
+	 */
+	
+	
 	/* Set of endpoints for manipulating system_user properties
 	*
 	*/
@@ -933,7 +938,9 @@ public class BrowsingRestController {
 	@ResponseBody
 	String prop_list(@RequestParam(value="ptype", defaultValue="*") String ptype,
 			                                                HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /prop_list");
 		securityUtils.authenticate(hsr, null, session);
+		logger.info("Authenticated /prop_list");
 		
 		logger.info("Requested property list of type " + ptype + " for user " + SecurityContextHolder.getContext().
 				getAuthentication().getPrincipal().toString());
@@ -956,7 +963,9 @@ public class BrowsingRestController {
 			@RequestParam(value="pname") String pname,
 			@RequestParam(value="pvalue") String pvalue,
 			HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /prop_add");
 		securityUtils.authenticate(hsr, null, session);
+		logger.info("Authenticated /prop_add");
 		
 		logger.info("Creating property of type " + ptype + " named " + pname + " value= string of length " 
 				+ Integer.toString(pvalue.length()) + " for user " + SecurityContextHolder.getContext().
@@ -978,9 +987,14 @@ public class BrowsingRestController {
 														   @RequestParam(value= "length", defaultValue="20") int size,
 														   @RequestParam("query") String query,
 														   HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /query");
+		securityUtils.authenticate(hsr, null, session);
+		logger.info("Authenticated /query");
+
+		
 		int page = (startposn/size);
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
-		securityUtils.authenticate(hsr, null, session);
+		
 		try {
 			logger.info("Got query " + query +"    page=" + Integer.toString(page) + "  size=" + Integer.toString(size));
 		    
