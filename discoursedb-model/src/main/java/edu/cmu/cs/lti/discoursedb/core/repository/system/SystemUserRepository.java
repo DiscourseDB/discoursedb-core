@@ -48,13 +48,14 @@ public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
 			@Param("prop_type") String prop_type, 
 			@Param("prop_name") String prop_name);
 
+	@Modifying
 	@Query("delete from SystemUserProperty sup  where sup.systemUser=:username and sup.propName=:prop_name and sup.propType=:prop_type")
-	Optional<SystemUserProperty> deleteProperty(@Param("username") SystemUser username, 
+	int deleteProperty(@Param("username") SystemUser username, 
 			@Param("prop_type") String prop_type, 
 			@Param("prop_name") String prop_name);
 	
 	@Modifying
-	@Query(value="insert into SystemUserProperty (prop_type, prop_name, prop_value, fk_system_user) VALUES "
+	@Query(value="insert into system_user_property (prop_type, prop_name, prop_value, fk_system_user) VALUES "
 			+ "(:prop_type, :prop_name, :prop_value, :system_user_id)", nativeQuery=true)
 	int createProperty(@Param("prop_type") String prop_type, @Param("prop_name") String prop_name, 
 			@Param("prop_value") String prop_value, @Param("system_user_id") long system_user_id );

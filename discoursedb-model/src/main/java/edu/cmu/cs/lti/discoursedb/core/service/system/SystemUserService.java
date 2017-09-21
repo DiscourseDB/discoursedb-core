@@ -72,7 +72,7 @@ public class SystemUserService {
 		return sysUserRepo.getProperty(su.get(), ptype, pname);
 	}
 	
-	public Optional<SystemUserProperty> deleteProperty(String ptype, String pname) {
+	public int deleteProperty(String ptype, String pname) {
 		Optional<SystemUser> su = getSystemUser();
 		Assert.isTrue(su.isPresent(), "Invalid user");
 		Assert.doesNotContain(ptype, "*","Can't get property with wildcard type");
@@ -98,6 +98,7 @@ public class SystemUserService {
 	public int createProperty(String ptype, String pname, String pvalue) {
 		Optional<SystemUser> su = getSystemUser();
 		Assert.isTrue(su.isPresent(), "Invalid user");
+		sysUserRepo.deleteProperty(su.get(), ptype,  pname);
 		return sysUserRepo.createProperty(ptype, pname, pvalue, su.get().getId());
 	}
 
