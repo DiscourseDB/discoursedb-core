@@ -216,7 +216,7 @@ public class CourseraConverterService {
 		DiscoursePart course_q_dp = getDiscoursePart(curDiscourse,dsi);
 		course_q_dp.setName(question_title);
 		Date t = null;
-		try { sdf5.parse(createdAt); } catch (Exception e) { t = dummyTime; }
+		try { t=sdf5.parse(createdAt); } catch (Exception e) { t = dummyTime; }
 		if (course_q_dp.getEndTime() == null || t.after(course_q_dp.getEndTime())) {
 			course_q_dp.setEndTime(t);
 		}
@@ -263,7 +263,7 @@ public class CourseraConverterService {
 		DiscoursePart course_q_dp = getDiscoursePart(curDiscourse, question_dp_inf);
 		
 		Date t = null;
-		try { sdf5.parse(createdAt); } catch (Exception e) { t = null; }
+		try { t=sdf5.parse(createdAt); } catch (Exception e) { t = null; }
 		if (course_q_dp.getEndTime() == null || t.after(course_q_dp.getEndTime())) {
 			course_q_dp.setEndTime(t);
 		}
@@ -313,7 +313,7 @@ public class CourseraConverterService {
 		feedback.setName("Course Feedback");
 		
 		Date t = null;
-		try { sdf5.parse(createdAt); } catch (Exception e) { t = null; }
+		try { t=sdf5.parse(createdAt); } catch (Exception e) { t = null; }
 		if (feedback.getEndTime() == null || t.after(feedback.getEndTime())) {
 			feedback.setEndTime(t);
 		}
