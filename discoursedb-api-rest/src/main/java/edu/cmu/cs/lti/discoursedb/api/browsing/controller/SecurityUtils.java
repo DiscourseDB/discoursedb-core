@@ -394,7 +394,7 @@ public class SecurityUtils {
     
 
     private String validateGoogleUserMethod2(String authCode)  {
-		logger.info("Doing validateGoogleUserMethod2");
+		logger.info("Doing validateGoogleUserMethod2("  + authCode + ")");
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAudience(Arrays.asList(GOOGLE_CLIENT_ID)).setIssuer("accounts.google.com").build();
 
