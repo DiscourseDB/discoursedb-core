@@ -93,6 +93,7 @@ public class SecurityUtils {
 				setupUser(userAndPass[0], userAndPass[1]);
 			} else {
 				logger.info("   Trusted user proxy, but no basic authentication received");
+				throw new BrowsingRestController.UnauthorizedDiscourseAccess();
 			}
 		} else {
 			logger.info("Not trusted user proxy");
@@ -108,6 +109,7 @@ public class SecurityUtils {
 					logger.info("Postexisting user info was " + String.join(",",Collections.list(s.getAttributeNames())) + ";" + s.getAttribute("email"));
 				} else {
 					logger.info("Not google sign in");
+					throw new BrowsingRestController.UnauthorizedDiscourseAccess();
 				}
 			} else {
 				logger.info("Recalling session; restoring user " + s.getAttribute("email").toString());
@@ -116,7 +118,7 @@ public class SecurityUtils {
 		}
 		logger.info("AFTER AUTHENTICATE: " + SecurityContextHolder.getContext().toString());
         logger.info("Logging in2 with [{}]", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
+ 
 	}
 	
 	 public void setupUser(String email, String password) {
