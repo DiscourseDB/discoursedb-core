@@ -185,5 +185,5 @@ public class BrowsingContributionResource extends ResourceSupport {
 		this.parentId = parentId;
 	}
 
-
+	
 }
