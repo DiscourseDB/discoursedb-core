@@ -21,6 +21,7 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
+import java.beans.PropertyDescriptor;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,6 +46,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -122,6 +126,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -534,6 +539,67 @@ public class BrowsingRestController {
 		}
 		return lightsideExports(hsr, session);
 	}
+	
+	
+	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET)
+	@ResponseBody
+	String downloadQueryCsv(
+			HttpServletResponse response,
+			@RequestParam("query") String query,
+			   HttpServletRequest hsr, HttpSession session) 
+					throws IOException {
+		
+		securityUtils.authenticate(hsr, null, session);
+		response.setContentType("application/csv; charset=utf-8");
+		response.setHeader( "Content-Disposition", "attachment");
+		
+		
+		try {
+			logger.info("Got query for csv: " + query );
+		    
+			DdbQuery q = new DdbQuery(discoursePartService, query);
+			PageRequest p = new PageRequest(0, Integer.MAX_VALUE, new Sort("startTime"));
+			
+			Page<BrowsingContributionResource> lbcr =  
+					q.retrieveAll(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
+			
+			
+			StringBuilder output = new StringBuilder();
+			ArrayList<String> headers = new ArrayList<String>();
+			for(PropertyDescriptor pd: BeanUtils.getPropertyDescriptors(BrowsingContributionResource.class)) {
+				String name = pd.getName();
+				if (!name.equals("class"))  {
+					headers.add(name);
+				}
+			}
+			output.append(String.join(",",  headers));   output.append("\n");
+			
+			for(BrowsingContributionResource bcr: lbcr.getContent()) {
+				String comma = "";
+				BeanWrapper wrap = PropertyAccessorFactory.forBeanPropertyAccess(bcr);
+				for (String hdr : headers) {
+					
+					String item =  "";
+					try {
+						item = wrap.getPropertyValue(hdr).toString();
+						item = item.replaceAll("\"", "\"\"");
+						item = item.replaceAll("^\\[(.*)\\]$", "$1");
+					} catch (Exception e) {
+						logger.info(e.toString() + " For header " + hdr + " item " + item);
+						item = "";
+					}
+
+					output.append(comma + "\"" + item + "\"");
+					comma = ",";
+				}
+				output.append("\n");
+			}
+			return output.toString();
+		} catch (Exception e) {
+			return "ERROR:" + e.getMessage();
+		}
+	}
+	
 	
 	
 	@RequestMapping(value = "/action/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
@@ -957,7 +1023,7 @@ public class BrowsingRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/prop_add", method = RequestMethod.GET)
+	@RequestMapping(value = "/prop_add", method = RequestMethod.POST)
 	@ResponseBody
 	String prop_add(@RequestParam(value="ptype") String ptype,
 			@RequestParam(value="pname") String pname,
