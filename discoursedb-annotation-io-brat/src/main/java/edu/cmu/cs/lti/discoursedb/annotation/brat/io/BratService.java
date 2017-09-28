@@ -98,12 +98,12 @@ public class BratService {
 	 * @throws IOException if an Exception occurs accessing the folder
 	 */
 	public void importDataset(String inputFolder) throws IOException{
-		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty");
+		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty [importDataset(" + inputFolder + ")]");
 		File dir = new File(inputFolder);
-		Assert.isTrue(dir.isDirectory(),"Provided parameter has to be a path to a folder.");
+		Assert.isTrue(dir.isDirectory(),"Provided parameter has to be a path to a folder. [importDataset(" + inputFolder + ")]");
 		
 		// retrieve all files that end with ann, strip off the extension and save the file name without extension in a list
-		List<String> baseFileNames = Arrays.stream(dir.listFiles((d, name) -> name.endsWith(".ann"))).map(f -> f.getName().split(".ann")[0]).collect(Collectors.toList());		
+		List<String> baseFileNames = Arrays.stream(dir.listFiles((d, name) -> name.endsWith(".ann"))).map(f -> f.getName().substring(0,f.getName().length() - 4)).collect(Collectors.toList());		
 		for (String baseFileName : baseFileNames) {
 			importThread(inputFolder, baseFileName);			
 		}		
@@ -117,10 +117,10 @@ public class BratService {
 	 * @throws IOException in case an error occurs reading the files
 	 */
 	public void importThread(String inputFolder, String baseFileName) throws IOException{
-		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty");
-		Assert.hasText(baseFileName, "baseFileName parameter cannot be empty");
+		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty [importThread(" + inputFolder + ", " + baseFileName + ")]");
+		Assert.hasText(baseFileName, "baseFileName parameter cannot be empty [importThread(" + inputFolder + ", " + baseFileName + ")]");
 		File dir = new File(inputFolder);
-		Assert.isTrue(dir.isDirectory(),"Provided parameter has to be a path to a folder.");
+		Assert.isTrue(dir.isDirectory(),"Provided parameter has to be a path to a folder. [importThread(" + inputFolder + ", " + baseFileName + ")]");
 
 		// The importThreadFromBrat call performs the main import work
 		// and the cleanup call deletes discoursedb annotations that have been
@@ -142,8 +142,8 @@ public class BratService {
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 	private CleanupInfo importThreadFromBrat(String inputFolder, String baseFileName) throws IOException{
-		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty");
-		Assert.hasText(baseFileName, "baseFileName parameter cannot be empty");
+		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty [importThread(" + inputFolder + ", " + baseFileName + ")]");
+		Assert.hasText(baseFileName, "baseFileName parameter cannot be empty [importThread(" + inputFolder + ", " + baseFileName + ")]");
 
 		File annFile = new File(inputFolder, baseFileName + ".ann");
 		File offsetFile = new File(inputFolder, baseFileName + ".offsets");
