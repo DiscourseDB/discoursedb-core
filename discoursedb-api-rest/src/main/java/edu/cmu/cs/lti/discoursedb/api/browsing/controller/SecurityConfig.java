@@ -45,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		
 	  if (USE_HTTPS == null) {
 		  USE_HTTPS = env.getProperty("https.enabled").equals("true");
 	  }

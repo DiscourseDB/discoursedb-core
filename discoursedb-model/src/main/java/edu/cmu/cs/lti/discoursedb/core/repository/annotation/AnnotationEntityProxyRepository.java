@@ -32,7 +32,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
-@RepositoryRestResource(collectionResourceRel = "annotations", path = "annotations")
+@RepositoryRestResource(collectionResourceRel = "annotations", path = "annotations", exported=false)
 public interface AnnotationEntityProxyRepository extends BaseRepository<AnnotationEntityProxy,Long>{
     
     @Query("Select a FROM AnnotationInstance a left join a.annotator su where a.annotationEntityProxy=:aip and (su is null or su.username=?#{principal.username})")
