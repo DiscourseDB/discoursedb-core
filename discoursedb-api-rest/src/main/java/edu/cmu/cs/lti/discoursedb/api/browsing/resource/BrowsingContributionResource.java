@@ -176,6 +176,12 @@ public class BrowsingContributionResource extends ResourceSupport {
 	public Map<Long,String> _getDiscourseParts() {
 		return discourseParts;
 	}
+	public List<Long> getDiscoursePartIds() {
+		return discourseParts.keySet().stream().collect(Collectors.toList());
+	}
+	public Map<Long,String> _getDiscoursePartIds() {
+		return discourseParts;
+	}
 
 	public Long getParentId() {
 		return parentId;

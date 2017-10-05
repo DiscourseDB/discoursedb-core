@@ -206,19 +206,6 @@ public class BrowsingRestController {
 		
 		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository, securityUtils);
 		
-		/*
-		 This code is completely pointless -- just trying to understand SpEL in context of a real application
-		 
-		StandardEvaluationContext context = new StandardEvaluationContext();
-		context.setBeanResolver(new BeanFactoryResolver(this.appContext));
-		ExpressionParser parser = new SpelExpressionParser(); 
-		context.addPropertyAccessor(new BeanExpressionContextAccessor());
-		
-		System.out.println(parser.parseExpression("'hello, world'").getValue(context));
-		System.out.println(parser.parseExpression("@SystemUserRepository.getSystemUser()").getValue(context));
-		System.out.println(parser.parseExpression("principal").getValue(context));
-		*/
-		
 		List<BrowsingStatsResource> l = new ArrayList<BrowsingStatsResource>();
 		l.add(bsr);
 		Resources<BrowsingStatsResource> r =  new Resources<BrowsingStatsResource>(l);
@@ -568,7 +555,7 @@ public class BrowsingRestController {
 			ArrayList<String> headers = new ArrayList<String>();
 			for(PropertyDescriptor pd: BeanUtils.getPropertyDescriptors(BrowsingContributionResource.class)) {
 				String name = pd.getName();
-				if (!name.equals("class"))  {
+				if (!name.equals("class") && !name.equals("id") && !name.equals("links"))  {
 					headers.add(name);
 				}
 			}
@@ -588,7 +575,9 @@ public class BrowsingRestController {
 						logger.info(e.toString() + " For header " + hdr + " item " + item);
 						item = "";
 					}
-
+					if (hdr.equals("annotations") && item.length() > 0) {
+						logger.info("Annotation is " + item);
+					}
 					output.append(comma + "\"" + item + "\"");
 					comma = ",";
 				}
@@ -663,30 +652,7 @@ public class BrowsingRestController {
 		return lightsideExports(hsr, session);
 	}
 	
-	/*@RequestMapping(value = "/action/exportLightsideOld", method=RequestMethod.GET)
-	@ResponseBody
-	@Deprecated
-	PagedResources<Resource<BrowsingBratExportResource>> exportLightsideActionOld(
-			@RequestParam(value= "exportFilename") String exportFilename,
-			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
-			@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
-		DiscoursePart dp = discoursePartRepository.findOne(parentDpId).get();
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
-		String lsOutputFilename = lsDataDirectory + "/" + exportFile2LightSideName(exportFilename, withAnnotations);
-		logger.info(" Exporting dp " + dp.getName());
-		Set<DiscoursePart> descendents = discoursePartService.findDescendentClosure(dp, Optional.empty());
-		if (withAnnotations) {
-			java.io.File lsOutputFile = new java.io.File(lsOutputFilename);
-			lightsideService.exportAnnotations(descendents, lsOutputFile);
-		} else {
-			// For multiple discourseParts, need to assemble all the contributions
-			lightsideService.exportDataForAnnotation(lsOutputFilename, 
-					descendents.stream()
-					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
-					.map(dpc -> dpc.getContribution())::iterator);
-		}
-		return lightsideExports();
-	}*/
+
 	
 	@RequestMapping(value = "/action/importLightside", method=RequestMethod.GET)
 	@ResponseBody
