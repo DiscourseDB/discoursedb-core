@@ -32,7 +32,9 @@ import org.springframework.util.Assert;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.QDiscourse;
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 public class DiscourseService {
 
 	private final @NonNull DiscourseRepository discourseRepository;
+	private final @NonNull DataSourceService dataSourceService;
 
 	/**
 	 * Returns a Discourse object with the given name if it exists or creates a
@@ -53,10 +56,31 @@ public class DiscourseService {
 	 * @return the Discourse object with the given name - either retrieved or
 	 *         newly created
 	 */
-	public Discourse createOrGetDiscourse(String name) {
+	public Discourse createOrGetDiscourse(String name, Dataset dataset) {
 		Assert.hasText(name, "Discourse name cannot be empty");
 		return discourseRepository.findOneByName(name).orElseGet(()->{
-			return discourseRepository.save(new Discourse(name));});
+			Discourse disc = new Discourse(name);
+			disc.setDatasetId(dataset.getDatasetId());
+			return discourseRepository.save(disc);});
+	}
+	
+	/**
+	 * Returns a Discourse object with the given name if it exists or creates a
+	 * new Discourse entity with that name, stores it in the database and
+	 * returns the entity object.
+	 * 
+	 * @param name
+	 *            name of the requested discourse
+	 * @return the Discourse object with the given name - either retrieved or
+	 *         newly created
+	 */
+	public Discourse createOrGetDiscourse(String name, String datasetName) {
+		Assert.hasText(name, "Discourse name cannot be empty");
+		return discourseRepository.findOneByName(name).orElseGet(()->{
+			Discourse disc = new Discourse(name);
+			Dataset dataset = dataSourceService.createOrGetDataset(datasetName);
+			disc.setDatasetId(dataset.getDatasetId());
+			return discourseRepository.save(disc);});
 	}
 	
 	/**

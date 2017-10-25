@@ -98,7 +98,7 @@ public class TwitterConverterService {
 		}
 		log.trace("Mapping Tweet "+tweet.getId());		
 		
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, datasetName);
 		
 		twitter4j.User tUser = tweet.getUser();
 		User user = null;

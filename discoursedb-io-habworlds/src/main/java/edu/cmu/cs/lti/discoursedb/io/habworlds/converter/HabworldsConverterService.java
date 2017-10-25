@@ -89,7 +89,7 @@ public class HabworldsConverterService {
 			return;
 		}
 
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, datasetName);
 
 		/*
 		 * check whether the question already exists in DiscourseDB if not,
@@ -101,8 +101,8 @@ public class HabworldsConverterService {
 				.orElseGet(() -> {
 					DiscoursePart question = discoursepartService.createTypedDiscoursePart(discourse,
 							DiscoursePartTypes.CHATROOM);
-					dataSourceService.addSource(question, new DataSourceInstance(post.getQuestionID(),
-							HabworldsSourceMapping.ID_STR_TO_DISCOURSEPART, DataSourceTypes.HABWORLDS, datasetName));
+					dataSourceService.addSource(question, post.getQuestionID(),
+							HabworldsSourceMapping.ID_STR_TO_DISCOURSEPART, DataSourceTypes.HABWORLDS, datasetName);
 					return question;
 				}
 		);
@@ -128,16 +128,16 @@ public class HabworldsConverterService {
 			// set content
 
 			User author = userService.createOrGetUser(discourse, String.valueOf(post.getUserID()));
-			dataSourceService.addSource(author, new DataSourceInstance(String.valueOf(post.getUserID()),
-					HabworldsSourceMapping.FROM_USER_ID_STR_TO_USER, DataSourceTypes.HABWORLDS, datasetName));
+			dataSourceService.addSource(author, String.valueOf(post.getUserID()),
+					HabworldsSourceMapping.FROM_USER_ID_STR_TO_USER, DataSourceTypes.HABWORLDS, datasetName);
 
 			Content curContent = contentService.createContent();
 			curContent.setText(postText);
 			curContent.setStartTime(date);
 			curContent.setEndTime(date);
 			curContent.setAuthor(author);
-			dataSourceService.addSource(curContent, new DataSourceInstance(String.valueOf(post.getInteractionID()),
-					HabworldsSourceMapping.ID_STR_TO_CONTENT, DataSourceTypes.HABWORLDS, datasetName));
+			dataSourceService.addSource(curContent, String.valueOf(post.getInteractionID()),
+					HabworldsSourceMapping.ID_STR_TO_CONTENT, DataSourceTypes.HABWORLDS, datasetName);
 
 			curContribution.setFirstRevision(curContent);
 			curContribution.setCurrentRevision(curContent);

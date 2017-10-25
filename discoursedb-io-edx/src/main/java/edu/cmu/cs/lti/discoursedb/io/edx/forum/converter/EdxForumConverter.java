@@ -79,7 +79,7 @@ public class EdxForumConverter implements CommandLineRunner {
 			throw new RuntimeException("Incorrect number of launch parameters.");
 		}
 		final String dataSetName=args[0];		
-		if(dataSourceService.dataSourceExists(dataSetName)){
+		if(dataSourceService.findDataset(dataSetName) != null){
 			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Terminating...");			
 			return;
 		}

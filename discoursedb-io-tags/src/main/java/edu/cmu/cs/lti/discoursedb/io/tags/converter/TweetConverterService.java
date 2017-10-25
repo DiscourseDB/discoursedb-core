@@ -95,7 +95,7 @@ public class TweetConverterService {
 			return;
 		}
 		
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		User curUser = userService.createOrGetUser(curDiscourse, t.getFrom_user());
 		curUser.setLanguage(t.getUser_lang());
 		dataSourceService.addSource(curUser, new DataSourceInstance(t.getFrom_user_id_str(), TweetSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.TAGS, dataSetName));

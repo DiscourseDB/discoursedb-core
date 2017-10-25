@@ -45,6 +45,15 @@ public interface CustomCrudRepository<T, ID extends Serializable> extends Reposi
 	<S extends T> S save(S entity);
 
 	/**
+	 * Saves and flushes a given entity. Use the returned instance for further operations as the save operation might have changed the
+	 * entity instance completely.
+	 * 
+	 * @param entity
+	 * @return the saved entity
+	 */
+	<S extends T> S saveAndFlush(S entity);
+
+	/**
 	 * Saves all given entities.
 	 * 
 	 * @param entities
@@ -76,7 +85,7 @@ public interface CustomCrudRepository<T, ID extends Serializable> extends Reposi
 	 * 
 	 * @return all entities
 	 */
-	//@Query("Select t FROM #{#T} t left join t.fk_data_source ds where (ds is null or ds.email=?#{principal})")
+	//@Query("Select t FROM #{#entityName} t left join t.fk_data_source ds where (ds is null or ds.email=?#{principal})")
 	Iterable<T> findAll();
 
 	/**

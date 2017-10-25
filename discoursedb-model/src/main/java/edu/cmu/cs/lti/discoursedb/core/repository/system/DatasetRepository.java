@@ -19,35 +19,21 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.model;
+package edu.cmu.cs.lti.discoursedb.core.repository.system;
 
-import javax.persistence.CascadeType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import java.util.Optional;
 
-import org.springframework.data.rest.core.annotation.Description;
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
+import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
-import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.util.Assert;
 
-/**
- * Adds source information to to regular untimed entities
- * 
- * @author Oliver Ferschke
- *
- */
-@Data
-@EqualsAndHashCode(callSuper=true, exclude={"dataSourceAggregate"})
-@ToString(callSuper=true, exclude={"dataSourceAggregate"})
-@MappedSuperclass
-public abstract class TypedSourcedBE extends TypedBE {
+public interface DatasetRepository extends BaseRepository<Dataset,Long>{
 
-	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
-	@JoinColumn(name = "fk_data_sources")
-	@Description("An aggregate that contains links to all data sources associated with this entity.")
-	private DataSourceAggregate dataSourceAggregate;
+	Optional<Dataset> findOneByDatasetName(String datasetName);    
+	//public Optional<Dataset> findOne(Long datasetId);
+	//public Optional<Dataset> findOne(String datasetName);
+	
 	
 }

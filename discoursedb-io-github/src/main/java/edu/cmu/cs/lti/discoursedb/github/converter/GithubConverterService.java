@@ -59,6 +59,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
 //import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteractionType;
@@ -114,11 +115,13 @@ public class GithubConverterService{
 	
 	private HashMap<String,Long> keyIndex = new HashMap<String,Long>();
 	private Discourse theDiscourse = null;
+	private String theDatasetName = null;
+	private Dataset dataset = null;
 	private boolean globalTransaction = false;
 	
 	private Discourse getDiscourse(String name) {
 		if (theDiscourse == null || !globalTransaction) {
-			theDiscourse = discourseService.createOrGetDiscourse("Github");
+			theDiscourse = discourseService.createOrGetDiscourse("Github", dataset);
 		} 
 		return theDiscourse;
 	}
@@ -486,7 +489,7 @@ public class GithubConverterService{
 		annotationService.addFeature(extsite,  annotationService.createTypedFeature(ges.getCanonical(), "external_site_ident"));
 		annotationService.addFeature(extsite,  annotationService.createTypedFeature(ges.getUrl(), "url"));
 		
-		dataSourceService.addSource(extsite, new DataSourceInstance(ges.getUrl(), "external_site_url", DataSourceTypes.GITHUB, "GITHUB"));
+		dataSourceService.addSource(extsite, ges.getUrl(), "external_site_url", DataSourceTypes.GITHUB, "GITHUB");
 	}
 
 
@@ -576,7 +579,7 @@ public class GithubConverterService{
 		co.setFirstRevision(k);
 		co.setStartTime(posting.getDate());
 		keyIndex.put(posting.getFullyQualifiedUniqueMessage(), co.getId());
-		dataSourceService.addSource(co,  new DataSourceInstance(StringUtils.left(posting.getFullyQualifiedUniqueMessage(),94), "ggroups#unique_message", DataSourceTypes.GITHUB, dataSourceName));
+		dataSourceService.addSource(co,  StringUtils.left(posting.getFullyQualifiedUniqueMessage(),94), "ggroups#unique_message", DataSourceTypes.GITHUB, dataSourceName);
 		
 		//Add contribution to DiscoursePart
 		discoursePartService.addContributionToDiscoursePart(co, threadDP);
@@ -636,7 +639,7 @@ public class GithubConverterService{
 				curUser.setEmail(u.getEmail());
 				curUser.setRealname(u.getName());
 				curUser.setStartTime(u.getCreatedAt());
-				dataSourceService.addSource(curUser, new DataSourceInstance(u.getLogin(), "@github_user", DataSourceTypes.GITHUB, "GITHUB"));
+				dataSourceService.addSource(curUser, u.getLogin(), "@github_user", DataSourceTypes.GITHUB, "GITHUB");
 			}		
 		} catch (Exception e) {
 			logger.trace("Error importing user info for " + u.getLogin() + ", " + e.getMessage());
@@ -683,7 +686,7 @@ public class GithubConverterService{
 			AnnotationInstance a = annotationService.createTypedAnnotation("MATRIX_FACTORIZATION");
 			annotationService.addAnnotation(curUser, a);
 			annotationService.addFeature(a,  annotationService.createTypedFeature(factorizationName, "name"));
-			dataSourceService.addSource(a, new DataSourceInstance(factorConfig + "#" + name, "factorization_config_file", DataSourceTypes.GITHUB, "GITHUB"));
+			dataSourceService.addSource(a, factorConfig + "#" + name, "factorization_config_file", DataSourceTypes.GITHUB, "GITHUB");
 			
 			for(String factorname: factors.keySet()) {
 				Feature f = annotationService.createTypedFeature(factors.get(factorname), factorname);
@@ -707,8 +710,8 @@ public class GithubConverterService{
 			annotationService.addFeature(a, annotationService.createTypedFeature(version, "version"));
 			annotationService.addFeature(a, annotationService.createTypedFeature(fmt.format(updated), "update_date"));
 			annotationService.addFeature(a, annotationService.createTypedFeature(packageFile, "update_file"));
-			dataSourceService.addSource(a, new DataSourceInstance(
-					StringUtils.left("pypi_versions#" + packageFile,94), "versionfile", DataSourceTypes.GITHUB, "GITHUB" ));
+			dataSourceService.addSource(a, 
+					StringUtils.left("pypi_versions#" + packageFile,94), "versionfile", DataSourceTypes.GITHUB, "GITHUB" );
 	
 		} catch (Exception e) {
 			logger.trace("Error classifying project info for " + repo + ", " + e.getMessage());
@@ -729,7 +732,7 @@ public class GithubConverterService{
 			DiscoursePart dps = getDiscoursePart(getDiscourse("Github"), name, DiscoursePartTypes.GITHUB_REPO);
 			AnnotationInstance a = annotationService.createTypedAnnotation("MATRIX_FACTORIZATION");
 			annotationService.addFeature(a,  annotationService.createTypedFeature(factorizationName, "name"));
-			dataSourceService.addSource(a, new DataSourceInstance(factorConfig +"#" + name, "factorization_config_file", DataSourceTypes.GITHUB, "GITHUB"));
+			dataSourceService.addSource(a, factorConfig +"#" + name, "factorization_config_file", DataSourceTypes.GITHUB, "GITHUB");
 			for(String factorname: factors.keySet()) {
 				annotationService.addFeature(a, annotationService.createTypedFeature(factors.get(factorname), factorname));
 			}
@@ -827,7 +830,7 @@ public class GithubConverterService{
 				co.setCurrentRevision(k);
 				co.setFirstRevision(k);
 				co.setStartTime(p.getTime());
-				dataSourceService.addSource(co, new DataSourceInstance(dataSourceString,  COMMIT_SHA, DataSourceTypes.GITHUB, "GITHUB"));
+				dataSourceService.addSource(co, dataSourceString,  COMMIT_SHA, DataSourceTypes.GITHUB, "GITHUB");
 			} 
 			extendDiscoursePartDates(issueDP, p.getTime());
 			discoursePartService.addContributionToDiscoursePart(co, issueDP);
@@ -851,7 +854,7 @@ public class GithubConverterService{
 			co.setFirstRevision(k);
 			co.setStartTime(p.getTime());
 			extendDiscoursePartDates(issueDP, p.getTime());
-			dataSourceService.addSource(co, new DataSourceInstance(p.getIssueIdentifier(), "github#issue", DataSourceTypes.GITHUB, "GITHUB"));
+			dataSourceService.addSource(co, p.getIssueIdentifier(), "github#issue", DataSourceTypes.GITHUB, "GITHUB");
 			//Add contribution to DiscoursePart
 			discoursePartService.addContributionToDiscoursePart(co, issueDP);
 			return co.getId();
@@ -1115,8 +1118,8 @@ public class GithubConverterService{
 						logger.warn("SOURCE STRING TOO LONG: " + src);
 						src = src.substring(0, 95);
 					}
-					dataSourceService.addSource(con, new DataSourceInstance(src, 
-							"local_url#sha", DataSourceTypes.GITHUB, "GITHUB"));
+					dataSourceService.addSource(con, src, 
+							"local_url#sha", DataSourceTypes.GITHUB, "GITHUB");
 				}
 				annotationService.addAnnotation(con,  ai);
 			} else {
@@ -1138,6 +1141,12 @@ public class GithubConverterService{
 			
 		// IGNORING AUTHOR AND COMMITTER FOR NOW
 		// NO DATA SOURCE		
+	}
+
+	public void setDataset(String dataSetName) {
+		// TODO Auto-generated method stub
+		theDatasetName = dataSetName;
+		dataset = dataSourceService.createOrGetDataset(dataSetName);
 	}
 
 	

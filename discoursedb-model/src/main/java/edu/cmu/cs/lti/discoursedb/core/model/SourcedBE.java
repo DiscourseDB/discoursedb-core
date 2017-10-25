@@ -21,6 +21,10 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.model;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.persistence.CascadeType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,6 +33,7 @@ import javax.persistence.MappedSuperclass;
 import org.springframework.data.rest.core.annotation.Description;
 
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -43,11 +48,12 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"dataSourceAggregate"})
 @ToString(callSuper=true, exclude={"dataSourceAggregate"})
 @MappedSuperclass
-public abstract class SourcedBE extends BaseEntity{
+public abstract class SourcedBE extends BaseEntity {
 
 	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_data_sources")
 	@Description("An aggregate that contains links to all data sources associated with this entity.")
 	private DataSourceAggregate dataSourceAggregate;
+	
 	
 }

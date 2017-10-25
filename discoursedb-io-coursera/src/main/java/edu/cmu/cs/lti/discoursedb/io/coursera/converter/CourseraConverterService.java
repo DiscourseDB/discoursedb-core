@@ -100,7 +100,7 @@ public class CourseraConverterService {
 		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 
 		// initialize discourse the forums belong to
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 
 		log.info("Importing forum data");
 
@@ -140,7 +140,7 @@ public class CourseraConverterService {
 		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 
 		// initialize the discourse the threads belong to
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 
 		log.info("Importing thread data");
 
@@ -195,7 +195,7 @@ public class CourseraConverterService {
 		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 
 		// initialize the discourse the threads belong to
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 
 		log.info("Importing post data");
 
@@ -279,7 +279,7 @@ public class CourseraConverterService {
 		Assert.hasText(discourseName, "Discourse name cannot be empty.");
 
 		// initialize the discourse the comments belong to
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 
 		log.info("Importing comment data");
 

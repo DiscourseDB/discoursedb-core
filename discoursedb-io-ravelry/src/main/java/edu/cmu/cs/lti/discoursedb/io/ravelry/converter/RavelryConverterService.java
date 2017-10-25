@@ -109,7 +109,7 @@ public class RavelryConverterService {
 		if(dataSourceService.dataSourceExists("groups#" + group, "ravelry#groups", dataSetName)){
 			return;
 		}
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 
 		BasicDBObject query = new BasicDBObject();
 		query.put("permalink", group);
@@ -141,7 +141,7 @@ public class RavelryConverterService {
 	
 	public List<Integer> addGroupsTopics() {
 		
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		
 		List<Integer> topics  = new ArrayList();
 		DiscoursePart forum = discoursePartService.findOneByDataSource("groups#" + group, "ravelry#groups", dataSetName).get();
@@ -194,7 +194,9 @@ public class RavelryConverterService {
 	
 	public Content createOrAddPattern(Discourse discourse, String pattern_permalink) {
 		String source = "pattern#" + pattern_permalink;
-		Optional<Content> oc = contentService.findOneByDataSourceId(source);
+		throw new RuntimeException("Function disabled -- upgrade this to look for dataset or discourse");
+		/*
+		Optional<Content> oc = contentService.findOneByDataSourceId(discourse, source);
 		if (!oc.isPresent()) { 
 			Content c = contentService.createOrGetContentByDataSource(discourse, 
 				 source, "ravelry#pattern", DataSourceTypes.RAVELRY, dataSetName);
@@ -205,11 +207,11 @@ public class RavelryConverterService {
 			if (pattern != null) {
 				c.setTitle(pattern.getString("name"));
 				
-				/*List<Document> src_infos = (List<Document>)pattern.get("pattern_sources");
-				if (!src_infos.isEmpty()) {
-					c.setStartTime(stringToDate(src_infos.get(0).getString("created_at")));
-				}
-				*/
+				//List<Document> src_infos = (List<Document>)pattern.get("pattern_sources");
+				//if (!src_infos.isEmpty()) {
+				//	c.setStartTime(stringToDate(src_infos.get(0).getString("created_at")));
+				//}
+				//
 				try {
 					List<Document> src_infos = (List<Document>)((List<Document>)pattern.get("printings")).get(0).get("pattern_sources");
 					if (!src_infos.isEmpty()) {
@@ -236,6 +238,7 @@ public class RavelryConverterService {
 		} else {
 			return oc.get();
 		}
+		*/
 	}
 
 	
@@ -261,7 +264,7 @@ public class RavelryConverterService {
 	int progress_counter = 0;
 	@Deprecated
 	public List<Integer> addPostingsOld(int topic) {
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		DiscoursePart thread = discoursePartService.findOneByDataSource("topics#" + topic, "ravelry#topics", dataSetName).get();
 		
 		List<Integer> postings  = new ArrayList<Integer>();
@@ -327,7 +330,7 @@ public class RavelryConverterService {
 	
 	
 	public String addUser(int post_id) {
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		Contribution posting = contributionService.findOneByDataSource("postings#" + Integer.toString(post_id),"ravelry#postings", dataSetName).get();
 		User user = posting.getCurrentRevision().getAuthor();
 		mongoClient.getDatabase(mongoDbName).getCollection("people").find(new BasicDBObject("username", user.getUsername()))

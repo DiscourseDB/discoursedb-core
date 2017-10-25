@@ -93,12 +93,22 @@ public final class UserPredicates {
 	 * 
 	 * @param dataSetName name of the dataset
 	 * @return 
-	 */
+	 * 
 	public static BooleanExpression hasDataSet(String dataSetName) {
 		if (dataSetName == null || dataSetName.isEmpty()) {
 			return QUser.user.isNull();
 		} else {
 			return QUser.user.dataSourceAggregate.sources.any().datasetName.eq(dataSetName);
 		}
+	}	*/
+	
+	/**
+	 * Checks whether a User is associated with a given dataset.
+	 * 
+	 * @param dataSetId id of the dataset
+	 * @return 
+	 */
+	public static BooleanExpression hasDataSet(long datasetId) {
+		return QUser.user.datasetId.eq(datasetId);
 	}	
 }

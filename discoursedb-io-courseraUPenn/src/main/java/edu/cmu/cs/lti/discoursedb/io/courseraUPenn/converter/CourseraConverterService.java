@@ -130,7 +130,7 @@ public class CourseraConverterService {
 	public long mapCourse(String name, String dataset, 
 			String from_file, String from_column, String native_id) {
 				
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(name);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(name, dataset);
 		return curDiscourse.getId();
 	}
 	public DiscoursePart unknownFolder(Discourse curDiscourse, String dataset) {
@@ -187,8 +187,8 @@ public class CourseraConverterService {
 			String index) {
 		Discourse curDiscourse = discourseService.findOne(discourseId).get();
 		User u = userService.createOrGetUser(curDiscourse,  userid);
-		dataSourceService.addSource(u, new DataSourceInstance(
-				index, from_file + "#" + from_column, DataSourceTypes.COURSERA, dataset));
+		dataSourceService.addSource(u,
+				index, from_file + "#" + from_column, DataSourceTypes.COURSERA, dataset);
 		return u.getId();
 	}
 
@@ -232,18 +232,18 @@ public class CourseraConverterService {
 			curContent.setTitle(question_title);
 			curContent.setAuthor(getProxyUser(user_id));
 			curContent.setStartTime(t);
-			dataSourceService.addSource(curContent, new DataSourceInstance(
+			dataSourceService.addSource(curContent, 
 					native_id, from_file + "#" + from_column + "#content",
-					DataSourceTypes.COURSERA, dataset));
+					DataSourceTypes.COURSERA, dataset);
 			
 			log.trace("Create Contribution entity");
 			curContribution = contributionService.createTypedContribution(ContributionTypes.QUESTION);
 			curContribution.setCurrentRevision(curContent);
 			curContribution.setFirstRevision(curContent);
 			curContribution.setStartTime(t);
-			dataSourceService.addSource(curContribution, new DataSourceInstance(
+			dataSourceService.addSource(curContribution, 
 					native_id, from_file + "#" + from_column + "#contribution",
-					DataSourceTypes.COURSERA, dataset));
+					DataSourceTypes.COURSERA, dataset);
 			discoursepartService.addContributionToDiscoursePart(curContribution, course_q_dp);
 		} else {
 			curContribution = opt_course_q_c.get();
@@ -280,18 +280,18 @@ public class CourseraConverterService {
 			curContent.setTitle("");
 			curContent.setAuthor(getProxyUser(user_id));
 			curContent.setStartTime(t);
-			dataSourceService.addSource(curContent, new DataSourceInstance(
+			dataSourceService.addSource(curContent, 
 					native_id, from_file + "#" + from_column + "#content",
-					DataSourceTypes.COURSERA, dataset));
+					DataSourceTypes.COURSERA, dataset);
 			
 			log.trace("Create Contribution entity");
 			curContribution = contributionService.createTypedContribution(ContributionTypes.RESPONSE);
 			curContribution.setCurrentRevision(curContent);
 			curContribution.setFirstRevision(curContent);
 			curContribution.setStartTime(t);
-			dataSourceService.addSource(curContribution, new DataSourceInstance(
+			dataSourceService.addSource(curContribution, 
 					native_id, from_file + "#" + from_column + "#contribution",
-					DataSourceTypes.COURSERA, dataset));
+					DataSourceTypes.COURSERA, dataset);
 			
 			discoursepartService.addContributionToDiscoursePart(curContribution, course_q_dp);
 			if (o_parentContribution.isPresent()) {
@@ -329,18 +329,18 @@ public class CourseraConverterService {
 			curContent.setTitle(context);
 			curContent.setAuthor(getProxyUser(user_id));
 			curContent.setStartTime(t);
-			dataSourceService.addSource(curContent, new DataSourceInstance(
+			dataSourceService.addSource(curContent, 
 					native_id, from_file + "#" + from_column + "#content",
-					DataSourceTypes.COURSERA, dataset));
+					DataSourceTypes.COURSERA, dataset);
 			
 			log.trace("Create Contribution entity");
 			curContribution = contributionService.createTypedContribution(ContributionTypes.FEEDBACK);
 			curContribution.setCurrentRevision(curContent);
 			curContribution.setFirstRevision(curContent);
 			curContribution.setStartTime(t);
-			dataSourceService.addSource(curContribution, new DataSourceInstance(
+			dataSourceService.addSource(curContribution, 
 					native_id, from_file + "#" + from_column + "#contribution",
-					DataSourceTypes.COURSERA, dataset));
+					DataSourceTypes.COURSERA, dataset);
 			
 			discoursepartService.addContributionToDiscoursePart(curContribution, feedback);
 		} else {

@@ -132,7 +132,7 @@ public class NeuwirthConverterService {
 				String text_prompt = nextLine[resMap.get(PROMPT_COLUMN)];
 				String date_created = nextLine[resMap.get(CREATED_COLUMN)];
 
-				Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+				Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 				DiscoursePart question = discoursepartService.createOrGetTypedDiscoursePart(discourse, text_prompt,
 						DiscoursePartTypes.CHATROOM);
 

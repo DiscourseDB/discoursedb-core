@@ -90,7 +90,7 @@ public class PiazzaConverterService {
 		log.trace("Converting content object "+content.getId());
 		
 		
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		
 		//In Piazza, we regard each single Piazza Content as a DiscoursePart		
 		

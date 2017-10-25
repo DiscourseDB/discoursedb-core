@@ -43,14 +43,10 @@ public interface ContentRepository extends BaseRepository<Content,Long>{
 	@Modifying
 	@Query(value="update content c set c.fk_previous_revision = ?2 where c.id_content = ?1",nativeQuery=true)
 	public void setPreviousRevisionId(Long id, Long previousRevId);
-
-	@Query("select c from Content c left join c.dataSourceAggregate ca left join ca.sources ci where ci.entitySourceId=:id")
-	@Deprecated
-	public Optional<Content> findOneByDataSourceId(@Param("id") String id);   // TODO:  Remove this wherever it's used; this is the wrong way to do data sources
 	
 	@Query("select c from Content c left join c.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id"
-			+ " and dsi.entitySourceDescriptor=:entitySourceDescriptor and dsi.sourceType =:sourceType and dsi.datasetName=:datasetName")
+			+ " and dsi.entitySourceDescriptor=:entitySourceDescriptor and dsi.sourceType =:sourceType and dsi.datasetId=:datasetId")
 	Optional<DiscoursePart> findOneByDataSource(@Param("id") String id, @Param("entitySourceDescriptor") String entitySourceDescriptor, @Param("sourceType") DataSourceTypes sourceType,
-			@Param("datasetName") String datasetName);
+			@Param("datasetId") Long datasetId);
    
 }

@@ -43,7 +43,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"dataSourceAggregate"})
 @ToString(callSuper=true, exclude={"dataSourceAggregate"})
 @MappedSuperclass
-public abstract class TimedAnnotatableSourcedBE extends TimedAnnotatableBE{
+public abstract class TimedAnnotatableSourcedBE extends TimedAnnotatableBE {
 
 	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_data_sources")

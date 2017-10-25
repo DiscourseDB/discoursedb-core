@@ -69,7 +69,7 @@ public class TestAnnotation implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		Discourse d = discourseService.createOrGetDiscourse("AnnoTestDiscourse");
+		Discourse d = discourseService.createOrGetDiscourse("AnnoTestDiscourse", "test1");
 		
 		DiscoursePart dp = discoursePartService.createTypedDiscoursePart(d, DiscoursePartTypes.FORUM);
 

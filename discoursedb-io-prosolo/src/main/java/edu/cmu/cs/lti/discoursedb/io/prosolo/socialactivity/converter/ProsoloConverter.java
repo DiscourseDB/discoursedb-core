@@ -82,7 +82,7 @@ public class ProsoloConverter implements CommandLineRunner {
 
 		logger.info("Start mapping to DiscourseDB...");
 		
-		if(dataSourceService.dataSourceExists(dataSetName)){
+		if(dataSourceService.findDataset(dataSetName) != null){
 			logger.warn("Dataset "+dataSetName+" has previously already been imported. Previously imported social avitivities will be skipped.");			
 		}
 

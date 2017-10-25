@@ -66,7 +66,7 @@ public class BrowsingStatsResource extends ResourceSupport {
 		this.users = userRepository.count();
 		
         for (Discourse d: discourseRepository.findAll()) {
-        	if (securityUtils.canSeeDiscourse(d)) {
+        	if (securityUtils.canSeeEntity(d)) {
         		this.add(BrowsingRestController.makeLink("/browsing/discourses/" + d.getId(), "Discourse " + d.getName()));			
         	} 
 		}

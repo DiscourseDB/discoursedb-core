@@ -83,7 +83,7 @@ public class SalonConverterService {
 		SalonInfo salonInfo = SalonInfo.getSalonInfo(salonID, salonDB);
 		DataSourceInstance dsi = dataSourceService.createIfNotExists(
 				new DataSourceInstance("salons#" + salonID, "salon#salonIDs", datasetName));
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, datasetName);
 
 		return discourse.getId();
 	}

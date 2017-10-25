@@ -39,10 +39,12 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionContext;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionContextRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.DatasetRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContextTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
@@ -58,6 +60,7 @@ public class ContributionService {
 	private final @NonNull ContributionRepository contributionRepo;
 	private final @NonNull ContributionContextRepository contributionContextRepo;
 	private final @NonNull DataSourceService dataSourceService;	
+	private final @NonNull DatasetRepository datasetRepo;
 	private final @NonNull DiscourseRelationRepository discourseRelationRepo;
 	private final @NonNull @PersistenceContext EntityManager entityManager; 
 	
@@ -109,12 +112,31 @@ public class ContributionService {
 	 * @return an optional contribution that meets the requested parameters
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Optional<Contribution> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName) {
+	public Optional<Contribution> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, long datasetId) {
 		Assert.hasText(entitySourceId, "Entity source id cannot be empty.");
 		Assert.hasText(entitySourceDescriptor, "Entity source descriptor cannot be empty");
-		Assert.hasText(dataSetName, "Dataset name cannot be empty.");
-
-		return dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, dataSetName)
+		
+		
+		return dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, datasetId)
+				.map(s -> Optional.ofNullable(contributionRepo.findOne(ContributionPredicates.contributionHasDataSource(s))))
+				.orElse(Optional.empty());
+	}
+	
+	/**
+	 * Retrieves a contribution that has a source which exactly matches the given DataSource parameters.
+	 * 
+	 * @param entitySourceId the source id of the contribution  
+	 * @param entitySourceDescriptor the entitySourceDescriptor
+	 * @param dataSetName the dataset the source id was derived from
+	 * @return an optional contribution that meets the requested parameters
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Optional<Contribution> findOneByDataSource(String entitySourceId, String entitySourceDescriptor, String datasetName) {
+		Assert.hasText(entitySourceId, "Entity source id cannot be empty.");
+		Assert.hasText(entitySourceDescriptor, "Entity source descriptor cannot be empty");
+		
+		Dataset ds = dataSourceService.findOrCreateDataset(datasetName);
+		return dataSourceService.findDataSource(entitySourceId, entitySourceDescriptor, ds.getDatasetId())
 				.map(s -> Optional.ofNullable(contributionRepo.findOne(ContributionPredicates.contributionHasDataSource(s))))
 				.orElse(Optional.empty());
 	}

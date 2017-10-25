@@ -66,7 +66,7 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 		final String discourseName=args[0];		
 
 		final String dataSetName=args[1];		
-		if(dataSourceService.dataSourceExists(dataSetName)){
+		if(dataSourceService.findDataset(dataSetName) != null){
 			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Existing pages will be skipped.");			
 		}
 		
@@ -93,7 +93,7 @@ public class WikipediaTalkPageConverter implements CommandLineRunner {
 		int tpNum = 1;
 		for(String title:titles){
 			//first check if we alrady have the discussions from this article from a previous import
-			if(discoursePartService.exists(discourseService.createOrGetDiscourse(discourseName), title, DiscoursePartTypes.TALK_PAGE)){
+			if(discoursePartService.exists(discourseService.createOrGetDiscourse(discourseName, dataSetName), title, DiscoursePartTypes.TALK_PAGE)){
 				logger.warn("Discussions for article "+title+ "have already been imported. Skipping ...");
 				continue;			
 			}			

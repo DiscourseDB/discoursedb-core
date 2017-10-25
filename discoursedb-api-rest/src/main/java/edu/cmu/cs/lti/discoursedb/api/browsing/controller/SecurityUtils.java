@@ -41,6 +41,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.mysema.query.support.Context;
 
+import edu.cmu.cs.lti.discoursedb.core.model.BaseEntity;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserRight;
@@ -146,7 +147,7 @@ public class SecurityUtils {
 	        logger.info("Logging in with [{}]", authentication.getPrincipal());
 		}
 	}
-	public boolean canSeeDiscourse(Discourse d) {
+	/*public boolean canSeeDiscourse(Discourse d) {
 		return authoritiesContains(d.getName());
 	}
 	
@@ -160,7 +161,22 @@ public class SecurityUtils {
 		logger.info("No discourse identified -- so authorization fails");
 		throw new BrowsingRestController.UnauthorizedDiscourseAccess();
 	}
+	*/
 	 
+	 public <T extends BaseEntity> boolean canSeeEntity(T d) {
+			return authoritiesContains("DS" + d.getDatasetId());
+	}
+
+	public <T extends BaseEntity> void authorizedDiscourseCheck(T d) {
+		if (!canSeeEntity(d)) {
+			throw new BrowsingRestController.UnauthorizedDiscourseAccess();
+		}
+	}
+	public void authorizedDiscourseFail() {
+		logger.info("No discourse identified -- so authorization fails");
+		throw new BrowsingRestController.UnauthorizedDiscourseAccess();
+	}
+		
 	public boolean hasRole(String roleName) {
 		return authoritiesContains("ROLE:" + roleName);
 	}

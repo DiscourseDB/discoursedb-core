@@ -91,7 +91,7 @@ public class ProsoloConverterService {
 	public void mapSocialActivity(String dtype, String action, Long curSocialActivityId, ProsoloDB prosolo, String discourseName, String dataSetName) throws SQLException{
 			//We assume here that a single ProSolo database refers to a single course (i.e. a single Discourse)
 			//The course details are passed on as a parameter to this converter and are not read from the prosolo database
-			Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+			Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 	
 			//check if the current social activity has already been imported at any point in time. if so, skip and proceed with the next
 			if(dataSourceService.dataSourceExists(curSocialActivityId+"",ProsoloSourceMapping.SOCIAL_ACTIVITY_TO_CONTRIBUTION,dataSetName)){
@@ -302,7 +302,7 @@ public class ProsoloConverterService {
 			log.error("Could not find user information for prosolo user in prosolo database");
 		}else{				
 			//Check if we previously ran the addOrUpdate already. If so, just return the User
-			Optional<User> existingUser = userService.findUserByDiscourseAndSourceIdAndDataSet(discourseService.createOrGetDiscourse(discourseName), prosoloUser.getId()+"", dataSetName);
+			Optional<User> existingUser = userService.findUserByDiscourseAndSourceIdAndDataSet(discourseService.createOrGetDiscourse(discourseName, dataSetName), prosoloUser.getId()+"", dataSetName);
 			if(existingUser.isPresent()){
 				return existingUser.get();						
 			}
@@ -310,12 +310,12 @@ public class ProsoloConverterService {
 			//CHECK IF USER WITH SAME edX username exists in the current Discourse context
 			Optional<String> edXUserName = prosolo.mapProsoloUserIdToedXUsername(prosoloUser.getId());			
 			if(edXUserName.isPresent()){
-				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName), edXUserName.get());
+				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName, dataSetName), edXUserName.get());
 				dataSourceService.addSource(curUser, new DataSourceInstance(prosoloUser.getId()+"",ProsoloSourceMapping.USER_TO_USER, dataSourceType, dataSetName));
 			}else{
 				//in this case, we don't have a user name. use prosolo id as username
 				// note: this create already adds a data source
-				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName),prosoloUser.getId()+"", prosoloUser.getId()+"",ProsoloSourceMapping.USER_TO_USER,dataSourceType,dataSetName);
+				curUser=userService.createOrGetUser(discourseService.createOrGetDiscourse(discourseName, dataSetName),prosoloUser.getId()+"", prosoloUser.getId()+"",ProsoloSourceMapping.USER_TO_USER,dataSourceType,dataSetName);
 			}
 
 			//update the real name of the user if necessary

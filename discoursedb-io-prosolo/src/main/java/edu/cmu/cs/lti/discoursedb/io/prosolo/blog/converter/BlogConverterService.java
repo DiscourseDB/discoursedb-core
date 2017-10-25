@@ -92,7 +92,7 @@ public class BlogConverterService {
 		logger.trace("Mapping blog post " + p.getId());
 		
 		logger.trace("Init Discourse entity");
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 
 		logger.trace("Init DiscoursePart entity");
 		// in edX, we consider the whole blog space to be a single DiscoursePart		

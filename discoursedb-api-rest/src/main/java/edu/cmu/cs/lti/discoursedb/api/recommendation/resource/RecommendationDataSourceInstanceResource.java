@@ -30,13 +30,13 @@ public class RecommendationDataSourceInstanceResource extends ResourceSupport {
 	private String entitySourceId;
 	private String entitySourceDecriptor;
 	private String sourceType;	
-	private String datasetName;	
+	private long datasetId;	
 	
 	public RecommendationDataSourceInstanceResource(DataSourceInstance dataSource) {
 		setEntitySourceId(dataSource.getEntitySourceId());
 		setEntitySourceDecriptor(dataSource.getEntitySourceDescriptor());
 		setSourceType(dataSource.getSourceType().name());
-		setDatasetName(dataSource.getDatasetName());
+		setDatasetId(dataSource.getDatasetId());
 	}
 	
 	public String getEntitySourceId() {
@@ -59,13 +59,13 @@ public class RecommendationDataSourceInstanceResource extends ResourceSupport {
 	}
 
 
-	public String getDatasetName() {
-		return datasetName;
+	public long getDatasetId() {
+		return datasetId;
 	}
 
 
-	public void setDatasetName(String datasetName) {
-		this.datasetName = nullCheck(datasetName);
+	public void setDatasetId(long datasetId) {
+		this.datasetId =datasetId;
 	}
 
 

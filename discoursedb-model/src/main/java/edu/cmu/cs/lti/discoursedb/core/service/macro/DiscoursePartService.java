@@ -43,12 +43,14 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.DatasetRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
@@ -62,6 +64,7 @@ import lombok.RequiredArgsConstructor;
 public class DiscoursePartService {
 
 	private final @NonNull DiscoursePartRepository discoursePartRepo;
+	private final @NonNull DatasetRepository datasetRepo;
 	private final @NonNull ContributionRepository contributionRepo;
 	private final @NonNull DataSourceService dataSourceService;
 	private final @NonNull DiscoursePartRelationRepository discoursePartRelationRepo;
@@ -130,16 +133,18 @@ public class DiscoursePartService {
 			String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName,
 			DiscoursePartTypes type) {
 		Assert.notNull(discourse, "Discourse cannot be null.");
-		Assert.hasText (entitySourceId, "");		
-		
-		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSource(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+		Assert.hasText (entitySourceId, "");	
+		Assert.hasText(datasetName);
+		Dataset ds1 = dataSourceService.findOrCreateDataset(datasetName);
+		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSource(entitySourceId, entitySourceDescriptor, sourceType, ds1.getDatasetId());
 		DiscoursePart dp = null;
 		if (odp.isPresent()) {
 			dp = odp.get();
 		} else {
 			dp = createOrGetTypedDiscoursePart(discourse,"dummy_name",type);
-			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
-			dataSourceService.addSource(dp, ds);
+			DataSourceInstance dsi = dataSourceService.createDsIfNotExists(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+			
+			dataSourceService.addSource(dp, dsi);
 		}
 		
 		return dp;

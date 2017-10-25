@@ -90,8 +90,8 @@ public class ContentService {
 		contentRepo.setPreviousRevisionId(id, previousRevId);
 	}
 
-	public Optional<Content> findOneByDataSourceId(String entitySourceId) {
-		return contentRepo.findOneByDataSourceId(entitySourceId);
+	/*public Optional<Content> findOneByDataSourceId(Discourse discourse, String entitySourceId) {
+		return contentRepo.findOneByDataSourceId( discourse, entitySourceId);
 	}
 	
 	public Content createOrGetContentByDataSource(Discourse discourse, String entitySourceId, 
@@ -99,7 +99,7 @@ public class ContentService {
 		Assert.notNull(discourse, "Discourse cannot be null.");
 		Assert.hasText (entitySourceId, "");		
 		
-		Optional<Content> oc = contentRepo.findOneByDataSourceId(entitySourceId);
+		Optional<Content> oc = contentRepo.findOneByDataSourceId(discourse, entitySourceId);
 		Content c = null;
 		if (oc.isPresent()) {
 			c = oc.get();
@@ -111,6 +111,6 @@ public class ContentService {
 		
 		return c;
 	}
-
+*/
 
 }

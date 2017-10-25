@@ -76,7 +76,7 @@ public class TestDiscourseGenerator implements CommandLineRunner {
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
-		Discourse discourse = discourseService.createOrGetDiscourse("testdiscourse");
+		Discourse discourse = discourseService.createOrGetDiscourse("testdiscourse", "test1");
 		DiscoursePart threadOne = discoursePartService.createOrGetTypedDiscoursePart(discourse, "ThreadOne", DiscoursePartTypes.THREAD); 
 		DiscoursePart threadTwo = discoursePartService.createOrGetTypedDiscoursePart(discourse, "ThreadTwo", DiscoursePartTypes.THREAD); 
 		/////

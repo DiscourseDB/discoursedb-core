@@ -87,7 +87,7 @@ public class WikipediaTalkPageConverterService{
 		Assert.hasText(articleTitle,"Cannot map talk page. Article title missing.");
 		Assert.notNull(tp,"Cannot map talk page. Talk page object is missing.");
 		
-		Discourse discourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		//we create ONE discourse part for ALL the discussion activity in the context of a single article.
 		//That is, the main talk page and all archives are aggregated in this one DiscoursePart
 

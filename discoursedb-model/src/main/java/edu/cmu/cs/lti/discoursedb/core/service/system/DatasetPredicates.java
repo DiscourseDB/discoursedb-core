@@ -19,35 +19,33 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.model;
+package edu.cmu.cs.lti.discoursedb.core.service.system;
 
-import javax.persistence.CascadeType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-
-import org.springframework.data.rest.core.annotation.Description;
+import com.mysema.query.types.expr.BooleanExpression;
 
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import edu.cmu.cs.lti.discoursedb.core.model.system.QDataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.system.QDataset;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
-/**
- * Adds source information to to regular untimed entities
- * 
- * @author Oliver Ferschke
- *
- */
-@Data
-@EqualsAndHashCode(callSuper=true, exclude={"dataSourceAggregate"})
-@ToString(callSuper=true, exclude={"dataSourceAggregate"})
-@MappedSuperclass
-public abstract class TypedSourcedBE extends TypedBE {
-
-	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
-	@JoinColumn(name = "fk_data_sources")
-	@Description("An aggregate that contains links to all data sources associated with this entity.")
-	private DataSourceAggregate dataSourceAggregate;
+public final class DatasetPredicates {
+	//TODO: SECURE
+	private DatasetPredicates() {}
 	
+	public static BooleanExpression hasName(String name) {
+		
+		if(name==null ||name.isEmpty()) {
+			return QDataset.dataset.isNull();
+		}
+		return QDataset.dataset.datasetName.eq(name);
+	}
+	
+	public static BooleanExpression hasId(long id) {	
+		return QDataset.dataset.datasetId.eq(id);
+	}
+	
+	public static BooleanExpression isBlank() {	
+		return QDataset.dataset.datasetName.eq("").or(
+				QDataset.dataset.datasetName.isNull());
+	}
 }

@@ -95,10 +95,12 @@ public class GithubConverter implements CommandLineRunner {
 		
 		//Parse command line param with dataset name
 		final String dataSetName=args[0];		
-		if(dataSourceService.dataSourceExists(dataSetName)){
+		if(dataSourceService.findDataset(dataSetName) != null){
 			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Terminating...");			
 			return;
 		}
+		
+		converterService.setDataset(dataSetName);
 		
 		/*
 		 * For each entry in the custom.properties file, import the relevant

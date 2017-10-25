@@ -56,7 +56,7 @@ public class RavelryConverterServiceHelper {
 	
 	public List<Integer>  addPostingGroup(int topic, List<Document> docs, RavelryConverterService ravelryConverterService) {
 		List<Integer> postings  = new ArrayList<Integer>();
-		Discourse discourse = discourseService.createOrGetDiscourse(ravelryConverterService.discourseName);
+		Discourse discourse = discourseService.createOrGetDiscourse(ravelryConverterService.discourseName, ravelryConverterService.dataSetName);
 		DiscoursePart thread = discoursePartService.findOneByDataSource("topics#" + topic, "ravelry#topics", ravelryConverterService.dataSetName).get();
 		for (Document d: docs) {
 			

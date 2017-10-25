@@ -30,14 +30,18 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.rest.core.annotation.Description;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.DatasetRepository;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.Setter;
 
 /**
@@ -50,6 +54,10 @@ import lombok.Setter;
 @MappedSuperclass
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public abstract class BaseEntity{
+	
+	@Column(name = "dataset_id", nullable=false)
+	@Description("Dataset id controls who can access this element")
+	private Long datasetId;	
 	
 	@JsonIgnore
 	@Version
@@ -83,4 +91,5 @@ public abstract class BaseEntity{
     public void preUpdate() {
         this.entityModificationTime = new Date();
     }
+	
 }

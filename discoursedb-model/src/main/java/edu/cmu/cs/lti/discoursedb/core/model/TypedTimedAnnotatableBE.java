@@ -45,7 +45,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"annotations"})
 @ToString(callSuper=true, exclude={"annotations"})
 @MappedSuperclass
-public abstract class TypedTimedAnnotatableBE extends TypedTimedBE{
+public abstract class TypedTimedAnnotatableBE extends TypedTimedBE {
 	
 	@RestResource(rel="annotationAggregate",path="annotationAggregate")
 	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 

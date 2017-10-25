@@ -85,7 +85,7 @@ public class EdxForumConverterService{
 		
 		log.trace("Init Discourse entity");
 		String courseid = p.getCourseId();
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(courseid);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(courseid, dataSetName);
 
 		log.trace("Init DiscoursePart entity");
 		// in edX, we consider the whole forum to be a single DiscoursePart		
@@ -93,7 +93,7 @@ public class EdxForumConverterService{
 		
 		log.trace("Init User entity");
 		User curUser  = userService.createOrGetUser(curDiscourse,p.getAuthorUsername());
-		dataSourceService.addSource(curUser, new DataSourceInstance(p.getAuthorId(),EdxSourceMapping.AUTHOR_ID_TO_USER,DataSourceTypes.EDX, dataSetName));
+		dataSourceService.addSource(curUser, p.getAuthorId(),EdxSourceMapping.AUTHOR_ID_TO_USER,DataSourceTypes.EDX, dataSetName);
 
 		ContributionTypes mappedType = p.getType().equals(EDX_COMMENT_TYPE)?ContributionTypes.POST:ContributionTypes.THREAD_STARTER;
 	
@@ -109,7 +109,7 @@ public class EdxForumConverterService{
 		curContribution.setFirstRevision(curContent);
 		curContribution.setStartTime(p.getCreatedAt());
 		curContribution.setUpvotes(p.getUpvoteCount());
-		dataSourceService.addSource(curContribution, new DataSourceInstance(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,DataSourceTypes.EDX,dataSetName));
+		dataSourceService.addSource(curContribution, p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,DataSourceTypes.EDX,dataSetName);
 
 		//If contribution is a ThreadStarter, add it to a new Thread
 		//Contributions that are not ThreadStartes will be added to their respective Thread in Phase2 - in the mapRelations method
@@ -138,7 +138,7 @@ public class EdxForumConverterService{
 
 		log.trace("Mapping relations for post " + p.getId());
 		
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(p.getCourseId());
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(p.getCourseId(), dataSetName);
 	
 		//check if a contribution for the given Post already exists in DiscourseDB (imported in Phase1)
 		contributionService.findOneByDataSource(p.getId(),EdxSourceMapping.POST_ID_TO_CONTRIBUTION,dataSetName).ifPresent(

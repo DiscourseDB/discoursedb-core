@@ -89,7 +89,7 @@ public class BazaarConverterService {
 			return;
 		}
 		
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		User curUser = userService.createOrGetUser(curDiscourse, m.getUsername());
 		dataSourceService.addSource(curUser, new DataSourceInstance(m.getUsername(), BazaarSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.BAZAAR, dataSetName));
 		
@@ -151,7 +151,7 @@ public class BazaarConverterService {
 	 */
 	public void mapRoom(Room r, String dataSetName, String discourseName) {
 
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);		
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);		
 		
 		//add discoursepartType entity to database
 		DiscoursePart curDiscoursePart = discoursepartService.createOrGetTypedDiscoursePart(
@@ -184,7 +184,7 @@ public class BazaarConverterService {
 	 * @param roommap a map from room ids to room names.
 	 */
 	public void mapInteraction(Message m, String discourseName, String dataSetName, Map<String, String> roommap) {
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, dataSetName);
 		User curUser = userService.createOrGetUser(curDiscourse, m.getUsername());
 		dataSourceService.addSource(curUser,
 				new DataSourceInstance(m.getUsername(), BazaarSourceMapping.FROM_USER_ID_STR_TO_USER,DataSourceTypes.BAZAAR, dataSetName));

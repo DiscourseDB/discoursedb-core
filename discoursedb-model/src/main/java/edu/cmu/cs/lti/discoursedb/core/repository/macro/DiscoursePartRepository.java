@@ -76,9 +76,9 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 	//Optional<DiscoursePart> findOneByDataSourceId(@Param("id") String id);
 
 	@Query("select dp from DiscoursePart dp left join dp.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id"
-			+ " and dsi.entitySourceDescriptor=:entitySourceDescriptor and dsi.sourceType =:sourceType and dsi.datasetName=:datasetName")
+			+ " and dsi.entitySourceDescriptor=:entitySourceDescriptor and dsi.sourceType =:sourceType and dsi.datasetId=:datasetId")
 	Optional<DiscoursePart> findOneByDataSource(@Param("id") String id, @Param("entitySourceDescriptor") String entitySourceDescriptor, @Param("sourceType") DataSourceTypes sourceType,
-			@Param("datasetName") String datasetName);
+			@Param("datasetId") Long datasetId);
 		
 	
 	@Query(value = "select * from discourse_part dp where fk_annotation not in " +

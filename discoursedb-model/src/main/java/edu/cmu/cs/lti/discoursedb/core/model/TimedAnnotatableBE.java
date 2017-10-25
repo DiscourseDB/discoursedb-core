@@ -21,6 +21,10 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.model;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.persistence.CascadeType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -30,6 +34,7 @@ import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -45,11 +50,13 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper=true, exclude={"annotations"})
 @ToString(callSuper=true, exclude={"annotations"})
 @MappedSuperclass
-public abstract class TimedAnnotatableBE extends TimedBE{
+public abstract class TimedAnnotatableBE extends TimedBE {
 	
 	@RestResource(rel="annotationAggregate",path="annotationAggregate")
 	@ManyToOne(cascade={CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DETACH}) 
 	@JoinColumn(name = "fk_annotation")
 	@Description("An aggregate that contains links to all annotations associated with this entity.")
 	private AnnotationEntityProxy annotations;
+	
+	
 }

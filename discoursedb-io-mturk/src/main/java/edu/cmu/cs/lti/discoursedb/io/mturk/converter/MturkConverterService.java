@@ -92,14 +92,14 @@ public class MturkConverterService {
 	public long mapUser(String name, String discourseName, String dataset, 
 			String from_file, String from_column, String native_id) {
 				
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, dataset);
 		//groupService.addToGroup(curUser, "Team " + team);
 		//groupService.addToGroup(curUser, "Group " + group);
 		//groupService.addToGroup(curUser, "Experiment " + experiment);
 		
 		User curUser = userService.createOrGetUser(curDiscourse, name);
-		dataSourceService.addSource(curUser, new DataSourceInstance(
-				native_id, from_file + "#" + from_column, DataSourceTypes.BAZAAR, dataset));
+		dataSourceService.addSource(curUser, 
+				native_id, from_file + "#" + from_column, DataSourceTypes.BAZAAR, dataset);
 		return curUser.getId();
 	}
 	
@@ -142,7 +142,7 @@ public class MturkConverterService {
 			long author, String when,
 			long reply_to, String discourse_name, String dataset_name,
 			String source_file_name, String source_column_name, String source_unique_index) {
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourse_name);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourse_name, dataset_name);
 		 
 		User proxyUser = getProxyUser(author);
 		ContributionTypes mappedType = null;
@@ -157,17 +157,17 @@ public class MturkConverterService {
 		curContent.setText(text);
 		curContent.setTitle(subj);
 		curContent.setAuthor(proxyUser);
-		dataSourceService.addSource(curContent, new DataSourceInstance(
+		dataSourceService.addSource(curContent, 
 				source_unique_index, source_file_name + "#" + source_column_name+ "(content)",
-				DataSourceTypes.BAZAAR, dataset_name));
+				DataSourceTypes.BAZAAR, dataset_name);
 		
 		log.trace("Create Contribution entity");
 		Contribution curContribution = contributionService.createTypedContribution(mappedType);
 		curContribution.setCurrentRevision(curContent);
 		curContribution.setFirstRevision(curContent);
-		dataSourceService.addSource(curContribution, new DataSourceInstance(
+		dataSourceService.addSource(curContribution, 
 				source_unique_index, source_file_name + "#" + source_column_name + "(contribution)",
-				DataSourceTypes.BAZAAR, dataset_name));
+				DataSourceTypes.BAZAAR, dataset_name);
 		discussion_source2ddb.put(Long.valueOf(source_unique_index), curContribution.getId());
 		
 		
@@ -261,7 +261,7 @@ public class MturkConverterService {
 			String content, String discourseName, String datasetName, 
 			String sourceFileName, String sourceColumnName,
 			String sourceUniqueIndex) {
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, datasetName);
 		 
 		User curUser = username != null?userService.createOrGetUser(curDiscourse,  username):null;
 		
@@ -270,17 +270,17 @@ public class MturkConverterService {
 		curContent.setText(content);
 		curContent.setTitle(title);
 		if (curUser != null) { curContent.setAuthor(curUser); }
-		dataSourceService.addSource(curContent, new DataSourceInstance(
+		dataSourceService.addSource(curContent, 
 				sourceUniqueIndex, sourceFileName + "#" + sourceColumnName + "(content)",
-				DataSourceTypes.BAZAAR, datasetName));
+				DataSourceTypes.BAZAAR, datasetName);
 		
 		log.trace("Create Contribution entity");
 		Contribution curContribution = contributionService.createTypedContribution(contributionType);
 		curContribution.setCurrentRevision(curContent);
 		curContribution.setFirstRevision(curContent);
-		dataSourceService.addSource(curContribution, new DataSourceInstance(
+		dataSourceService.addSource(curContribution, 
 				sourceUniqueIndex, sourceFileName + "#" + sourceColumnName + "(contrib)",
-				DataSourceTypes.BAZAAR, datasetName));
+				DataSourceTypes.BAZAAR, datasetName);
 		
 		DiscoursePart team_dp = discoursepartService.createOrGetTypedDiscoursePart(
 				curDiscourse, teamDpName(group,team), DiscoursePartTypes.TEAM);
@@ -321,7 +321,7 @@ public class MturkConverterService {
 		}
 		
 		
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourse_name);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourse_name, dataset_name);
 		 
 		User curUser = userService.createOrGetUser(curDiscourse,  author);
 		ContributionTypes mappedType = null;
@@ -330,17 +330,17 @@ public class MturkConverterService {
 		Content curContent = contentService.createContent();
 		curContent.setText(text);
 		curContent.setAuthor(curUser);
-		dataSourceService.addSource(curContent, new DataSourceInstance(
+		dataSourceService.addSource(curContent, 
 				source_unique_index, source_file_name + "#" + source_column_name+ "(content)",
-				DataSourceTypes.BAZAAR, dataset_name));
+				DataSourceTypes.BAZAAR, dataset_name);
 		
 		log.trace("Create Contribution entity");
 		Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
 		curContribution.setCurrentRevision(curContent);
 		curContribution.setFirstRevision(curContent);
-		dataSourceService.addSource(curContribution, new DataSourceInstance(
+		dataSourceService.addSource(curContribution, 
 				source_unique_index, source_file_name + "#" + source_column_name + "(contribution)",
-				DataSourceTypes.BAZAAR, dataset_name));
+				DataSourceTypes.BAZAAR, dataset_name);
 		discussion_source2ddb.put(Long.valueOf(source_unique_index), curContribution.getId());
 		
 		
@@ -396,13 +396,13 @@ public class MturkConverterService {
 	 */
 	public void mapTeamAndGroup(String discourseName, String group, String team, String dataset, 
 			String source_fn, String source_col, String source_idx)	{
-		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName);
+		Discourse curDiscourse = discourseService.createOrGetDiscourse(discourseName, dataset);
 		DiscoursePart grp_dp = discoursepartService.createOrGetTypedDiscoursePart(
 				curDiscourse, groupDpName(group), DiscoursePartTypes.GROUP);
-		dataSourceService.addSource(grp_dp, new DataSourceInstance(source_idx, source_fn+"#"+source_col+"(group)", dataset));
+		dataSourceService.addSource(grp_dp, source_idx, source_fn+"#"+source_col+"(group)", DataSourceTypes.BAZAAR, dataset);
 		DiscoursePart team_dp = discoursepartService.createOrGetTypedDiscoursePart(
 				curDiscourse, teamDpName(group,team), DiscoursePartTypes.TEAM);
-		dataSourceService.addSource(team_dp, new DataSourceInstance(source_idx, source_fn+"#"+source_col+"(team)", dataset));
+		dataSourceService.addSource(team_dp, source_idx, source_fn+"#"+source_col+"(team)", DataSourceTypes.BAZAAR, dataset);
 		discoursepartService.createDiscoursePartRelation(grp_dp, team_dp, DiscoursePartRelationTypes.SUBPART);
 		/* TOO CONFUSING
 		DiscoursePart grp_disc_dp = discoursepartService.createOrGetTypedDiscoursePart(

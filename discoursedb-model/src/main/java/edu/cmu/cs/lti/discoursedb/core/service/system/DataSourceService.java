@@ -24,6 +24,7 @@ package edu.cmu.cs.lti.discoursedb.core.service.system;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +34,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.SourcedBE;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableSourcedBE;
 import edu.cmu.cs.lti.discoursedb.core.model.TypedSourcedBE;
 import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableSourcedBE;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.DataSourceInstanceRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.DatasetRepository;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.DataSourceAggregateRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +54,8 @@ public class DataSourceService {
 
 	private final @NonNull DataSourceAggregateRepository dataSourceAggregateRepo;
 	private final @NonNull DataSourceInstanceRepository dataSourceInstanceRepo;
-
+	private final @NonNull DatasetRepository datasetRepo;
+	
 	/**
 	 * Retrieves an existing DataSourceInstance
 	 * 
@@ -62,14 +68,38 @@ public class DataSourceService {
 	 * @return an optional containing the DataSourceInstance if it exist, empty otherwise
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, String dataSetName ){
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, String datasetName ){
 		Assert.hasText(entitySourceId);
 		Assert.hasText(entitySourceDescriptor);
-		Assert.hasText(dataSetName);
+		Assert.hasText(datasetName);
 
+		Long dsid = findOrCreateDataset(datasetName).getDatasetId();
 		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
 				DataSourcePredicates.hasSourceId(entitySourceId).and(
-				DataSourcePredicates.hasDataSetName(dataSetName)).and(
+				DataSourcePredicates.hasDatasetId(dsid)).and(
+				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor))));
+	}	
+	
+	
+	/**
+	 * Retrieves an existing DataSourceInstance
+	 * 
+	 * @param entitySourceId
+	 *            the id of the entity in the source system (i.e. how is the instance identified in the source)
+	 * @param entitySourceDescriptor
+	 *            the name/descriptor of the field that was used as sourceId (i.e. how can i find the id in the source)
+	 * @param datasetName
+	 *            the name of the dataset, e.g. edx_dalmooc_20150202
+	 * @return an optional containing the DataSourceInstance if it exist, empty otherwise
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Optional<DataSourceInstance> findDataSource(String entitySourceId, String entitySourceDescriptor, long datasetId ){
+		Assert.hasText(entitySourceId);
+		Assert.hasText(entitySourceDescriptor);
+		
+		return Optional.ofNullable(dataSourceInstanceRepo.findOne(
+				DataSourcePredicates.hasSourceId(entitySourceId).and(
+				DataSourcePredicates.hasDatasetId(datasetId)).and(
 				DataSourcePredicates.hasEntitySourceDescriptor(entitySourceDescriptor))));
 	}	
 
@@ -80,26 +110,25 @@ public class DataSourceService {
 	 * @return true, if any data from that dataset has been imported previously. false, else.
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public boolean dataSourceExists(String dataSetName){		
-		Assert.hasText(dataSetName);
-
-		return dataSourceInstanceRepo.count(DataSourcePredicates.hasDataSetName(dataSetName))>0;
+	public Dataset findDataset(String datasetName){	
+		//TODO: SECURE
+		return datasetRepo.findOne(DatasetPredicates.hasName(datasetName));
 	}
 
 	/**
-	 * Checks whether a dataset with the given parameters exists in the DiscourseDB instance
+	 * Checks whether a data source with the given parameters exists in the DiscourseDB instance
 	 * 
-	 * @param dataSetName the name of the dataset (e.g. file name or dataset name)
-	 * @return true, if any data from that dataset has been imported previously. false, else.
+	 * 
 	 */
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
-	public boolean dataSourceExists(String sourceId, String sourceIdDescriptor, String dataSetName){		
+	public boolean dataSourceExists(String sourceId, String sourceIdDescriptor, String datasetName){		
 		Assert.hasText(sourceId);
 		Assert.hasText(sourceIdDescriptor);
-		Assert.hasText(dataSetName);
-
+		Assert.hasText(datasetName);
+		
+		Long dsid = findOrCreateDataset(datasetName).getDatasetId();
 		return dataSourceInstanceRepo.count(
-				DataSourcePredicates.hasDataSetName(dataSetName).and(
+				DataSourcePredicates.hasDatasetId(dsid).and(
 				DataSourcePredicates.hasEntitySourceDescriptor(sourceIdDescriptor).and(
 				DataSourcePredicates.hasSourceId(sourceId)))) > 0;
 	}
@@ -118,11 +147,11 @@ public class DataSourceService {
 
 		String sourceId = source.getEntitySourceId();
 		String sourceDescriptor = source.getEntitySourceDescriptor();
-		String dataSetName = source.getDatasetName();
-		if(sourceId==null||sourceId.isEmpty()||sourceDescriptor==null||sourceDescriptor.isEmpty()||dataSetName==null||dataSetName.isEmpty()){			
+		Long datasetId = source.getDatasetId();
+		if(sourceId==null||sourceId.isEmpty()||sourceDescriptor==null||sourceDescriptor.isEmpty()){			
 			log.error("You need to set sourceId, sourceDescriptor and dataSetName to create a new DataSourceInstance. Proceeding with incomplete DataSourceInstance ...");			
 		}
-		Optional<DataSourceInstance> instance = findDataSource(sourceId, sourceDescriptor, dataSetName);
+		Optional<DataSourceInstance> instance = findDataSource(sourceId, sourceDescriptor, datasetId);
 		if(instance.isPresent()){
 			return instance.get();
 		}else{
@@ -226,18 +255,61 @@ public class DataSourceService {
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source
-		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName());
-		
+		Optional<DataSourceInstance> existingDataSourceInstance = null;
+		try {
+		    existingDataSourceInstance = 
+				findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetId());
+		} catch (NullPointerException e) {
+			System.out.println("XYZZY");
+		}
 		if(!existingDataSourceInstance.isPresent()||existingDataSourceInstance.get().getSourceAggregate()==null){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
 		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(sourceAggregate)){
 			//we tried to create an existing DataSourceInstance but add it to another entity
 			//this is not allowed, a source may only produce a single entity
-			log.warn("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
+			log.warn("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetId()+") but must be unique.");				
 		}
+		entity.setDatasetId(source.getDatasetId());
+	}
+	
+	/**
+	 * Adds a new source to the provided entity.<br/>
+	 * Finds or creates the necessary source
+	 * 
+	 * 
+	 */
+	public <T extends TypedTimedAnnotatableSourcedBE> void addSource(T entity, String entitySourceId, String entitySourceDescriptor,
+			DataSourceTypes sourceType, String datasetName) {		
+		
+		addSource(entity, createDsIfNotExists(entitySourceId, entitySourceDescriptor, sourceType, datasetName));
 	}
 
+	/**
+	 * Adds a new source to the provided entity.<br/>
+	 * Finds or creates the necessary source
+	 * 
+	 * 
+	 */
+	public <T extends TimedAnnotatableSourcedBE> void addSource(T entity, String entitySourceId, String entitySourceDescriptor,
+			DataSourceTypes sourceType, String datasetName) {		
+		
+		addSource(entity, createDsIfNotExists(entitySourceId, entitySourceDescriptor, sourceType, datasetName));
+	}
+
+	/**
+	 * Adds a new source to the provided entity.<br/>
+	 * Finds or creates the necessary source
+	 * 
+	 * 
+	 */
+	public <T extends TypedSourcedBE> void addSource(T entity, String entitySourceId, String entitySourceDescriptor,
+			DataSourceTypes sourceType, String datasetName) {		
+		
+		addSource(entity, createDsIfNotExists(entitySourceId, entitySourceDescriptor, sourceType, datasetName));
+	}
+
+	
 	/**
 	 * Adds a new source to the provided entity.<br/>
 	 * Note that the source MUST be unique for the entity. No other entity can be associated with this particular source.
@@ -263,15 +335,16 @@ public class DataSourceService {
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source
-		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName());
+		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetId());
 		if(!existingDataSourceInstance.isPresent()||existingDataSourceInstance.get().getSourceAggregate()==null){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
 		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
 			//we tried to create an existing DataSourceInstance but add it to another entity
 			//this is not allowed, a source may only produce a single entity
-			log.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
+			log.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetId()+") but must be unique.");				
 		}
+		entity.setDatasetId(source.getDatasetId());
 	}
 
 	/**
@@ -299,15 +372,74 @@ public class DataSourceService {
 			entity.setDataSourceAggregate(sourceAggregate);
 		}
 		//connect source aggregate and source
-		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetName());
+		Optional<DataSourceInstance> existingDataSourceInstance = findDataSource(source.getEntitySourceId(), source.getEntitySourceDescriptor(), source.getDatasetId());
 		if(!existingDataSourceInstance.isPresent()){
 			source.setSourceAggregate(sourceAggregate);
 			source = dataSourceInstanceRepo.save(source);
 		}else if(!existingDataSourceInstance.get().getSourceAggregate().equals(entity.getDataSourceAggregate())){
 			//we tried to create an existing DataSourceInstance but add it to another entity
 			//this is not allowed, a source may only produce a single entity
-			log.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetName()+") but must be unique.");				
+			log.error("Source already assigned to an existing entity: ("+source.getEntitySourceId()+", "+source.getEntitySourceDescriptor()+", "+source.getDatasetId()+") but must be unique.");				
 		}
+		entity.setDatasetId(source.getDatasetId());
+	}
+	
+	
+	public DataSourceInstance createDsIfNotExists(String entitySourceId, String entitySourceDescriptor,
+			DataSourceTypes sourceType, String datasetName) {
+		Dataset dst = findOrCreateDataset(datasetName);
+		DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, dst.getDatasetId());
+		ds = dataSourceInstanceRepo.save(ds);
+		return ds;
 	}
 
+	
+	public Dataset findOrCreateDataset(String datasetName) { return createOrGetDataset(datasetName); }
+/*		Assert.notNull(datasetName);
+		Optional<Dataset> found = datasetRepo.findOneByDatasetName(datasetName);
+		if (!found.isPresent()) {
+			Dataset ds = new Dataset(datasetName, datasetName);
+			ds = datasetRepo.save(ds);
+			ds.setDatasetId(ds.getId());
+			ds = datasetRepo.save(ds);
+			return ds;
+		} else {
+			return found.get();
+		}
+	}*/
+	
+	/**
+	 * Returns a Dataset object with the given name if it exists or creates a
+	 * new Dataset entity with that name, stores it in the database and
+	 * returns the entity object.
+	 * 
+	 * @param name
+	 *            name of the requested Dataset
+	 * @return the Dataset object with the given name - either retrieved or
+	 *         newly created
+	 */
+	public Dataset createOrGetDataset(String name) {
+		Assert.hasText(name, "Discourse name cannot be empty");
+		return datasetRepo.findOneByDatasetName(name).orElseGet(()->{
+			Dataset dst = new Dataset(name);
+			dst.setDatasetId(0L);
+			dst = datasetRepo.save(dst);
+			dst.setDatasetId(dst.getId());
+			dst = datasetRepo.save(dst);
+			return dst;
+		});
+	}
+
+	/**
+	 * Returns a Dataset object with the given name if it exists 
+	 * 
+	 * @param name name of the requested discourse
+	 * @return an Optional containing the Discourse object with the given name if it exists 
+	 */
+	public Optional<Dataset> findOneDataset(String name) {
+		Assert.hasText(name, "Discourse name cannot be empty");
+		return datasetRepo.findOneByDatasetName(name);
+	}
+	
+	
 }

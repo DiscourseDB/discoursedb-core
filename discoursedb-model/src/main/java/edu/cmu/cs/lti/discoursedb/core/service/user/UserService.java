@@ -38,11 +38,13 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
+import edu.cmu.cs.lti.discoursedb.core.model.system.Dataset;
 import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.model.user.UserRelation;
+import edu.cmu.cs.lti.discoursedb.core.repository.system.DatasetRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.ContributionInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
@@ -64,6 +66,7 @@ public class UserService {
 
 	private final @NonNull UserRepository userRepo;
 	private final @NonNull DataSourceService dataSourceService;
+	private final @NonNull DatasetRepository datasetRepo;
 	private final @NonNull UserRelationRepository userRelationRepo;
 	private final @NonNull ContributionInteractionRepository contribInteractionRepo;
 	private final @NonNull DiscoursePartInteractionRepository discoursePartInteractionRepo;
@@ -87,10 +90,22 @@ public class UserService {
 		Assert.hasText(sourceId, "The sourceId cannot be empty.");
 		Assert.hasText(dataSetName, "The dataset name cannot be empty.");
 
+		Dataset ds = dataSourceService.findOrCreateDataset(dataSetName);
 		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse)
-				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSet(dataSetName))));
+				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSet(ds.getDatasetId()))));
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	public Optional<User> findUserByDiscourseAndSourceIdAndDataSet(Discourse discourse, String sourceId,
+			long dataSetId) {
+		Assert.notNull(discourse, "The discourse cannot be null.");
+		Assert.hasText(sourceId, "The sourceId cannot be empty.");
+		
+		return Optional.ofNullable(userRepo.findOne(UserPredicates.hasDiscourse(discourse)
+				.and(UserPredicates.hasSourceId(sourceId)).and(UserPredicates.hasDataSet(dataSetId))));
+	}
+
+	
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Optional<User> findUserByDiscourseAndSourceId(Discourse discourse, String sourceId) {
 		Assert.notNull(discourse, "The discourse cannot be null.");
@@ -186,8 +201,9 @@ public class UserService {
 			User curUser = new User(discourse);
 			curUser.setUsername(username);
 			curUser = userRepo.save(curUser);
+			Dataset ds = dataSourceService.findOrCreateDataset(dataSetName);
 			dataSourceService.addSource(curUser,
-					new DataSourceInstance(sourceId, sourceIdDescriptor, dataSourceType, dataSetName));
+					new DataSourceInstance(sourceId, sourceIdDescriptor, dataSourceType, ds.getId()));
 			return curUser;
 			}
 		);

@@ -70,7 +70,7 @@ public class BlogConverter implements CommandLineRunner {
 		final String discourseName=args[0];		
 
 		final String dataSetName=args[1];		
-		if(dataSourceService.dataSourceExists(dataSetName)){
+		if(dataSourceService.findDataset(dataSetName) != null){
 			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Terminating...");			
 			return;
 		}
