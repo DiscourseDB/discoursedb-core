@@ -105,6 +105,7 @@ public class CourseraConverterService {
 		String m_dataset;
 		DataSourceTypes m_dstype;
 		String index() { return m_id + "@" + m_descriptor; }
+		public String toString() { return index() + " type" + m_dptype + " dstype " + m_dstype + " dataset " + m_dataset; }
 	}
 	
 	HashMap<String,Long> dpCache = new HashMap<String,Long>();
@@ -205,14 +206,14 @@ public class CourseraConverterService {
 		return dsi;
 	}
 
-	
-	public DataSourceInfo mapQuestion(String question_title, String question_text, long user_id, DataSourceInfo forum_info, DataSourceInfo under_dp_info, 
+	//public class DpContributionPair { Long discourse_part_id; Long contribution_id; DpContributionPair(Long d, Long c) { discourse_part_id=d; contribution_id = c; } }
+	public Long mapQuestion(String question_title, String question_text, long user_id, DataSourceInfo forum_info, DataSourceInfo under_dp_info, 
 			String createdAt, String updatedAt,
-			String dataset, long discourseId, String from_file, String from_column, String native_id) {
+			String dataset, long discourseId, String from_file, String from_column, String native_id, DataSourceInfo dsi) {
+		
 		Discourse curDiscourse = discourseService.findOne(discourseId).get();
 		DiscoursePart parent1 = getDiscoursePart(curDiscourse, forum_info);
 		DiscoursePart parent2 = getDiscoursePart(curDiscourse, under_dp_info);
-		DataSourceInfo dsi = new DataSourceInfo(from_file+"#"+from_column,native_id, dataset,DataSourceTypes.COURSERA,  DiscoursePartTypes.SUBFORUM);
 		DiscoursePart course_q_dp = getDiscoursePart(curDiscourse,dsi);
 		course_q_dp.setName(question_title);
 		Date t = null;
@@ -253,12 +254,14 @@ public class CourseraConverterService {
 		if (parent1.getId() != parent2.getId()) {
 			discoursepartService.createDiscoursePartRelation(parent2, course_q_dp, DiscoursePartRelationTypes.SUBPART);
 		}
-		return dsi;
+		
+		return curContribution.getId();
 	}
 	
 	
 	public Long mapAnswer(String text, DataSourceInfo question_dp_inf, long user_id, long parent_answer_id, String createdAt, String updatedAt,
 			String dataset, long discourseId, String from_file, String from_column, String native_id) {
+		
 		Discourse curDiscourse = discourseService.findOne(discourseId).get();
 		DiscoursePart course_q_dp = getDiscoursePart(curDiscourse, question_dp_inf);
 		
@@ -296,6 +299,8 @@ public class CourseraConverterService {
 			discoursepartService.addContributionToDiscoursePart(curContribution, course_q_dp);
 			if (o_parentContribution.isPresent()) {
 				contributionService.createDiscourseRelation(curContribution, o_parentContribution.get(), DiscourseRelationTypes.REPLY);
+			} else {
+				System.out.println("Can't find answer " + question_dp_inf);
 			}
 		} else {
 			curContribution = opt_course_a_c.get();

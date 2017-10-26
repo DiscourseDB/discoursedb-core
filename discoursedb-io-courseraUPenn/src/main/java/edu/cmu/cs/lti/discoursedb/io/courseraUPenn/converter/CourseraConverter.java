@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,7 +85,16 @@ public class CourseraConverter  implements CommandLineRunner {
                 .readerFor(Map.class)
                 .with(CsvSchema.emptySchema().withColumnSeparator(',').withHeader().withEscapeChar(escapeChar))
                 .readValues(in);
-        return () -> iterator;
+        List<Map<String,String>> sortable = iterator.readAll();
+        if (sortable.get(0).containsKey("discussion_answer_created_ts")) {
+        		sortable.sort(new Comparator<Map<String,String>>() {
+        		    @Override
+        		    public int compare(Map<String,String> lhs, Map<String,String> rhs) {
+        		        return lhs.get("discussion_answer_created_ts").compareTo(rhs.get("discussion_answer_created_ts"));
+        		    }
+        		} );
+        }
+        return () -> sortable.iterator();
 	}
 
 	public static
@@ -135,7 +145,7 @@ public class CourseraConverter  implements CommandLineRunner {
 		log.info("modules");
 		// modules
 		for (Map<String,String> row : csvIteratorExistingHeaders(
-				directory + "course_branch_modules.csv")) {
+				directory + "course_branch_modules.csv", '\\')) {
 			String index = row.get("course_branch_id")+"#"+row.get("course_module_id");
 			branchModuleId2dp.put(index,
 					ccs.mapModule(row.get("course_branch_module_name"), 
@@ -159,7 +169,7 @@ public class CourseraConverter  implements CommandLineRunner {
 		log.info("items");
 		// items
 		for (Map<String,String> row : csvIteratorExistingHeaders(
-				directory + "course_branch_items.csv")) {
+				directory + "course_branch_items.csv", '\\')) {
 			String index = row.get("course_branch_id")+"#"+row.get("course_item_id");
 			branchItemId2dp.put(index,
 					ccs.mapItem(row.get("course_branch_item_name"), 
@@ -227,15 +237,19 @@ public class CourseraConverter  implements CommandLineRunner {
 				underDP = forumId2dp.get(row.get("discussion_forum_id"));
 			} else if (row.get("discussion_question_context_type").equals("week")) {
 				underDP = branchId2dp.get(forum2branch.get(row.get("discussion_forum_id")));
+			} else if (row.get("discussion_question_context_type").equals("promptItem")) {
+				underDP = branchId2dp.get(forum2branch.get(row.get("discussion_forum_id")));
 			}
 			if (underDP == null) {
-				log.info("Don't know where to put this question");
+				log.info("Don't know where to put this question: " + index);
 				underDP = ccs.mapForum("Unknown forum " + row.get("discussion_forum_id"), 
 						null,
 						dataset, courseId2discourse.get(row.get("course_id")),"discussion_question", "discussion_forum_id", row.get("discussion_forum_id"));
 				forumId2dp.put(row.get("discussion_forum_id"), underDP);
 			}
-			question2dp.put(row.get("discussion_question_id"), 
+			DataSourceInfo dsiq = new DataSourceInfo("discussion_question#discussion_question_id",index, dataset,DataSourceTypes.COURSERA,  DiscoursePartTypes.SUBFORUM);
+			question2dp.put(row.get("discussion_question_id"), dsiq);
+			answer2contribution.put(row.get("discussion_question_id"), 
 					ccs.mapQuestion(row.get("discussion_question_title"), 
 							row.get("discussion_question_details"),
 							cuser2duser.get(row.get("penn_user_id")),
@@ -243,7 +257,7 @@ public class CourseraConverter  implements CommandLineRunner {
 							underDP,
 							row.get("discussion_question_created_ts"),
 							row.get("discussion_question_updated_ts"),
-							dataset, courseId2discourse.get(row.get("course_id")),"discussion_question", "discussion_question_id", index));
+							dataset, courseId2discourse.get(row.get("course_id")),"discussion_question", "discussion_question_id", index, dsiq));
 		}
 		
 		// TODO: votes and following
@@ -266,19 +280,28 @@ public class CourseraConverter  implements CommandLineRunner {
 					new DataSourceInfo("discussion_answer#discussion_forum_id", row.getOrDefault("discussion_forum_id","(empty)"), dataset, 
 							DataSourceTypes.COURSERA, DiscoursePartTypes.FORUM));
 			if (question == null) {
-				question = ccs.mapQuestion("(Missing question)", 
+				question = new DataSourceInfo("discussion_question#discussion_question_id",index, dataset,DataSourceTypes.COURSERA,  DiscoursePartTypes.SUBFORUM);
+				question2dp.put(row.get("discussion_question_id"), question);
+				answer2contribution.put(row.get("discussion_question_id"), 
+				  ccs.mapQuestion("(Missing question)", 
 						"(Missing question)",
 						cuser2duser.get(row.get("penn_user_id")),
 						forum,forum,
 						row.get("discussion_answer_created_ts"),
 						row.get("discussion_answer_updated_ts"),
-						dataset, courseId2discourse.get(row.get("course_id")),"discussion_answer", "discussion_question_id", index);
+						dataset, courseId2discourse.get(row.get("course_id")),"discussion_answer", "discussion_question_id", index, question));
+			}
+			String parent = row.get("discussion_answer_parent_discussion_answer_id");
+			Long parent_cont = answer2contribution.getOrDefault(parent, -1L);
+			if (parent_cont == -1L) {
+				parent = row.get("discussion_question_id"); 
+				parent_cont =  answer2contribution.getOrDefault(parent, -1L); 
 			}
 			answer2contribution.put(row.get("discussion_answer_id"), 
 					ccs.mapAnswer(row.get("discussion_answer_content"), 
 							question,
 							cuser2duser.get(row.get("penn_user_id")),
-							answer2contribution.getOrDefault(row.getOrDefault("discussion_answer_parent_discussion_answer_id",""), -1L),
+							parent_cont,
 							row.get("discussion_answer_created_ts"),
 							row.get("discussion_answer_updated_ts"),
 							dataset,courseId2discourse.get(row.get("course_id")), "discussion_answers", "discussion_answer_id", index));
