@@ -72,8 +72,8 @@ public class BrowsingContributionResource extends ResourceSupport {
 		} else {
 			parentId = parent.getId();
 		}*/
-		if (c.getTargetOfDiscourseRelations().size() > 0) {
-			parentId = c.getTargetOfDiscourseRelations().iterator().next().getSource().getId();
+		if (c.getSourceOfDiscourseRelations().size() > 0) {
+			parentId = c.getSourceOfDiscourseRelations().iterator().next().getTarget().getId();
 		} else { 
 			parentId = 0L;
 		}
