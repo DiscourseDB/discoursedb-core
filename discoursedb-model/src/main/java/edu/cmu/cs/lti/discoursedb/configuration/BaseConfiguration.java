@@ -27,17 +27,24 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.persistenceunit.PersistenceUnitManager;
+import org.springframework.orm.jpa.vendor.AbstractJpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -55,7 +62,11 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @Configuration
 @EnableAutoConfiguration
 @EnableTransactionManagement
-@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model","edu.cmu.cs.lti.discoursedb.core.repository","edu.cmu.cs.lti.discoursedb.core.service"})
+@ComponentScan(basePackages = { 
+		"edu.cmu.cs.lti.discoursedb.core.model",
+		"edu.cmu.cs.lti.discoursedb.core.repository",
+		"edu.cmu.cs.lti.discoursedb.core.service"
+})
 @PropertySources({
     @PropertySource("classpath:hibernate.properties"), //default hibernate configuration
     @PropertySource("classpath:jdbc.properties"), //default database configuration
@@ -63,12 +74,63 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
     @PropertySource(value = "classpath:custom.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
 })
 @EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
-@EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" })
+/*
+ *  May need to define entityManagerFactoryRef and transactionManagerRef below, per
+ *  
+ * 			http://kimrudolph.de/blog/spring-datasource-routing
+ */
+@EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" },
+					  entityManagerFactoryRef = "entityManagerFactory",
+					  transactionManagerRef = "discoursedbTransactionManager")
 public class BaseConfiguration {
 
 	@Autowired 
 	private Environment environment;
+	
+	@Autowired(required = false)
+	private PersistenceUnitManager persistenceUnitManager;
+	
+	@Autowired
+	private DatabaseSelector databaseSelector;
+	
+	/*@Bean
+	@Primary
+	public LocalContainerEntityManagerFactoryBean discoursedbEntityManager(
+			final JpaProperties customerJpaProperties) {
+		EntityManagerFactoryBuilder builder =
+				createEntityManagerFactoryBuilder(customerJpaProperties);
+		return builder.dataSource(databaseSelector).packages("edu.cmu.cs.lti.discoursedb.core")
+				.persistenceUnit("discoursedbEntityManager").build();
+	}*/
+	
+	@Bean
+	@Primary
+	public JpaTransactionManager discoursedbTransactionManager(
+			@Qualifier("entityManagerFactory") final EntityManagerFactory factory) {
+		return new JpaTransactionManager(factory);
+	}
 
+
+	private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(
+			JpaProperties discoursedbJpaProperties) {
+		JpaVendorAdapter jpaVendorAdapter = 
+				createJpaVendorAdapter(discoursedbJpaProperties);
+		return new EntityManagerFactoryBuilder(jpaVendorAdapter,
+				discoursedbJpaProperties.getProperties(), this.persistenceUnitManager);
+	}
+	
+	private JpaVendorAdapter createJpaVendorAdapter(
+		    JpaProperties jpaProperties) {
+		    AbstractJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
+		    adapter.setShowSql(jpaProperties.isShowSql());
+		    adapter.setDatabase(jpaProperties.getDatabase());
+		    adapter.setDatabasePlatform(jpaProperties.getDatabasePlatform());
+		    adapter.setGenerateDdl(jpaProperties.isGenerateDdl());
+		    return adapter;
+	}
+	
+	
+	/*
 	@Bean
 	public DataSource dataSource() {
 		try {
@@ -90,7 +152,7 @@ public class BaseConfiguration {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
+	}*/
 
 	@Bean
 	LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, Environment env) {
@@ -100,6 +162,7 @@ public class BaseConfiguration {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setJpaVendorAdapter(vendorAdapter);
+		factory.setPersistenceUnitManager(this.persistenceUnitManager);
 		factory.setPackagesToScan("edu.cmu.cs.lti.discoursedb");
 
 		Properties jpaProperties = new Properties();

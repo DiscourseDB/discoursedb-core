@@ -23,6 +23,9 @@ package edu.cmu.cs.lti.discoursedb.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -42,8 +45,17 @@ import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideTrainingDataE
 /**
  * A SpringBootApplication that launches a server that hosts the API.
  *
+ *
+ * Exclude Datasource and Hibernate autoconfig classes so that we can have
+ *  our own custom data source routing (letting us open and read from
+ *  multiple discoursedb databases). Per http://kimrudolph.de/blog/spring-datasource-routing
+ *  
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+		DataSourceAutoConfiguration.class,
+		DataSourceTransactionManagerAutoConfiguration.class,
+		HibernateJpaAutoConfiguration.class
+})
 @EnableEntityLinks
 @EnableAsync
 @EntityScan(basePackageClasses = { DiscourseApiStarter.class, Jsr310JpaConverters.class })
