@@ -19,13 +19,14 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.model.system;
+package edu.cmu.cs.lti.discoursedb.system.model.system;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -75,7 +76,7 @@ public class SystemUser extends TimedBE implements UserDetails {
 	private String username;
 
 	private String email;
-
+	
 	@Column(name = "password_hash")
 	private String passwordHash;
 
@@ -91,6 +92,10 @@ public class SystemUser extends TimedBE implements UserDetails {
     @Enumerated(EnumType.STRING)
 	private Set<SystemUserRole> roles;
 
+	@OneToMany(fetch = FetchType.EAGER, mappedBy="systemUser")
+	private Set<SystemUserProperty> properties;
+
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy="systemUser")
     private Set<SystemUserRight> rights;
 
@@ -105,7 +110,7 @@ public class SystemUser extends TimedBE implements UserDetails {
 				authorities.add(new SimpleGrantedAuthority("ROLE:" + r.name()));
 			}
 			for (SystemUserRight r : this.getRights()) {
-				authorities.add(new SimpleGrantedAuthority(r.getDiscourse().getName()));
+				authorities.add(new SimpleGrantedAuthority(r.getDatabaseName()));
 			}
 		}
 		return authorities;

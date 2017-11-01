@@ -4,8 +4,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -15,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +53,7 @@ import lombok.extern.log4j.Log4j;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+@ComponentScan("edu.cmu.cs.lti.discoursedb")
 public class CourseraConverterService {
 	private static final Logger log = LogManager.getLogger(CourseraConverterService.class);
 
@@ -58,7 +63,7 @@ public class CourseraConverterService {
 	private final @NonNull ContentService contentService;
 	private final @NonNull ContributionService contributionService;
 	private final @NonNull DiscoursePartService discoursepartService;
-	@Autowired private EntityManager entityManager;
+	@Autowired @Qualifier("coreEntityManagerFactory") private EntityManager entityManager;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy HH:mm:ss");
 	private static SimpleDateFormat sdf2 = new SimpleDateFormat("M/d/yy HH:mm");
 	private static SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-M-d HH:mm:ss");
@@ -71,7 +76,7 @@ public class CourseraConverterService {
 		return (T) session.get(clazz, id);
 	}
 	
-
+	
 	
 	User getProxyUser(Long id) {
 		Session session = entityManager.unwrap(Session.class);

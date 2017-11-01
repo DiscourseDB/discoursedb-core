@@ -38,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.Table;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -98,6 +99,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratService;
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideService;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
+import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDatabasesResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscourseResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingLightsideStubsResource;
@@ -105,10 +107,11 @@ import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
 import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery;
 import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery.DdbQueryParseException;
+import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserProperty;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
@@ -116,13 +119,14 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRep
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
-import edu.cmu.cs.lti.discoursedb.core.service.system.SystemUserService;
+import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -197,12 +201,22 @@ public class BrowsingRestController {
 	@Autowired private SystemUserService sysUserSvc;
 	@Autowired private ApplicationContext appContext;
 	@Autowired private AnnotationService annoService;
+	@Autowired DatabaseSelector selector;
 	
-	@RequestMapping(value="/stats", method=RequestMethod.GET)
+	
+	void registerDb(HttpServletRequest httpServletRequest, HttpSession session, String databaseName) {
+		securityUtils.authenticate(httpServletRequest, session);
+		securityUtils.authorizedDatabaseCheck(databaseName);
+		selector.changeDatabase(databaseName);
+	}
+	
+	
+	@RequestMapping(value="/database/{databaseName}/stats", method=RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingStatsResource> stats(HttpServletRequest httpServletRequest, HttpSession session) {
-		securityUtils.authenticate(httpServletRequest, null, session);
-
+	Resources<BrowsingStatsResource> stats(
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest httpServletRequest, HttpSession session) {
+		registerDb(httpServletRequest, session, databaseName);
 		
 		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository, securityUtils);
 		
@@ -219,21 +233,35 @@ public class BrowsingRestController {
 		return r;
 	}
 	
-	@ResponseStatus(value=HttpStatus.UNAUTHORIZED, reason="User does not have access to this Discourse") 
-	static public class UnauthorizedDiscourseAccess extends RuntimeException {
+	@RequestMapping(value="/databases", method=RequestMethod.GET)
+	@ResponseBody
+	Resources<BrowsingDatabasesResource> databases(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.authenticate(httpServletRequest,  session);
+
+		BrowsingDatabasesResource bsr = new BrowsingDatabasesResource(securityUtils.allowedDatabases());
+		
+		List<BrowsingDatabasesResource> l = new ArrayList<BrowsingDatabasesResource>();
+		l.add(bsr);
+		Resources<BrowsingDatabasesResource> r =  new Resources<BrowsingDatabasesResource>(l);
+				
+		return r;
+	}
+	
+	@ResponseStatus(value=HttpStatus.UNAUTHORIZED, reason="User does not have access to this database") 
+	static public class UnauthorizedDatabaseAccess extends RuntimeException {
 		
 	}
 
 	
-	@RequestMapping(value="/discourses/{discourseId}", method=RequestMethod.GET)
+	@RequestMapping(value="/database/{databaseName}/discourses/{discourseId}", method=RequestMethod.GET)
 	@CrossOrigin(origins="*", maxAge=3600)
 	@ResponseBody
 	@Secured("ADMIN")
 	Resource<BrowsingDiscourseResource> discourses(
+			   @PathVariable("databaseName") String databaseName,
 			   @PathVariable("discourseId") Long discourseId, HttpServletRequest hsr, HttpSession session
 			   ) {
-		securityUtils.authenticate(hsr, null, session);
-		securityUtils.authorizedDiscourseCheck(discourseRepository.findOne(discourseId).get());
+		registerDb(hsr, session,databaseName);
 		BrowsingDiscourseResource bsr = new BrowsingDiscourseResource(discourseRepository.findOne(discourseId).get(), discoursePartRepository);
 		
 		
@@ -244,18 +272,18 @@ public class BrowsingRestController {
 		
 	}
 	
-	@RequestMapping(value = {"/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
+	@RequestMapping(value = {"/database/{databaseName}/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
 			"/discourses/{discourseId}/discoursePartTypes"} , method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> discoursePartsByTypeAndDiscourse(
 														   @RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("databaseName") String databaseName,
 														   @PathVariable("discourseId") Long discourseId,
 														   @PathVariable("discoursePartType") Optional<String> discoursePartType,
 														   @RequestParam(value="annoType", defaultValue="*") String annoType,
 														   HttpServletRequest hsr, HttpSession session) {
-		securityUtils.authenticate(hsr, null, session);
-		securityUtils.authorizedDiscourseCheck(discourseRepository.findOne(discourseId).get());
+		registerDb(hsr, session, databaseName);
 		PageRequest p = new PageRequest(page,size);
 		
 		Page<BrowsingDiscoursePartResource> repoResources = null;
@@ -301,13 +329,14 @@ public class BrowsingRestController {
 	
 	
 	//@Secured("ROLE_ADMIN")
-	@RequestMapping(value = "/discourses", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/discourses", method = RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingDiscourseResource>> discourse(@RequestParam(value= "page", defaultValue = "0") int page, 
+	PagedResources<Resource<BrowsingDiscourseResource>> discourse(@PathVariable("databaseName") String databaseName,
+															@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
 														   HttpServletRequest hsr, HttpSession session
 														   )  {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr, session, databaseName);
 		PageRequest p = new PageRequest(page,size);
 		
 			Page<BrowsingDiscourseResource> discourseResources = discourseRepository.findAll(p).map(b -> new BrowsingDiscourseResource(b, discoursePartRepository));
@@ -345,15 +374,16 @@ public class BrowsingRestController {
 	}
 
 	
-	
-	@RequestMapping(value = "/repos", method = RequestMethod.GET)
+	/*
+	@RequestMapping(value = "/database/{databaseName}/repos", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> discourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("databaseName") String databaseName,
 														   @RequestParam("repoType") String repoType,
 														   @RequestParam(value="annoType", defaultValue="*") String annoType,
 														   HttpServletRequest hsr, HttpSession session) {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr, session, databaseName);
 		PageRequest p = new PageRequest(page,size);
 		Page<BrowsingDiscoursePartResource> repoResources = 
 				discoursePartRepository.findAllNonDegenerateByType(repoType, p)
@@ -384,7 +414,7 @@ public class BrowsingRestController {
 
 		return response;
 	}
-	
+	*/
 	
 	public String sanitize(String name) {
 		return name.replaceAll("[^a-zA-Z0-9]", "_");
@@ -426,14 +456,15 @@ public class BrowsingRestController {
 		return exportFile.replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated":"").toString();
 	}
 	
-	@RequestMapping(value = "/action/deleteLightside", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/deleteLightside", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> deleteLightside(
+			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "exportFilename") String exportFilename,
 			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
 			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session,databaseName);
 		String lsDataDirectory = lsDataDirectory();
 		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
 		logger.info("DeleteLightside: dd:" + lsDataDirectory + " ef:" + exportFilename + 
@@ -443,7 +474,7 @@ public class BrowsingRestController {
 			f.delete();
 		}
 		lsOutputFilename.delete();
-		return lightsideExports(hsr, session);
+		return lightsideExports(databaseName, hsr, session);
 	}
 	
 	@Deprecated
@@ -502,13 +533,14 @@ public class BrowsingRestController {
 
 	
 	
-	@RequestMapping(value = "/action/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
+	@RequestMapping(value = "/action/database/{databaseName}/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> uploadLightside(
 			@RequestParam("file_annotatedFileForUpload") MultipartFile file_annotatedFileForUpload,
+			@PathVariable("databaseName") String databaseName,
 			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
 		String lsDataDirectory = lsDataDirectory();
 		logger.info("Someone uploaded something!");
 		if (!file_annotatedFileForUpload.isEmpty()) {
@@ -524,7 +556,7 @@ public class BrowsingRestController {
 				logger.error("Error importing to lightside: " + e);
 			}
 		}
-		return lightsideExports(hsr, session);
+		return lightsideExports(databaseName, hsr, session);
 	}
 	
 	
@@ -536,7 +568,7 @@ public class BrowsingRestController {
 			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
 		
-		securityUtils.authenticate(hsr, null, session);
+		securityUtils.authenticate(hsr, session);
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
 		
@@ -544,7 +576,7 @@ public class BrowsingRestController {
 		try {
 			logger.info("Got query for csv: " + query );
 		    
-			DdbQuery q = new DdbQuery(discoursePartService, query);
+			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
 			PageRequest p = new PageRequest(0, Integer.MAX_VALUE, new Sort("startTime"));
 			
 			Page<BrowsingContributionResource> lbcr =  
@@ -591,16 +623,18 @@ public class BrowsingRestController {
 	
 	
 	
-	@RequestMapping(value = "/action/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
 	@ResponseBody
 	String downloadLightside(
 			HttpServletResponse response,
+			@PathVariable("databaseName") String databaseName,
 			@PathVariable(value= "exportFilename") String exportFilename,
 			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations,
 			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
 		
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
+
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
 		String lsDataDirectory = lsDataDirectory();
@@ -628,15 +662,17 @@ public class BrowsingRestController {
 		return FileUtils.readFileToString(lsOutputFileName);
 	}
 	
-	@RequestMapping(value = "/action/exportLightside", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/exportLightside", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> exportLightsideAction(
+			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "exportFilename") String exportFilename,
 			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
 			@RequestParam(value= "dpId") long dpId,
 			   HttpServletRequest hsr, HttpSession session) throws IOException {
 		Assert.hasText(exportFilename, "No exportFilename specified");
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
+
 		
 		DiscoursePart dp = discoursePartRepository.findOne(dpId).get();
 		String lsDataDirectory = lsDataDirectory();
@@ -649,32 +685,37 @@ public class BrowsingRestController {
 			File child = new File(lsOutputFilename, d.getId().toString());
 			child.createNewFile();
 		}
-		return lightsideExports(hsr, session);
+		return lightsideExports(databaseName, hsr, session);
 	}
 	
 
 	
-	@RequestMapping(value = "/action/importLightside", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/importLightside", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory,
+	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(
+			@RequestParam(value= "lightsideDirectory") String lightsideDirectory,
+			@PathVariable("databaseName") String databaseName,
 			   HttpServletRequest hsr, HttpSession session) throws IOException {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
+
 		String liteDataDirectory = lsDataDirectory();		
 		lightsideService.importAnnotatedData(liteDataDirectory + "/" + lightsideDirectory);
 		Optional<DiscoursePart> dp = lightsideName2DiscoursePartForImport(lightsideDirectory);
 		//if (dp.isPresent()) {
 		//	return subDiscourseParts(0,20, dp.get().getId());
 		//} else {
-			return lightsideExports(hsr, session);
+			return lightsideExports(databaseName, hsr, session);
 		//}
 	}	
 	
-	@RequestMapping(value = "/action/deleteBrat", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/deleteBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> deleteBrat(
-			@RequestParam(value= "bratDirectory") String bratDirectory, HttpServletRequest hsr, HttpSession session) 
+			@RequestParam(value= "bratDirectory") String bratDirectory, 
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr, session,databaseName);
 		String bratDataDirectory = bratDataDirectory();
 		File bratDir = new File(bratDataDirectory + "/" + sanitize_dirname(bratDirectory));
 		if (bratDir.isDirectory()) {
@@ -682,7 +723,7 @@ public class BrowsingRestController {
 		} else if (bratDir.isFile()) {
 			bratDir.delete();
 		} 
-		return bratExports(hsr,session);
+		return bratExports(databaseName, hsr,session);
 	}
 	
 	public String bratDataDirectory() {
@@ -693,13 +734,15 @@ public class BrowsingRestController {
 	}
 
 	
-	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(
+			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "exportDirectory") String exportDirectory,
 			@RequestParam(value="dpId")  long dpId, HttpServletRequest hsr, HttpSession session
 			) throws IOException {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
+
 		Assert.hasText(exportDirectory, "No exportDirectory name specified");
 		
 		String bratDataDirectory = bratDataDirectory();
@@ -708,7 +751,7 @@ public class BrowsingRestController {
 		String bratDirectory = bratDataDirectory + "/" + sanitize(exportDirectory);
 		logger.info(" Exporting dp " + childDp.getName() + " in BRAT directory " + bratDirectory);
 		exportDiscoursePartRecursively(childDp, bratDirectory, new HashSet<DiscoursePart>());
-		return bratExports(hsr,session);
+		return bratExports(databaseName, hsr,session);
 	}
 	
 
@@ -741,17 +784,19 @@ public class BrowsingRestController {
 		return exportedNow;
 	}
 
-	@RequestMapping(value = "/action/importBrat", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/importBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> importBratAction(
+			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "bratDirectory") String bratDirectory, HttpServletRequest hsr, HttpSession session
 			) throws IOException {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
+
 		
 		String bratDataDirectory = bratDataDirectory();
 
 		importBratRecursively(bratDataDirectory + "/" + bratDirectory);
-		return bratExports(hsr,session);
+		return bratExports(databaseName, hsr,session);
 		/*
 		bratService.importDataset(bratDataDirectory + "/" + bratDirectory);
 		Optional<DiscoursePart> dp = bratName2DiscoursePart(bratDirectory);
@@ -772,11 +817,13 @@ public class BrowsingRestController {
 		}
 	}
 
-	@RequestMapping(value = "/lightsideExports", method=RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/lightsideExports", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> lightsideExports(
-			   HttpServletRequest hsr, HttpSession session) {
-		securityUtils.authenticate(hsr, null, session);
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest hsr, HttpSession session) {
+		registerDb(hsr,session, databaseName);
+
 		
 		String lightsideDataDirectory = lsDataDirectory();
 		List<BrowsingLightsideStubsResource> exported = BrowsingLightsideStubsResource.findPreviouslyExportedLightside(lightsideDataDirectory);
@@ -786,35 +833,41 @@ public class BrowsingRestController {
 			ltstub.add(makeLightsideDownloadLink("/browsing/action/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
 		}
 		PagedResources<Resource<BrowsingLightsideStubsResource>> ret = praLSAssembler.toResource(p);
-		ret.add(makeLink("/browsing/action/uploadLightside{?file_annotatedFileForUpload}", "Upload"));
+		ret.add(makeLink("/browsing/action/database/{databaseName}/uploadLightside{?file_annotatedFileForUpload}", "Upload"));
 		return ret;
 	}
 	
 	
-	@RequestMapping(value = "/bratExports", method=RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/bratExports", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> bratExports(HttpServletRequest hsr, HttpSession session) {
-		securityUtils.authenticate(hsr, null, session);
+	PagedResources<Resource<BrowsingBratExportResource>> bratExports(
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest hsr, HttpSession session) {
+		registerDb(hsr,session, databaseName);
+
 		String who = SecurityContextHolder.getContext().
 				getAuthentication().getPrincipal().toString();
 		String bratDataDirectory = bratDataDirectory();
 		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedBrat(bratDataDirectory);
 		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingBratExportResource bber: p) {
-			bber.add(makeLink1Arg("/browsing/action/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
+			bber.add(makeLink1Arg("/browsing/action/database/{databaseName}/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
 			bber.add(makeBratLink("/index.xhtml#/" + who + "/" + bber.getName(), "Edit BRAT markup"));
 			bber.add(makeLink1Arg("/browsing/action/deleteBrat", "Delete BRAT markup", "bratDirectory", bber.getName()));
 		}
 		return praBratAssembler.toResource(p);
 	}
 	
-	@RequestMapping(value = "/subDiscourseParts/{childOf}", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/subDiscourseParts/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("databaseName") String databaseName,
 														   @PathVariable("childOf") Long dpId,
 														   HttpServletRequest hsr, HttpSession session)  {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
+
+		
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
@@ -830,18 +883,18 @@ public class BrowsingRestController {
 				        bcr._getContainingDiscourseParts().forEach(
 				             (childDpId,childDpName) -> {
 				            	 bcr.add(
-						    		makeLink("/browsing/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
+						    		makeLink("/browsing/database/{databaseName}/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
 				             }
 					    );
 				    }
 			    	//if (bcr.getContributionCount() > 0) {
-				    	Link check3 = makeBratExportNameLink("/browsing/action/exportBratItem","chk:Export to BRAT", parent.get().getName(),  Long.toString(bcr._getDpId()));
+				    	Link check3 = makeBratExportNameLink("/browsing/action/database/{databaseName}/exportBratItem","chk:Export to BRAT", parent.get().getName(),  Long.toString(bcr._getDpId()));
 				    	bcr.add(check3);
 			    	//} 
 		    		//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
 			    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
-					Link check = makeLightsideExportNameLink("/browsing/action/exportLightside", false, "chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
-			    	Link check2 = makeLightsideExportNameLink("/browsing/action/exportLightside", true, "chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+					Link check = makeLightsideExportNameLink("/browsing/action/database/{databaseName}/exportLightside", false, "chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+			    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/{databaseName}/exportLightside", true, "chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 			    	bcr.add(check);	
 			    	bcr.add(check2);
 		    	
@@ -861,7 +914,7 @@ public class BrowsingRestController {
 				response.add(makeLink1Arg("/browsing/action/exportBrat", "Export these all to BRAT", "parentDpId", dpId.toString()));
 			}
 			 */
-			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+			response.add(makeLink("/browsing/database/{databaseName}/usersInDiscoursePart/" + dpId, "show users"));
 
 			return response;
 		} else {
@@ -871,13 +924,15 @@ public class BrowsingRestController {
 	}
 	
 	
-	@RequestMapping(value = "/usersInDiscoursePart/{dpId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/usersInDiscoursePart/{dpId}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingUserResource>> users(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("databaseName") String databaseName,
 														   @PathVariable("dpId") Long dpId,
 														   HttpServletRequest hsr, HttpSession session)  {
-		securityUtils.authenticate(hsr, null, session);
+		registerDb(hsr,session, databaseName);
+
 		PageRequest p = new PageRequest(page,size);
 		
 		
@@ -926,15 +981,15 @@ public class BrowsingRestController {
 	}*/
 	
 	
-	@RequestMapping(value = "/dpContributions/{childOf}", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/dpContributions/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingContributionResource>> dpContributions(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("databaseName") String databaseName,
 														   @PathVariable("childOf") Long dpId
 														   , HttpServletRequest hsr, HttpSession session)  {
-		securityUtils.authenticate(hsr, null, session);
-		
-		
+		registerDb(hsr,session, databaseName);
+
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
@@ -946,11 +1001,11 @@ public class BrowsingRestController {
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
 					     (dpId2, dpName2) -> {
 					        if (dpId2 != dpId) { bcr.add(
-						    	makeLink("/browsing/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
+						    	makeLink("/browsing/database/{databaseName}/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
 			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
 			
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
-			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+			response.add(makeLink("/browsing/database/{databaseName}/usersInDiscoursePart/" + dpId, "show users"));
 			return response;
 		} else {
 			return null;
@@ -971,7 +1026,7 @@ public class BrowsingRestController {
 	String prop_list(@RequestParam(value="ptype", defaultValue="*") String ptype,
 			                                                HttpServletRequest hsr, HttpSession session)  {
 		logger.info("Authenticating /prop_list");
-		securityUtils.authenticate(hsr, null, session);
+		securityUtils.authenticate(hsr, session);
 		logger.info("Authenticated /prop_list");
 		
 		logger.info("Requested property list of type " + ptype + " for user " + SecurityContextHolder.getContext().
@@ -996,7 +1051,7 @@ public class BrowsingRestController {
 			@RequestParam(value="pvalue") String pvalue,
 			HttpServletRequest hsr, HttpSession session)  {
 		logger.info("Authenticating /prop_add");
-		securityUtils.authenticate(hsr, null, session);
+		securityUtils.authenticate(hsr,  session);
 		logger.info("Authenticated /prop_add");
 		
 		logger.info("Creating property of type " + ptype + " named " + pname + " value= string of length " 
@@ -1020,7 +1075,7 @@ public class BrowsingRestController {
 														   @RequestParam("query") String query,
 														   HttpServletRequest hsr, HttpSession session)  {
 		logger.info("Authenticating /query");
-		securityUtils.authenticate(hsr, null, session);
+		securityUtils.authenticate(hsr,  session);
 		logger.info("Authenticated /query");
 
 		
@@ -1030,7 +1085,7 @@ public class BrowsingRestController {
 		try {
 			logger.info("Got query " + query +"    page=" + Integer.toString(page) + "  size=" + Integer.toString(size));
 		    
-			DdbQuery q = new DdbQuery(discoursePartService, query);
+			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
 			Page<BrowsingContributionResource> lbcr =  
 					q.retrieveAll(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
 

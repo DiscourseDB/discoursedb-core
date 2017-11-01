@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -24,6 +26,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 
 public class DdbQuery {
+	String database;
 	List<Discourse> discourses;
 	Set<DiscoursePart> discourseParts;
 	List<DiscoursePartTypes> discoursePartTypes;
@@ -36,6 +39,7 @@ public class DdbQuery {
 	List<String> annotations;
 	List<String> features;
 	
+	private DatabaseSelector databaseSelector;
 	private DiscoursePartService discoursePartService;
 	
 	public class DdbQueryParseException extends Exception {
@@ -47,8 +51,9 @@ public class DdbQuery {
 		public DdbQueryParseException(String message) { super(message) ; }
 	};
 	
-	public DdbQuery(DiscoursePartService dps, String query) throws DdbQueryParseException {
+	public DdbQuery(DatabaseSelector selector, DiscoursePartService dps, String query) throws DdbQueryParseException {
 		discoursePartService = dps;
+		databaseSelector = selector;
 		try {
 			parse(query);
 		} catch (JsonParseException e) {
@@ -67,8 +72,9 @@ public class DdbQuery {
 	}
 	
 	public void parse(String query) throws JsonParseException, JsonMappingException, IOException {
-		
 		JsonNode node = new ObjectMapper().readValue(new JsonFactory().createParser(query), JsonNode.class);
+		database = node.get("database").asText();
+		databaseSelector.changeDatabase( database);
 		if (node.has("rows")) {
 			JsonNode rows = node.get("rows");
 			if (rows.has("primary")) {
@@ -88,6 +94,7 @@ public class DdbQuery {
 		
 	}
 	public Page<Contribution> retrieveAll(Optional<DiscoursePartRelationTypes> rel, Pageable p) {
+		databaseSelector.changeDatabase(database);
 		return discoursePartService.findContributionsRecursively(discourseParts, rel, p);
 	}
 	public void sanityCheck() {

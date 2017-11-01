@@ -35,7 +35,10 @@ import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 @RepositoryRestResource(collectionResourceRel = "annotations", path = "annotations", exported=false)
 public interface AnnotationEntityProxyRepository extends BaseRepository<AnnotationEntityProxy,Long>{
     
-    @Query("Select a FROM AnnotationInstance a left join a.annotator su where a.annotationEntityProxy=:aip and (su is null or su.username=?#{principal.username})")
+    //@Query("Select a FROM AnnotationInstance a left join a.annotatorEmail su where a.annotationEntityProxy=:aip and (su is null or su='') or su=?#{principal.username})")
+    //HashSet<AnnotationInstance> findAllMyAnnotations(@Param("aip") AnnotationEntityProxy aip);
+
+    @Query("Select a FROM AnnotationInstance a where a.annotationEntityProxy=:aip and (su is null or su='' or su=?#{principal.username})")
     HashSet<AnnotationInstance> findAllMyAnnotations(@Param("aip") AnnotationEntityProxy aip);
-    
+
 }

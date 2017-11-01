@@ -43,14 +43,14 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationEntityProxyRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
-import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
-import edu.cmu.cs.lti.discoursedb.core.service.system.SystemUserService;
+import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.AnnotationRelationTypes;
 import lombok.NonNull;
@@ -276,7 +276,7 @@ public class AnnotationService {
 	
 	public boolean myAnnoToRead(SystemUser me, AnnotationInstance anno) {
 		if (me == null) return true;
-		if (anno.getAnnotator() == null || me.getEmail() == anno.getAnnotator().getEmail()) return true;
+		if (anno.getAnnotatorEmail() == null || me.getEmail() == anno.getAnnotatorEmail()) return true;
 		return false;
 	}
 
@@ -287,7 +287,7 @@ public class AnnotationService {
 	public boolean myAnnoToWrite(SystemUser me, AnnotationInstance anno) {
 		Assert.notNull(anno, "Cannot write null annotation");
 		if (me == null) return true;
-		if (anno.getAnnotator() != null && me.getEmail() == anno.getAnnotator().getEmail()) return true;
+		if (anno.getAnnotatorEmail() != null && me.getEmail() == anno.getAnnotatorEmail()) return true;
 		return false;
 	}
 

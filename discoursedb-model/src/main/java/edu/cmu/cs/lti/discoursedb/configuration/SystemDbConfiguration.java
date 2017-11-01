@@ -54,20 +54,25 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
- * DiscourseDB base configuration class.
+ * DiscourseDB system configuration class.
+ * This configures a database of system users (i.e. researchers examining this data) and their
+ * permissions.
+ * The database(s) of actual discourse data are configured in BaseConfiguration 
+ * 
+ * https://scattercode.co.uk/2016/01/05/multiple-databases-with-spring-boot-and-spring-data-jpa/
+ * 
  * Parameters that are most likely to be changed (i.e. for the databse connection) are read from the hibernate.properties file.
  * 
  * Fore more information about the Spring JavaConfig, see <a href="http://docs.spring.io/spring-data/jpa/docs/1.4.3.RELEASE/reference/html/jpa.repositories.html">the Spring Data docs</a>.
  * <br/>
- * The configuration class be replaced by a custom configuration.
  */
 @Configuration
 //@EnableAutoConfiguration
 @EnableTransactionManagement
 /*@ComponentScan(basePackages = { 
-		"edu.cmu.cs.lti.discoursedb.core.model",
-		"edu.cmu.cs.lti.discoursedb.core.repository",
-		"edu.cmu.cs.lti.discoursedb.core.service"
+		"edu.cmu.cs.lti.discoursedb.system.model",
+		"edu.cmu.cs.lti.discoursedb.system.repository",
+		"edu.cmu.cs.lti.discoursedb.system.service"
 })*/
 @PropertySources({
     @PropertySource("classpath:hibernate.properties"), //default hibernate configuration
@@ -75,94 +80,51 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
     @PropertySource("classpath:c3p0.properties"), //default connection pool configuration
     @PropertySource(value = "classpath:custom.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
 })
-//@EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
+//@EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.system.model" })
 /*
  *  May need to define entityManagerFactoryRef and transactionManagerRef below, per
  *  
  * 			http://kimrudolph.de/blog/spring-datasource-routing
  */
-@ConfigurationProperties(prefix="core.datasource")
-@EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" },
-					  entityManagerFactoryRef = "coreEntityManagerFactory",
-					  transactionManagerRef = "coreTransactionManager")
-public class BaseConfiguration {
+@EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.system.repository" },
+					  entityManagerFactoryRef = "systemEntityManagerFactory",
+					  transactionManagerRef = "systemTransactionManager")
+public class SystemDbConfiguration {
 
 	@Autowired 
 	private Environment environment;
 	
 	//@Autowired(required = false)
-	@Bean(name="corePersistenceUnitManager")
-	@Primary
-	public PersistenceUnitManager corePersistenceUnitManager(DatabaseSelector dataSource) {
+	//private PersistenceUnitManager systemPersistenceUnitManager;
+	@Bean(name="systemPersistenceUnitManager")
+	public PersistenceUnitManager systemPersistenceUnitManager() {
 		DefaultPersistenceUnitManager persistenceUnitManager = new DefaultPersistenceUnitManager();
-		persistenceUnitManager.setDefaultDataSource(dataSource);
-		persistenceUnitManager.setPackagesToScan("edu.cmu.cs.lti.discoursedb.core.model");
-		persistenceUnitManager.setDefaultPersistenceUnitName("corePersistenceUnitManager");
+		persistenceUnitManager.setDefaultDataSource(this.systemDataSource());
+		persistenceUnitManager.setPackagesToScan("edu.cmu.cs.lti.discoursedb.system.model");
+		persistenceUnitManager.setDefaultPersistenceUnitName("systemPersistenceUnitManager");
 		return persistenceUnitManager;
 	}
 	
-	
-	/*@Bean
-	@Primary
-	public LocalContainerEntityManagerFactoryBean discoursedbEntityManager(
-			final JpaProperties customerJpaProperties) {
+	/*@Bean(name="systemEntityManagerFactory")
+	public LocalContainerEntityManagerFactoryBean systemDiscoursedbEntityManager(
+			final Properties customerJpaProperties,
+			@Qualifier("systemDataSource") DataSource systemDataSource) {
 		EntityManagerFactoryBuilder builder =
 				createEntityManagerFactoryBuilder(customerJpaProperties);
-		return builder.dataSource(databaseSelector).packages("edu.cmu.cs.lti.discoursedb.core")
-				.persistenceUnit("discoursedbEntityManager").build();
+		return builder.dataSource(systemDataSource).packages("edu.cmu.cs.lti.discoursedb.system.model")
+				.persistenceUnit("systemDiscoursedbEntityManager").build();
 	}*/
-	
-	@Bean(name="coreTransactionManager")
-	@Primary
-	public JpaTransactionManager discoursedbTransactionManager(
-			@Qualifier("coreEntityManagerFactory") final EntityManagerFactory factory) {
-		return new JpaTransactionManager(factory);
-	}
-
-/*
-	private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(
-			JpaProperties discoursedbJpaProperties) {
-		JpaVendorAdapter jpaVendorAdapter = 
-				createJpaVendorAdapter(discoursedbJpaProperties);
-		return new EntityManagerFactoryBuilder(jpaVendorAdapter,
-				discoursedbJpaProperties.getProperties(), this.persistenceUnitManager);
-	}
-	
-	private JpaVendorAdapter createJpaVendorAdapter(
-		    JpaProperties jpaProperties) {
-		    AbstractJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
-		    adapter.setShowSql(jpaProperties.isShowSql());
-		    adapter.setDatabase(jpaProperties.getDatabase());
-		    adapter.setDatabasePlatform(jpaProperties.getDatabasePlatform());
-		    adapter.setGenerateDdl(jpaProperties.isGenerateDdl());
-		    return adapter;
-	}*/
-
-	/*
-	 * TODO: BaseConfiguration and SystemDbConfiguration don't seem to constrain Hibernate
-	 * to build distinct databases -- i.e. the edu.cmu.cs.lti.dicsoursedb.[core,system]
-	 * packages should define two sets of tables, one for each database; but in fact hibernate
-	 * is putting all entities in all databases.  Possible solutions:
-	 * 
-	 * Use reflection to list appropriate classes to include
-	 *    https://stackoverflow.com/questions/1413190/hibernate-mapping-package
-	 *
-	 * List them all manually here
-	 *    https://docs.jboss.org/hibernate/orm/5.0/manual/en-US/html/ch03.html
-	 */
-
-	@Bean(name="coreEntityManagerFactory")
-	@Primary
+	@Bean(name="systemEntityManagerFactory")
 	LocalContainerEntityManagerFactoryBean coreEntityManagerFactory(
-			 DatabaseSelector dataSource, Environment env) {
+			 Environment env) {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setGenerateDdl(true);
 
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-		factory.setDataSource(dataSource);
+		factory.setDataSource(this.systemDataSource());
 		factory.setJpaVendorAdapter(vendorAdapter);
-		factory.setPersistenceUnitManager(this.corePersistenceUnitManager(dataSource));
-		factory.setPackagesToScan("edu.cmu.cs.lti.discoursedb.core.model");
+		factory.setPersistenceUnitManager(this.systemPersistenceUnitManager());
+		factory.setPackagesToScan("edu.cmu.cs.lti.discoursedb.core.system");
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
 		jpaProperties.put("hibernate.hbm2ddl.auto", env.getRequiredProperty("hibernate.hbm2ddl.auto"));
@@ -179,13 +141,66 @@ public class BaseConfiguration {
 
 		return factory;
 	}
+	
+	@Bean(name="systemDiscoursedbTransactionManager")
+	public JpaTransactionManager systemDiscoursedbTransactionManager(
+			@Qualifier("systemEntityManagerFactory") final EntityManagerFactory factory) {
+		return new JpaTransactionManager(factory);
+	}
+	
+	
+
+	/*
+	private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(
+			JpaProperties discoursedbJpaProperties) {
+		JpaVendorAdapter jpaVendorAdapter = 
+				createJpaVendorAdapter(discoursedbJpaProperties);
+		return new EntityManagerFactoryBuilder(jpaVendorAdapter,
+				discoursedbJpaProperties.getProperties(), this.systemPersistenceUnitManager);
+	}
+	
+	private JpaVendorAdapter createJpaVendorAdapter(
+		    JpaProperties jpaProperties) {
+		    AbstractJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
+		    adapter.setShowSql(jpaProperties.isShowSql());
+		    adapter.setDatabase(jpaProperties.getDatabase());
+		    adapter.setDatabasePlatform(jpaProperties.getDatabasePlatform());
+		    adapter.setGenerateDdl(jpaProperties.isGenerateDdl());
+		    return adapter;
+	}*/
+	
+	
+	
+	@Bean(name = "systemDataSource")
+    @ConfigurationProperties(prefix="system.datasource")
+   public DataSource systemDataSource() {
+		try {
+			ComboPooledDataSource ds = new ComboPooledDataSource();
+			ds.setDriverClass(environment.getRequiredProperty("jdbc.driverClassName"));
+			String host = environment.getRequiredProperty("jdbc.host");
+			String port = environment.getRequiredProperty("jdbc.port");
+			String database = environment.getRequiredProperty("jdbc.system_database").replaceAll("discoursedb_ext", "");
+			ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/discoursedb_ext_" + database+ "?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&useSSL=false");
+			ds.setUser(environment.getRequiredProperty("jdbc.username"));
+			ds.setPassword(environment.getRequiredProperty("jdbc.password"));
+			ds.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("c3p0.acquireIncrement").trim()));
+			ds.setIdleConnectionTestPeriod(
+					Integer.parseInt(environment.getRequiredProperty("c3p0.idleConnectionTestPeriod").trim()));
+			ds.setMaxStatements(Integer.parseInt(environment.getRequiredProperty("c3p0.maxStatements").trim()));
+			ds.setMinPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.minPoolSize").trim()));
+			ds.setMaxPoolSize(Integer.parseInt(environment.getRequiredProperty("c3p0.maxPoolSize").trim()));
+			return ds;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	
 
 
-
-	@Bean(name="coreTransactionManager")
-	@Primary
-	PlatformTransactionManager coreTransactionManager(
-			@Qualifier("coreEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+	@Bean(name="systemTransactionManager")
+	PlatformTransactionManager systemTransactionManager(
+			@Qualifier("systemEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
 		JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(entityManagerFactory);
 		return transactionManager;

@@ -42,10 +42,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.mysema.query.support.Context;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserRight;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserRole;
-import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRole;
 
 @Component
 public class SecurityUtils {
@@ -69,7 +69,7 @@ public class SecurityUtils {
 			securityEnabled = env.getProperty("https.enabled").equals("true");
 		}
 	}
-	public  void authenticate(HttpServletRequest req, HttpServletResponse resp, HttpSession s) {
+	public  void authenticate(HttpServletRequest req,  HttpSession s) {
 		
 		init();
 		if (!securityEnabled) { return; }
@@ -93,7 +93,7 @@ public class SecurityUtils {
 				setupUser(userAndPass[0], userAndPass[1]);
 			} else {
 				logger.info("   Trusted user proxy, but no basic authentication received");
-				throw new BrowsingRestController.UnauthorizedDiscourseAccess();
+				throw new BrowsingRestController.UnauthorizedDatabaseAccess();
 			}
 		} else {
 			logger.info("Not trusted user proxy");
@@ -109,7 +109,7 @@ public class SecurityUtils {
 					logger.info("Postexisting user info was " + String.join(",",Collections.list(s.getAttributeNames())) + ";" + s.getAttribute("email"));
 				} else {
 					logger.info("Not google sign in");
-					throw new BrowsingRestController.UnauthorizedDiscourseAccess();
+					throw new BrowsingRestController.UnauthorizedDatabaseAccess();
 				}
 			} else {
 				logger.info("Recalling session; restoring user " + s.getAttribute("email").toString());
@@ -146,19 +146,19 @@ public class SecurityUtils {
 	        logger.info("Logging in with [{}]", authentication.getPrincipal());
 		}
 	}
-	public boolean canSeeDiscourse(Discourse d) {
-		return authoritiesContains(d.getName());
+	 
+	public boolean canSeeDatabase(String database) {
+		return authoritiesContains(database);
 	}
-	
 
-	public void authorizedDiscourseCheck(Discourse d) {
-		if (!canSeeDiscourse(d)) {
-			throw new BrowsingRestController.UnauthorizedDiscourseAccess();
+	public void authorizedDatabaseCheck(String database) {
+		if (!canSeeDatabase(database)) {
+			throw new BrowsingRestController.UnauthorizedDatabaseAccess();
 		}
 	}
-	public void authorizedDiscourseFail() {
-		logger.info("No discourse identified -- so authorization fails");
-		throw new BrowsingRestController.UnauthorizedDiscourseAccess();
+	public void authorizedDatabaseFail() {
+		logger.info("No database identified -- so authorization fails");
+		throw new BrowsingRestController.UnauthorizedDatabaseAccess();
 	}
 	 
 	public boolean hasRole(String roleName) {
@@ -167,7 +167,16 @@ public class SecurityUtils {
 	 public boolean isTrustedUserProxy() {
 		return authoritiesContains("TRUSTED_USER_AGENT");
 	}
-	 public boolean authoritiesContains(String roledescription) {
+	 
+	public List<String>allowedDatabases() {
+		List<String> allowed = new ArrayList<String>();
+		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+			allowed.add(ga.getAuthority());
+		}
+		return allowed;
+	}
+	 
+	public boolean authoritiesContains(String roledescription) {
 		if (!securityEnabled) { return true; }   
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
 			if (ga.getAuthority().equals(roledescription)) {

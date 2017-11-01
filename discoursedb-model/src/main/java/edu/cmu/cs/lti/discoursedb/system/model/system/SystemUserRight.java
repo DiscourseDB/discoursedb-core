@@ -19,7 +19,7 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.model.system;
+package edu.cmu.cs.lti.discoursedb.system.model.system;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -66,9 +66,7 @@ public class SystemUserRight extends TimedBE {
 	@JsonIgnore
 	private SystemUser systemUser;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="fk_discourse", nullable=false)
-	private Discourse discourse;
+	private String databaseName;
 
 	@Override
 	public boolean equals(Object obj) {

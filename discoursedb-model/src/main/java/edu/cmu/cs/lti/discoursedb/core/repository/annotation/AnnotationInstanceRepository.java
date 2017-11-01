@@ -33,10 +33,10 @@ public interface AnnotationInstanceRepository extends BaseRepository<AnnotationI
 	@Query("SELECT a.id FROM AnnotationInstance a") 
 	List<Long> findAllIds();   
 
-    @Query("Select a.id FROM AnnotationInstance a where (a.annotator.email ='' or a.annotator.username=?#{principal.username})")
+    @Query("Select a.id FROM AnnotationInstance a where (a.annotatorEmail is null or a.annotatorEmail ='' or a.annotatorEmail=?#{principal.username})")
     List<Long> findAllMyIds();
     
-    @Query("Select a FROM AnnotationInstance a where (a.annotator.email ='' or a.annotator.username=?#{principal.username})")
+    @Query("Select a FROM AnnotationInstance a where (a.annotatorEmail is null or a.annotatorEmail ='' or a.annotatorEmail=?#{principal.username})")
     List<AnnotationInstance> findAllMyAnnotations();
  
 }

@@ -6,6 +6,8 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Component;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Component
+@Primary
+@ConfigurationProperties(prefix="core.datasource")
 public class DatabaseSelector extends AbstractRoutingDataSource {
 	@Autowired 
 	private Environment environment;
@@ -45,15 +49,16 @@ public class DatabaseSelector extends AbstractRoutingDataSource {
 		System.out.println("Changed db to ~~~~>" + currentDatabase.get());
 	}
 
+	@ConfigurationProperties(prefix="system.datasource")
 	private DataSource getSpecificDataSource(String dbname) {
 		try {
-			System.out.println("CONNECTING TO DB ---------------> " + dbname);
+			System.out.println("CONNECTING TO DB ---------------> " + dbname.replaceAll("discoursedb_ext", ""));
 
 			ComboPooledDataSource ds = new ComboPooledDataSource();
 			ds.setDriverClass(environment.getRequiredProperty("jdbc.driverClassName"));
 			String host = environment.getRequiredProperty("jdbc.host");
 			String port = environment.getRequiredProperty("jdbc.port");
-			String database = dbname;
+			String database = "discoursedb_ext_" + dbname.replaceAll("discoursedb_ext", "");
 			ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database+ "?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&useSSL=false");
 			ds.setUser(environment.getRequiredProperty("jdbc.username"));
 			ds.setPassword(environment.getRequiredProperty("jdbc.password"));

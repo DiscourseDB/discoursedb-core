@@ -19,19 +19,22 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.repository.system;
+package edu.cmu.cs.lti.discoursedb.system.repository.system;
 
 import java.util.List;
 import java.util.Optional;
+
+import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserProperty;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
 
+@Transactional
 public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
 
 	//@Query("select u from SystemUser su where su.email=:email")

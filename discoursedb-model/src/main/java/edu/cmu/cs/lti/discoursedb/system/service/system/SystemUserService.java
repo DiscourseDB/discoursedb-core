@@ -19,8 +19,9 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.service.system;
+package edu.cmu.cs.lti.discoursedb.system.service.system;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +32,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUserProperty;
-import edu.cmu.cs.lti.discoursedb.core.repository.system.SystemUserRepository;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -61,7 +62,8 @@ public class SystemUserService {
 		Assert.isTrue(su.isPresent(), "Invalid user");
 		// TODO: do we need to substitute * -> %  in ptype to make "like" work inside findProperties?
 		// TODO: do we need to sanitize ptype?  Can it bust out of the string and do '"; drop TABLES;' or whatever?
-		return sysUserRepo.findProperties(su.get(), ptype);
+		return new ArrayList<SystemUserProperty>(su.get().getProperties());
+		//return sysUserRepo.findProperties(su.get(), ptype);
 	}
 	
 	public Optional<SystemUserProperty> getProperty(String ptype, String pname) {
@@ -95,6 +97,7 @@ public class SystemUserService {
 		return getProperty(newPname, newPtype);
 	}
 	
+	@Transactional
 	public int createProperty(String ptype, String pname, String pvalue) {
 		Optional<SystemUser> su = getSystemUser();
 		Assert.isTrue(su.isPresent(), "Invalid user");

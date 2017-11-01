@@ -34,6 +34,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,6 +74,7 @@ import lombok.extern.log4j.Log4j;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
 @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+@ComponentScan("edu.cmu.cs.lti.discoursedb")
 public class MturkConverterService {
 	
 	private final @NonNull DataSourceService dataSourceService;
@@ -80,7 +83,7 @@ public class MturkConverterService {
 	private final @NonNull ContentService contentService;
 	private final @NonNull ContributionService contributionService;
 	private final @NonNull DiscoursePartService discoursepartService;
-	@Autowired private EntityManager entityManager;
+	@Autowired @Qualifier("coreEntityManagerFactory") private EntityManager entityManager;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy HH:mm:ss");
 	private static SimpleDateFormat sdf2 = new SimpleDateFormat("M/d/yy HH:mm");
 	private static SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-M-d HH:mm:ss");
