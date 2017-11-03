@@ -147,6 +147,7 @@ public class SecurityUtils {
 		}
 	}
 	 
+	
 	public boolean canSeeDatabase(String database) {
 		return authoritiesContains(database);
 	}
@@ -171,11 +172,25 @@ public class SecurityUtils {
 	public List<String>allowedDatabases() {
 		List<String> allowed = new ArrayList<String>();
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-			allowed.add(ga.getAuthority());
+			String authority = ga.getAuthority();
+			if (!authority.startsWith("ROLE:")) {
+				allowed.add(ga.getAuthority());
+			}
 		}
 		return allowed;
 	}
 	 
+	public List<String>allowedRoles() {
+		List<String> allowed = new ArrayList<String>();
+		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+			String authority = ga.getAuthority();
+			if (authority.startsWith("ROLE:")) {
+				allowed.add(ga.getAuthority());
+			}
+		}
+		return allowed;
+	}
+	
 	public boolean authoritiesContains(String roledescription) {
 		if (!securityEnabled) { return true; }   
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {

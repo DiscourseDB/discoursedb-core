@@ -247,6 +247,13 @@ public class BrowsingRestController {
 		return r;
 	}
 	
+	@RequestMapping(value="/roles", method=RequestMethod.GET)
+	@ResponseBody
+	List<String> roles(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.authenticate(httpServletRequest,  session);
+		return securityUtils.allowedRoles();
+	}
+	
 	@RequestMapping(value="/refresh", method=RequestMethod.GET)
 	@ResponseBody
 	void refresh(HttpServletRequest httpServletRequest, HttpSession session) {
@@ -255,6 +262,8 @@ public class BrowsingRestController {
 				
 		return;
 	}
+	
+	
 	
 	@ResponseStatus(value=HttpStatus.UNAUTHORIZED, reason="User does not have access to this database") 
 	static public class UnauthorizedDatabaseAccess extends RuntimeException {
