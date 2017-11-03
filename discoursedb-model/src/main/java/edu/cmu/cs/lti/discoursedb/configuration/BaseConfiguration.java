@@ -168,6 +168,7 @@ public class BaseConfiguration {
 		jpaProperties.put("hibernate.hbm2ddl.auto", env.getRequiredProperty("hibernate.hbm2ddl.auto"));
 		jpaProperties.put("hibernate.connection.useUnicode", true);
 		jpaProperties.put("hibernate.connection.characterEncoding", "UTF-8");
+		jpaProperties.put("hibernate.enable_lazy_load_no_trans", true);
 		jpaProperties.put("hibernate.ejb.naming_strategy", env.getRequiredProperty("hibernate.ejb.naming_strategy"));
 		jpaProperties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
 		jpaProperties.put("hibernate.format_sql", env.getRequiredProperty("hibernate.format_sql"));

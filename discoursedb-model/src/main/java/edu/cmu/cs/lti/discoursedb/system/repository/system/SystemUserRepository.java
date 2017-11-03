@@ -34,7 +34,7 @@ import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
 
-@Transactional
+
 public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
 
 	//@Query("select u from SystemUser su where su.email=:email")

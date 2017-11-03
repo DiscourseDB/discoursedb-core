@@ -130,6 +130,7 @@ public class SystemDbConfiguration {
 		jpaProperties.put("hibernate.hbm2ddl.auto", env.getRequiredProperty("hibernate.hbm2ddl.auto"));
 		jpaProperties.put("hibernate.connection.useUnicode", true);
 		jpaProperties.put("hibernate.connection.characterEncoding", "UTF-8");
+		jpaProperties.put("hibernate.enable_lazy_load_no_trans", true);
 		jpaProperties.put("hibernate.ejb.naming_strategy", env.getRequiredProperty("hibernate.ejb.naming_strategy"));
 		jpaProperties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
 		jpaProperties.put("hibernate.format_sql", env.getRequiredProperty("hibernate.format_sql"));
@@ -179,7 +180,7 @@ public class SystemDbConfiguration {
 			ds.setDriverClass(environment.getRequiredProperty("jdbc.driverClassName"));
 			String host = environment.getRequiredProperty("jdbc.host");
 			String port = environment.getRequiredProperty("jdbc.port");
-			String database = environment.getRequiredProperty("jdbc.system_database").replaceAll("discoursedb_ext", "");
+			String database = environment.getRequiredProperty("jdbc.system_database").replaceAll("discoursedb_ext_", "");
 			ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/discoursedb_ext_" + database+ "?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&useSSL=false");
 			ds.setUser(environment.getRequiredProperty("jdbc.username"));
 			ds.setPassword(environment.getRequiredProperty("jdbc.password"));

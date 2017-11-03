@@ -24,15 +24,23 @@ package edu.cmu.cs.lti.discoursedb.system.service.system;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
 import lombok.NonNull;
@@ -46,6 +54,8 @@ import lombok.extern.log4j.Log4j;
 public class SystemUserService {
 
 	private final @NonNull SystemUserRepository sysUserRepo;
+	private final @NonNull SystemDatabaseRepository sysDbRepo;
+	private final @NonNull DatabaseSelector selector;
 	
 	public Optional<SystemUser> getSystemUser(String systemUserName) {
 		Assert.hasText(systemUserName, "System user name must not be empty");
@@ -53,8 +63,16 @@ public class SystemUserService {
 	}
 
 	public Optional<SystemUser> getSystemUser() {
-		return this.getSystemUser(SecurityContextHolder.getContext().
-				getAuthentication().getPrincipal().toString());
+		Object principal = SecurityContextHolder.getContext().
+				getAuthentication().getPrincipal();
+		return this.getSystemUser(principal.toString());
+	}
+	
+	public Set<SystemDatabase> getSystemDatabases() {
+		return sysDbRepo.findAll();
+	}
+	public Optional<SystemDatabase> databaseExists(String dbname) {
+		return sysDbRepo.findOneByName(dbname);
 	}
 	
 	public List<SystemUserProperty> getPropertyList(String ptype) {
@@ -96,15 +114,24 @@ public class SystemUserService {
 		createProperty(newPtype, newPname, old.get().getPropValue());
 		return getProperty(newPname, newPtype);
 	}
-	
-	@Transactional
+	@Autowired @Qualifier("systemEntityManagerFactory") public EntityManager sem;
+	@Autowired @Qualifier("coreEntityManagerFactory") public EntityManager cem;
+	@Transactional(value="systemTransactionManager", propagation = Propagation.REQUIRED)
 	public int createProperty(String ptype, String pname, String pvalue) {
 		Optional<SystemUser> su = getSystemUser();
 		Assert.isTrue(su.isPresent(), "Invalid user");
 		sysUserRepo.deleteProperty(su.get(), ptype,  pname);
-		return sysUserRepo.createProperty(ptype, pname, pvalue, su.get().getId());
+		int retval = sysUserRepo.createProperty(ptype, pname, pvalue, su.get().getId());
+		return retval;
 	}
 
+	public void refreshOpenDatabases() {
+		sem.clear();
+		for (Object key: selector.listOpenDatabases()) {
+			selector.changeDatabase((String)key);
+			cem.clear();
+		}
+	}
 	
 	
 }

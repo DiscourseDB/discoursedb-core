@@ -1,11 +1,15 @@
 package edu.cmu.cs.lti.discoursedb.configuration;
 
 import java.util.HashMap;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
@@ -39,6 +43,8 @@ public class DatabaseSelector extends AbstractRoutingDataSource {
 		afterPropertiesSet();
 	}
 	
+	public Set<Object> listOpenDatabases() { return myTargetDataSources.keySet(); }
+	
 	public void changeDatabase(String dbName) {
 		System.out.println("CURRENT DATABASE CHANGE ===============> " + dbName);
 		if (!myTargetDataSources.containsKey(dbName)) {
@@ -58,7 +64,7 @@ public class DatabaseSelector extends AbstractRoutingDataSource {
 			ds.setDriverClass(environment.getRequiredProperty("jdbc.driverClassName"));
 			String host = environment.getRequiredProperty("jdbc.host");
 			String port = environment.getRequiredProperty("jdbc.port");
-			String database = "discoursedb_ext_" + dbname.replaceAll("discoursedb_ext", "");
+			String database = "discoursedb_ext_" + dbname.replaceAll("discoursedb_ext_", "");
 			ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database+ "?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&useSSL=false");
 			ds.setUser(environment.getRequiredProperty("jdbc.username"));
 			ds.setPassword(environment.getRequiredProperty("jdbc.password"));
