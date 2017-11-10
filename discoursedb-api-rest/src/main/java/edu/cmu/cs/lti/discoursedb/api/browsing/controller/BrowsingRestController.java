@@ -309,16 +309,16 @@ public class BrowsingRestController {
 		if (!discoursePartType.isPresent()) {
 			repoResources = 
 					discoursePartRepository.findAllByDiscourse(discourseId, p)
-					.map(BrowsingDiscoursePartResource::new)
+					.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
 					.map(bdpr -> {bdpr.filterAnnotations(annoType); 
-					              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
+					              bdpr.fillInUserInteractions(discoursePartInteractionRepository, annoService);
 					              return bdpr; });
 		} else {
 			repoResources = 
 				discoursePartRepository.findAllByDiscourseAndType(discoursePartType.get(), discourseId, p)
-				.map(BrowsingDiscoursePartResource::new)
+				.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
 				.map(bdpr -> {bdpr.filterAnnotations(annoType); 
-				              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
+				              bdpr.fillInUserInteractions(discoursePartInteractionRepository, annoService);
 				              return bdpr; });
 		}
 		
@@ -326,17 +326,17 @@ public class BrowsingRestController {
 			if (bcr.getContainingDiscourseParts().size() > 1) { 
 				bcr._getContainingDiscourseParts().forEach(
 			     (dpId, dpname) -> {
-			    	 bcr.add(makeLink("/browsing/usersInDiscourseParts/" + dpId, "users in " + dpname));
-			    	 bcr.add(makeLink("/browsing/subDiscourseParts/" + dpId, dpname));
+			    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscourseParts/" + dpId, "users in " + dpname));
+			    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/subDiscourseParts/" + dpId, dpname));
 			     });
 			}  
 			//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
 	    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
-			Link check = makeLightsideExportNameLink("/browsing/action/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
-	    	Link check2 = makeLightsideExportNameLink("/browsing/action/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+			Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+	    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 	    	bcr.add(check);	
 	    	bcr.add(check2);
-	    	Link check3 = makeBratExportNameLink("/browsing/action/exportBratItem","chk:Export to BRAT", bcr.getName(),  Long.toString(bcr._getDpId()));
+	    	Link check3 = makeBratExportNameLink("/browsing/action/database/" + databaseName + "/exportBratItem","chk:Export to BRAT", bcr.getName(),  Long.toString(bcr._getDpId()));
 	    	bcr.add(check3);
  		});
 		
@@ -541,7 +541,7 @@ public class BrowsingRestController {
                 httpSession.setAttribute("sch", userDetails);
         	    logger.info("first check " + httpSession.getAttribute("sch"));
 
-                return "/browsing/stats";
+                return "/browsing/databases";
             }
         } else {
             System.out.println("Invalid ID token.");
@@ -595,10 +595,9 @@ public class BrowsingRestController {
 			logger.info("Got query for csv: " + query );
 		    
 			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
-			PageRequest p = new PageRequest(0, Integer.MAX_VALUE, new Sort("startTime"));
 			
 			Page<BrowsingContributionResource> lbcr =  
-					q.retrieveAll(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
+					q.retrieveAllContributions().map(c -> new BrowsingContributionResource(c,annoService));
 			
 			
 			StringBuilder output = new StringBuilder();
@@ -639,8 +638,33 @@ public class BrowsingRestController {
 		}
 	}
 	
+	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET)
+	@ResponseBody
+	String downloadLightsideQuery(
+			HttpServletResponse response,
+			@RequestParam(value="query") String query,
+			@PathVariable(value= "exportFilename") String exportFilename,
+			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) 
+					throws IOException, DdbQueryParseException {
+		
+		DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+		registerDb(hsr,session, q.getDatabaseName());
+
+		response.setContentType("application/csv; charset=utf-8");
+		response.setHeader( "Content-Disposition", "attachment");
+		String lsDataDirectory = lsDataDirectory();
+		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
+		if (withAnnotations.equals("true")) {
+			lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+		} else {
+			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
+					q.retrieveAllContributions());
+		}
+		return FileUtils.readFileToString(lsOutputFileName);
+	}
 	
-	
+	@Deprecated
 	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
 	@ResponseBody
 	String downloadLightside(
@@ -680,8 +704,27 @@ public class BrowsingRestController {
 		return FileUtils.readFileToString(lsOutputFileName);
 	}
 	
+	//
+	// Given a query string and a query name
+	// cycle through all the discourse parts in the query and create a stub file for it
+	@RequestMapping(value = "/action/database/{databaseName}/exportLightsideQuery", method=RequestMethod.GET)
+	@ResponseBody
+	@Deprecated
+	String exportLightsideAction(
+			@RequestParam("queryname") String queryname,
+			@RequestParam("query") String query,
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) throws IOException, DdbQueryParseException {
+		DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+		for (DiscoursePart dp : q.getDiscourseParts()) {
+			exportLightsideAction(q.getDatabaseName(), queryname, withAnnotations, dp.getId(), hsr, session);
+		}
+		return "OK";
+	}
+	
 	@RequestMapping(value = "/action/database/{databaseName}/exportLightside", method=RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	PagedResources<Resource<BrowsingLightsideStubsResource>> exportLightsideAction(
 			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "exportFilename") String exportFilename,
@@ -707,9 +750,13 @@ public class BrowsingRestController {
 	}
 	
 
-	
+	//
+	// We never need to do this.  When you upload a lightside-annotated file, the upload
+	// function just imports it and forgets it.
+	//
 	@RequestMapping(value = "/action/database/{databaseName}/importLightside", method=RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
 	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(
 			@RequestParam(value= "lightsideDirectory") String lightsideDirectory,
 			@PathVariable("databaseName") String databaseName,
@@ -847,11 +894,11 @@ public class BrowsingRestController {
 		List<BrowsingLightsideStubsResource> exported = BrowsingLightsideStubsResource.findPreviouslyExportedLightside(lightsideDataDirectory);
 		Page<BrowsingLightsideStubsResource> p = new PageImpl<BrowsingLightsideStubsResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingLightsideStubsResource ltstub: p) {
-			ltstub.add(makeLink1Arg("/browsing/action/deleteLightside", "Delete this export", "exportFilename", ltstub.getName()));
-			ltstub.add(makeLightsideDownloadLink("/browsing/action/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
+			ltstub.add(makeLink1Arg("/browsing/action/database/" + databaseName + "/deleteLightside", "Delete this export", "exportFilename", ltstub.getName()));
+			ltstub.add(makeLightsideDownloadLink("/browsing/action/database/" + databaseName + "/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
 		}
 		PagedResources<Resource<BrowsingLightsideStubsResource>> ret = praLSAssembler.toResource(p);
-		ret.add(makeLink("/browsing/action/database/{databaseName}/uploadLightside{?file_annotatedFileForUpload}", "Upload"));
+		ret.add(makeLink("/browsing/action/database/" + databaseName + "/uploadLightside{?file_annotatedFileForUpload}", "Upload"));
 		return ret;
 	}
 	
@@ -869,9 +916,9 @@ public class BrowsingRestController {
 		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedBrat(bratDataDirectory);
 		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingBratExportResource bber: p) {
-			bber.add(makeLink1Arg("/browsing/action/database/{databaseName}/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
+			bber.add(makeLink1Arg("/browsing/action/database/" + databaseName + "/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
 			bber.add(makeBratLink("/index.xhtml#/" + who + "/" + bber.getName(), "Edit BRAT markup"));
-			bber.add(makeLink1Arg("/browsing/action/deleteBrat", "Delete BRAT markup", "bratDirectory", bber.getName()));
+			bber.add(makeLink1Arg("/browsing/action/database/" + databaseName + "/deleteBrat", "Delete BRAT markup", "bratDirectory", bber.getName()));
 		}
 		return praBratAssembler.toResource(p);
 	}
@@ -892,27 +939,27 @@ public class BrowsingRestController {
 		if (parent.isPresent()) {
 			Page<BrowsingDiscoursePartResource> repoResources = 
 					discoursePartRelationRepository.findAllTargetsBySource(parent.get(), p)
-			/*.map(dpr -> dpr.getTarget())*/.map(BrowsingDiscoursePartResource::new);
+			/*.map(dpr -> dpr.getTarget())*/.map(dp -> new BrowsingDiscoursePartResource(dp, annoService));
 			
-			repoResources.forEach(bdp -> bdp.fillInUserInteractions(discoursePartInteractionRepository));
+			repoResources.forEach(bdp -> bdp.fillInUserInteractions(discoursePartInteractionRepository, annoService));
 			repoResources.forEach(
 			    bcr -> {
 			    	if (bcr.getContainingDiscourseParts().size() > 1) { 
 				        bcr._getContainingDiscourseParts().forEach(
 				             (childDpId,childDpName) -> {
 				            	 bcr.add(
-						    		makeLink("/browsing/database/{databaseName}/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
+						    		makeLink("/browsing/database/" + databaseName + "/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
 				             }
 					    );
 				    }
 			    	//if (bcr.getContributionCount() > 0) {
-				    	Link check3 = makeBratExportNameLink("/browsing/action/database/{databaseName}/exportBratItem","chk:Export to BRAT", parent.get().getName(),  Long.toString(bcr._getDpId()));
+				    	Link check3 = makeBratExportNameLink("/browsing/action/database/" + databaseName + "/exportBratItem","chk:Export to BRAT", parent.get().getName(),  Long.toString(bcr._getDpId()));
 				    	bcr.add(check3);
 			    	//} 
 		    		//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
 			    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
-					Link check = makeLightsideExportNameLink("/browsing/action/database/{databaseName}/exportLightside", false, "chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
-			    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/{databaseName}/exportLightside", true, "chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+					Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside", false, "chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+			    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside", true, "chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 			    	bcr.add(check);	
 			    	bcr.add(check2);
 		    	
@@ -932,7 +979,7 @@ public class BrowsingRestController {
 				response.add(makeLink1Arg("/browsing/action/exportBrat", "Export these all to BRAT", "parentDpId", dpId.toString()));
 			}
 			 */
-			response.add(makeLink("/browsing/database/{databaseName}/usersInDiscoursePart/" + dpId, "show users"));
+			response.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscoursePart/" + dpId, "show users"));
 
 			return response;
 		} else {
@@ -1019,11 +1066,11 @@ public class BrowsingRestController {
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
 					     (dpId2, dpName2) -> {
 					        if (dpId2 != dpId) { bcr.add(
-						    	makeLink("/browsing/database/{databaseName}/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
+						    	makeLink("/browsing/database/" + databaseName + "/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
 			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
 			
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
-			response.add(makeLink("/browsing/database/{databaseName}/usersInDiscoursePart/" + dpId, "show users"));
+			response.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscoursePart/" + dpId, "show users"));
 			return response;
 		} else {
 			return null;
@@ -1105,7 +1152,7 @@ public class BrowsingRestController {
 		    
 			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
 			Page<BrowsingContributionResource> lbcr =  
-					q.retrieveAll(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
+					q.retrieveAllContributions(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
 
 						
 				

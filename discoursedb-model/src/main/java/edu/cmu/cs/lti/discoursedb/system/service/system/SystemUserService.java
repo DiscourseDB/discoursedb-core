@@ -31,6 +31,7 @@ import javax.persistence.EntityTransaction;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -63,9 +64,13 @@ public class SystemUserService {
 	}
 
 	public Optional<SystemUser> getSystemUser() {
-		Object principal = SecurityContextHolder.getContext().
-				getAuthentication().getPrincipal();
-		return this.getSystemUser(principal.toString());
+		Authentication auth =  SecurityContextHolder.getContext().
+				getAuthentication();
+		if (auth != null && auth.getPrincipal() != null) {
+			return this.getSystemUser(auth.getPrincipal().toString());
+		} else {
+			return Optional.empty();
+		}
 	}
 	
 	public Set<SystemDatabase> getSystemDatabases() {

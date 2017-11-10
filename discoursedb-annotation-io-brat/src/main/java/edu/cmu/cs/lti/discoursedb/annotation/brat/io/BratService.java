@@ -140,7 +140,7 @@ public class BratService {
 	 * @return an info object containing lists of ids of annotations and featured to be deleted after the import 
 	 * @throws IOException if any exception occurs while reading the brat annotations or meta data
 	 */
-	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+	@Transactional(value="coreTransactionManager", propagation= Propagation.REQUIRED, readOnly=false)
 	private CleanupInfo importThreadFromBrat(String inputFolder, String baseFileName) throws IOException{
 		Assert.hasText(inputFolder, "inputFolder parameter cannot be empty [importThread(" + inputFolder + ", " + baseFileName + ")]");
 		Assert.hasText(baseFileName, "baseFileName parameter cannot be empty [importThread(" + inputFolder + ", " + baseFileName + ")]");

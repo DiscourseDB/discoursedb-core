@@ -2,13 +2,16 @@ package edu.cmu.cs.lti.discoursedb.api.query;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -81,7 +84,7 @@ public class DdbQuery {
 				mainTable = rows.get("primary").asText();
 			}
 			if (rows.has("discourse_part")) {
-				discourseParts = new HashSet<DiscoursePart>();
+				discourseParts = new LinkedHashSet<DiscoursePart>();
 				rows.get("discourse_part").forEach((JsonNode dp) -> {
 					System.out.println("Dereferencing dp " + dp);
 					System.out.println("Looking up in " + discoursePartService);
@@ -93,7 +96,15 @@ public class DdbQuery {
 		}
 		
 	}
-	public Page<Contribution> retrieveAll(Optional<DiscoursePartRelationTypes> rel, Pageable p) {
+	
+	public String getDatabaseName() { return database; }
+	public Set<DiscoursePart> getDiscourseParts() { return discourseParts; }
+	
+	public Page<Contribution> retrieveAllContributions() {
+		PageRequest p = new PageRequest(0, Integer.MAX_VALUE, new Sort("startTime"));
+		return retrieveAllContributions(Optional.empty(), p);
+	}
+	public Page<Contribution> retrieveAllContributions(Optional<DiscoursePartRelationTypes> rel, Pageable p) {
 		databaseSelector.changeDatabase(database);
 		return discoursePartService.findContributionsRecursively(discourseParts, rel, p);
 	}
