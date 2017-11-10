@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-core</artifactId>
-		<version>0.7-SNAPSHOT</version>
+		<version>0.8-SNAPSHOT</version>
 	</parent>
 	<artifactId>discoursedb-io-prosolo</artifactId>
 	<name>DiscourseDB prosolo converters</name>

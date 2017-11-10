@@ -19,7 +19,7 @@
 	</distributionManagement>
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-core</artifactId>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.8-SNAPSHOT</version>
 	<name>DiscourseDB Core Parent </name>
 	<description>DiscourseDB Core Parent Project</description>
 	<developers>
