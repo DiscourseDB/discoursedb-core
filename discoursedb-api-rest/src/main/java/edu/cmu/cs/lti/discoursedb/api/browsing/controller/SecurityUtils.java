@@ -42,7 +42,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.mysema.query.support.Context;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRole;
@@ -52,6 +54,7 @@ public class SecurityUtils {
 
 	private static  Logger logger = LogManager.getLogger(SecurityUtils.class);
 	@Autowired private SystemUserRepository sysUserRepo;
+	@Autowired private SystemDatabaseRepository sysDbRepo;
 	@Autowired private Environment env;
     private static  String GOOGLE_CLIENT_ID = null;
 	private static  String GOOGLE_CLIENT_SECRET = null;
@@ -177,6 +180,11 @@ public class SecurityUtils {
 				allowed.add(ga.getAuthority());
 			}
 		}
+		for (SystemDatabase sd : sysDbRepo.findAll()) {
+			if (sd.getIsPublic()) {
+				allowed.add(sd.getName());
+			}
+		}
 		return allowed;
 	}
 	 
@@ -199,6 +207,11 @@ public class SecurityUtils {
 				return true;
 			}
 			else { logger.info("Authority " + ga.getAuthority() + " does not match " + roledescription); }
+		}
+		for (SystemDatabase sd : sysDbRepo.findAll()) {
+			if (sd.getIsPublic() && roledescription.equals(sd.getName())) {
+				return true;
+			}
 		}
 		return false;
 	}
