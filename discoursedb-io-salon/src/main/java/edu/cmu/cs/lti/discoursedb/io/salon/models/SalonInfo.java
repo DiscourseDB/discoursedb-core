@@ -27,7 +27,7 @@ public class SalonInfo {
 				salon.ownerID = rs.getInt("owner_id");
 				salon.mode = rs.getString("salon_mode");
 				salon.description = rs.getString("salon_description");
-				salon.created = rs.getDate("salon_created");
+				salon.created = rs.getTimestamp("salon_created");
 				salon.salonType = rs.getString("salon_type");
 				return salon;
 			  }

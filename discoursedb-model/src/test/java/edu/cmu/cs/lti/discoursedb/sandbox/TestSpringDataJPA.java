@@ -69,7 +69,7 @@ public class TestSpringDataJPA implements CommandLineRunner {
 		Discourse d = discourseService.createOrGetDiscourse("UTArlingtonX/LINK5.10x/3T2014");
 		User u = userService.createOrGetUser(d, "olifer");
 		dataSourceService.addSource(u, new DataSourceInstance("testSourceId","testSourceIdDescriptor",DataSourceTypes.EDX,"edxtestdataset"));
-		
+		System.out.println("Success");
 //		for(User x:userService.findUsersBySourceIdAndDataSetName("testSourceId","")){
 //			System.out.println(x.getUsername());
 //		}

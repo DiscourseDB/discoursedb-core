@@ -34,6 +34,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Long>{
     
@@ -70,8 +71,14 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ " and dp.type=:discoursePartType", nativeQuery=true)
 	Page<DiscoursePart> findAllByDiscourseAndTypeNative(@Param("discoursePartType") String discoursePartType, @Param("discourseId") Long discourseId, Pageable pageable);*/
 	
-	@Query("select dp from DiscoursePart dp left join dp.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id")
-	Optional<DiscoursePart> findOneByDataSourceId(@Param("id") String id);
+	// This is terrible!  Why would you want this?!
+	//@Query("select dp from DiscoursePart dp left join dp.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id")
+	//Optional<DiscoursePart> findOneByDataSourceId(@Param("id") String id);
+
+	@Query("select dp from DiscoursePart dp left join dp.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id"
+			+ " and dsi.entitySourceDescriptor=:entitySourceDescriptor and dsi.sourceType =:sourceType and dsi.datasetName=:datasetName")
+	Optional<DiscoursePart> findOneByDataSource(@Param("id") String id, @Param("entitySourceDescriptor") String entitySourceDescriptor, @Param("sourceType") DataSourceTypes sourceType,
+			@Param("datasetName") String datasetName);
 		
 	
 	@Query(value = "select * from discourse_part dp where fk_annotation not in " +

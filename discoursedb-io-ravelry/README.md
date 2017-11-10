@@ -7,18 +7,18 @@ Run RavelryConverterApplication with four command-line arguments:
  * Database name within Mongo (this will be the Dataset name)
  * Group name to import
 
-Example arguments: Ravelry 127.0.0.1:27027 ravelry-db beginners-knit-along-2
+Example arguments: Ravelry 127.0.0.1:27017 ravelry-db beginners-knit-along-2
 
-The `custom.properties` file should have the DiscourseDB jdbc database information to write to (jdbc.host, jdbc.database, jdbc.username, and jdbc.password), in variable=value format.  See custom.properties.template for example.
+The `custom.properties` file should have the DiscourseDB database information to write to (host, database name, username, and password).
 
 ### How Ravelry data is mapped to the DiscourseDB schema
 
 In Ravelry every group has a forum (although there are six additional forums
-without a group). A group has a canonical name (a sequence of ASCII characters without spaces) distinct from the
-name that users see, that the Ravelry API calls its "permalink". DiscourseDB uses this internally to identify groups.  For example the group "Beginner's Knit-along" has the permalink "beginners-knit-along-2". Each forum is a list of topics (aka threads) containing multiple
-postings.  Groups contain other things besides forums, but those are not currently represented in DiscourseDB.
+without a group). A group has a canonical ascii-without-spaces name distinct from the
+name that users see, that the Ravelry API calls its "permalink"; we use this internally to identify groups.  For example the group "Beginner's Knit-along" has the permalink "beginners-knit-along-2" Each forum is a list of topics (aka threads) containing multiple
+postings.  
 
-Ravelry groups and threads are treated as nested `DiscourseParts`; Ravelry postings are `Contributions` (each with with associated `Content` node), and Ravelry patterns are also `Content` nodes connected to their mention by a `Contribution_has_context` relation.
+Ravelry groups and threads are treated as nested DiscourseParts; Postings are Contributions (with associated Content node), and Patterns are also Content nodes connected to their mention by a Contribution_has_context relation.
 
 Groups are annotated with a textual description and the Ravelry API's numeric ID of the forum they contain.
 

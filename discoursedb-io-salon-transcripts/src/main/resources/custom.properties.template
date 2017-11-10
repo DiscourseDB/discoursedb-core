@@ -1,0 +1,5 @@
+
+jdbc.host=localhost
+jdbc.database=discoursedb_salon
+jdbc.username=local
+jdbc.password=local

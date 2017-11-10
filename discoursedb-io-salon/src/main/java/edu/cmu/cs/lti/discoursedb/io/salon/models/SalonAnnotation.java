@@ -44,10 +44,10 @@ public class SalonAnnotation {
 				anno.area = rs.getString("comment_area");
 				anno.commentText = rs.getString("comment_text");
 				anno.positivity = rs.getLong("comment_positivity");
-				anno.time = rs.getDate("comment_time");
+				anno.time = rs.getTimestamp("comment_time");
 				anno.replyTo = rs.getLong("reply_to");
 				anno.status = rs.getString("status");
-				anno.modifiedTime = rs.getDate("modified_time");
+				anno.modifiedTime = rs.getTimestamp("modified_time");
 				anno.isAnonymous = rs.getBoolean("isAnonymous");
 				anno.isPrompt = rs.getBoolean("isPrompt");
 				anno.paragraphId = rs.getLong("paragraph_id");

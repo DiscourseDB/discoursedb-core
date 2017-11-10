@@ -123,8 +123,23 @@ CONTEXT_DOCUMENT,
  * Salon questions and answers
  */
 QUESTION,
-RESPONSE
-
+RESPONSE,
+/*
+ * Salon Transcript elements
+ */
+MODERATOR_PROMPT,
+CLASS_RESPONSE,
+INTERVIEW_QUESTION,
+INTERVIEW_ANSWER, 
+/*
+ * Mturk study elements
+ */
+PRETEST, POSTTEST,
+PROPOSAL, 
+/*
+ * Coursera elements
+ */
+FEEDBACK
 
 
 }

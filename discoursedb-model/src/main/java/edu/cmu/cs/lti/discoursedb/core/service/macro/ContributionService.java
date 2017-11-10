@@ -24,9 +24,6 @@ package edu.cmu.cs.lti.discoursedb.core.service.macro;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -59,7 +56,6 @@ public class ContributionService {
 	private final @NonNull ContributionContextRepository contributionContextRepo;
 	private final @NonNull DataSourceService dataSourceService;	
 	private final @NonNull DiscourseRelationRepository discourseRelationRepo;
-	private final @NonNull @PersistenceContext EntityManager entityManager; 
 	
 	/**
 	 * Retrieves existing or creates a new ContributionType entity with the
@@ -92,6 +88,13 @@ public class ContributionService {
 		return contributionRepo.save(contrib);
 	}
 
+	public Contribution getOneRelatedContribution(Contribution c) {
+		if (c.getTargetOfDiscourseRelations().size() > 0) {
+			return c.getTargetOfDiscourseRelations().iterator().next().getSource();
+		} else { 
+			return null;
+		}
+	}
 	
 	/**
 	 * Retrieves a contribution that has a source which exactly matches the given DataSource parameters.

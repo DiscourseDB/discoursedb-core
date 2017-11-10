@@ -23,6 +23,9 @@ package edu.cmu.cs.lti.discoursedb.core.repository.annotation;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 
@@ -30,6 +33,10 @@ public interface AnnotationInstanceRepository extends BaseRepository<AnnotationI
 	@Query("SELECT a.id FROM AnnotationInstance a") 
 	List<Long> findAllIds();   
 
+    @Query("Select a.id FROM AnnotationInstance a where (a.annotatorEmail is null or a.annotatorEmail ='' or a.annotatorEmail=?#{principal.username})")
+    List<Long> findAllMyIds();
     
-    
+    @Query("Select a FROM AnnotationInstance a where (a.annotatorEmail is null or a.annotatorEmail ='' or a.annotatorEmail=?#{principal.username})")
+    List<AnnotationInstance> findAllMyAnnotations();
+ 
 }

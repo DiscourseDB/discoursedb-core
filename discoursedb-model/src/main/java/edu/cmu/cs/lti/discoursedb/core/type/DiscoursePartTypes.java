@@ -103,8 +103,29 @@ public enum DiscoursePartTypes {
 	/*
 	 * Any generic discourse part that just sorts/holds other ones
 	 */
-	FOLDER
+	FOLDER,
+	/*
+	 * Transcript of a class session with identifiable people
+	 */
+	CLASS_TRANSCRIPT,
+	/*
+	 * Transcript of an interview
+	 */
+	INTERVIEW, 
+	/*
+	 * Collection of communication by a group
+	 */
+	GROUP, 
+	/* 
+	 * Collection of communication by a team 
+	 */ 
+	TEAM, 
+	/*
+	 * Some Coursera course organization items
+	 */
+	 LESSON_ITEM, LESSON, COURSE_REVISION, MODULE
 	 
+
 
 	
 }

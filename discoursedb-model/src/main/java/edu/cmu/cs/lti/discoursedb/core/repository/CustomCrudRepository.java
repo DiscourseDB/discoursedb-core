@@ -22,8 +22,7 @@
 package edu.cmu.cs.lti.discoursedb.core.repository;
 
 import java.io.Serializable;
-import java.util.Optional;
-
+import java.util.Optional;import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
@@ -77,6 +76,7 @@ public interface CustomCrudRepository<T, ID extends Serializable> extends Reposi
 	 * 
 	 * @return all entities
 	 */
+	//@Query("Select t FROM #{#T} t left join t.fk_data_source ds where (ds is null or ds.email=?#{principal})")
 	Iterable<T> findAll();
 
 	/**

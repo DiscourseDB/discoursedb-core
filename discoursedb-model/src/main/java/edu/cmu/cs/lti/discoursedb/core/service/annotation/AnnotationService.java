@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,15 +43,22 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationEntityProxyRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
+import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.AnnotationRelationTypes;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
+
+@Log4j
 @Service
 @Transactional(propagation= Propagation.REQUIRED, readOnly=false)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired) )
@@ -61,6 +69,7 @@ public class AnnotationService {
 	private final @NonNull ContributionService contribService;
 	private final @NonNull FeatureRepository featureRepo;
 	private final @NonNull AnnotationRelationRepository annoRelRepo;
+	private final @NonNull SystemUserService userSvc;
 	
 	/**
 	 * Retrieves all annotations for the given entity.
@@ -75,7 +84,9 @@ public class AnnotationService {
 	public <T extends TimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
+		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName()  + " user " + userSvc.getSystemUser());
+		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
+//		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
 	
 	/**
@@ -91,8 +102,33 @@ public class AnnotationService {
 	public <T extends TypedTimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
+		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName() + " for user " + userSvc.getSystemUser());
+		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
+//		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
+	
+	/**
+	 * Creates a new AnnotationInstance and associates it with an AnnotationType that matches the provided String.
+	 * If an annotationtype with the provided String already exists, it will be reused.
+	 * It will be associated with whatever user is current.
+	 * 
+	 * 
+	 * @param type
+	 *            the value for the AnnotationType
+	 * 
+	 * @return a new empty AnnotationInstance that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public AnnotationInstance createTypedAnnotation(String type){
+		Assert.hasText(type,"Type cannot be empty. Provide an annotation type or create untyped AnnotationInstance.");
+		
+		SystemUser sysUser = userSvc.getSystemUser().orElse(null);
+				
+		AnnotationInstance annotation = new AnnotationInstance();
+		annotation.setType(type);
+		annotation.setAnnotator(sysUser);
+		return annoInstanceRepo.save(annotation);
+	}	
 	
 	/**
 	 * Creates a new AnnotationInstance and associates it with an AnnotationType that matches the provided String.
@@ -103,13 +139,14 @@ public class AnnotationService {
 	 * @return a new empty AnnotationInstance that is already saved to the db and
 	 *         connected with its requested type
 	 */
-	public AnnotationInstance createTypedAnnotation(String type){
+	public AnnotationInstance createUnownedTypedAnnotation(String type){
 		Assert.hasText(type,"Type cannot be empty. Provide an annotation type or create untyped AnnotationInstance.");
 		
 		AnnotationInstance annotation = new AnnotationInstance();
 		annotation.setType(type);
 		return annoInstanceRepo.save(annotation);
 	}	
+	
 	
 	/**
 	 * Creates a new Feature with the provided value.
@@ -245,10 +282,33 @@ public class AnnotationService {
 	public void deleteAnnotation(AnnotationInstance annotation) {		
 		Assert.notNull(annotation,"Annotation to delete cannot be null.");
 		Set<Feature> features = annotation.getFeatures();
-		if(features!=null&&!features.isEmpty()){
-			featureRepo.delete(annotation.getFeatures());			
+		if (myAnnoToWrite(annotation)) {
+			if(features!=null&&!features.isEmpty()){
+				featureRepo.delete(annotation.getFeatures());			
+			}
+			annoInstanceRepo.delete(annotation);
 		}
-		annoInstanceRepo.delete(annotation);
+	}
+
+	public boolean myAnnoToRead(AnnotationInstance anno) {
+		return myAnnoToRead( userSvc.getSystemUser().orElse(null), anno);
+	}
+	
+	public boolean myAnnoToRead(SystemUser me, AnnotationInstance anno) {
+		if (me == null) return true;
+		if (anno.getAnnotatorEmail() == null || me.getEmail().equals(anno.getAnnotatorEmail())) return true;
+		return false;
+	}
+
+	public boolean myAnnoToWrite(AnnotationInstance anno) {
+		return myAnnoToWrite( userSvc.getSystemUser().orElse(null), anno);
+	}
+	
+	public boolean myAnnoToWrite(SystemUser me, AnnotationInstance anno) {
+		Assert.notNull(anno, "Cannot write null annotation");
+		if (me == null) return true;
+		if (anno.getAnnotatorEmail() != null && me.getEmail().equals(anno.getAnnotatorEmail())) return true;
+		return false;
 	}
 
 	/**
@@ -261,10 +321,13 @@ public class AnnotationService {
 		Assert.notNull(annotations, "Annotation iterable cannot be null.");
 
 		List<Feature> featuresToDelete = new ArrayList<>();
+		SystemUser sysUser = userSvc.getSystemUser().orElse(null);
 		for(AnnotationInstance anno:annotations){
-			Set<Feature> features = anno.getFeatures();
-			if(features!=null&&!features.isEmpty()){
-				featuresToDelete.addAll(features);
+			if (myAnnoToWrite(sysUser, anno)) {
+				Set<Feature> features = anno.getFeatures();
+				if(features!=null&&!features.isEmpty()){
+					featuresToDelete.addAll(features);
+				}
 			}
 		}
 		featureRepo.delete(featuresToDelete);
@@ -282,7 +345,7 @@ public class AnnotationService {
 	public <T extends TypedTimedAnnotatableBE> boolean hasAnnotationType(T entity, String type) {		
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");
 		Assert.hasText(type,"Type cannot be empty. Provide an annotation type.");		
-		return entity.getAnnotations().getAnnotations().stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
+		return findAnnotations(entity).stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
 	}
 	
 	/**
@@ -296,7 +359,7 @@ public class AnnotationService {
 	public <T extends TimedAnnotatableBE> boolean hasAnnotationType(T entity, String type) {		
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");
 		Assert.hasText(type,"Type cannot be empty. Provide an annotation type.");		
-		return entity.getAnnotations().getAnnotations().stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
+		return findAnnotations(entity).stream().filter(e -> e.getType()!=null).anyMatch(e -> e.getType().equalsIgnoreCase(type));		
 	}
 	
 	/**
@@ -310,7 +373,9 @@ public class AnnotationService {
 	public void addFeature(AnnotationInstance annotation, Feature feature) {		
 		Assert.notNull(annotation, "Annotation cannot be null.");
 		Assert.notNull(feature, "Feature cannot be null.");		
-		feature.setAnnotation(annotation);
+		if (myAnnoToWrite(annotation)) {
+			feature.setAnnotation(annotation);
+		}
 	}
 
 	/**
@@ -326,7 +391,9 @@ public class AnnotationService {
 	        List<Feature> features = featureRepo.findAllByTypeAndValue(type, value);
 	        List<AnnotationInstance> annotations = new ArrayList<AnnotationInstance>();
 	        for(Feature f : features) {
+	        		if (myAnnoToRead(f.getAnnotation())) {
 	                annotations.add(f.getAnnotation());
+	        		}
 	        }
 	        return annotations;
 	}
@@ -337,6 +404,7 @@ public class AnnotationService {
  	 * FIXME: this is not very generic and also the way the annotations are retrieved should be revised
 	 * 
 	 * @param dp the discoursepart that contains the contributions which hold the annotations 
+	 * @param sysUser 
 	 * @return a List of annotations
 	 */
 	public List<AnnotationInstance> findContributionAnnotationsByDiscoursePart(DiscoursePart dp) {
@@ -344,7 +412,8 @@ public class AnnotationService {
 	        List<AnnotationInstance> annos = new ArrayList<>();
 	        for(Contribution contrib: contribService.findAllByDiscoursePart(dp)){
 	        	if(contrib.getAnnotations()!=null){
-		        	annos.addAll(contrib.getAnnotations().getAnnotations());	        		
+	        		//Only if they're readable by sysUser
+		        	annos.addAll(this.findAnnotations(contrib));	        		
 	        	}
 	        }
 	        return annos;
@@ -364,15 +433,26 @@ public class AnnotationService {
 	        for(Contribution contrib: contribService.findAllByDiscoursePart(dp)){
 	        	Content curRevision = contrib.getCurrentRevision();
 	        	if(curRevision.getAnnotations()!=null){
-		        	annos.addAll(curRevision.getAnnotations().getAnnotations());	        		
+	        		//Only if they're readable by sysUser
+		        	annos.addAll(this.findAnnotations(curRevision));	        		
 	        	}
 	        }
 	        return annos;
 	}	
 
 	public Optional<AnnotationInstance> findOneAnnotationInstance(Long id){
-		return annoInstanceRepo.findOne(id);
+		Optional<AnnotationInstance> oai = annoInstanceRepo.findOne(id); 
+		if (oai.isPresent()) {
+			if (myAnnoToRead(oai.get())) {
+				return oai;
+			} else {
+				return Optional.empty();
+			}
+		} else {
+			return oai;
+		}
 	}
+	
 	public Optional<Feature> findOneFeature(Long id){
 		return featureRepo.findOne(id);
 	}
@@ -386,6 +466,7 @@ public class AnnotationService {
 	
 	public void saveAnnotationInstance(AnnotationInstance anno){
 		Assert.notNull(anno, "AnnotationInstance cannot be null.");
+		Assert.isTrue(myAnnoToWrite(anno), "No permission to write annotation");
 		annoInstanceRepo.save(anno);		
 	}
 	public void saveFeature(Feature feature){
@@ -412,6 +493,8 @@ public class AnnotationService {
 		Assert.notNull(sourceAnnotation, "Source annotation cannot be null.");
 		Assert.notNull(targetAnnotation, "Target annotation cannot be null.");
 		Assert.notNull(type, "Relation type cannot be null.");
+		Assert.isTrue(myAnnoToWrite(sourceAnnotation), "No permission to write to source annotation");
+		Assert.isTrue(myAnnoToWrite(targetAnnotation), "No permission to write to target annotation");
 								
 		//check if a relation of the given type already exists between the two annotations
 		//if so, return it. if not, create new relation, configure it and return it.

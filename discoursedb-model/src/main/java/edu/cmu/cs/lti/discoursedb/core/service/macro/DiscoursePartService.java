@@ -115,13 +115,24 @@ public class DiscoursePartService {
 	}
 
 
+	/*
+	 * Gets a discourse part by data source
+	 * 
+	 * @param discourse The discourse this belongs to
+	 * @param entitySourceId          (actual source id)
+	 * @param entitySourceDescriptor   (describes the kind of sourceid provided)
+	 * @param sourceType  (DataSourceTypes.*)
+	 * @param datasetName
+	 * @param type    (DiscoursePartTypes.*)
+	 * 
+	 */
 	public DiscoursePart createOrGetDiscoursePartByDataSource(Discourse discourse, String entitySourceId, 
 			String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName,
 			DiscoursePartTypes type) {
 		Assert.notNull(discourse, "Discourse cannot be null.");
 		Assert.hasText (entitySourceId, "");		
 		
-		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSourceId(entitySourceId);
+		Optional<DiscoursePart> odp = discoursePartRepo.findOneByDataSource(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
 		DiscoursePart dp = null;
 		if (odp.isPresent()) {
 			dp = odp.get();
@@ -332,12 +343,23 @@ public class DiscoursePartService {
 			return findAncestorClosure(all, rel);
 		}
 	
-	/**
-	 * Find root ancestors of a DiscoursePart
-	 * 
-	 * @param set of discourse parts
-	 * @return their least common ancestors
-	 */
+		/**
+		 * Adds all contributions recursively under a discourse part
+		 * 
+		 * @param ancestor the discourse part to start from
+		 * @return all Contributions that are in discoursepart or its descendents
+		 */
+		@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+		public Page<Contribution> findContributionsRecursively(Set<DiscoursePart> ancestors, Optional<DiscoursePartRelationTypes> rel, Pageable p) {
+			Set<DiscoursePart> descendents = new HashSet<DiscoursePart>();
+			for (DiscoursePart anc: ancestors) {
+				descendents.addAll(this.findDescendentClosure(anc,  rel));
+			}
+			Page<Contribution> conts = contributionRepo.findAll(
+					ContributionPredicates.contributionInAnyDiscourseParts(descendents), p);
+			return conts;
+			
+		}
 		
     /**
 	 * Adds all contributions recursively under a discourse part

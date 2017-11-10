@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -152,7 +153,9 @@ public class UserService {
 					}
 				);
 		}
-
+	
+	
+	
 	/**
 	 * Returns a User object with the given source id and username if it exists
 	 * or creates a new User entity with that username, stores it in the
