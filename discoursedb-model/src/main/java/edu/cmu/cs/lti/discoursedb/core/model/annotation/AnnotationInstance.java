@@ -96,7 +96,7 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	@Transient
 	public String getEmail() { return annotatorEmail; }
 	@Transient
-	public void setAnnotator(SystemUser anno) { annotatorEmail = anno.getEmail(); }
+	public void setAnnotator(SystemUser anno) { annotatorEmail = (anno != null)?anno.getEmail():null; }
 	
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.REMOVE},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")

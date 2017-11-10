@@ -43,6 +43,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
+import lombok.NonNull;
 
 public class BrowsingDiscoursePartResource extends ResourceSupport {
 	
@@ -59,11 +60,10 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	private Map<Long,String> containingDiscourseParts;
 	private DiscoursePart dp;
 	private List<BrowsingAnnotationResource> annotations;
-	@Autowired AnnotationService annoService;
 	
 	private static final Logger logger = LogManager.getLogger(BrowsingDiscoursePartResource.class);	
 
-	public BrowsingDiscoursePartResource(DiscoursePart dp) {
+	public BrowsingDiscoursePartResource(DiscoursePart dp, AnnotationService annoService) {
 		this.dp = dp;
 		this.setName(dp.getName());
 		this.setType(dp.getType());
@@ -110,7 +110,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
    	    }
 	}
 	
-	public void fillInUserInteractions(DiscoursePartInteractionRepository dpr) {
+	public void fillInUserInteractions(DiscoursePartInteractionRepository dpr, AnnotationService annoService) {
 		for (DiscoursePartInteraction dpi : dpr.findAllByDiscoursePart(dp)) {
 			String interaction = dpi.getUser().getUsername() + ": " + dpi.getType();
 			if (dpi.getAnnotations() != null) {

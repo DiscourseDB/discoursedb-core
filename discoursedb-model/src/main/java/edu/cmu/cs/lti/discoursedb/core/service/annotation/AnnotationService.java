@@ -110,10 +110,12 @@ public class AnnotationService {
 	/**
 	 * Creates a new AnnotationInstance and associates it with an AnnotationType that matches the provided String.
 	 * If an annotationtype with the provided String already exists, it will be reused.
+	 * It will be associated with whatever user is current.
+	 * 
 	 * 
 	 * @param type
 	 *            the value for the AnnotationType
-	 * @param sysUser 
+	 * 
 	 * @return a new empty AnnotationInstance that is already saved to the db and
 	 *         connected with its requested type
 	 */
@@ -127,6 +129,24 @@ public class AnnotationService {
 		annotation.setAnnotator(sysUser);
 		return annoInstanceRepo.save(annotation);
 	}	
+	
+	/**
+	 * Creates a new AnnotationInstance and associates it with an AnnotationType that matches the provided String.
+	 * If an annotationtype with the provided String already exists, it will be reused.
+	 * 
+	 * @param type
+	 *            the value for the AnnotationType
+	 * @return a new empty AnnotationInstance that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public AnnotationInstance createUnownedTypedAnnotation(String type){
+		Assert.hasText(type,"Type cannot be empty. Provide an annotation type or create untyped AnnotationInstance.");
+		
+		AnnotationInstance annotation = new AnnotationInstance();
+		annotation.setType(type);
+		return annoInstanceRepo.save(annotation);
+	}	
+	
 	
 	/**
 	 * Creates a new Feature with the provided value.
@@ -276,7 +296,7 @@ public class AnnotationService {
 	
 	public boolean myAnnoToRead(SystemUser me, AnnotationInstance anno) {
 		if (me == null) return true;
-		if (anno.getAnnotatorEmail() == null || me.getEmail() == anno.getAnnotatorEmail()) return true;
+		if (anno.getAnnotatorEmail() == null || me.getEmail().equals(anno.getAnnotatorEmail())) return true;
 		return false;
 	}
 
@@ -287,7 +307,7 @@ public class AnnotationService {
 	public boolean myAnnoToWrite(SystemUser me, AnnotationInstance anno) {
 		Assert.notNull(anno, "Cannot write null annotation");
 		if (me == null) return true;
-		if (anno.getAnnotatorEmail() != null && me.getEmail() == anno.getAnnotatorEmail()) return true;
+		if (anno.getAnnotatorEmail() != null && me.getEmail().equals(anno.getAnnotatorEmail())) return true;
 		return false;
 	}
 

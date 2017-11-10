@@ -38,7 +38,7 @@ public interface AnnotationEntityProxyRepository extends BaseRepository<Annotati
     //@Query("Select a FROM AnnotationInstance a left join a.annotatorEmail su where a.annotationEntityProxy=:aip and (su is null or su='') or su=?#{principal.username})")
     //HashSet<AnnotationInstance> findAllMyAnnotations(@Param("aip") AnnotationEntityProxy aip);
 
-    @Query("Select a FROM AnnotationInstance a where a.annotationEntityProxy=:aip and (su is null or su='' or su=?#{principal.username})")
+    @Query("Select a FROM AnnotationInstance a where a.annotationEntityProxy=:aip and (a.annotatorEmail  is null or a.annotatorEmail ='' or a.annotatorEmail =?#{principal.username})")
     HashSet<AnnotationInstance> findAllMyAnnotations(@Param("aip") AnnotationEntityProxy aip);
 
 }

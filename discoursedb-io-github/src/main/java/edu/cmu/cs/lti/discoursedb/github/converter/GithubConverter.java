@@ -125,6 +125,23 @@ public class GithubConverter implements CommandLineRunner {
 			logger.info("No gitdata.issues in custom.properties");
 		}
 		
+		// Unified events file, combining issues and commits
+		if (env.containsProperty("gitdata.events")) {
+			final Path dataSetPath = Paths.get(env.getRequiredProperty("gitdata.events"));
+			File dataSetFile = dataSetPath.toFile();
+			if (!dataSetFile.exists() ||  !dataSetFile.canRead()) {
+				logger.error("Provided location (" + dataSetFile.getAbsolutePath() + ") is a file and not a directory.");
+				throw new RuntimeException("Can't read directory "+dataSetPath);
+			}
+			
+			logger.info("Start processing issues, commit messages, etc.");			
+			processIssuesFile(dataSetFile);
+						
+			
+		} else {
+			logger.info("No gitdata.issues in custom.properties");
+		}
+		
 		
 		
 		
@@ -334,15 +351,15 @@ public class GithubConverter implements CommandLineRunner {
 			CsvMapper mapper = new CsvMapper();
 			CsvSchema schema = mapper.schemaWithHeader().withNullValue("None");
 			MappingIterator<GitHubIssueComment> it = mapper.readerFor(GitHubIssueComment.class).with(schema).readValues(in);
-			boolean first = true;
+			//boolean first = true;
 			Queue<GitHubIssueComment> commitComments = new LinkedList<GitHubIssueComment>();
 			Map<String,Long> commit_shas = new HashMap<String,Long>();
 			while (it.hasNextValue()) {
 				GitHubIssueComment currentComment = it.next();
-				if (first) {
+				//if (first) {
 					converterService.mapIssue(currentComment);
-					first = false;
-				}
+				//	first = false;
+				//}
 				if (currentComment.getRectype() == "commit_comments") {
 					commitComments.add(currentComment);
 				} else {

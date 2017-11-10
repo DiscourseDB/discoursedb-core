@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +45,7 @@ import edu.cmu.cs.lti.discoursedb.github.converter.GithubConverterUtil;
  * @author Oliver Ferschke
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GitHubIssueComment {
 
 	private static final Logger logger = LogManager.getLogger(GitHubIssueComment.class);	
@@ -106,7 +108,7 @@ public class GitHubIssueComment {
 	public Date getTime() {
 		return time;
 	}
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssXXX")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	public void setTime(Date time) {
 		this.time = time;
 	}
