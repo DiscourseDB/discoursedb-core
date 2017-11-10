@@ -16,9 +16,25 @@
 
 package twitter4j.json;
 
-import twitter4j.*;
-
 import java.util.Map;
+
+import twitter4j.AccountTotals;
+import twitter4j.Category;
+import twitter4j.DirectMessage;
+import twitter4j.IDs;
+import twitter4j.Location;
+import twitter4j.OEmbed;
+import twitter4j.Place;
+import twitter4j.RateLimitStatus;
+import twitter4j.Relationship;
+import twitter4j.SavedSearch;
+import twitter4j.Status;
+import twitter4j.Trend;
+import twitter4j.Trends;
+import twitter4j.TwitterException;
+import twitter4j.TwitterObjectFactory;
+import twitter4j.User;
+import twitter4j.UserList;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

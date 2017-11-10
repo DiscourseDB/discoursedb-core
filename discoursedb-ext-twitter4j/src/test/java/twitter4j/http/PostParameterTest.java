@@ -16,10 +16,10 @@
 
 package twitter4j.http;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 import twitter4j.HttpParameter;
-
-import java.io.File;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

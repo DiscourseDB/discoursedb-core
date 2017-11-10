@@ -15,15 +15,16 @@
  */
 package twitter4j.management;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.AttributeList;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
-import java.util.ArrayList;
-import java.util.List;
+
+import junit.framework.TestCase;
 
 /**
  * Unit tests for APIStatistics, MBeans

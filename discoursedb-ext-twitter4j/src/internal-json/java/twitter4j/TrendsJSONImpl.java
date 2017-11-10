@@ -16,12 +16,12 @@
 
 package twitter4j;
 
-import twitter4j.conf.Configuration;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+
+import twitter4j.conf.Configuration;
 
 /**
  * A data class representing Trends.

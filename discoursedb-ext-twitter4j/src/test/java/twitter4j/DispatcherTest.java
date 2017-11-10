@@ -16,10 +16,10 @@
 
 package twitter4j;
 
+import java.util.Map;
+
 import junit.framework.TestCase;
 import twitter4j.conf.ConfigurationContext;
-
-import java.util.Map;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

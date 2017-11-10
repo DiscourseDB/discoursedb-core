@@ -39,7 +39,7 @@ public class GeoLocation implements java.io.Serializable {
     }
 
     /* For serialization purposes only. */
-    /* package */ GeoLocation() {
+    public GeoLocation() {
 
     }
 

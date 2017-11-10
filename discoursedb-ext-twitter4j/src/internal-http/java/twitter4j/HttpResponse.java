@@ -16,11 +16,15 @@
 
 package twitter4j;
 
-import twitter4j.conf.ConfigurationContext;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+
+import twitter4j.conf.ConfigurationContext;
 
 /**
  * A data class representing HTTP Response

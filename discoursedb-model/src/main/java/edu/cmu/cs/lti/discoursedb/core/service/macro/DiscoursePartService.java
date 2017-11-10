@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C)  2015 - 2016  Carnegie Mellon University
+ * Author: Oliver Ferschke
+ *
+ * This file is part of DiscourseDB.
+ *
+ * DiscourseDB is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * DiscourseDB is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * Fifth Floor, Boston, MA 02110-1301  USA
+ *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.service.macro;
 
 import java.util.ArrayList;
@@ -5,16 +26,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
-import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -23,6 +44,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
@@ -40,6 +62,7 @@ import lombok.RequiredArgsConstructor;
 public class DiscoursePartService {
 
 	private final @NonNull DiscoursePartRepository discoursePartRepo;
+	private final @NonNull ContributionRepository contributionRepo;
 	private final @NonNull DataSourceService dataSourceService;
 	private final @NonNull DiscoursePartRelationRepository discoursePartRelationRepo;
 	private final @NonNull DiscoursePartContributionRepository discoursePartContributionRepo;
@@ -103,14 +126,15 @@ public class DiscoursePartService {
 		if (odp.isPresent()) {
 			dp = odp.get();
 		} else {
-			dp = createOrGetTypedDiscoursePart(discourse,"",type);
+			dp = createOrGetTypedDiscoursePart(discourse,"dummy_name",type);
 			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
 			dataSourceService.addSource(dp, ds);
 		}
 		
 		return dp;
 	}
-	
+
+
 	
 	/**
 	 * Retrieves existing or creates a new DiscoursePartType entity with the
@@ -130,7 +154,7 @@ public class DiscoursePartService {
 	 */
 	public DiscoursePart createOrGetTypedDiscoursePart(Discourse discourse, String discoursePartName, DiscoursePartTypes type){		
 		Assert.notNull(discourse, "Discourse cannot be null.");
-		Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty");
+		//Assert.hasText(discoursePartName, "DiscoursePart name cannot be empty");
 		Assert.notNull(type, "Type cannot be null.");		
 
 		//check if this exact discoursePart already exists, reuse it if it does and create it if it doesn't
@@ -315,7 +339,29 @@ public class DiscoursePartService {
 	 * @return their least common ancestors
 	 */
 		
-		
+    /**
+	 * Adds all contributions recursively under a discourse part
+	 * 
+	 * @param ancestor the discourse part to start from
+	 * @return all Contributions that are in discoursepart or its descendents
+	 */
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+	public Page<Contribution> findContributionsRecursively(DiscoursePart ancestor, Optional<DiscoursePartRelationTypes> rel, Pageable p) {
+		Set<DiscoursePart> descendents = this.findDescendentClosure(ancestor,  rel);
+		Page<Contribution> conts = contributionRepo.findAll(
+				ContributionPredicates.contributionInAnyDiscourseParts(descendents), p);
+		return conts;
+		/*Set<Contribution> contributions = new HashSet<Contribution>();
+		for (DiscoursePart d : descendents) {
+			for (DiscoursePartContribution dpc: d.getDiscoursePartContributions()) {
+				contributions.add(dpc.getContribution());
+			}
+		}
+		List<Contribution> al = new ArrayList<Contribution>(contributions);
+		return new PageImpl<Contribution>(al.subList(p.getOffset(), p.getPageSize()+p.getOffset()),p,contributions.size());
+		*/
+	}
+
 		
     /**
 	 * Adds all ancestors to a set of DiscourseParts
@@ -547,7 +593,8 @@ public class DiscoursePartService {
 	 */
     public List<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
     	return discoursePartRepo.findAllNotAnnotatedWithType(badAnnotation);
-/*=======
+    }
+/*
     public Set<DiscoursePart> findDiscoursePartsWithoutAnnotation(String badAnnotation) {
         Set<DiscoursePart> unannotated = new HashSet<DiscoursePart>();
         for(DiscoursePart dp : discoursePartRepo.findAll()) {
@@ -564,7 +611,12 @@ public class DiscoursePartService {
                 if (addme) { unannotated.add(dp); }
         }
         return unannotated;
->>>>>>> dbd08d8a223c81909f84fd71a2b2ac65c571b20a*/
-    }
+	}
+*/
+    
+
+
+
+
 
 }

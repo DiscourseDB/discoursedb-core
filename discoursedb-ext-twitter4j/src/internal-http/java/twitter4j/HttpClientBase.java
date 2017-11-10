@@ -1,12 +1,12 @@
 package twitter4j;
 
-import twitter4j.auth.Authorization;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
+import twitter4j.auth.Authorization;
 
 public abstract class HttpClientBase implements HttpClient, Serializable {
     private static final Logger logger = Logger.getLogger(HttpClientBase.class);

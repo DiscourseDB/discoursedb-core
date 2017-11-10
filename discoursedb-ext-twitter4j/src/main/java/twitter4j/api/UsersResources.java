@@ -16,10 +16,15 @@
 
 package twitter4j.api;
 
-import twitter4j.*;
-
 import java.io.File;
 import java.io.InputStream;
+
+import twitter4j.AccountSettings;
+import twitter4j.IDs;
+import twitter4j.PagableResponseList;
+import twitter4j.ResponseList;
+import twitter4j.TwitterException;
+import twitter4j.User;
 
 /**
  * @author Joern Huxhorn - jhuxhorn at googlemail.com

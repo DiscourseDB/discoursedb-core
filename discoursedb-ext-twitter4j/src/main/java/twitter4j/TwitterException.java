@@ -16,9 +16,9 @@
 
 package twitter4j;
 
-import java.util.List;
-
 import static twitter4j.ParseUtil.getInt;
+
+import java.util.List;
 
 /**
  * An exception class that will be thrown when TwitterAPI calls are failed.<br>

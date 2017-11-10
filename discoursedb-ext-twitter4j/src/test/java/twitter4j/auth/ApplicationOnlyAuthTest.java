@@ -16,13 +16,17 @@
 
 package twitter4j.auth;
 
-import twitter4j.*;
-import twitter4j.conf.ConfigurationBuilder;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Map;
+
+import twitter4j.RateLimitStatus;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.TwitterTestBase;
+import twitter4j.conf.ConfigurationBuilder;
 
 /**
  * @author KOMIYA Atsushi - komiya.atsushi at gmail.com

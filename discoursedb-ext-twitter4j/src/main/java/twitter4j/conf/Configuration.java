@@ -16,10 +16,10 @@
 
 package twitter4j.conf;
 
+import java.util.Properties;
+
 import twitter4j.HttpClientConfiguration;
 import twitter4j.auth.AuthorizationConfiguration;
-
-import java.util.Properties;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

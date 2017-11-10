@@ -15,12 +15,13 @@
  */
 package twitter4j;
 
-import twitter4j.management.APIStatistics;
-import twitter4j.management.APIStatisticsOpenMBean;
+import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
+
+import twitter4j.management.APIStatistics;
+import twitter4j.management.APIStatisticsOpenMBean;
 
 /**
  * Registers MBeans with the platform mbean server. Run this class and then

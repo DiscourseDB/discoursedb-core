@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C)  2015 - 2016  Carnegie Mellon University
+ * Author: Oliver Ferschke
+ *
+ * This file is part of DiscourseDB.
+ *
+ * DiscourseDB is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * DiscourseDB is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * Fifth Floor, Boston, MA 02110-1301  USA
+ *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.repository.macro;
 
 import java.util.List;
@@ -37,6 +58,11 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ " where d.id=:discourseId "
 			+ " and dp.type=:discoursePartType")
 	Page<DiscoursePart> findAllByDiscourseAndType(@Param("discoursePartType") String discoursePartType, @Param("discourseId") Long discourseId, Pageable pageable);
+
+	@Query("select dp from DiscourseToDiscoursePart dpd left join dpd.discourse d "
+			+ " left join dpd.discoursePart dp "
+			+ " where d.id=:discourseId ")
+	Page<DiscoursePart> findAllByDiscourse(@Param("discourseId") Long discourseId, Pageable pageable);
 
 	/*@Query(value = "select dp.* from discourse_has_discourse_part dpd left join discourse d on d.id_discourse=dpd.fk_discourse "
 			+ " left join discourse_part dp on dp.id_discourse_part = dpd.fk_discourse_part "
@@ -83,10 +109,15 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ "where conte.author=?1")
 	Set<DiscoursePart> findAllThatIncludesUser(User u);
 	
+
 	@Query("select dp1 from DiscoursePartContribution cpdp "
 			+ "inner join cpdp.contribution contr  "
 			+ "inner join contr.firstRevision conte "
 			+ "left join cpdp.discoursePart dp1 "
 			+ "where conte.author=?1")
 	Page<DiscoursePart> findAllThatIncludesUserPaged(User u, Pageable p);
+
+
+
+
 }

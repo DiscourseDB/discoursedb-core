@@ -16,10 +16,10 @@
 
 package twitter4j.util;
 
-import junit.framework.TestCase;
-
 import java.util.Calendar;
 import java.util.Locale;
+
+import junit.framework.TestCase;
 
 public class TimeSpanConverterTest extends TestCase {
     public TimeSpanConverterTest(String name) {

@@ -15,11 +15,11 @@
  */
 package twitter4j;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import junit.framework.TestCase;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

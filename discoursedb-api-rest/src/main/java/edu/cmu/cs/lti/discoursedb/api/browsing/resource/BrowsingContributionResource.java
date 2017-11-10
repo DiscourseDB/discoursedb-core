@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C)  2015 - 2016  Carnegie Mellon University
+ * Authors: Oliver Ferschke and Chris Bogart
+ *
+ * This file is part of DiscourseDB.
+ *
+ * DiscourseDB is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * DiscourseDB is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * Fifth Floor, Boston, MA 02110-1301  USA
+ *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.api.browsing.resource;
 
 import java.util.ArrayList;
@@ -6,13 +27,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.springframework.hateoas.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
+import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 
 public class BrowsingContributionResource extends ResourceSupport {
+	private Long id;
 	private String type;
 	private String content;
 	private String title;
@@ -22,9 +47,16 @@ public class BrowsingContributionResource extends ResourceSupport {
 	// links to discourseParts
 	private List<String> userInteractions;
 	private List<BrowsingAnnotationResource> annotations;
+	private Long parentId;
 	
 	public BrowsingContributionResource(Contribution c) {
 		type = c.getType();
+		id = c.getId();
+		if (c.getTargetOfDiscourseRelations().size() > 0) {
+			parentId = c.getTargetOfDiscourseRelations().iterator().next().getSource().getId();
+		} else { 
+			parentId = 0L;
+		}
 		content = c.getCurrentRevision().getText();
 		title = c.getCurrentRevision().getTitle();
 		startTime = c.getStartTime();
@@ -53,6 +85,16 @@ public class BrowsingContributionResource extends ResourceSupport {
    	    }
 
 	}
+
+	public Long getContributionId() {
+		return id;
+	}
+
+	public void setContributionId(Long id) {
+		this.id = id;
+	}
+
+
 
 	public String getType() {
 		return type;
@@ -112,5 +154,11 @@ public class BrowsingContributionResource extends ResourceSupport {
 		return discourseParts;
 	}
 
+	public Long getParentId() {
+		return parentId;
+	}
 
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
+	}
 }

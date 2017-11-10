@@ -1,0 +1,26 @@
+
+	jdbc.host=localhost
+	jdbc.database=discoursedb_ext_workshop_demo1
+	jdbc.username=local
+	jdbc.password=local
+
+lightside.data_directory=/Users/bogart-MBP-isri/lightside/data
+brat.data_directory=/Users/bogart-MBP-isri/brat-v1.3_Crunchy_Frog/data
+brat.ui_base=http://127.0.0.1:8080/brat
+server.port=5280
+management.port=5281
+
+#jdbc.host=erebor.lti.cs.cmu.edu
+#jdbc.database=discoursedb_github
+#jdbc.username=discoursedb
+#jdbc.password=DqRYC9ME
+
+
+
+
+
+# logs the SQL statements
+#log4j.logger.org.hibernate.SQL=debug 
+
+# Logs the JDBC parameters passed to a query
+#log4j.logger.org.hibernate.type=trace 

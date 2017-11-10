@@ -16,12 +16,12 @@
 
 package twitter4j.api;
 
+import java.io.InputStream;
+
 import twitter4j.DirectMessage;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.TwitterException;
-
-import java.io.InputStream;
 
 /**
  * @author Joern Huxhorn - jhuxhorn at googlemail.com

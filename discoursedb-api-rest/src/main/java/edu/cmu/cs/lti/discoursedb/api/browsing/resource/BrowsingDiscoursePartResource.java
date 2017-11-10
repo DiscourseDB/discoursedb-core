@@ -1,3 +1,24 @@
+/*******************************************************************************
+ * Copyright (C)  2015 - 2016  Carnegie Mellon University
+ * Authors: Oliver Ferschke and Chris Bogart
+ *
+ * This file is part of DiscourseDB.
+ *
+ * DiscourseDB is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * DiscourseDB is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * Fifth Floor, Boston, MA 02110-1301  USA
+ *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.api.browsing.resource;
 
 import java.util.Date;
@@ -10,6 +31,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.hateoas.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
@@ -31,6 +53,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	private Date endTime;
 	private String discourseName;
 	private long discourseId;
+	private long discoursePartId;
 	private Map<Long,String> containingDiscourseParts;
 	private DiscoursePart dp;
 	private List<BrowsingAnnotationResource> annotations;
@@ -43,6 +66,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		this.setType(dp.getType());
 		this.setStartTime(dp.getStartTime());
 		this.setEndTime(dp.getEndTime());
+		this.setDiscoursePartId(dp.getId());
 		
 		if (dp.getAnnotations() != null) {
 			List<BrowsingAnnotationResource> annos = new LinkedList<BrowsingAnnotationResource>();
@@ -113,6 +137,15 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	 */
 	public Long _getDpId() {
 		return dp.getId();
+	}
+
+	
+	public long getDiscoursePartId() {
+		return discoursePartId;
+	}
+
+	public void setDiscoursePartId(long discoursePartId) {
+		this.discoursePartId = discoursePartId;
 	}
 
 	public String getName() {

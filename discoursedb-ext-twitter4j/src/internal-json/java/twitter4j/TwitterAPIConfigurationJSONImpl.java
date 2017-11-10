@@ -15,11 +15,11 @@
  */
 package twitter4j;
 
-import twitter4j.conf.Configuration;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import twitter4j.conf.Configuration;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com

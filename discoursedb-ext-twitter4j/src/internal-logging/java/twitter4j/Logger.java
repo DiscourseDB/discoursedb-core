@@ -16,11 +16,11 @@
 
 package twitter4j;
 
-import twitter4j.conf.Configuration;
-import twitter4j.conf.ConfigurationContext;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationContext;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com
