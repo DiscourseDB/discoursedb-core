@@ -76,6 +76,6 @@ public class SystemDatabase extends TimedBE {
 	private String description;
 
 	@Column(name="is_public")
-	private Boolean isPublic;
+	private Integer isPublic;
 
 }

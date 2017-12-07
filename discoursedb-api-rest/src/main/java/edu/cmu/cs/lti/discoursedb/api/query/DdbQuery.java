@@ -74,6 +74,40 @@ public class DdbQuery {
 		}
 	}
 	
+	public DdbQuery(String query) throws DdbQueryParseException {
+		
+		try {
+			parseQuietly(query);
+		} catch (JsonParseException e) {
+			System.out.println("Json Parse Error parsing " + query);
+			e.printStackTrace();
+			throw new DdbQueryParseException("Json Parse Error parsing " + query);
+		} catch (JsonMappingException e) {
+			System.out.println("Json Mapping Error parsing " + query);
+			e.printStackTrace();
+			throw new DdbQueryParseException("Json Mapping Error parsing " + query);
+		} catch (IOException e) {
+			System.out.println("IOError parsing " + query);
+			e.printStackTrace();
+			throw new DdbQueryParseException("IOError parsing " + query);
+		}
+	}
+	
+	// Parse the query just enough to see its contents, without touching anything
+	// in any database
+	public void parseQuietly(String query) throws JsonParseException, JsonMappingException, IOException {
+		JsonNode node = new ObjectMapper().readValue(new JsonFactory().createParser(query), JsonNode.class);
+		database = node.get("database").asText();
+		if (node.has("rows")) {
+			JsonNode rows = node.get("rows");
+			if (rows.has("primary")) {
+				mainTable = rows.get("primary").asText();
+			}			
+		}
+	}
+	
+	// Parse the query, switch to its database, and look up all the discoursepart IDs so it
+	// can be immediately executed
 	public void parse(String query) throws JsonParseException, JsonMappingException, IOException {
 		JsonNode node = new ObjectMapper().readValue(new JsonFactory().createParser(query), JsonNode.class);
 		database = node.get("database").asText();

@@ -6,6 +6,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -46,6 +47,7 @@ import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
+import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRole;
 
@@ -54,28 +56,33 @@ public class SecurityUtils {
 
 	private static  Logger logger = LogManager.getLogger(SecurityUtils.class);
 	@Autowired private SystemUserRepository sysUserRepo;
+	@Autowired private SystemUserService sysUserService;
 	@Autowired private SystemDatabaseRepository sysDbRepo;
 	@Autowired private Environment env;
     private static  String GOOGLE_CLIENT_ID = null;
 	private static  String GOOGLE_CLIENT_SECRET = null;
 	private static String  URL = null;
-    private boolean securityEnabled = false;
+    
 
 	SecurityUtils() {
 	}
 	
 	private void init() {
+		//SystemUserAuthentication.securityEnabled = false;
 		if (URL == null) {
 			GOOGLE_CLIENT_ID = env.getRequiredProperty("google.client_id");
 			GOOGLE_CLIENT_SECRET = env.getRequiredProperty("google.client_secret");
 			URL = env.getRequiredProperty("google.registered.url");
-			securityEnabled = env.getProperty("https.enabled").equals("true");
+			SystemUserAuthentication.securityEnabled = env.getProperty("https.enabled").equals("true");
 		}
+	}
+	public String currentUserEmail() {
+		return loggedInUser().getPrincipal().toString();
 	}
 	public  void authenticate(HttpServletRequest req,  HttpSession s) {
 		
 		init();
-		if (!securityEnabled) { return; }
+		if (!SystemUserAuthentication.securityEnabled) { return; }
 		
 		// Should do several things:
 		// If it's a google token, check with google, turn it into an email address, and put it back out as a cookie
@@ -105,9 +112,9 @@ public class SecurityUtils {
 			if (s.isNew() || s.getAttribute("email") == null || s.getAttribute("email").toString() == "") {
 				String auth = isGoogleSignIn(req);
 				if (auth != null) {
-					String email = validateGoogleUserMethod2(auth);
+					String email = validateGoogleUserAndAddIfNeeded(auth);
 					logger.info("     -> accepting google login" + email);
-					setupUser(email, "plugh");
+					//setupUser(email, "plugh");
 					s.setAttribute("email", email);
 					logger.info("Postexisting user info was " + String.join(",",Collections.list(s.getAttributeNames())) + ";" + s.getAttribute("email"));
 				} else {
@@ -124,41 +131,100 @@ public class SecurityUtils {
  
 	}
 	
-	 public void setupUser(String email, String password) {
-
-		Optional<SystemUser> su = email != null?sysUserRepo.findOneByEmail(email):Optional.empty();
-		
-		if (su.isPresent()) {
-			/*List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-			for (SystemUserRole r : su.get().getRoles()) {
-				authorities.add(new SimpleGrantedAuthority("ROLE:" + r.name()));
-			}
-			for (SystemUserRight r : su.get().getRights()) {
-				authorities.add(new SimpleGrantedAuthority(r.getDiscourse().getName()));
-			}
-	        UserDetails userDetails = new org.springframework.security.core.userdetails.User(email,
-	                password, true, true, true, true, authorities);	
-			Authentication authentication = new UsernamePasswordAuthenticationToken(email, password,
-	                userDetails.getAuthorities());*/
-			Authentication authentication = new UsernamePasswordAuthenticationToken(
-					su.get(), password,
-	                su.get().getAuthorities());
-			
+	public void setupUser(String email, String password) {
+		Authentication auth = getUser(email);
+		if (auth != null) {
 	        SecurityContextHolder.clearContext();
-	        SecurityContextHolder.getContext().setAuthentication(authentication);
-	        logger.info("Logging in with [{}]", authentication.getPrincipal());
+	        SecurityContextHolder.getContext().setAuthentication(auth);
+	        logger.info("Logging in with [{}]", auth.getPrincipal());
+		}
+	}
+	
+	public void setupUserEvenIfNew(String email, String password, String realname) {
+		Authentication auth = getOrMakeUser(email, realname);
+		if (auth != null) {
+	        SecurityContextHolder.clearContext();
+	        SecurityContextHolder.getContext().setAuthentication(auth);
+	        logger.info("Logging in with [{}]", auth.getPrincipal());
 		}
 	}
 	 
+	public SystemUserAuthentication loggedInUser() {
+		return (SystemUserAuthentication)SecurityContextHolder.getContext().getAuthentication();
+	}
 	
-	public boolean canSeeDatabase(String database) {
-		return authoritiesContains(database);
+	
+	public boolean isTrustedUserProxy() {
+		return SystemUserAuthentication.authoritiesContains("TRUSTED_USER_AGENT", SecurityContextHolder.getContext().getAuthentication());
+	}
+	
+	
+	
+	public SystemUserAuthentication getUser(String email) {
+		
+		Optional<SystemUser> su = email != null?sysUserRepo.findOneByEmail(email):Optional.empty();
+		
+		if (su.isPresent()) {
+			SystemUserAuthentication authentication = new SystemUserAuthentication(
+					su.get(), "",
+	                su.get().getAuthorities(),getAllowedDatabases(su.get().getAuthorities()));
+				
+			return authentication;
+		} else {
+			return null;
+		}
+		// TODO Auto-generated constructor stub
+	}
+	
+	private List<String> getAllowedDatabases(Collection<? extends GrantedAuthority> gas) {
+			List<String> allowed = new ArrayList<String>();
+			
+			for (GrantedAuthority ga : gas) {
+				String authority = ga.getAuthority();
+				if (authority == "ROLE_ANONYMOUS") {
+					return new ArrayList<String>();   // Short circuit and return nothing, if the person is anonymous
+				}
+				if (!authority.startsWith("ROLE:")) {
+					allowed.add(ga.getAuthority());
+				}
+			}
+			for (SystemDatabase sd : sysDbRepo.findAll()) {
+				if (sd.getIsPublic() > 0) {
+					allowed.add(sd.getName());
+				}
+			}
+			return allowed;
 	}
 
-	public void authorizedDatabaseCheck(String database) {
+	public SystemUserAuthentication getOrMakeUser(String email, String name) {
+		
+		Optional<SystemUser> su = email != null?sysUserRepo.findOneByEmail(email):Optional.empty();
+		SystemUserAuthentication authentication;
+		if (su.isPresent()) {
+			authentication = new SystemUserAuthentication(
+					su.get(), "",
+	                su.get().getAuthorities(), getAllowedDatabases(su.get().getAuthorities()));
+		} else {
+			SystemUser newu = sysUserService.createSystemUser(email,name,email);
+			
+			authentication = new SystemUserAuthentication(
+					newu, "",
+					newu.getAuthorities(), getAllowedDatabases(newu.getAuthorities()));
+			
+		}
+		return authentication;
+		// TODO Auto-generated constructor stub
+	}
+	
+	/*
+	 * public void authorizedDatabaseCheck(String database) {
+	 
 		if (!canSeeDatabase(database)) {
 			throw new BrowsingRestController.UnauthorizedDatabaseAccess();
 		}
+	}
+	public boolean canSeeDatabase(String database) {
+		return loggedInUser().canSeeDatabase(database);
 	}
 	public void authorizedDatabaseFail() {
 		logger.info("No database identified -- so authorization fails");
@@ -168,13 +234,22 @@ public class SecurityUtils {
 	public boolean hasRole(String roleName) {
 		return authoritiesContains("ROLE:" + roleName);
 	}
-	 public boolean isTrustedUserProxy() {
-		return authoritiesContains("TRUSTED_USER_AGENT");
+	 
+	
+	public boolean isTrustedUserProxy(Authentication who) {
+		return authoritiesContains("TRUSTED_USER_AGENT", who);
 	}
 	 
 	public List<String>allowedDatabases() {
+		return allowedDatabases(SecurityContextHolder.getContext().getAuthentication());
+	}
+	
+	public List<String> allowedDatabases(Authentication who) {
 		List<String> allowed = new ArrayList<String>();
-		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+		if (authoritiesContains("ROLE_ANONYMOUS")) { 
+			return allowed;
+		}
+		for (GrantedAuthority ga : who.getAuthorities()) {
 			String authority = ga.getAuthority();
 			if (!authority.startsWith("ROLE:")) {
 				allowed.add(ga.getAuthority());
@@ -187,10 +262,11 @@ public class SecurityUtils {
 		}
 		return allowed;
 	}
-	 
-	public List<String>allowedRoles() {
+	
+	
+	public List<String>allowedRoles(Authentication who) {
 		List<String> allowed = new ArrayList<String>();
-		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+		for (GrantedAuthority ga : who.getAuthorities()) {
 			String authority = ga.getAuthority();
 			if (authority.startsWith("ROLE:")) {
 				allowed.add(ga.getAuthority());
@@ -199,9 +275,12 @@ public class SecurityUtils {
 		return allowed;
 	}
 	
-	public boolean authoritiesContains(String roledescription) {
-		if (!securityEnabled) { return true; }   
-		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+	public List<String>allowedRoles() {
+		return allowedRoles(SecurityContextHolder.getContext().getAuthentication());
+	}
+	
+	public boolean authoritiesContains(String roledescription, Authentication who) {
+		for (GrantedAuthority ga : who.getAuthorities()) {
 			if (ga.getAuthority().equals(roledescription)) {
 				logger.info("Authority " + ga.getAuthority() + " matches role description");
 				return true;
@@ -215,7 +294,12 @@ public class SecurityUtils {
 		}
 		return false;
 	}
-	   
+	
+	public boolean authoritiesContains(String roledescription) {
+		if (!securityEnabled) { return true; }   
+		return authoritiesContains(roledescription, SecurityContextHolder.getContext().getAuthentication());
+	}
+	   */
 	/**
      * Handles the HTTP post.
      * @param req HttpServletRequest.
@@ -432,7 +516,7 @@ public class SecurityUtils {
     }
     
 
-    private String validateGoogleUserMethod2(String authCode)  {
+    private String validateGoogleUserAndAddIfNeeded(String authCode)  {
 		logger.info("Doing validateGoogleUserMethod2("  + authCode + ")");
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAudience(Arrays.asList(GOOGLE_CLIENT_ID)).setIssuer("accounts.google.com").build();
@@ -458,16 +542,19 @@ public class SecurityUtils {
             String userId = payload.getSubject();
             // Get profile information from payload
             String email = payload.getEmail();
-            logger.info("Logged in " + userId + " " + email);
+            String name = payload.get("name").toString();
+            
+            logger.info("Logged in " + userId + " " + email + " name=" + payload.get("name"));
             boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
             
             if (!emailVerified ) {
                 return null;
             } else {
-            	return email;
+            		setupUserEvenIfNew(email, "plugh",name);
+            		return email;
             }
         } else {
-        	return null;
+        		return null;
         }
                 
     }

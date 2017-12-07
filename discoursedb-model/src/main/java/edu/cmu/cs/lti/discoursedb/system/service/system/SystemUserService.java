@@ -73,6 +73,25 @@ public class SystemUserService {
 		}
 	}
 	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+	public SystemUser findOrCreateSystemUser(String email, String name, String username) {
+		Optional<SystemUser> su = getSystemUser(username);
+		if (su.isPresent()) {
+			return su.get();
+		} else {
+			return createSystemUser(email,name,username);
+		}
+	}
+	
+	
+	public SystemUser createSystemUser(String email, String name, String username) {
+		SystemUser newu = new SystemUser();
+		newu.setEmail(email);
+		newu.setRealname(name);
+		newu.setUsername(email);
+		return sysUserRepo.save(newu);
+	}
+
 	public Set<SystemDatabase> getSystemDatabases() {
 		return sysDbRepo.findAll();
 	}
@@ -80,12 +99,20 @@ public class SystemUserService {
 		return sysDbRepo.findOneByName(dbname);
 	}
 	
-	public List<SystemUserProperty> getPropertyList(String ptype) {
+	public List<SystemUserProperty> getPropertyList() {
 		Optional<SystemUser> su = getSystemUser();
 		Assert.isTrue(su.isPresent(), "Invalid user");
 		// TODO: do we need to substitute * -> %  in ptype to make "like" work inside findProperties?
 		// TODO: do we need to sanitize ptype?  Can it bust out of the string and do '"; drop TABLES;' or whatever?
 		return new ArrayList<SystemUserProperty>(su.get().getProperties());
+		//return sysUserRepo.findProperties(su.get(), ptype);
+	}
+	
+	// Get for a different user
+	public List<SystemUserProperty> getPropertyList(SystemUser su) {
+		// TODO: do we need to substitute * -> %  in ptype to make "like" work inside findProperties?
+		// TODO: do we need to sanitize ptype?  Can it bust out of the string and do '"; drop TABLES;' or whatever?
+		return new ArrayList<SystemUserProperty>(su.getProperties());
 		//return sysUserRepo.findProperties(su.get(), ptype);
 	}
 	

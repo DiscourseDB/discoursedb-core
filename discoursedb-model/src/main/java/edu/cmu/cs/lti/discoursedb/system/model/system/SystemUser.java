@@ -23,6 +23,7 @@ package edu.cmu.cs.lti.discoursedb.system.model.system;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,7 +45,9 @@ import javax.persistence.Transient;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails; 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBE;
 import lombok.AccessLevel;
@@ -90,21 +93,23 @@ public class SystemUser extends TimedBE implements UserDetails {
     @CollectionTable(name = "system_user_roles", joinColumns = @JoinColumn(name = "id_system_user"))
     @Column(name = "role", nullable = false, length = 171)
     @Enumerated(EnumType.STRING)
-	private Set<SystemUserRole> roles;
+	private Set<SystemUserRole> roles = new HashSet<SystemUserRole>();
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy="systemUser")
-	private Set<SystemUserProperty> properties;
+	private Set<SystemUserProperty> properties = new HashSet<SystemUserProperty>();;
 
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy="systemUser")
-    private Set<SystemUserRight> rights;
+    private Set<SystemUserRight> rights = new HashSet<SystemUserRight>();;
 
     @Transient
-    private List<GrantedAuthority> authorities = null;
+    private List<GrantedAuthority> authorities =  new ArrayList<GrantedAuthority>();;
+    
     @Transient
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     @Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		if (authorities == null) {
+		if (true || authorities == null) {
 			authorities = new ArrayList<GrantedAuthority>();
 			for (SystemUserRole r : this.getRoles()) {
 				authorities.add(new SimpleGrantedAuthority("ROLE:" + r.name()));

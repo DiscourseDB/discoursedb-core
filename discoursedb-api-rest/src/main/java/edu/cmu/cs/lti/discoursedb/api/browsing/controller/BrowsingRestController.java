@@ -32,8 +32,10 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -206,7 +208,7 @@ public class BrowsingRestController {
 	
 	void registerDb(HttpServletRequest httpServletRequest, HttpSession session, String databaseName) {
 		securityUtils.authenticate(httpServletRequest, session);
-		securityUtils.authorizedDatabaseCheck(databaseName);
+		securityUtils.loggedInUser().authorizedDatabaseCheck(databaseName);
 		selector.changeDatabase(databaseName);
 	}
 	
@@ -233,12 +235,59 @@ public class BrowsingRestController {
 		return r;
 	}
 	
+	// UNauthenticated endpoint to list items available to a user.
+	// Probably this is a bad practice because it lets a hacker explore too much.
+	// However it's necessary because Learnsphere Tigris widgets need to present options to the
+	// user, and those options are currently filled in from an insecure javascript iframe.
+	@RequestMapping(value="/user_access", method=RequestMethod.GET)
+	@ResponseBody
+	Map<String, List<String>> userAccess(HttpServletRequest httpServletRequest, HttpSession session
+			,@RequestParam(value= "userid", defaultValue = "") String userid) {
+		
+		SystemUserAuthentication userInQuestion = securityUtils.getUser(userid);
+		HashMap<String,List<String>> hm = new HashMap<String,List<String>>();
+		
+		List<String> dbs = userInQuestion.getAllowedDatabases();
+		
+		List<SystemUserProperty> props = systemUserService.getPropertyList(userInQuestion.getSystemUser()); 
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			for (String db: dbs) {
+				hm.put(db, new ArrayList());
+			}
+			for (SystemUserProperty p: props) {
+				if (p.getPropType().equals("query")) {
+					DdbQuery q;
+					try {
+						q = new DdbQuery(p.getPropValue());
+						if (!hm.containsKey(q.getDatabaseName())) {
+							logger.error("Query " + p.getPropName() + " has bogus database " + q.getDatabaseName() + ": skipping");
+						} else {
+							hm.get(q.getDatabaseName()).add(mapper.writeValueAsString(p));
+						}
+					} catch (DdbQueryParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.info("Could not output database/query information for " + userid);
+			e.printStackTrace();
+			return null;
+		}
+				
+		return hm;
+	}
+	
 	@RequestMapping(value="/databases", method=RequestMethod.GET)
 	@ResponseBody
 	Resources<BrowsingDatabasesResource> databases(HttpServletRequest httpServletRequest, HttpSession session) {
 		securityUtils.authenticate(httpServletRequest,  session);
 
-		BrowsingDatabasesResource bsr = new BrowsingDatabasesResource(securityUtils.allowedDatabases());
+		BrowsingDatabasesResource bsr = new BrowsingDatabasesResource(securityUtils.loggedInUser().getAllowedDatabases());
 		
 		List<BrowsingDatabasesResource> l = new ArrayList<BrowsingDatabasesResource>();
 		l.add(bsr);
@@ -251,7 +300,7 @@ public class BrowsingRestController {
 	@ResponseBody
 	List<String> roles(HttpServletRequest httpServletRequest, HttpSession session) {
 		securityUtils.authenticate(httpServletRequest,  session);
-		return securityUtils.allowedRoles();
+		return securityUtils.loggedInUser().allowedRoles();
 	}
 	
 	@RequestMapping(value="/refresh", method=RequestMethod.GET)
@@ -1094,10 +1143,11 @@ public class BrowsingRestController {
 		securityUtils.authenticate(hsr, session);
 		logger.info("Authenticated /prop_list");
 		
-		logger.info("Requested property list of type " + ptype + " for user " + SecurityContextHolder.getContext().
-				getAuthentication().getPrincipal().toString());
+		logger.info("Requested property list of type " + ptype + " for user " + securityUtils.currentUserEmail());
 	
-		List<SystemUserProperty> props = systemUserService.getPropertyList(ptype);
+		List<SystemUserProperty> props = systemUserService.getPropertyList().stream()
+				.filter(p -> p.getPropType().equals(ptype))
+	            .collect(Collectors.toList());
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			return mapper.writeValueAsString(props);
@@ -1120,8 +1170,7 @@ public class BrowsingRestController {
 		logger.info("Authenticated /prop_add");
 		
 		logger.info("Creating property of type " + ptype + " named " + pname + " value= string of length " 
-				+ Integer.toString(pvalue.length()) + " for user " + SecurityContextHolder.getContext().
-				getAuthentication().getPrincipal().toString());
+				+ Integer.toString(pvalue.length()) + " for user " + securityUtils.currentUserEmail());
 	
 		systemUserService.createProperty(ptype, pname, pvalue);
 		return prop_list(ptype, hsr, session);
