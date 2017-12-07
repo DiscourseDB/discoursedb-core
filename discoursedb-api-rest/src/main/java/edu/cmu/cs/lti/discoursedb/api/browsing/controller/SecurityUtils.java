@@ -174,6 +174,9 @@ public class SecurityUtils {
 	 
 	public List<String>allowedDatabases() {
 		List<String> allowed = new ArrayList<String>();
+                if (authoritiesContains("ROLE_ANONYMOUS")) { 
+                    return allowed;
+                }
 		for (GrantedAuthority ga : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
 			String authority = ga.getAuthority();
 			if (!authority.startsWith("ROLE:")) {
