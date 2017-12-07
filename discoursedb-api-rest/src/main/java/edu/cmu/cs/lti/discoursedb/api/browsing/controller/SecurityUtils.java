@@ -8,48 +8,30 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.mysema.query.support.Context;
-
-import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
-import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
-import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRole;
 
 @Component
 public class SecurityUtils {
@@ -216,90 +198,7 @@ public class SecurityUtils {
 		// TODO Auto-generated constructor stub
 	}
 	
-	/*
-	 * public void authorizedDatabaseCheck(String database) {
-	 
-		if (!canSeeDatabase(database)) {
-			throw new BrowsingRestController.UnauthorizedDatabaseAccess();
-		}
-	}
-	public boolean canSeeDatabase(String database) {
-		return loggedInUser().canSeeDatabase(database);
-	}
-	public void authorizedDatabaseFail() {
-		logger.info("No database identified -- so authorization fails");
-		throw new BrowsingRestController.UnauthorizedDatabaseAccess();
-	}
-	 
-	public boolean hasRole(String roleName) {
-		return authoritiesContains("ROLE:" + roleName);
-	}
-	 
 	
-	public boolean isTrustedUserProxy(Authentication who) {
-		return authoritiesContains("TRUSTED_USER_AGENT", who);
-	}
-	 
-	public List<String>allowedDatabases() {
-		return allowedDatabases(SecurityContextHolder.getContext().getAuthentication());
-	}
-	
-	public List<String> allowedDatabases(Authentication who) {
-		List<String> allowed = new ArrayList<String>();
-		if (authoritiesContains("ROLE_ANONYMOUS")) { 
-			return allowed;
-		}
-		for (GrantedAuthority ga : who.getAuthorities()) {
-			String authority = ga.getAuthority();
-			if (!authority.startsWith("ROLE:")) {
-				allowed.add(ga.getAuthority());
-			}
-		}
-		for (SystemDatabase sd : sysDbRepo.findAll()) {
-			if (sd.getIsPublic()) {
-				allowed.add(sd.getName());
-			}
-		}
-		return allowed;
-	}
-	
-	
-	public List<String>allowedRoles(Authentication who) {
-		List<String> allowed = new ArrayList<String>();
-		for (GrantedAuthority ga : who.getAuthorities()) {
-			String authority = ga.getAuthority();
-			if (authority.startsWith("ROLE:")) {
-				allowed.add(ga.getAuthority());
-			}
-		}
-		return allowed;
-	}
-	
-	public List<String>allowedRoles() {
-		return allowedRoles(SecurityContextHolder.getContext().getAuthentication());
-	}
-	
-	public boolean authoritiesContains(String roledescription, Authentication who) {
-		for (GrantedAuthority ga : who.getAuthorities()) {
-			if (ga.getAuthority().equals(roledescription)) {
-				logger.info("Authority " + ga.getAuthority() + " matches role description");
-				return true;
-			}
-			else { logger.info("Authority " + ga.getAuthority() + " does not match " + roledescription); }
-		}
-		for (SystemDatabase sd : sysDbRepo.findAll()) {
-			if (sd.getIsPublic() && roledescription.equals(sd.getName())) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean authoritiesContains(String roledescription) {
-		if (!securityEnabled) { return true; }   
-		return authoritiesContains(roledescription, SecurityContextHolder.getContext().getAuthentication());
-	}
-	   */
 	/**
      * Handles the HTTP post.
      * @param req HttpServletRequest.
