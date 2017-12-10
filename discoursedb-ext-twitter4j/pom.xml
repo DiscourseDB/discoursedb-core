@@ -9,6 +9,9 @@
     <packaging>jar</packaging>
     <name>DiscourseDB Twitter4J</name>
     <description>DiscourseDB Fork of the Twitter4J Java library for the Twitter API</description>
+<properties>
+    <maven.test.skip>true</maven.test.skip>
+</properties>
     <licenses>
         <license>
             <name>Apache License 2.0</name>
