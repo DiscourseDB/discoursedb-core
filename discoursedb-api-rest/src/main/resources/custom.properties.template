@@ -16,8 +16,12 @@ brat.ui_base=http://127.0.0.1:8080/brat
 server.port=5280
 management.port=5281
 
-google.client_secret=
-google.client_id=
+# Substitute real passwords for $$$$$ in this file
+# 
+#  Get client secret/id from https://developers.google.com/identity/sign-in/web/devconsole-project
+#
+google.client_secret=$$$$$$
+google.client_id=$$$$$$$
 google.registered.url=http://127.0.0.1:5980
 spring.data.rest.defaultPageSize = 100
 
@@ -38,8 +42,6 @@ endpoints.shutdown.enabled=false
 endpoints.trace.enabled=false
 endpoints.profile.enabled=false
 
-# Substitute real passwords for $$$$$ in this file
-# 
 # Run this on server:
 #   keytool -genkey -alias tomcat -keyalg RSA -storepass  $$$$$ -keypass $$$$$ -dname 'CN=DiscourseDB'
 # 

@@ -1176,6 +1176,21 @@ public class BrowsingRestController {
 		return prop_list(ptype, hsr, session);
 	}
 	
+	@RequestMapping(value = "/prop_del", method = RequestMethod.GET)
+	@ResponseBody
+	String prop_del(@RequestParam(value="ptype") String ptype,
+			@RequestParam(value="pname") String pname,
+			HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /prop_del");
+		securityUtils.authenticate(hsr,  session);
+		logger.info("Authenticated /prop_del");
+		
+		logger.info("Deleting property of type " + ptype + " named " + pname + 
+				" for user " + securityUtils.currentUserEmail());
+	
+		systemUserService.deleteProperty(ptype, pname);
+		return prop_list(ptype, hsr, session);
+	}
 	
 	
 	// Note: the page/size parameters have different names here: "start" and "length" to make it
