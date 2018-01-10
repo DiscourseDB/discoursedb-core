@@ -810,7 +810,6 @@
 		<module>discoursedb-io-ravelry</module>
     <module>discoursedb-io-salon</module>
     <module>discoursedb-io-mturk</module>
-    <module>discoursedb-io-courseraUPenn</module>
  </modules>
 	<ciManagement>
 		<system>Jenkins</system>
