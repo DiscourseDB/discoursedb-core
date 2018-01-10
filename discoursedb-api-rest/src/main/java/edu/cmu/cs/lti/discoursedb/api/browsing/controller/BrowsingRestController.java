@@ -703,16 +703,18 @@ public class BrowsingRestController {
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
 		String lsDataDirectory = lsDataDirectory();
-		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
+		File lsOutputFile = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
 		if (withAnnotations.equals("true")) {
-			lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+			//lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+			lightsideService.exportAnnotationsFromContributions(lsOutputFile, q.retrieveAllContributions());
 		} else {
-			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
+			lightsideService.exportDataForAnnotation(lsOutputFile, 
 					q.retrieveAllContributions());
 		}
-		return FileUtils.readFileToString(lsOutputFileName);
+		return FileUtils.readFileToString(lsOutputFile);
 	}
 	
+	/*
 	@Deprecated
 	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
 	@ResponseBody
@@ -820,7 +822,7 @@ public class BrowsingRestController {
 		//} else {
 			return lightsideExports(databaseName, hsr, session);
 		//}
-	}	
+	}	*/
 	
 	@RequestMapping(value = "/action/database/{databaseName}/deleteBrat", method=RequestMethod.GET)
 	@ResponseBody

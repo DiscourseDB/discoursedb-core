@@ -91,13 +91,13 @@ public class LightSideService {
 	 * @param discourseName name of the discourse to extract contributions from
 	 * @param dptype type of the discourse parts to extract contributions from
 	 * @param outputFile file to write the annotations to
-	 */
+	 * 
 	@Transactional(readOnly=true)
 	public void exportAnnotations(String discourseName, DiscoursePartTypes dptype, File outputFile){
 		Discourse discourse = discourseService.findOne(discourseName).orElseThrow(
 				() -> new EntityNotFoundException("Discourse with name " + discourseName + " does not exist."));
 		exportAnnotations(discourse, dptype, outputFile);	
-	}
+	}*/
 	
 	/**
 	 * Exports annotations on contributions associated with any DiscoursePart of
@@ -107,12 +107,12 @@ public class LightSideService {
 	 * @param discourse the discourse to extract contributions from
 	 * @param dptype type of the discourse parts to extract contributions from
 	 * @param outputFile file to write the annotations to
-	 */
+	 * 
 	@Transactional(readOnly=true)
 	public void exportAnnotations(Discourse discourse, DiscoursePartTypes dptype, File outputFile){
 		log.info("Processing discourse "+discourse.getName()+". Extracting DiscourseParts of type "+dptype.name());
-		exportAnnotations(dpService.findAllByDiscourseAndType(discourse, dptype), outputFile);	
-	}
+		exportAnnotations(outputFile, dpService.findAllByDiscourseAndType(discourse, dptype));	
+	}*/
 	
 		
 	/**
@@ -123,8 +123,27 @@ public class LightSideService {
 	 * @param outputFile file to write the annotations to
 	 */
 	@Transactional(readOnly=true)
-	public void exportAnnotations(Iterable<DiscoursePart> discourseParts, File outputFile){
-		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false).flatMap(dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());
+	public void exportAnnotations(File outputFile, Iterable<DiscoursePart> discourseParts){
+		List<RawDataInstance> data = StreamSupport.stream(discourseParts.spliterator(), false).flatMap(
+				dp -> extractAnnotations(dp).stream()).collect(Collectors.toList());
+		
+		try{
+			FileUtils.writeStringToFile(outputFile, generateLightSideOutput(data));			
+		}catch(IOException e){
+			log.error("Error writing LightSide file to disk",e);
+		}	
+	}
+	
+	/**
+	 * Exports annotations on contributions associated with any of the provided DiscourseParts into
+	 * the provided output file.
+	 * 
+	 * @param discourseParts the discourse parts to extract contributions from
+	 * @param outputFile file to write the annotations to
+	 */
+	@Transactional(readOnly=true)
+	public void exportAnnotationsFromContributions(File outputFile, Iterable<Contribution> conts){
+		List<RawDataInstance> data = extractAnnotations(conts);
 		
 		try{
 			FileUtils.writeStringToFile(outputFile, generateLightSideOutput(data));			
@@ -251,11 +270,11 @@ public class LightSideService {
 	 * 
 	 * @param outputFilePath path to the output file to which the extracted data should be written
 	 * @param dp the discourse part to extract the contributions from that should be annotated
-	 */
+	 * 
 	@Transactional(readOnly=true)
 	public void exportDataForAnnotation(String outputFilePath, DiscoursePart dp){
 		exportDataForAnnotation(outputFilePath, contribService.findAllByDiscoursePart(dp));
-	}
+	}*/
 	
 	/**
 	 * Exports data in a format that can be imported into LightSide and then annotated with a classifier that was training with
@@ -265,10 +284,9 @@ public class LightSideService {
 	 * @param contributions contributions that should be exported for annotation
 	 */
 	@Transactional(readOnly=true)
-	public void exportDataForAnnotation(String outputFilePath, Iterable<Contribution> contributions){		
-		Assert.hasText(outputFilePath, "Path to the output file cannot be empty.");				
-		File outputFile = new File(outputFilePath);
-		Assert.isTrue(!outputFile.isDirectory(), outputFilePath+" points to a directory but should point to a file.");
+	public void exportDataForAnnotation(File outputFile, Iterable<Contribution> contributions){		
+		
+		Assert.isTrue(!outputFile.isDirectory(), outputFile.getAbsolutePath()+" points to a directory but should point to a file.");
 		
 		StringBuilder output = new StringBuilder();
 		CsvMapper mapper = new CsvMapper();
