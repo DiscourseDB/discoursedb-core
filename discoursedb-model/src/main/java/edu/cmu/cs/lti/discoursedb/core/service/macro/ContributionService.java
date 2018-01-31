@@ -36,6 +36,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.ContributionContext;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionContextRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
@@ -43,6 +44,7 @@ import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRelationReposit
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.ContextTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +78,24 @@ public class ContributionService {
 		contrib.setType(type.name());
 		return contributionRepo.save(contrib);
 	}		
+	
+	
+	/**
+	 * Retrieves existing or creates a new ContributionType entity with the
+	 * provided type. It then creates a new empty Contribution entity and
+	 * connects it with the type. Both changed/created entities are saved to
+	 * DiscourseDB and the empty typed Contribution is returned. It then adds
+	 * the new empty Contribution to the db and returns the object.
+	 * 
+	 * @param type
+	 *            the value for the ContributionTyep
+	 * @return a new empty Contribution that is already saved to the db and
+	 *         connected with its requested type
+	 */
+	public Contribution createContribution(){
+		Contribution contrib = new Contribution();
+		return contributionRepo.save(contrib);
+	}	
 	
 	/**
 	 * Saves the provided entity to the db using the save method of the corresponding repository
@@ -114,6 +134,27 @@ public class ContributionService {
 				.map(s -> Optional.ofNullable(contributionRepo.findOne(ContributionPredicates.contributionHasDataSource(s))))
 				.orElse(Optional.empty());
 	}
+	
+	
+	public Contribution createOrGetByDataSource(String entitySourceId, 
+			String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
+		Assert.hasText (entitySourceId, "");		
+		Assert.hasText(entitySourceDescriptor, "Entity source descriptor cannot be empty");
+		Assert.hasText(datasetName, "Dataset name cannot be empty.");
+
+		Optional<Contribution> oc = findOneByDataSource(entitySourceId, entitySourceDescriptor, datasetName);
+		Contribution c = null;
+		if (oc.isPresent()) {
+			c = oc.get();
+		} else {
+			c = createContribution();
+			DataSourceInstance ds = new DataSourceInstance(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
+			dataSourceService.addSource(c, ds);
+		}
+		
+		return c;
+	}
+	
 	
 	/**
 	 * Returns a list of all contributions of a given type independent from a Discourse.
