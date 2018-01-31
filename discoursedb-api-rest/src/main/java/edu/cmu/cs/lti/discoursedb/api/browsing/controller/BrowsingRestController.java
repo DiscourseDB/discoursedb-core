@@ -708,7 +708,7 @@ public class BrowsingRestController {
 			lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
 		} else {
 			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
-					q.retrieveAllContributions());
+					q.retrieveAllContributions(), false);
 		}
 		return FileUtils.readFileToString(lsOutputFileName);
 	}
@@ -748,7 +748,7 @@ public class BrowsingRestController {
 			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
 					dps.stream()
 					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
-					.map(dpc -> dpc.getContribution())::iterator);
+					.map(dpc -> dpc.getContribution())::iterator, true);
 		}
 		return FileUtils.readFileToString(lsOutputFileName);
 	}
