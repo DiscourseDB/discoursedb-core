@@ -627,7 +627,7 @@ public class BrowsingRestController {
 	}
 	
 	
-	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	String downloadQueryCsv(
 			HttpServletResponse response,
@@ -687,7 +687,7 @@ public class BrowsingRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	String downloadLightsideQuery(
 			HttpServletResponse response,
@@ -708,15 +708,15 @@ public class BrowsingRestController {
 			//lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
 			lightsideService.exportAnnotationsFromContributions(lsOutputFile, q.retrieveAllContributions());
 		} else {
-			lightsideService.exportDataForAnnotation(lsOutputFile, 
-					q.retrieveAllContributions());
+			lightsideService.exportDataForAnnotation(lsOutputFile.toString(), 
+					q.retrieveAllContributions(), false);
 		}
 		return FileUtils.readFileToString(lsOutputFile);
 	}
 	
 	/*
 	@Deprecated
-	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	String downloadLightside(
 			HttpServletResponse response,
@@ -750,7 +750,7 @@ public class BrowsingRestController {
 			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
 					dps.stream()
 					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
-					.map(dpc -> dpc.getContribution())::iterator);
+					.map(dpc -> dpc.getContribution())::iterator, true);
 		}
 		return FileUtils.readFileToString(lsOutputFileName);
 	}

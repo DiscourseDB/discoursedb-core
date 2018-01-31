@@ -90,16 +90,16 @@ public class ContentService {
 		contentRepo.setPreviousRevisionId(id, previousRevId);
 	}
 
-	public Optional<Content> findOneByDataSourceId(String entitySourceId) {
-		return contentRepo.findOneByDataSourceId(entitySourceId);
+	public Optional<Content> findOneByDataSource(String entitySourceId, 
+			String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
+		return contentRepo.findOneByDataSource(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
 	}
 	
-	public Content createOrGetContentByDataSource(Discourse discourse, String entitySourceId, 
+	public Content createOrGetContentByDataSource( String entitySourceId, 
 			String entitySourceDescriptor, DataSourceTypes sourceType, String datasetName) {
-		Assert.notNull(discourse, "Discourse cannot be null.");
 		Assert.hasText (entitySourceId, "");		
 		
-		Optional<Content> oc = contentRepo.findOneByDataSourceId(entitySourceId);
+		Optional<Content> oc = contentRepo.findOneByDataSource(entitySourceId, entitySourceDescriptor, sourceType, datasetName);
 		Content c = null;
 		if (oc.isPresent()) {
 			c = oc.get();

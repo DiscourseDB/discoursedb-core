@@ -102,16 +102,7 @@ public class BaseConfiguration {
 	}
 	
 	
-	/*@Bean
-	@Primary
-	public LocalContainerEntityManagerFactoryBean discoursedbEntityManager(
-			final JpaProperties customerJpaProperties) {
-		EntityManagerFactoryBuilder builder =
-				createEntityManagerFactoryBuilder(customerJpaProperties);
-		return builder.dataSource(databaseSelector).packages("edu.cmu.cs.lti.discoursedb.core")
-				.persistenceUnit("discoursedbEntityManager").build();
-	}*/
-	
+
 	@Bean(name="coreTransactionManager")
 	@Primary
 	public JpaTransactionManager discoursedbTransactionManager(
@@ -119,37 +110,7 @@ public class BaseConfiguration {
 		return new JpaTransactionManager(factory);
 	}
 
-/*
-	private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(
-			JpaProperties discoursedbJpaProperties) {
-		JpaVendorAdapter jpaVendorAdapter = 
-				createJpaVendorAdapter(discoursedbJpaProperties);
-		return new EntityManagerFactoryBuilder(jpaVendorAdapter,
-				discoursedbJpaProperties.getProperties(), this.persistenceUnitManager);
-	}
-	
-	private JpaVendorAdapter createJpaVendorAdapter(
-		    JpaProperties jpaProperties) {
-		    AbstractJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
-		    adapter.setShowSql(jpaProperties.isShowSql());
-		    adapter.setDatabase(jpaProperties.getDatabase());
-		    adapter.setDatabasePlatform(jpaProperties.getDatabasePlatform());
-		    adapter.setGenerateDdl(jpaProperties.isGenerateDdl());
-		    return adapter;
-	}*/
 
-	/*
-	 * TODO: BaseConfiguration and SystemDbConfiguration don't seem to constrain Hibernate
-	 * to build distinct databases -- i.e. the edu.cmu.cs.lti.dicsoursedb.[core,system]
-	 * packages should define two sets of tables, one for each database; but in fact hibernate
-	 * is putting all entities in all databases.  Possible solutions:
-	 * 
-	 * Use reflection to list appropriate classes to include
-	 *    https://stackoverflow.com/questions/1413190/hibernate-mapping-package
-	 *
-	 * List them all manually here
-	 *    https://docs.jboss.org/hibernate/orm/5.0/manual/en-US/html/ch03.html
-	 */
 
 	@Bean(name="coreEntityManagerFactory")
 	@Primary

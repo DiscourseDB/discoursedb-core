@@ -94,8 +94,6 @@ public class SystemDbConfiguration {
 	@Autowired 
 	private Environment environment;
 	
-	//@Autowired(required = false)
-	//private PersistenceUnitManager systemPersistenceUnitManager;
 	@Bean(name="systemPersistenceUnitManager")
 	public PersistenceUnitManager systemPersistenceUnitManager() {
 		DefaultPersistenceUnitManager persistenceUnitManager = new DefaultPersistenceUnitManager();
@@ -105,15 +103,6 @@ public class SystemDbConfiguration {
 		return persistenceUnitManager;
 	}
 	
-	/*@Bean(name="systemEntityManagerFactory")
-	public LocalContainerEntityManagerFactoryBean systemDiscoursedbEntityManager(
-			final Properties customerJpaProperties,
-			@Qualifier("systemDataSource") DataSource systemDataSource) {
-		EntityManagerFactoryBuilder builder =
-				createEntityManagerFactoryBuilder(customerJpaProperties);
-		return builder.dataSource(systemDataSource).packages("edu.cmu.cs.lti.discoursedb.system.model")
-				.persistenceUnit("systemDiscoursedbEntityManager").build();
-	}*/
 	@Bean(name="systemEntityManagerFactory")
 	LocalContainerEntityManagerFactoryBean coreEntityManagerFactory(
 			 Environment env) {
@@ -151,24 +140,7 @@ public class SystemDbConfiguration {
 	
 	
 
-	/*
-	private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(
-			JpaProperties discoursedbJpaProperties) {
-		JpaVendorAdapter jpaVendorAdapter = 
-				createJpaVendorAdapter(discoursedbJpaProperties);
-		return new EntityManagerFactoryBuilder(jpaVendorAdapter,
-				discoursedbJpaProperties.getProperties(), this.systemPersistenceUnitManager);
-	}
-	
-	private JpaVendorAdapter createJpaVendorAdapter(
-		    JpaProperties jpaProperties) {
-		    AbstractJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
-		    adapter.setShowSql(jpaProperties.isShowSql());
-		    adapter.setDatabase(jpaProperties.getDatabase());
-		    adapter.setDatabasePlatform(jpaProperties.getDatabasePlatform());
-		    adapter.setGenerateDdl(jpaProperties.isGenerateDdl());
-		    return adapter;
-	}*/
+
 	
 	
 	
