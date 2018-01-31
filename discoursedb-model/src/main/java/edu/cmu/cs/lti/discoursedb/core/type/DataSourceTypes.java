@@ -79,6 +79,10 @@ public enum DataSourceTypes {
 	/*
 	 * A Salon dataset
 	 */
-	SALON
+	SALON,
+	/*
+	 * An "Other" unidentified dataset
+	 */
+	OTHER
 
 }
