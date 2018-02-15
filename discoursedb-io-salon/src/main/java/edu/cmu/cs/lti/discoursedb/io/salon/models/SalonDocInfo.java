@@ -42,8 +42,8 @@ public class SalonDocInfo {
 				salondoc.title = rs.getString("document_title");
 				salondoc.description = rs.getString("document_description");
 				salondoc.body = rs.getString("document_body");
-				salondoc.uploadDate = rs.getDate("document_upload_date");
-				salondoc.viewDate = rs.getDate("document_view_date");
+				salondoc.uploadDate = rs.getTimestamp("document_upload_date");
+				salondoc.viewDate = rs.getTimestamp("document_view_date");
 				salondoc.url = rs.getString("document_url");
 				salondoc.label1 = rs.getString("document_label1");
 				salondoc.label2 = rs.getString("document_label2");

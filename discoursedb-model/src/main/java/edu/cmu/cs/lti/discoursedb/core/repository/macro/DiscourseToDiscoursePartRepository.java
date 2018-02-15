@@ -24,6 +24,9 @@ package edu.cmu.cs.lti.discoursedb.core.repository.macro;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
@@ -33,6 +36,12 @@ public interface DiscourseToDiscoursePartRepository extends BaseRepository<Disco
     
 	Optional<DiscourseToDiscoursePart> findOneByDiscourseAndDiscoursePart(Discourse discourse, DiscoursePart discoursePart);
 	List<DiscourseToDiscoursePart> findByDiscourse(Discourse discourse);
-	
 
+	@Query("select dp from DiscoursePart dp left join fetch dp.annotations aa "
+			+ "left join fetch aa.annotations ai left join fetch ai.features feat "
+			+ " where dp.type=:discoursePartType")
+	List<DiscoursePart> findExtendedByType(@Param("discoursePartType") String discoursePartType);
+
+	@Query("select ddp.discourse from DiscourseToDiscoursePart ddp where ddp.discoursePart = :discoursePart")
+	List<Discourse> findDiscoursesOfDiscoursePart(@Param("discoursePart") DiscoursePart discoursePart);
 }

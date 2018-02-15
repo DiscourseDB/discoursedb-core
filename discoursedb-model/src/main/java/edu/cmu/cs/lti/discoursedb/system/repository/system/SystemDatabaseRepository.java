@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (C)  2015 - 2016  Carnegie Mellon University
- * Author: Oliver Ferschke
+ * Copyright (C)  2015 - 2017  Carnegie Mellon University
+ * Author: Chris Bogart
  *
  * This file is part of DiscourseDB.
  *
@@ -19,23 +19,20 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.model.system;
+package edu.cmu.cs.lti.discoursedb.system.repository.system;
 
-/**
- * User roles used in DiscourseDB.
- * Might be superseded or complemented by Domain ACLs in the future.
- * 
- * @author Oliver Ferschke
- *
- */
-public enum SystemUserRole {
+import java.util.Optional;
+import java.util.Set;
+
+import javax.transaction.Transactional;
+
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
+import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
+
+@Transactional
+public interface SystemDatabaseRepository extends BaseRepository<SystemDatabase,Long>{
+
+	Set<SystemDatabase> findAll();
 	
-	/**
-	 * Role for creators of DiscourseDB annotations. 
-	 */
-	ANNOTATOR, 
-	/**
-	 * Role for DiscourseDB administrators with full access and manipulation rights. 
-	 */
-	ADMIN 
+	Optional<SystemDatabase> findOneByName(String name);
 }

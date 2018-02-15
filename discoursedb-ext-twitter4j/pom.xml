@@ -4,11 +4,14 @@
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-core</artifactId>
-		<version>0.7-SNAPSHOT</version>
+		<version>0.8-SNAPSHOT</version>
 	</parent>
     <packaging>jar</packaging>
     <name>DiscourseDB Twitter4J</name>
     <description>DiscourseDB Fork of the Twitter4J Java library for the Twitter API</description>
+<properties>
+    <maven.test.skip>true</maven.test.skip>
+</properties>
     <licenses>
         <license>
             <name>Apache License 2.0</name>

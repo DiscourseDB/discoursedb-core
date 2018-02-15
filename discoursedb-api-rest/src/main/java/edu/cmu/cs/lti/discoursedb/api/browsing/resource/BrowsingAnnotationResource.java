@@ -73,5 +73,24 @@ public class BrowsingAnnotationResource extends ResourceSupport {
 	public void setRange(String range) {
 		this.range = range;
 	}
+	
+	@Override
+	public String toString() {
+		String r = type;
+		
+		if (features.size() > 0) {
+			r += " (";
+			String comma = "";
+			for (BrowsingFeatureResource f: features) {
+				r += comma + f.toString(); 
+				comma = ";";
+			}
+			r += ") ";
+		}
+		if (!range.equals("(all)")) {
+			r += " " + range;
+		}
+		return r;
+	}
 
 }

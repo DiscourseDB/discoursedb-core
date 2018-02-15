@@ -23,8 +23,6 @@ package edu.cmu.cs.lti.discoursedb.annotation.brat.model;
 
 public class BratTypes {
 
-	public static final String CONTRIB_SEPARATOR = "[**** NEW CONTRIBUTION ****]";
-
 	public enum EntityTypes {
 		DDB_CONTRIBUTION, DDB_CONTENT
 	};

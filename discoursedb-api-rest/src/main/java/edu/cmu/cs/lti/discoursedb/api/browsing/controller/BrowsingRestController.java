@@ -21,6 +21,7 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.api.browsing.controller;
 
+import java.beans.PropertyDescriptor;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,31 +31,47 @@ import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.Table;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.expression.BeanExpressionContextAccessor;
+import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.GsonFactoryBean;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,6 +81,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
@@ -73,6 +91,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -82,22 +101,38 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratService;
 import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideService;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingBratExportResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingContributionResource;
+import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDatabasesResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscoursePartResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingDiscourseResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingLightsideStubsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
+import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery;
+import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery.DdbQueryParseException;
+import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscourseToDiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.ContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartContributionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseRepository;
+import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscourseToDiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.UserRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
+import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -129,6 +164,12 @@ public class BrowsingRestController {
 	private DiscoursePartRepository discoursePartRepository;
 
 	@Autowired
+	private DiscourseToDiscoursePartRepository discourseToDiscoursePartRepository;
+
+	@Autowired
+	private SystemUserService systemUserService;
+	
+	@Autowired
 	private UserService userService;
 
 	@Autowired
@@ -155,17 +196,34 @@ public class BrowsingRestController {
 	@Autowired PagedResourcesAssembler<BrowsingBratExportResource> praBratAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingLightsideStubsResource> praLSAssembler;
 	@Autowired PagedResourcesAssembler<BrowsingUserResource> praUserAssembler;
-
+	@Autowired SecurityUtils securityUtils;
 	@Autowired 
 	private DiscoursePartService discoursePartService;
+	//@Autowired private SystemUserRepository sysUserRepo;
+	@Autowired private SystemUserService sysUserSvc;
+	@Autowired private ApplicationContext appContext;
+	@Autowired private AnnotationService annoService;
+	@Autowired DatabaseSelector selector;
 	
-	@RequestMapping(value="/stats", method=RequestMethod.GET)
+	
+	void registerDb(HttpServletRequest httpServletRequest, HttpSession session, String databaseName) {
+		securityUtils.authenticate(httpServletRequest, session);
+		securityUtils.loggedInUser().authorizedDatabaseCheck(databaseName);
+		selector.changeDatabase(databaseName);
+	}
+	
+	
+	@RequestMapping(value="/database/{databaseName}/stats", method=RequestMethod.GET)
 	@ResponseBody
-	Resources<BrowsingStatsResource> stats() {
-		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository);
+	Resources<BrowsingStatsResource> stats(
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest httpServletRequest, HttpSession session) {
+		registerDb(httpServletRequest, session, databaseName);
+		
+		BrowsingStatsResource bsr = new BrowsingStatsResource(discourseRepository, discoursePartRepository, contributionRepository, userRepository, securityUtils);
+		
 		List<BrowsingStatsResource> l = new ArrayList<BrowsingStatsResource>();
 		l.add(bsr);
-		
 		Resources<BrowsingStatsResource> r =  new Resources<BrowsingStatsResource>(l);
 		/*for (String t: bsr.getDiscourseParts().keySet()) {
 			r.add(makeLink("/browsing/repos?repoType=" + t, t));			
@@ -173,16 +231,104 @@ public class BrowsingRestController {
 		r.add(makeLink("/browsing/bratExports", "BRAT markup"));
 		r.add(makeLink("/browsing/lightsideExports", "Lightside exports"));
 		*/
+		
 		return r;
 	}
 	
-	@RequestMapping(value="/discourses/{discourseId}", method=RequestMethod.GET)
+	// UNauthenticated endpoint to list items available to a user.
+	// Probably this is a bad practice because it lets a hacker explore too much.
+	// However it's necessary because Learnsphere Tigris widgets need to present options to the
+	// user, and those options are currently filled in from an insecure javascript iframe.
+	@RequestMapping(value="/user_access", method=RequestMethod.GET)
+	@ResponseBody
+	Map<String, List<String>> userAccess(HttpServletRequest httpServletRequest, HttpSession session
+			,@RequestParam(value= "userid", defaultValue = "") String userid) {
+		
+		SystemUserAuthentication userInQuestion = securityUtils.getUser(userid);
+		HashMap<String,List<String>> hm = new HashMap<String,List<String>>();
+		
+		List<String> dbs = userInQuestion.getAllowedDatabases();
+		
+		List<SystemUserProperty> props = systemUserService.getPropertyList(userInQuestion.getSystemUser()); 
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			for (String db: dbs) {
+				hm.put(db, new ArrayList());
+			}
+			for (SystemUserProperty p: props) {
+				if (p.getPropType().equals("query")) {
+					DdbQuery q;
+					try {
+						q = new DdbQuery(p.getPropValue());
+						if (!hm.containsKey(q.getDatabaseName())) {
+							logger.error("Query " + p.getPropName() + " has bogus database " + q.getDatabaseName() + ": skipping");
+						} else {
+							hm.get(q.getDatabaseName()).add(mapper.writeValueAsString(p));
+						}
+					} catch (DdbQueryParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.info("Could not output database/query information for " + userid);
+			e.printStackTrace();
+			return null;
+		}
+				
+		return hm;
+	}
+	
+	@RequestMapping(value="/databases", method=RequestMethod.GET)
+	@ResponseBody
+	Resources<BrowsingDatabasesResource> databases(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.authenticate(httpServletRequest,  session);
+
+		BrowsingDatabasesResource bsr = new BrowsingDatabasesResource(securityUtils.loggedInUser().getAllowedDatabases());
+		
+		List<BrowsingDatabasesResource> l = new ArrayList<BrowsingDatabasesResource>();
+		l.add(bsr);
+		Resources<BrowsingDatabasesResource> r =  new Resources<BrowsingDatabasesResource>(l);
+				
+		return r;
+	}
+	
+	@RequestMapping(value="/roles", method=RequestMethod.GET)
+	@ResponseBody
+	List<String> roles(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.authenticate(httpServletRequest,  session);
+		return securityUtils.loggedInUser().allowedRoles();
+	}
+	
+	@RequestMapping(value="/refresh", method=RequestMethod.GET)
+	@ResponseBody
+	void refresh(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.authenticate(httpServletRequest,  session);
+		systemUserService.refreshOpenDatabases();
+				
+		return;
+	}
+	
+	
+	
+	@ResponseStatus(value=HttpStatus.UNAUTHORIZED, reason="User does not have access to this database") 
+	static public class UnauthorizedDatabaseAccess extends RuntimeException {
+		
+	}
+
+	
+	@RequestMapping(value="/database/{databaseName}/discourses/{discourseId}", method=RequestMethod.GET)
 	@CrossOrigin(origins="*", maxAge=3600)
 	@ResponseBody
-	@Secured("USER_AUTH0RITY")
+	@Secured("ADMIN")
 	Resource<BrowsingDiscourseResource> discourses(
-			   @PathVariable("discourseId") Long discourseId
+			   @PathVariable("databaseName") String databaseName,
+			   @PathVariable("discourseId") Long discourseId, HttpServletRequest hsr, HttpSession session
 			   ) {
+		registerDb(hsr, session,databaseName);
 		BrowsingDiscourseResource bsr = new BrowsingDiscourseResource(discourseRepository.findOne(discourseId).get(), discoursePartRepository);
 		
 		
@@ -190,17 +336,21 @@ public class BrowsingRestController {
 		logger.info("currently logged in is "+ SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 	    logger.info("another check " + httpSession.getAttribute("sch"));
 		return r;
+		
 	}
 	
-	@RequestMapping(value = {"/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
+	@RequestMapping(value = {"/database/{databaseName}/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
 			"/discourses/{discourseId}/discoursePartTypes"} , method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> discoursePartsByTypeAndDiscourse(
 														   @RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("databaseName") String databaseName,
 														   @PathVariable("discourseId") Long discourseId,
 														   @PathVariable("discoursePartType") Optional<String> discoursePartType,
-														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
+														   @RequestParam(value="annoType", defaultValue="*") String annoType,
+														   HttpServletRequest hsr, HttpSession session) {
+		registerDb(hsr, session, databaseName);
 		PageRequest p = new PageRequest(page,size);
 		
 		Page<BrowsingDiscoursePartResource> repoResources = null;
@@ -208,16 +358,16 @@ public class BrowsingRestController {
 		if (!discoursePartType.isPresent()) {
 			repoResources = 
 					discoursePartRepository.findAllByDiscourse(discourseId, p)
-					.map(BrowsingDiscoursePartResource::new)
+					.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
 					.map(bdpr -> {bdpr.filterAnnotations(annoType); 
-					              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
+					              bdpr.fillInUserInteractions(discoursePartInteractionRepository, annoService);
 					              return bdpr; });
 		} else {
 			repoResources = 
 				discoursePartRepository.findAllByDiscourseAndType(discoursePartType.get(), discourseId, p)
-				.map(BrowsingDiscoursePartResource::new)
+				.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
 				.map(bdpr -> {bdpr.filterAnnotations(annoType); 
-				              bdpr.fillInUserInteractions(discoursePartInteractionRepository);
+				              bdpr.fillInUserInteractions(discoursePartInteractionRepository, annoService);
 				              return bdpr; });
 		}
 		
@@ -225,17 +375,17 @@ public class BrowsingRestController {
 			if (bcr.getContainingDiscourseParts().size() > 1) { 
 				bcr._getContainingDiscourseParts().forEach(
 			     (dpId, dpname) -> {
-			    	 bcr.add(makeLink("/browsing/usersInDiscourseParts/" + dpId, "users in " + dpname));
-			    	 bcr.add(makeLink("/browsing/subDiscourseParts/" + dpId, dpname));
+			    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscourseParts/" + dpId, "users in " + dpname));
+			    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/subDiscourseParts/" + dpId, dpname));
 			     });
 			}  
 			//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
 	    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
-			Link check = makeLightsideExportNameLink("/browsing/action/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
-	    	Link check2 = makeLightsideExportNameLink("/browsing/action/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+			Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+	    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 	    	bcr.add(check);	
 	    	bcr.add(check2);
-	    	Link check3 = makeBratExportNameLink("/browsing/action/exportBratItem","chk:Export to BRAT", bcr.getName(),  Long.toString(bcr._getDpId()));
+	    	Link check3 = makeBratExportNameLink("/browsing/action/database/" + databaseName + "/exportBratItem","chk:Export to BRAT", bcr.getName(),  Long.toString(bcr._getDpId()));
 	    	bcr.add(check3);
  		});
 		
@@ -246,10 +396,14 @@ public class BrowsingRestController {
 	
 	
 	//@Secured("ROLE_ADMIN")
-	@RequestMapping(value = "/discourses", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/discourses", method = RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingDiscourseResource>> discourse(@RequestParam(value= "page", defaultValue = "0") int page, 
-														   @RequestParam(value= "size", defaultValue="20") int size)  {
+	PagedResources<Resource<BrowsingDiscourseResource>> discourse(@PathVariable("databaseName") String databaseName,
+															@RequestParam(value= "page", defaultValue = "0") int page, 
+														   @RequestParam(value= "size", defaultValue="20") int size,
+														   HttpServletRequest hsr, HttpSession session
+														   )  {
+		registerDb(hsr, session, databaseName);
 		PageRequest p = new PageRequest(page,size);
 		
 			Page<BrowsingDiscourseResource> discourseResources = discourseRepository.findAll(p).map(b -> new BrowsingDiscourseResource(b, discoursePartRepository));
@@ -287,13 +441,16 @@ public class BrowsingRestController {
 	}
 
 	
-	
-	@RequestMapping(value = "/repos", method = RequestMethod.GET)
+	/*
+	@RequestMapping(value = "/database/{databaseName}/repos", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> discourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
+														   @PathVariable("databaseName") String databaseName,
 														   @RequestParam("repoType") String repoType,
-														   @RequestParam(value="annoType", defaultValue="*") String annoType) {
+														   @RequestParam(value="annoType", defaultValue="*") String annoType,
+														   HttpServletRequest hsr, HttpSession session) {
+		registerDb(hsr, session, databaseName);
 		PageRequest p = new PageRequest(page,size);
 		Page<BrowsingDiscoursePartResource> repoResources = 
 				discoursePartRepository.findAllNonDegenerateByType(repoType, p)
@@ -324,12 +481,8 @@ public class BrowsingRestController {
 
 		return response;
 	}
+	*/
 	
-	
-	public String discoursePart2BratName(DiscoursePart dp) {
-		return dp.getName().replaceAll("[^a-zA-Z0-9]", "_") + "__" + dp.getId().toString();
-	}
-
 	public String sanitize(String name) {
 		return name.replaceAll("[^a-zA-Z0-9]", "_");
 	}
@@ -370,13 +523,16 @@ public class BrowsingRestController {
 		return exportFile.replaceAll("[^a-zA-Z0-9]", "_") + (withAnnotations?"_annotated":"").toString();
 	}
 	
-	@RequestMapping(value = "/action/deleteLightside", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/deleteLightside", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> deleteLightside(
+			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "exportFilename") String exportFilename,
-			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations) 
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		registerDb(hsr,session,databaseName);
+		String lsDataDirectory = lsDataDirectory();
 		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
 		logger.info("DeleteLightside: dd:" + lsDataDirectory + " ef:" + exportFilename + 
 				" wa:" + withAnnotations + " => "
@@ -385,13 +541,15 @@ public class BrowsingRestController {
 			f.delete();
 		}
 		lsOutputFilename.delete();
-		return lightsideExports();
+		return lightsideExports(databaseName, hsr, session);
 	}
 	
+	@Deprecated
 	@CrossOrigin(origins="*", maxAge=3600)
-    @RequestMapping(value="/tokensigningoogle", method = RequestMethod.POST, headers = "content-type=application/x-www-form-urlencoded")
+    @RequestMapping(value="/tokensigningoogle_deprecated", method = RequestMethod.POST, headers = "content-type=application/x-www-form-urlencoded")
     public String processRegistration(@RequestParam("idtoken") String idTokenString) //, ModelMap model)
             throws GeneralSecurityException, IOException {
+		logger.info("Doing tokensigningoogle");
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAudience(Arrays.asList(environment.getRequiredProperty("google.client_id"))).setIssuer("accounts.google.com").build();
 
@@ -432,7 +590,7 @@ public class BrowsingRestController {
                 httpSession.setAttribute("sch", userDetails);
         	    logger.info("first check " + httpSession.getAttribute("sch"));
 
-                return "/browsing/stats";
+                return "/browsing/databases";
             }
         } else {
             System.out.println("Invalid ID token.");
@@ -442,12 +600,15 @@ public class BrowsingRestController {
 
 	
 	
-	@RequestMapping(value = "/action/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
+	@RequestMapping(value = "/action/database/{databaseName}/uploadLightside", headers="content-type=multipart/*", method=RequestMethod.POST)
 	@ResponseBody
 	PagedResources<Resource<BrowsingLightsideStubsResource>> uploadLightside(
-			@RequestParam("file_annotatedFileForUpload") MultipartFile file_annotatedFileForUpload) 
+			@RequestParam("file_annotatedFileForUpload") MultipartFile file_annotatedFileForUpload,
+			@PathVariable("databaseName") String databaseName,
+			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		registerDb(hsr,session, databaseName);
+		String lsDataDirectory = lsDataDirectory();
 		logger.info("Someone uploaded something!");
 		if (!file_annotatedFileForUpload.isEmpty()) {
 			try {
@@ -459,23 +620,115 @@ public class BrowsingRestController {
 				stream.close();
 				lightsideService.importAnnotatedData(tempUpload.toString());
 			} catch (Exception e) {
-				
+				logger.error("Error importing to lightside: " + e);
 			}
 		}
-		return lightsideExports();
+		return lightsideExports(databaseName, hsr, session);
 	}
 	
 	
-	@RequestMapping(value = "/action/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	@ResponseBody
+	String downloadQueryCsv(
+			HttpServletResponse response,
+			@RequestParam("query") String query,
+			   HttpServletRequest hsr, HttpSession session) 
+					throws IOException {
+		
+		securityUtils.authenticate(hsr, session);
+		response.setContentType("application/csv; charset=utf-8");
+		response.setHeader( "Content-Disposition", "attachment");
+		
+		
+		try {
+			logger.info("Got query for csv: " + query );
+		    
+			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+			
+			Page<BrowsingContributionResource> lbcr =  
+					q.retrieveAllContributions().map(c -> new BrowsingContributionResource(c,annoService));
+			
+			
+			StringBuilder output = new StringBuilder();
+			ArrayList<String> headers = new ArrayList<String>();
+			for(PropertyDescriptor pd: BeanUtils.getPropertyDescriptors(BrowsingContributionResource.class)) {
+				String name = pd.getName();
+				if (!name.equals("class") && !name.equals("id") && !name.equals("links"))  {
+					headers.add(name);
+				}
+			}
+			output.append(String.join(",",  headers));   output.append("\n");
+			
+			for(BrowsingContributionResource bcr: lbcr.getContent()) {
+				String comma = "";
+				BeanWrapper wrap = PropertyAccessorFactory.forBeanPropertyAccess(bcr);
+				for (String hdr : headers) {
+					
+					String item =  "";
+					try {
+						item = wrap.getPropertyValue(hdr).toString();
+						item = item.replaceAll("\"", "\"\"");
+						item = item.replaceAll("^\\[(.*)\\]$", "$1");
+					} catch (Exception e) {
+						logger.info(e.toString() + " For header " + hdr + " item " + item);
+						item = "";
+					}
+					if (hdr.equals("annotations") && item.length() > 0) {
+						logger.info("Annotation is " + item);
+					}
+					output.append(comma + "\"" + item + "\"");
+					comma = ",";
+				}
+				output.append("\n");
+			}
+			return output.toString();
+		} catch (Exception e) {
+			return "ERROR:" + e.getMessage();
+		}
+	}
+	
+	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	@ResponseBody
+	String downloadLightsideQuery(
+			HttpServletResponse response,
+			@RequestParam(value="query") String query,
+			@PathVariable(value= "exportFilename") String exportFilename,
+			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) 
+					throws IOException, DdbQueryParseException {
+		
+		DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+		registerDb(hsr,session, q.getDatabaseName());
+
+		response.setContentType("application/csv; charset=utf-8");
+		response.setHeader( "Content-Disposition", "attachment");
+		String lsDataDirectory = lsDataDirectory();
+		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
+		if (withAnnotations.equals("true")) {
+			lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+		} else {
+			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
+					q.retrieveAllContributions(), false);
+		}
+		return FileUtils.readFileToString(lsOutputFileName);
+	}
+	
+	@Deprecated
+	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	String downloadLightside(
 			HttpServletResponse response,
+			@PathVariable("databaseName") String databaseName,
 			@PathVariable(value= "exportFilename") String exportFilename,
-			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations) 
+			@RequestParam(value="withAnnotations", defaultValue = "false") String withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
+		
+		registerDb(hsr,session, databaseName);
+
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		String lsDataDirectory = lsDataDirectory();
 		File lsOutputFileDir = new File(lsDataDirectory , sanitize(exportFilename));
 		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
 		logger.info("Looking in directory " + lsOutputFileDir + " derived from " + exportFilename);
@@ -495,100 +748,127 @@ public class BrowsingRestController {
 			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
 					dps.stream()
 					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
-					.map(dpc -> dpc.getContribution())::iterator);
+					.map(dpc -> dpc.getContribution())::iterator, true);
 		}
 		return FileUtils.readFileToString(lsOutputFileName);
 	}
 	
-	@RequestMapping(value = "/action/exportLightside", method=RequestMethod.GET)
+	//
+	// Given a query string and a query name
+	// cycle through all the discourse parts in the query and create a stub file for it
+	@RequestMapping(value = "/action/database/{databaseName}/exportLightsideQuery", method=RequestMethod.GET)
 	@ResponseBody
+	@Deprecated
+	String exportLightsideAction(
+			@RequestParam("queryname") String queryname,
+			@RequestParam("query") String query,
+			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
+			   HttpServletRequest hsr, HttpSession session) throws IOException, DdbQueryParseException {
+		DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+		for (DiscoursePart dp : q.getDiscourseParts()) {
+			exportLightsideAction(q.getDatabaseName(), queryname, withAnnotations, dp.getId(), hsr, session);
+		}
+		return "OK";
+	}
+	
+	@RequestMapping(value = "/action/database/{databaseName}/exportLightside", method=RequestMethod.GET)
+	@ResponseBody
+	@Deprecated
 	PagedResources<Resource<BrowsingLightsideStubsResource>> exportLightsideAction(
+			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "exportFilename") String exportFilename,
 			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
-			@RequestParam(value= "dpId") long dpId) throws IOException {
+			@RequestParam(value= "dpId") long dpId,
+			   HttpServletRequest hsr, HttpSession session) throws IOException {
 		Assert.hasText(exportFilename, "No exportFilename specified");
+		registerDb(hsr,session, databaseName);
+
 		
 		DiscoursePart dp = discoursePartRepository.findOne(dpId).get();
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		String lsDataDirectory = lsDataDirectory();
 		File lsOutputFilename = new File(lsDataDirectory , exportFile2LightSideDir(exportFilename, withAnnotations));
 		logger.info(" Exporting dp " + dp.getName());
 		Set<DiscoursePart> descendents = discoursePartService.findDescendentClosure(dp, Optional.empty());
+		System.out.println(lsOutputFilename.getAbsoluteFile().toString());
 		lsOutputFilename.mkdirs();
 		for (DiscoursePart d: descendents) {
 			File child = new File(lsOutputFilename, d.getId().toString());
 			child.createNewFile();
 		}
-		return lightsideExports();
+		return lightsideExports(databaseName, hsr, session);
 	}
 	
-	/*@RequestMapping(value = "/action/exportLightsideOld", method=RequestMethod.GET)
+
+	//
+	// We never need to do this.  When you upload a lightside-annotated file, the upload
+	// function just imports it and forgets it.
+	//
+	@RequestMapping(value = "/action/database/{databaseName}/importLightside", method=RequestMethod.GET)
 	@ResponseBody
 	@Deprecated
-	PagedResources<Resource<BrowsingBratExportResource>> exportLightsideActionOld(
-			@RequestParam(value= "exportFilename") String exportFilename,
-			@RequestParam(value="withAnnotations", defaultValue = "false") boolean withAnnotations,
-			@RequestParam(value= "parentDpId") long parentDpId) throws IOException {
-		DiscoursePart dp = discoursePartRepository.findOne(parentDpId).get();
-		String lsDataDirectory = environment.getRequiredProperty("lightside.data_directory");
-		String lsOutputFilename = lsDataDirectory + "/" + exportFile2LightSideName(exportFilename, withAnnotations);
-		logger.info(" Exporting dp " + dp.getName());
-		Set<DiscoursePart> descendents = discoursePartService.findDescendentClosure(dp, Optional.empty());
-		if (withAnnotations) {
-			java.io.File lsOutputFile = new java.io.File(lsOutputFilename);
-			lightsideService.exportAnnotations(descendents, lsOutputFile);
-		} else {
-			// For multiple discourseParts, need to assemble all the contributions
-			lightsideService.exportDataForAnnotation(lsOutputFilename, 
-					descendents.stream()
-					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
-					.map(dpc -> dpc.getContribution())::iterator);
-		}
-		return lightsideExports();
-	}*/
-	
-	@RequestMapping(value = "/action/importLightside", method=RequestMethod.GET)
-	@ResponseBody
-	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(@RequestParam(value= "lightsideDirectory") String lightsideDirectory) throws IOException {
-		String bratDataDirectory = environment.getRequiredProperty("lightside.data_directory");		
-		lightsideService.importAnnotatedData(bratDataDirectory + "/" + lightsideDirectory);
+	PagedResources<Resource<BrowsingLightsideStubsResource>> importLightsideAction(
+			@RequestParam(value= "lightsideDirectory") String lightsideDirectory,
+			@PathVariable("databaseName") String databaseName,
+			   HttpServletRequest hsr, HttpSession session) throws IOException {
+		registerDb(hsr,session, databaseName);
+
+		String liteDataDirectory = lsDataDirectory();		
+		lightsideService.importAnnotatedData(liteDataDirectory + "/" + lightsideDirectory);
 		Optional<DiscoursePart> dp = lightsideName2DiscoursePartForImport(lightsideDirectory);
 		//if (dp.isPresent()) {
 		//	return subDiscourseParts(0,20, dp.get().getId());
 		//} else {
-			return lightsideExports();
+			return lightsideExports(databaseName, hsr, session);
 		//}
 	}	
 	
-	@RequestMapping(value = "/action/deleteBrat", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/deleteBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> deleteBrat(
-			@RequestParam(value= "bratDirectory") String bratDirectory) 
+			@RequestParam(value= "bratDirectory") String bratDirectory, 
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest hsr, HttpSession session) 
 					throws IOException {
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		registerDb(hsr, session,databaseName);
+		String bratDataDirectory = bratDataDirectory();
 		File bratDir = new File(bratDataDirectory + "/" + sanitize_dirname(bratDirectory));
 		if (bratDir.isDirectory()) {
 			FileUtils.deleteDirectory(bratDir);
 		} else if (bratDir.isFile()) {
 			bratDir.delete();
 		} 
-		return bratExports();
+		return bratExports(databaseName, hsr,session);
 	}
 	
-	@RequestMapping(value = "/action/exportBratItem", method=RequestMethod.GET)
+	public String bratDataDirectory() {
+		return environment.getRequiredProperty("brat.data_directory") + "/" + sysUserSvc.getSystemUser().get().getEmail();
+	}
+	public String lsDataDirectory() {
+		return environment.getRequiredProperty("lightside.data_directory") + "/" + sysUserSvc.getSystemUser().get().getEmail();
+	}
+
+	
+	@RequestMapping(value = "/action/database/{databaseName}/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> exportBratActionItem(
+			@PathVariable("databaseName") String databaseName,
 			@RequestParam(value= "exportDirectory") String exportDirectory,
-			@RequestParam(value="dpId")  long dpId) throws IOException {
+			@RequestParam(value="dpId")  long dpId, HttpServletRequest hsr, HttpSession session
+			) throws IOException {
+		registerDb(hsr,session, databaseName);
+
 		Assert.hasText(exportDirectory, "No exportDirectory name specified");
 		
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+		String bratDataDirectory = bratDataDirectory();
 		DiscoursePart childDp = discoursePartRepository.findOne(dpId).get();
 		
 		String bratDirectory = bratDataDirectory + "/" + sanitize(exportDirectory);
 		logger.info(" Exporting dp " + childDp.getName() + " in BRAT directory " + bratDirectory);
 		exportDiscoursePartRecursively(childDp, bratDirectory, new HashSet<DiscoursePart>());
-		return bratExports();
+		return bratExports(databaseName, hsr,session);
 	}
+	
+
 	
 	// TODO: MOVE THIS METHOD TO BRAT SERVICE
 	Set<DiscoursePart> exportDiscoursePartRecursively(DiscoursePart dp, String bratDirectory, Set<DiscoursePart> exported) 
@@ -602,27 +882,35 @@ public class BrowsingRestController {
 		//logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
 		
 		Set<DiscoursePart> exportedNow = exported;
-		if (kids.size() == 0) {
-			bratService.exportDiscoursePart(dp, bratDirectory);
-			exportedNow.add(dp);
-		} else {
-			logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
-			for(DiscoursePart k: kids) {
-				String kidname = dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
-				//logger.info("About to recurse: kidname = " + kidname + " filename = " + (new File(bratDirectory,kidname)).toString());
-				exportedNow.addAll(exportDiscoursePartRecursively(k, (new File(bratDirectory,kidname)).toString(), exportedNow));				
-			}
+
+		//NB: used to do this only if len(kids) == 0; but sometimes DPs can contain contributions *and* other DPs
+		bratService.exportDiscoursePart(dp, bratDirectory, true);
+		exportedNow.add(dp);
+		logger.info("Recursive export: " + dp.getId() + " contains " + kids.size() + " NEW kids");
+		for(DiscoursePart k: kids) {
+			String kidname = bratService.discoursePart2BratName(dp); 
+			//dp.getClass().getAnnotation(Table.class).name() + "_"+dp.getId();
+			//delete me
+			
+			//logger.info("About to recurse: kidname = " + kidname + " filename = " + (new File(bratDirectory,kidname)).toString());
+			exportedNow.addAll(exportDiscoursePartRecursively(k, (new File(bratDirectory,kidname+"_")).toString(), exportedNow));				
 		}
 		return exportedNow;
 	}
 
-	@RequestMapping(value = "/action/importBrat", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/importBrat", method=RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingBratExportResource>> importBratAction(
-			@RequestParam(value= "bratDirectory") String bratDirectory) throws IOException {
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");		
+			@PathVariable("databaseName") String databaseName,
+			@RequestParam(value= "bratDirectory") String bratDirectory, HttpServletRequest hsr, HttpSession session
+			) throws IOException {
+		registerDb(hsr,session, databaseName);
+
+		
+		String bratDataDirectory = bratDataDirectory();
+
 		importBratRecursively(bratDataDirectory + "/" + bratDirectory);
-		return bratExports();
+		return bratExports(databaseName, hsr,session);
 		/*
 		bratService.importDataset(bratDataDirectory + "/" + bratDirectory);
 		Optional<DiscoursePart> dp = bratName2DiscoursePart(bratDirectory);
@@ -643,69 +931,84 @@ public class BrowsingRestController {
 		}
 	}
 
-	@RequestMapping(value = "/lightsideExports", method=RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/lightsideExports", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingLightsideStubsResource>> lightsideExports() {
+	PagedResources<Resource<BrowsingLightsideStubsResource>> lightsideExports(
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest hsr, HttpSession session) {
+		registerDb(hsr,session, databaseName);
+
 		
-		String lightsideDataDirectory = environment.getRequiredProperty("lightside.data_directory");
+		String lightsideDataDirectory = lsDataDirectory();
 		List<BrowsingLightsideStubsResource> exported = BrowsingLightsideStubsResource.findPreviouslyExportedLightside(lightsideDataDirectory);
 		Page<BrowsingLightsideStubsResource> p = new PageImpl<BrowsingLightsideStubsResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingLightsideStubsResource ltstub: p) {
-			ltstub.add(makeLink1Arg("/browsing/action/deleteLightside", "Delete this export", "exportFilename", ltstub.getName()));
-			ltstub.add(makeLightsideDownloadLink("/browsing/action/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
+			ltstub.add(makeLink1Arg("/browsing/action/database/" + databaseName + "/deleteLightside", "Delete this export", "exportFilename", ltstub.getName()));
+			ltstub.add(makeLightsideDownloadLink("/browsing/action/database/" + databaseName + "/downloadLightside", ltstub.isAnnotated(), "Download", "exportFilename", ltstub.getName()));
 		}
 		PagedResources<Resource<BrowsingLightsideStubsResource>> ret = praLSAssembler.toResource(p);
-		ret.add(makeLink("/browsing/action/uploadLightside{?file_annotatedFileForUpload}", "Upload"));
+		ret.add(makeLink("/browsing/action/database/" + databaseName + "/uploadLightside{?file_annotatedFileForUpload}", "Upload"));
 		return ret;
 	}
 	
 	
-	@RequestMapping(value = "/bratExports", method=RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/bratExports", method=RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingBratExportResource>> bratExports() {
-		String bratDataDirectory = environment.getRequiredProperty("brat.data_directory");
+	PagedResources<Resource<BrowsingBratExportResource>> bratExports(
+			@PathVariable("databaseName") String databaseName,
+			HttpServletRequest hsr, HttpSession session) {
+		registerDb(hsr,session, databaseName);
+
+		String who = SecurityContextHolder.getContext().
+				getAuthentication().getPrincipal().toString();
+		String bratDataDirectory = bratDataDirectory();
 		List<BrowsingBratExportResource> exported = BrowsingBratExportResource.findPreviouslyExportedBrat(bratDataDirectory);
 		Page<BrowsingBratExportResource> p = new PageImpl<BrowsingBratExportResource>(exported, new PageRequest(0,100), exported.size());
 		for (BrowsingBratExportResource bber: p) {
-			bber.add(makeLink1Arg("/browsing/action/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
-			bber.add(makeBratLink("/index.xhtml#/" + bber.getName(), "Edit BRAT markup"));
-			bber.add(makeLink1Arg("/browsing/action/deleteBrat", "Delete BRAT markup", "bratDirectory", bber.getName()));
+			bber.add(makeLink1Arg("/browsing/action/database/" + databaseName + "/importBrat", "Import BRAT markup", "bratDirectory", bber.getName()));
+			bber.add(makeBratLink("/index.xhtml#/" + who + "/" + bber.getName(), "Edit BRAT markup"));
+			bber.add(makeLink1Arg("/browsing/action/database/" + databaseName + "/deleteBrat", "Delete BRAT markup", "bratDirectory", bber.getName()));
 		}
 		return praBratAssembler.toResource(p);
 	}
 	
-	@RequestMapping(value = "/subDiscourseParts/{childOf}", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/subDiscourseParts/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingDiscoursePartResource>> subDiscourseParts(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("childOf") Long dpId)  {
+														   @PathVariable("databaseName") String databaseName,
+														   @PathVariable("childOf") Long dpId,
+														   HttpServletRequest hsr, HttpSession session)  {
+		registerDb(hsr,session, databaseName);
+
+		
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
 			Page<BrowsingDiscoursePartResource> repoResources = 
 					discoursePartRelationRepository.findAllTargetsBySource(parent.get(), p)
-			/*.map(dpr -> dpr.getTarget())*/.map(BrowsingDiscoursePartResource::new);
+			/*.map(dpr -> dpr.getTarget())*/.map(dp -> new BrowsingDiscoursePartResource(dp, annoService));
 			
-			repoResources.forEach(bdp -> bdp.fillInUserInteractions(discoursePartInteractionRepository));
+			repoResources.forEach(bdp -> bdp.fillInUserInteractions(discoursePartInteractionRepository, annoService));
 			repoResources.forEach(
 			    bcr -> {
 			    	if (bcr.getContainingDiscourseParts().size() > 1) { 
 				        bcr._getContainingDiscourseParts().forEach(
 				             (childDpId,childDpName) -> {
 				            	 bcr.add(
-						    		makeLink("/browsing/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
+						    		makeLink("/browsing/database/" + databaseName + "/subDiscourseParts/" + childDpId , "Contained in: " + childDpName));
 				             }
 					    );
 				    }
 			    	//if (bcr.getContributionCount() > 0) {
-				    	Link check3 = makeBratExportNameLink("/browsing/action/exportBratItem","chk:Export to BRAT", parent.get().getName(),  Long.toString(bcr._getDpId()));
+				    	Link check3 = makeBratExportNameLink("/browsing/action/database/" + databaseName + "/exportBratItem","chk:Export to BRAT", parent.get().getName(),  Long.toString(bcr._getDpId()));
 				    	bcr.add(check3);
 			    	//} 
 		    		//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
 			    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
-					Link check = makeLightsideExportNameLink("/browsing/action/exportLightside", false, "chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
-			    	Link check2 = makeLightsideExportNameLink("/browsing/action/exportLightside", true, "chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+					Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside", false, "chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+			    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside", true, "chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 			    	bcr.add(check);	
 			    	bcr.add(check2);
 		    	
@@ -725,7 +1028,7 @@ public class BrowsingRestController {
 				response.add(makeLink1Arg("/browsing/action/exportBrat", "Export these all to BRAT", "parentDpId", dpId.toString()));
 			}
 			 */
-			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+			response.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscoursePart/" + dpId, "show users"));
 
 			return response;
 		} else {
@@ -735,11 +1038,15 @@ public class BrowsingRestController {
 	}
 	
 	
-	@RequestMapping(value = "/usersInDiscoursePart/{dpId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/usersInDiscoursePart/{dpId}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingUserResource>> users(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("dpId") Long dpId)  {
+														   @PathVariable("databaseName") String databaseName,
+														   @PathVariable("dpId") Long dpId,
+														   HttpServletRequest hsr, HttpSession session)  {
+		registerDb(hsr,session, databaseName);
+
 		PageRequest p = new PageRequest(page,size);
 		
 		
@@ -788,57 +1095,140 @@ public class BrowsingRestController {
 	}*/
 	
 	
-	@RequestMapping(value = "/dpContributions/{childOf}", method = RequestMethod.GET)
+	@RequestMapping(value = "/database/{databaseName}/dpContributions/{childOf}", method = RequestMethod.GET)
 	@ResponseBody
 	PagedResources<Resource<BrowsingContributionResource>> dpContributions(@RequestParam(value= "page", defaultValue = "0") int page, 
 														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("childOf") Long dpId)  {
+														   @PathVariable("databaseName") String databaseName,
+														   @PathVariable("childOf") Long dpId
+														   , HttpServletRequest hsr, HttpSession session)  {
+		registerDb(hsr,session, databaseName);
+
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
 		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
 		if (parent.isPresent()) {
 			Page<BrowsingContributionResource> lbcr = 
-					discoursePartContributionRepository.findByDiscoursePart(parent.get(), p)
+					discoursePartContributionRepository.findByDiscoursePartSorted(parent.get(), p)
 					.map(dpc -> dpc.getContribution())
-					.map(BrowsingContributionResource::new);
+					.map( c -> new BrowsingContributionResource(c,annoService));
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
 					     (dpId2, dpName2) -> {
 					        if (dpId2 != dpId) { bcr.add(
-						    	makeLink("/browsing/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
+						    	makeLink("/browsing/database/" + databaseName + "/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
 			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
 			
 			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
-			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+			response.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscoursePart/" + dpId, "show users"));
 			return response;
 		} else {
 			return null;
 		}
 	}
 	
-	@RequestMapping(value = "/dpContributionsRecursive/{childOf}", method = RequestMethod.GET)
+	
+	/* TO DO:
+	 *     /prop_get  :  (pname, ptype) -> pvalue
+	 */
+	
+	
+	/* Set of endpoints for manipulating system_user properties
+	*
+	*/
+	@RequestMapping(value = "/prop_list", method = RequestMethod.GET)
 	@ResponseBody
-	PagedResources<Resource<BrowsingContributionResource>> dpContributionsRecursive(@RequestParam(value= "page", defaultValue = "0") int page, 
-														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("childOf") Long dpId)  {
+	String prop_list(@RequestParam(value="ptype", defaultValue="*") String ptype,
+			                                                HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /prop_list");
+		securityUtils.authenticate(hsr, session);
+		logger.info("Authenticated /prop_list");
+		
+		logger.info("Requested property list of type " + ptype + " for user " + securityUtils.currentUserEmail());
+	
+		List<SystemUserProperty> props = systemUserService.getPropertyList().stream()
+				.filter(p -> p.getPropType().equals(ptype))
+	            .collect(Collectors.toList());
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(props);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.info("Could not output property list!");
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	@RequestMapping(value = "/prop_add", method = RequestMethod.POST)
+	@ResponseBody
+	String prop_add(@RequestParam(value="ptype") String ptype,
+			@RequestParam(value="pname") String pname,
+			@RequestParam(value="pvalue") String pvalue,
+			HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /prop_add");
+		securityUtils.authenticate(hsr,  session);
+		logger.info("Authenticated /prop_add");
+		
+		logger.info("Creating property of type " + ptype + " named " + pname + " value= string of length " 
+				+ Integer.toString(pvalue.length()) + " for user " + securityUtils.currentUserEmail());
+	
+		systemUserService.createProperty(ptype, pname, pvalue);
+		return prop_list(ptype, hsr, session);
+	}
+	
+	@RequestMapping(value = "/prop_del", method = RequestMethod.GET)
+	@ResponseBody
+	String prop_del(@RequestParam(value="ptype") String ptype,
+			@RequestParam(value="pname") String pname,
+			HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /prop_del");
+		securityUtils.authenticate(hsr,  session);
+		logger.info("Authenticated /prop_del");
+		
+		logger.info("Deleting property of type " + ptype + " named " + pname + 
+				" for user " + securityUtils.currentUserEmail());
+	
+		systemUserService.deleteProperty(ptype, pname);
+		return prop_list(ptype, hsr, session);
+	}
+	
+	
+	// Note: the page/size parameters have different names here: "start" and "length" to make it
+	// play well with a convenient Javascript component, dataTables per
+	// documentation here: https://datatables.net/manual/server-side
+	// Unfortunately it's not very configurable for things like this.
+	@RequestMapping(value = "/query", method = RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingContributionResource>> query(@RequestParam(value= "start", defaultValue = "0") int startposn, 
+														   @RequestParam(value= "length", defaultValue="20") int size,
+														   @RequestParam("query") String query,
+														   HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /query");
+		securityUtils.authenticate(hsr,  session);
+		logger.info("Authenticated /query");
+
+		
+		int page = (startposn/size);
 		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
 		
-		Optional<DiscoursePart> parent = discoursePartRepository.findOne(dpId);
-		if (parent.isPresent()) {
-			Page<BrowsingContributionResource> lbcr = 
-					discoursePartService.findContributionsRecursively(parent.get(), Optional.empty(), p)
-					.map(BrowsingContributionResource::new);
-			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
-					     (dpId2, dpName2) -> {
-					        if (dpId2 != dpId) { bcr.add(
-						    	makeLink("/browsing/dpContributions/" + dpId2 , "Also in:" + dpName2)); }}  ); }} );
+		try {
+			logger.info("Got query " + query +"    page=" + Integer.toString(page) + "  size=" + Integer.toString(size));
+		    
+			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+			Page<BrowsingContributionResource> lbcr =  
+					q.retrieveAllContributions(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
+
+						
+				
 			PagedResources<Resource<BrowsingContributionResource>> response = praContributionAssembler.toResource(lbcr);
-			
-			//response.add(makeLink("/browsing/subDiscourseParts{?page,size,repoType,annoType}", "search"));
-			response.add(makeLink("/browsing/usersInDiscoursePart/" + dpId, "show users"));
+				
 			return response;
-		} else {
+		} catch (DdbQueryParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return null;
 		}
+	
 	}
 	
 	public Link makeBratLink(String urlend, String rel) {

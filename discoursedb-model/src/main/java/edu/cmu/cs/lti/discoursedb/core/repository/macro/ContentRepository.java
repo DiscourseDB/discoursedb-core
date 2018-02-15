@@ -31,6 +31,7 @@ import org.springframework.data.repository.query.Param;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
+import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 
 public interface ContentRepository extends BaseRepository<Content,Long>{
 	public List<Content> findByIdIn(List<Long> contentIdList);
@@ -44,6 +45,12 @@ public interface ContentRepository extends BaseRepository<Content,Long>{
 	public void setPreviousRevisionId(Long id, Long previousRevId);
 
 	@Query("select c from Content c left join c.dataSourceAggregate ca left join ca.sources ci where ci.entitySourceId=:id")
-	public Optional<Content> findOneByDataSourceId(@Param("id") String id);
-    
+	@Deprecated
+	public Optional<Content> findOneByDataSourceId(@Param("id") String id);   // TODO:  Remove this wherever it's used; this is the wrong way to do data sources
+	
+	@Query("select c from Content c left join c.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id"
+			+ " and dsi.entitySourceDescriptor=:entitySourceDescriptor and dsi.sourceType =:sourceType and dsi.datasetName=:datasetName")
+	Optional<Content> findOneByDataSource(@Param("id") String id, @Param("entitySourceDescriptor") String entitySourceDescriptor, @Param("sourceType") DataSourceTypes sourceType,
+			@Param("datasetName") String datasetName);
+   
 }

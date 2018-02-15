@@ -26,6 +26,8 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -37,4 +39,7 @@ public interface DiscoursePartContributionRepository extends BaseRepository<Disc
 	Optional<DiscoursePartContribution> findOneByContributionAndDiscoursePart(Contribution contribution, DiscoursePart discoursePart);
 	List<DiscoursePartContribution> findByDiscoursePart(DiscoursePart discoursePart);
     Page<DiscoursePartContribution> findByDiscoursePart(DiscoursePart discoursePart, Pageable page);
+    
+    @Query("select dpc from DiscoursePartContribution dpc left join dpc.contribution c where dpc.discoursePart = :discoursePart order by c.startTime, c.id")
+    Page<DiscoursePartContribution> findByDiscoursePartSorted(@Param("discoursePart") DiscoursePart discoursePart, Pageable page);
 }

@@ -1,8 +1,14 @@
 
-	jdbc.host=localhost
-	jdbc.database=discoursedb_ext_workshop_demo1
-	jdbc.username=local
-	jdbc.password=local
+#
+#  Database can be called anything
+#  System database should have a fixed name
+#  We assume all mysql databases are prefixed with discoursedb_ext
+#
+jdbc.host=localhost
+jdbc.database=discoursedb_ext_anything
+jdbc.system_database=discoursedb_ext_system
+jdbc.username=local
+jdbc.password=local
 
 lightside.data_directory=/Users/bogart-MBP-isri/lightside/data
 brat.data_directory=/Users/bogart-MBP-isri/brat-v1.3_Crunchy_Frog/data
@@ -10,13 +16,49 @@ brat.ui_base=http://127.0.0.1:8080/brat
 server.port=5280
 management.port=5281
 
-#jdbc.host=erebor.lti.cs.cmu.edu
-#jdbc.database=discoursedb_github
-#jdbc.username=discoursedb
-#jdbc.password=DqRYC9ME
+# Substitute real passwords for $$$$$ in this file
+# 
+#  Get client secret/id from https://developers.google.com/identity/sign-in/web/devconsole-project
+#
+google.client_secret=$$$$$$
+google.client_id=$$$$$$$
+google.registered.url=http://127.0.0.1:5980
+spring.data.rest.defaultPageSize = 100
 
+# https://stackoverflow.com/questions/28330716/how-to-disable-the-default-exposure-of-spring-data-rest-repositories
+spring.data.rest.detection-strategy=annotated
 
+# https://dzone.com/articles/disable-spring-boot-production
+endpoints.autoconfig.enabled=false
+endpoints.beans.enabled=false
+endpoints.configprops.enabled=false
+endpoints.dump.enabled=false
+endpoints.env.enabled=false
+endpoints.health.enabled=false
+endpoints.info.enabled=false
+endpoints.metrics.enabled=false
+endpoints.mappings.enabled=false
+endpoints.shutdown.enabled=false
+endpoints.trace.enabled=false
+endpoints.profile.enabled=false
 
+# Run this on server:
+#   keytool -genkey -alias tomcat -keyalg RSA -storepass  $$$$$ -keypass $$$$$ -dname 'CN=DiscourseDB'
+# 
+
+security.require-ssl=true
+https.enabled=true
+server.ssl.key-store=src/main/resources/localhost_keystore.p12
+server.ssl.key-store-type=PKCS12
+server.ssl.key-store-password=$$$$$
+server.ssl.key-password=$$$$$
+security.headers.hsts=none
+
+server.ssl.key-alias=tomcat
+server.ssl.enabled=true
+security.user.name=$$$$$
+security.user.password=$$$$$
+server.ssl.client-auth=want
 
 
 # logs the SQL statements
@@ -24,3 +66,11 @@ management.port=5281
 
 # Logs the JDBC parameters passed to a query
 #log4j.logger.org.hibernate.type=trace 
+
+
+
+
+
+
+
+

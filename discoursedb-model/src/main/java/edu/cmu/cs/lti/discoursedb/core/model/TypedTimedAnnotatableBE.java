@@ -29,6 +29,9 @@ import javax.persistence.MappedSuperclass;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RestResource;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+//import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationAggregate;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

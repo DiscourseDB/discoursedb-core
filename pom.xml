@@ -19,7 +19,7 @@
 	</distributionManagement>
 	<groupId>edu.cmu.cs.lti</groupId>
 	<artifactId>discoursedb-core</artifactId>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.8-SNAPSHOT</version>
 	<name>DiscourseDB Core Parent </name>
 	<description>DiscourseDB Core Parent Project</description>
 	<developers>
@@ -61,7 +61,7 @@
 				<artifactId>discoursedb-io-twitter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- Override versions of all querydsl modules defined in platform-bom. 
+			<!-- Override versions of all querydsl modules defined in platform-bom.
 				We need the bugfixes in 3.7.1 -->
 			<dependency>
 				<groupId>com.mysema.querydsl</groupId>
@@ -203,7 +203,7 @@
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-ext-twitter4j</artifactId>
 				<version>${project.version}</version>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-annotation-io-lightside</artifactId>
@@ -361,7 +361,7 @@
 					<artifactId>javancss-maven-plugin</artifactId>
 					<version>2.1</version>
 					<dependencies>
-						<!-- Per default depends on a jaxen version with draws in a jdom version 
+						<!-- Per default depends on a jaxen version with draws in a jdom version
 							that has a broken pom and does pass Artifactory's consistency checks -->
 						<dependency>
 							<groupId>jaxen</groupId>
@@ -416,7 +416,7 @@
 						</dependency>
 					</dependencies>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
+				<!--This plugin's configuration is used to store Eclipse m2e settings
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -717,7 +717,7 @@
 			<build>
 				<pluginManagement>
 					<plugins>
-						<!-- - This plugin's configuration is used to store Eclipse m2e settings 
+						<!-- - This plugin's configuration is used to store Eclipse m2e settings
 							only. - It has no influence on the Maven build itself. -->
 						<plugin>
 							<groupId>org.eclipse.m2e</groupId>
@@ -808,8 +808,11 @@
 		<module>discoursedb-annotation-io-lightside</module>
 		<module>discoursedb-io-twitter</module>
 		<module>discoursedb-io-ravelry</module>
-		<module>discoursedb-io-salon</module>
-		<module>discoursedb-io-spirit</module>
+    <module>discoursedb-io-salon</module>
+    <module>discoursedb-io-spirit</module>
+    <module>discoursedb-io-mturk</module>
+    <module>discoursedb-io-courseraUPenn</module>
+    <module>discoursedb-io-ddbjson</module>
   </modules>
 	<ciManagement>
 		<system>Jenkins</system>

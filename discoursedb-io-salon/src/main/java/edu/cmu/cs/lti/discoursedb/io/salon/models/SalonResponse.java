@@ -31,12 +31,12 @@ public class SalonResponse {
 				salonr.responseText = rs.getString("response_text");
 				salonr.responseTitle = rs.getString("response_title");
 				try{
-					salonr.responseMade = rs.getDate("response_made");
+					salonr.responseMade = rs.getTimestamp("response_made");
 				} catch (Exception e) {
 					salonr.responseMade = null;
 				}
 				try {
-					salonr.responseModified = rs.getDate("response_modified");
+					salonr.responseModified = rs.getTimestamp("response_modified");
 				} catch (Exception e) {
 					salonr.responseModified = salonr.responseMade;
 				}

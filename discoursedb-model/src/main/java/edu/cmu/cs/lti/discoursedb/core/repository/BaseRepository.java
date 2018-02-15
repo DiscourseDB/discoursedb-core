@@ -24,6 +24,7 @@ package edu.cmu.cs.lti.discoursedb.core.repository;
 import java.io.Serializable;
 
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 
 /**
@@ -36,6 +37,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @param <ID> the primary key type (usually long)
  */
 @NoRepositoryBean
+@RepositoryRestResource(exported = false)
 public interface BaseRepository<T, ID extends Serializable> extends CustomPagingAndSortingRepository<T, ID>, CustomQueryDslPredicateExecutor<T> {
 	
 	

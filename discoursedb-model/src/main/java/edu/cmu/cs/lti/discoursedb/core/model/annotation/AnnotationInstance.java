@@ -35,12 +35,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
 import edu.cmu.cs.lti.discoursedb.core.model.TypedSourcedBE;
-import edu.cmu.cs.lti.discoursedb.core.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -79,10 +80,23 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	@Description("The aggregate entity that aggregates all annotations belonging to the associated/annotated entity.")
 	private AnnotationEntityProxy annotationEntityProxy;
 	
-	@ManyToOne 
+	/*
+	 * 
+	 * @ManyToOne 
+	 *
 	@JoinColumn(name = "fk_annotator")
 	@Description("The user who created this annotation instance.")
 	private SystemUser annotator;
+	*/
+	
+	@Column(name="annotator_email")
+	@Description("The user who created this annotation instance.")
+	private String annotatorEmail;
+	
+	@Transient
+	public String getEmail() { return annotatorEmail; }
+	@Transient
+	public void setAnnotator(SystemUser anno) { annotatorEmail = (anno != null)?anno.getEmail():null; }
 	
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.REMOVE},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -41,6 +42,8 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.user.DiscoursePartInteraction;
 import edu.cmu.cs.lti.discoursedb.core.repository.user.DiscoursePartInteractionRepository;
+import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
+import lombok.NonNull;
 
 public class BrowsingDiscoursePartResource extends ResourceSupport {
 	
@@ -60,7 +63,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 	
 	private static final Logger logger = LogManager.getLogger(BrowsingDiscoursePartResource.class);	
 
-	public BrowsingDiscoursePartResource(DiscoursePart dp) {
+	public BrowsingDiscoursePartResource(DiscoursePart dp, AnnotationService annoService) {
 		this.dp = dp;
 		this.setName(dp.getName());
 		this.setType(dp.getType());
@@ -70,7 +73,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		
 		if (dp.getAnnotations() != null) {
 			List<BrowsingAnnotationResource> annos = new LinkedList<BrowsingAnnotationResource>();
-			for (AnnotationInstance ai: dp.getAnnotations().getAnnotations()) {
+			for (AnnotationInstance ai: annoService.findAnnotations(dp)) {
 				annos.add(new BrowsingAnnotationResource(ai));
 			}
 			this.setAnnotations(annos);
@@ -90,7 +93,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 
 		if (this.getSubDiscoursePartCount() > 0) {
 			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp.getId() + "/", 
-					 dp.getName() ));			
+					this.getSubDiscoursePartCount() + " related discourse part(s)" ));			
 		}
 /*		for (DiscoursePartRelation dp1 : dp.getSourceOfDiscoursePartRelations()) {
 			this.add(BrowsingRestController.makeLink("/browsing/subDiscourseParts/" + dp1.getTarget().getId() + "/", 
@@ -98,7 +101,7 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 		} */
 		
 		if (this.getContributionCount() > 0) {
-			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", "contributions"));
+			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", this.getContributionCount() + " contribution(s)"));
 		}
 		
    	    containingDiscourseParts = new HashMap<Long,String>();
@@ -107,11 +110,11 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
    	    }
 	}
 	
-	public void fillInUserInteractions(DiscoursePartInteractionRepository dpr) {
+	public void fillInUserInteractions(DiscoursePartInteractionRepository dpr, AnnotationService annoService) {
 		for (DiscoursePartInteraction dpi : dpr.findAllByDiscoursePart(dp)) {
 			String interaction = dpi.getUser().getUsername() + ": " + dpi.getType();
 			if (dpi.getAnnotations() != null) {
-				List<BrowsingAnnotationResource> anno = dpi.getAnnotations().getAnnotations().stream().
+				List<BrowsingAnnotationResource> anno = annoService.findAnnotations(dpi).stream().
 						map(BrowsingAnnotationResource::new).
 						collect(Collectors.toList());
 				if (annotations == null) { 

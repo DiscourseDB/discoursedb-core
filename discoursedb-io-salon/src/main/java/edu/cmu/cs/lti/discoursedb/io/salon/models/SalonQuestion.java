@@ -29,7 +29,7 @@ public class SalonQuestion {
 				salonq.questionText = rs.getString("question_text");
 				salonq.documentID = rs.getLong("document_id");
 				salonq.questionTitle = rs.getString("question_title");
-				salonq.createdDate = rs.getDate("created_date");
+				salonq.createdDate = rs.getTimestamp("created_date");
 				salonq.userID = rs.getLong("user_id");
 				return salonq;
 			  }

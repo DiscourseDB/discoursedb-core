@@ -22,6 +22,12 @@
 package edu.cmu.cs.lti.discoursedb.annotation.brat.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -102,5 +108,35 @@ public class UtilService {
 		}
 		
 	}	
+	
+	public <T> List<T> threadsort(List<T> original, Function<T, Long> contributionId, Function<T, Long> parentId) {
+		LinkedList<T> reordered = new LinkedList<T>();
+		Map<Long,Integer> tails = new HashMap<Long, Integer>();
+		Map<Long,ArrayList<Long>> parents = new HashMap<Long, ArrayList<Long>>();
+		tails.put(0L, -1);
+		parents.put(0L, new ArrayList<Long>());
+		
+		
+		for (T d : original) {
+			Long id = contributionId.apply(d);
+			Long parent = parentId.apply(d);
+			Integer tail = tails.get(parent);
+			if (tail == null) {
+				tail = -1;
+			}
+			reordered.add(tail+1,d);
+			tails.put(id, tail+1);
+			if (!parents.containsKey(id)) { parents.put(id, new ArrayList<Long>()); }
+			parents.get(id).add(parent);
+			for (Long t: tails.keySet()) {
+				if (parents.get(id).contains(t) && tails.get(t) < tail+1) {
+					tails.put(t, tail+1);
+				} else if (t != id && tails.get(t) >= tail+1) {
+					tails.put(t, tails.get(t) + 1);
+				}
+			}
+		}
+		return reordered;
+	}
 	
 }

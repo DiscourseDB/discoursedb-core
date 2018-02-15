@@ -19,10 +19,14 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.core.model.system;
+package edu.cmu.cs.lti.discoursedb.system.model.system;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -34,7 +38,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails; 
 
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBE;
 import lombok.AccessLevel;
@@ -52,28 +62,20 @@ import lombok.Setter;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "system_user")
-public class SystemUser extends TimedBE {
+@Table(name = "system_database")
+public class SystemDatabase extends TimedBE {
 
 	@Id
-	@Column(name = "id_system_user", nullable = false)
+	@Column(name = "id_system_database", nullable = false)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Setter(AccessLevel.PRIVATE)
 	private Long id;
 
-	private String realname;
+	private String name;
 
-	private String username;
+	private String description;
 
-	private String email;
-
-	@Column(name = "password_hash")
-	private String passwordHash;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "system_user_roles", joinColumns = @JoinColumn(name = "id_system_user"))
-    @Column(name = "role", nullable = false, length = 171)
-    @Enumerated(EnumType.STRING)
-	private Set<SystemUserRole> roles;
+	@Column(name="is_public")
+	private Integer isPublic;
 
 }
