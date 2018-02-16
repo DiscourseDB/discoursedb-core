@@ -31,3 +31,4 @@ node
 node_modules
 built
 npm-debug.log
+*.iml

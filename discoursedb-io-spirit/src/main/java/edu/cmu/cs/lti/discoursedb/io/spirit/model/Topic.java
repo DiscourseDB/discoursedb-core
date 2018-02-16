@@ -18,7 +18,7 @@ or
  *
  * You should have received a copy of the GNU General Public License
  * along with DiscourseDB.  If not
-see <http://www.gnu.org/licenses/> 
+see <http://www.gnu.org/licenses/>
  * or write to the Free Software Foundation
 Inc.
 51 Franklin Street
@@ -44,9 +44,11 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.ForeignKey;
 
 import org.hibernate.annotations.Type;
 
@@ -115,7 +117,7 @@ public class Topic {
     private Category category;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false, referencedColumnName="user_id")
     private UserProfile user;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "topic")

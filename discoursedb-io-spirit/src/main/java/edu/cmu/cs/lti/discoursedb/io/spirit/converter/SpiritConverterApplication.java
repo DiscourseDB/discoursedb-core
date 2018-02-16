@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
- * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/>
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street,
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.io.spirit.converter;
@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  * @author
  */
 @SpringBootApplication
-@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.io.spirit" })
+@ComponentScan(basePackages = { "edu.cmu.cs.lti.discoursedb", "edu.cmu.cs.lti.discoursedb.configuration", "edu.cmu.cs.lti.discoursedb.io.spirit" })
 public class SpiritConverterApplication {
 
     /**

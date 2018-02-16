@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
- * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/>
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street,
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.io.spirit.converter;
@@ -86,6 +86,8 @@ public class SpiritConverterService {
          * In spirit a Forum is referred to as a Category. Categories may have a parent category.
          */
         mapForum(discourse, dataSetName, discourseName);
+
+        relateCategories(discourse, dataSetName, discourseName);
 
         /*
          * Phase 2: Read through thread data from database and map all entities
@@ -204,7 +206,7 @@ public class SpiritConverterService {
      * DiscourseDB. Each post entity is mapped to DiscourseDB as a Contribution
      * entity. The content of each post entity is mapped to DiscourseDB as a
      * Content entity.
-     * 
+     *
      * @param discourse
      * @param dataSetName
      * @param discourseName
@@ -264,7 +266,7 @@ public class SpiritConverterService {
                                 currentContent.setText(comment.getComment());
                                 currentContent.setAuthor(currentUser);
                                 currentContent.setStartTime(comment.getDate());
- 
+
                                 dataSourceService.addSource(
                                         currentContent,
                                         new DataSourceInstance(
@@ -328,12 +330,62 @@ public class SpiritConverterService {
                         String.valueOf(originalPostComment.getId()), SpiritSourceMapping.ID_STR_TO_CONTRIBUTION, dataSetName);
 
                 if (existingComment.isPresent() && existingOriginalPostComment.isPresent()) {
-                    log.info("Craeting relation between:\n" + existingOriginalPostComment.get() + "\n" + existingComment.get());
+                    log.info("Creating relation between:\n" + existingOriginalPostComment.get() + "\n" + existingComment.get());
 
-                    contributionService.createDiscourseRelation(existingOriginalPostComment.get(), existingComment.get(),
+                    contributionService.createDiscourseRelation(existingComment.get(), existingOriginalPostComment.get(),
                             DiscourseRelationTypes.COMMENT);
                 }
             }
         }
+    }
+
+    /**
+     *
+     * @param discourse
+     * @param dataSetName
+     * @param discourseName
+     * @throws SQLException
+     */
+    private void relateCategories(Discourse discourse, String dataSetName, String discourseName) throws SQLException {
+        log.info("Importing Comment (post) data");
+        for (Category category : database.getCategories()) {
+            if (category == null || category.getParentCategory() == null) {
+                continue;
+            }
+
+            Category parentCategory = category.getParentCategory();
+
+            DiscoursePartTypes forumType = getForumType(category);
+            DiscoursePartTypes parentForumType = getForumType(parentCategory);
+
+            DiscoursePart categoryDiscoursePart =
+                    discoursepartService.createOrGetDiscoursePartByDataSource(
+                            discourse,
+                            String.valueOf(category.getId()),
+                            SpiritSourceMapping.ID_STR_TO_DISCOURSEPART,
+                            DataSourceTypes.SPIRIT,
+                            dataSetName,
+                            forumType);
+
+            DiscoursePart parentCategoryDiscoursePart =
+                    discoursepartService.createOrGetDiscoursePartByDataSource(
+                            discourse,
+                            String.valueOf(parentCategory.getId()),
+                            SpiritSourceMapping.ID_STR_TO_DISCOURSEPART,
+                            DataSourceTypes.SPIRIT,
+                            dataSetName,
+                            parentForumType);
+
+            discoursepartService.createDiscoursePartRelation(
+                    categoryDiscoursePart,
+                    parentCategoryDiscoursePart,
+                    DiscoursePartRelationTypes.SUBPART);
+        }
+    }
+
+    private DiscoursePartTypes getForumType(Category category) {
+        return (category.getParentCategory() == null)
+                ? DiscoursePartTypes.FORUM
+                : DiscoursePartTypes.SUBFORUM;
     }
 }

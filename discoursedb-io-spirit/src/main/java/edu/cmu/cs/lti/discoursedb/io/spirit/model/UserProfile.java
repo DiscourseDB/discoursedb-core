@@ -15,24 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
- * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/>
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street,
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.io.spirit.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 
@@ -47,7 +39,7 @@ import lombok.Data;
 
 @Entity
 @Table(name = "spirit_user_userprofile")
-public class UserProfile {
+public class UserProfile implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

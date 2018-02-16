@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/>
- * or write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.configuration;
@@ -56,7 +56,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 /**
  * DiscourseDB base configuration class.
  * Parameters that are most likely to be changed (i.e. for the databse connection) are read from the hibernate.properties file.
- *
+ * 
  * Fore more information about the Spring JavaConfig, see <a href="http://docs.spring.io/spring-data/jpa/docs/1.4.3.RELEASE/reference/html/jpa.repositories.html">the Spring Data docs</a>.
  * <br/>
  * The configuration class be replaced by a custom configuration.
@@ -64,7 +64,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @Configuration
 //@EnableAutoConfiguration
 @EnableTransactionManagement
-/*@ComponentScan(basePackages = {
+/*@ComponentScan(basePackages = { 
 		"edu.cmu.cs.lti.discoursedb.core.model",
 		"edu.cmu.cs.lti.discoursedb.core.repository",
 		"edu.cmu.cs.lti.discoursedb.core.service"
@@ -73,12 +73,12 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
     @PropertySource("classpath:hibernate.properties"), //default hibernate configuration
     @PropertySource("classpath:jdbc.properties"), //default database configuration
     @PropertySource("classpath:c3p0.properties"), //default connection pool configuration
-    @PropertySource(value = "classpath:custom.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults
+    @PropertySource(value = "classpath:custom.properties", ignoreResourceNotFound = true) //optional custom config. keys specified here override defaults 
 })
 //@EntityScan(basePackages = { "edu.cmu.cs.lti.discoursedb.core.model" })
 /*
  *  May need to define entityManagerFactoryRef and transactionManagerRef below, per
- *
+ *  
  * 			http://kimrudolph.de/blog/spring-datasource-routing
  */
 @ConfigurationProperties(prefix="core.datasource")
@@ -87,9 +87,9 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 					  transactionManagerRef = "coreTransactionManager")
 public class BaseConfiguration {
 
-	@Autowired
+	@Autowired 
 	private Environment environment;
-
+	
 	//@Autowired(required = false)
 	@Bean(name="corePersistenceUnitManager")
 	@Primary
@@ -100,8 +100,8 @@ public class BaseConfiguration {
 		persistenceUnitManager.setDefaultPersistenceUnitName("corePersistenceUnitManager");
 		return persistenceUnitManager;
 	}
-
-
+	
+	
 
 	@Bean(name="coreTransactionManager")
 	@Primary
