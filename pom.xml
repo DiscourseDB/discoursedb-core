@@ -807,11 +807,11 @@
 		<module>discoursedb-annotation-io-brat</module>
 		<module>discoursedb-annotation-io-lightside</module>
 		<module>discoursedb-io-twitter</module>
-		<module>discoursedb-io-ravelry</module>
+		<!--<module>discoursedb-io-ravelry</module>-->
     <module>discoursedb-io-salon</module>
     <module>discoursedb-io-mturk</module>
-    <module>discoursedb-io-courseraUPenn</module>
-    <module>discoursedb-io-ddbjson</module>
+    <!--<module>discoursedb-io-courseraUPenn</module>
+    <module>discoursedb-io-ddbjson</module>-->
   </modules>
 	<ciManagement>
 		<system>Jenkins</system>
