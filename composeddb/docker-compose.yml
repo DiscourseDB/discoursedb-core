@@ -1,0 +1,45 @@
+version: '3'
+volumes:
+  mysql_data:
+services:
+  browser:
+    build: browser 
+    ports:
+     - "443:443"
+     - "80:80"
+    expose:
+     - "443"
+     - "80"
+
+  db:
+    image: "mysql"
+    hostname: medical-mysql    
+    command: mysqld --user=root --verbose
+    volumes:    
+     - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: "local"
+      MYSQL_PASSWORD: "local"
+    ports:
+     - "8083:3306"
+    expose:
+     - "8083"
+
+  inspector:
+    image: ubuntu
+    depends_on:
+     - db
+    command: ["sleep","3600"]
+
+  server:
+    build: server
+    ports:
+     - "5280:5280"
+    depends_on:
+     - db
+
+
+  #  build: brat
+  #  ports:
+  #   - "80:80"
