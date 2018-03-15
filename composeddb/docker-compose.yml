@@ -38,6 +38,8 @@ services:
      - "5280:5280"
     depends_on:
      - db
+    expose:
+     - "5280"
 
 
   #  build: brat

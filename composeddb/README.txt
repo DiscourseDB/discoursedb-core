@@ -29,6 +29,9 @@ To run:
 To show the containers running:
    docker-compose ps   
 
+Rebuild and restart a container
+   docker-compose up -d --build browser
+
 To jump into one of the containers:
    docker exec -it composeddb_browser_1 bash
 
