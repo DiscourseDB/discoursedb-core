@@ -213,6 +213,19 @@ public class BrowsingRestController {
 	}
 	
 	
+	@RequestMapping(value="/logout", method=RequestMethod.GET)
+	@ResponseBody
+	void logout(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.abandonSession(session);
+	}
+	
+	@RequestMapping(value="/whoAmI", method=RequestMethod.GET)
+	@ResponseBody
+	String whoAmI(HttpServletRequest httpServletRequest, HttpSession session) {
+		SystemUserAuthentication user = securityUtils.loggedInUser();
+		return user.getName();
+	}
+	
 	@RequestMapping(value="/database/{databaseName}/stats", method=RequestMethod.GET)
 	@ResponseBody
 	Resources<BrowsingStatsResource> stats(
@@ -244,7 +257,10 @@ public class BrowsingRestController {
 	Map<String, List<String>> userAccess(HttpServletRequest httpServletRequest, HttpSession session
 			,@RequestParam(value= "userid", defaultValue = "") String userid) {
 		
-		SystemUserAuthentication userInQuestion = securityUtils.getUser(userid);
+		SystemUserAuthentication userInQuestion = 
+				userid.contains("@")
+				        ?securityUtils.getUserByEmail(userid)
+						:securityUtils.getUserByUsername(userid);
 		HashMap<String,List<String>> hm = new HashMap<String,List<String>>();
 		
 		List<String> dbs = userInQuestion.getAllowedDatabases();
@@ -627,7 +643,7 @@ public class BrowsingRestController {
 	}
 	
 	
-	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	String downloadQueryCsv(
 			HttpServletResponse response,
@@ -687,7 +703,7 @@ public class BrowsingRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	String downloadLightsideQuery(
 			HttpServletResponse response,
@@ -703,18 +719,20 @@ public class BrowsingRestController {
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
 		String lsDataDirectory = lsDataDirectory();
-		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
+		File lsOutputFile = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
 		if (withAnnotations.equals("true")) {
-			lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+			//lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+			lightsideService.exportAnnotationsFromContributions(lsOutputFile, q.retrieveAllContributions());
 		} else {
-			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
-					q.retrieveAllContributions());
+			lightsideService.exportDataForAnnotation(lsOutputFile.toString(), 
+					q.retrieveAllContributions(), false);
 		}
-		return FileUtils.readFileToString(lsOutputFileName);
+		return FileUtils.readFileToString(lsOutputFile);
 	}
 	
+	/*
 	@Deprecated
-	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET)
+	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	String downloadLightside(
 			HttpServletResponse response,
@@ -748,7 +766,7 @@ public class BrowsingRestController {
 			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
 					dps.stream()
 					.flatMap(targ -> targ.getDiscoursePartContributions().stream())
-					.map(dpc -> dpc.getContribution())::iterator);
+					.map(dpc -> dpc.getContribution())::iterator, true);
 		}
 		return FileUtils.readFileToString(lsOutputFileName);
 	}
@@ -820,7 +838,7 @@ public class BrowsingRestController {
 		//} else {
 			return lightsideExports(databaseName, hsr, session);
 		//}
-	}	
+	}	*/
 	
 	@RequestMapping(value = "/action/database/{databaseName}/deleteBrat", method=RequestMethod.GET)
 	@ResponseBody
@@ -1176,6 +1194,21 @@ public class BrowsingRestController {
 		return prop_list(ptype, hsr, session);
 	}
 	
+	@RequestMapping(value = "/prop_del", method = RequestMethod.GET)
+	@ResponseBody
+	String prop_del(@RequestParam(value="ptype") String ptype,
+			@RequestParam(value="pname") String pname,
+			HttpServletRequest hsr, HttpSession session)  {
+		logger.info("Authenticating /prop_del");
+		securityUtils.authenticate(hsr,  session);
+		logger.info("Authenticated /prop_del");
+		
+		logger.info("Deleting property of type " + ptype + " named " + pname + 
+				" for user " + securityUtils.currentUserEmail());
+	
+		systemUserService.deleteProperty(ptype, pname);
+		return prop_list(ptype, hsr, session);
+	}
 	
 	
 	// Note: the page/size parameters have different names here: "start" and "length" to make it

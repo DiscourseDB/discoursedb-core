@@ -50,7 +50,7 @@ public interface ContentRepository extends BaseRepository<Content,Long>{
 	
 	@Query("select c from Content c left join c.dataSourceAggregate dsa left join dsa.sources dsi where dsi.entitySourceId=:id"
 			+ " and dsi.entitySourceDescriptor=:entitySourceDescriptor and dsi.sourceType =:sourceType and dsi.datasetName=:datasetName")
-	Optional<DiscoursePart> findOneByDataSource(@Param("id") String id, @Param("entitySourceDescriptor") String entitySourceDescriptor, @Param("sourceType") DataSourceTypes sourceType,
+	Optional<Content> findOneByDataSource(@Param("id") String id, @Param("entitySourceDescriptor") String entitySourceDescriptor, @Param("sourceType") DataSourceTypes sourceType,
 			@Param("datasetName") String datasetName);
    
 }

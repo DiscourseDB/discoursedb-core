@@ -124,6 +124,7 @@ public class SystemUserService {
 		return sysUserRepo.getProperty(su.get(), ptype, pname);
 	}
 	
+	@Transactional(value="systemTransactionManager", propagation = Propagation.REQUIRED)
 	public int deleteProperty(String ptype, String pname) {
 		Optional<SystemUser> su = getSystemUser();
 		Assert.isTrue(su.isPresent(), "Invalid user");
