@@ -5,11 +5,11 @@ services:
   browser:
     build: browser 
     ports:
-     - "443:443"
-     - "80:80"
+     - "8443:443"
+     - "8080:80"
     expose:
-     - "443"
-     - "80"
+     - "8443"
+     - "8080"
 
   db:
     image: "mysql"
