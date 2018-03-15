@@ -18,5 +18,4 @@ RUN mvn install
 
 EXPOSE 5280
 
-#CMD ./wait-for db:3306 -- java -cp  discoursedb-api-rest-0.8-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.api.DiscourseApiStarter
 CMD ["sh","-c","while ! nc -z db 3306; do echo sleeping; sleep 1; done; java -cp  discoursedb-api-rest-0.8-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.api.DiscourseApiStarter"]

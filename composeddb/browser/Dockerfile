@@ -11,7 +11,7 @@ RUN echo 'var baseUrl = "https://localhost:5280";\nvar auths = ["basic"];\n' > c
 COPY nginx.conf.docker /etc/nginx/sites-enabled/default
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY openssl.cnf /etc/nginx/
-WORKDIR /etc/nginx/
-RUN openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf
+COPY key.pem /etc/nginx
+COPY cert.pem /etc/nginx
 CMD ["sh","-c","while ! nc -z server 5280; do echo sleeping; sleep 1; done"]
 
