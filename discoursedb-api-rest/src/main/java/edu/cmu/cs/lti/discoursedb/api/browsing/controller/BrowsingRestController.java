@@ -213,6 +213,19 @@ public class BrowsingRestController {
 	}
 	
 	
+	@RequestMapping(value="/logout", method=RequestMethod.GET)
+	@ResponseBody
+	void logout(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.abandonSession(session);
+	}
+	
+	@RequestMapping(value="/whoAmI", method=RequestMethod.GET)
+	@ResponseBody
+	String whoAmI(HttpServletRequest httpServletRequest, HttpSession session) {
+		SystemUserAuthentication user = securityUtils.loggedInUser();
+		return user.getName();
+	}
+	
 	@RequestMapping(value="/database/{databaseName}/stats", method=RequestMethod.GET)
 	@ResponseBody
 	Resources<BrowsingStatsResource> stats(
@@ -244,7 +257,10 @@ public class BrowsingRestController {
 	Map<String, List<String>> userAccess(HttpServletRequest httpServletRequest, HttpSession session
 			,@RequestParam(value= "userid", defaultValue = "") String userid) {
 		
-		SystemUserAuthentication userInQuestion = securityUtils.getUser(userid);
+		SystemUserAuthentication userInQuestion = 
+				userid.contains("@")
+				        ?securityUtils.getUserByEmail(userid)
+						:securityUtils.getUserByUsername(userid);
 		HashMap<String,List<String>> hm = new HashMap<String,List<String>>();
 		
 		List<String> dbs = userInQuestion.getAllowedDatabases();
