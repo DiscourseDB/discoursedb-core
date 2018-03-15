@@ -33,18 +33,18 @@ server {
 	# Make site accessible from http://localhost/
         server_name _;
 
-	location ^~ /brat/ {
-            rewrite ^/brat(/.*)$ $1 break;
-            proxy_pass http://brat:8001/;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Host $host:80;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header X-Forwarded-Port 80;
-            proxy_redirect off;
-	}
+	#location ^~ /brat/ {
+            #rewrite ^/brat(/.*)$ $1 break;
+            #proxy_pass http://brat:8001/;
+            #proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            #proxy_set_header X-Forwarded-Host $host:80;
+            #proxy_set_header X-Forwarded-Proto $scheme;
+            #proxy_set_header X-Forwarded-Port 80;
+            #proxy_redirect off;
+	#}
 
         location ^~ /browsing/ {
-            proxy_pass https://composeddb_server_1:5280/browsing/;
+            proxy_pass https://server:5280/browsing/;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Host $host:443;
             proxy_set_header X-Forwarded-Proto $scheme;
@@ -56,7 +56,7 @@ server {
         }
 
         location ^~ /discoursedb/ {
-            alias /usr/src/browser/
+            alias /usr/share/nginx/html/discoursedb/;
 	    index index.xhtml;
         }
 

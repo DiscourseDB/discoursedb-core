@@ -5,8 +5,8 @@ services:
   browser:
     build: browser 
     ports:
-     - "8443:443"
      - "8080:80"
+     - "8443:443"
     expose:
      - "8443"
      - "8080"
