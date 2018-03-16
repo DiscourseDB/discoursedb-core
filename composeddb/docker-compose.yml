@@ -4,12 +4,11 @@ volumes:
 services:
   browser:
     build: browser 
+    depends_on:
+     - server
     ports:
-     - "8080:80"
-     - "8443:443"
-    expose:
-     - "8443"
-     - "8080"
+     - "127.0.0.1:443:443"
+     - "127.0.0.1:80:80"
 
   db:
     image: "mysql"
@@ -18,13 +17,13 @@ services:
     volumes:    
      - mysql_data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: smoot
       MYSQL_USER: "local"
       MYSQL_PASSWORD: "local"
     ports:
-     - "8083:3306"
+     - "127.0.0.1:8083:3306"  # let outside world see 8083
     expose:
-     - "8083"
+     - "3306"    # Let other containers see 3306
 
   inspector:
     image: ubuntu
@@ -34,8 +33,6 @@ services:
 
   server:
     build: server
-    ports:
-     - "5280:5280"
     depends_on:
      - db
     expose:
