@@ -33,12 +33,12 @@ RUN useradd -g bratuser -ms /bin/bash bratuser
 RUN chown -R bratuser:bratuser /var/www/brat/
 RUN chmod -R 777 data work
 RUN ln -s /var/www/brat/brat-v1.3_Crunchy_Frog/data /bratdata
-RUN chown bratuser:bratuser /bratdata
+RUN chown -R bratuser:bratuser /bratdata
 
 # And make that location a volume
 VOLUME /bratdata
 
 EXPOSE 8001
 
-#USER bratuser
+USER bratuser
 CMD ["python","/var/www/brat/brat-v1.3_Crunchy_Frog/standalone.py"]

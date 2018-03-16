@@ -17,8 +17,13 @@ RUN chmod 777 wait-for
 RUN mvn install
 RUN mkdir /bratdata /lightdata
 
+RUN groupadd -r bratuser
+RUN useradd -g bratuser -ms /bin/bash bratuser
+RUN chown -R bratuser:bratuser /bratdata
+
 VOLUME /bratdata
 
 EXPOSE 5280
 
+USER bratuser
 CMD ["sh","-c","while ! nc -z db 3306; do echo sleeping; sleep 1; done; java -cp  discoursedb-api-rest-0.8-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.api.DiscourseApiStarter"]
