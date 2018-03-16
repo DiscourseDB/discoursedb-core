@@ -15,6 +15,9 @@ COPY localhost_keystore.p12 /usr/src/discoursedb/discoursedb-api-rest/src/main/r
 COPY wait-for .
 RUN chmod 777 wait-for
 RUN mvn install
+RUN mkdir /bratdata /lightdata
+
+VOLUME /bratdata
 
 EXPOSE 5280
 

@@ -1,11 +1,15 @@
 version: '3'
 volumes:
   mysql_data:
+  brat_data:
+  brat_config:
+ 
 services:
   browser:
     build: browser 
     depends_on:
      - server
+     - brat
     ports:
      - "127.0.0.1:443:443"
      - "127.0.0.1:80:80"
@@ -25,20 +29,21 @@ services:
     expose:
      - "3306"    # Let other containers see 3306
 
-  inspector:
-    image: ubuntu
-    depends_on:
-     - db
-    command: ["sleep","3600"]
-
   server:
     build: server
+    volumes:
+     - brat_data:/bratdata
     depends_on:
      - db
     expose:
      - "5280"
 
-
-  #  build: brat
-  #  ports:
-  #   - "80:80"
+  brat:
+    build: brat
+    volumes:
+     - brat_data:/bratdata
+     - brat_config:/bratcfg
+    ports:
+     - "8001:8001"    # For testing only; remove me!
+    expose:
+     - "8001"
