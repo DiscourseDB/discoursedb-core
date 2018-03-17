@@ -40,6 +40,8 @@ public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
 	//@Query("select u from SystemUser su where su.email=:email")
 	Optional<SystemUser> findOneByEmail(@Param("email") String email);
 	
+	List<SystemUser> findAll();
+	
     //@Query("select u from SystemUser su where su.username=:username")
 	Optional<SystemUser> findOneByUsername(@Param("username") String username);
 	

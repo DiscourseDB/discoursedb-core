@@ -56,7 +56,7 @@ public class SystemUserService {
 
 	private final @NonNull SystemUserRepository sysUserRepo;
 	private final @NonNull SystemDatabaseRepository sysDbRepo;
-	private final @NonNull DatabaseSelector selector;
+	//private final @NonNull DatabaseSelector selector;
 	
 	public Optional<SystemUser> getSystemUser(String systemUserName) {
 		Assert.hasText(systemUserName, "System user name must not be empty");
@@ -91,7 +91,9 @@ public class SystemUserService {
 		newu.setUsername(email);
 		return sysUserRepo.save(newu);
 	}
-
+	public List<SystemUser> getSystemUsers() {
+		return sysUserRepo.findAll();
+	}
 	public Set<SystemDatabase> getSystemDatabases() {
 		return sysDbRepo.findAll();
 	}
@@ -148,7 +150,7 @@ public class SystemUserService {
 		return getProperty(newPname, newPtype);
 	}
 	@Autowired @Qualifier("systemEntityManagerFactory") public EntityManager sem;
-	@Autowired @Qualifier("coreEntityManagerFactory") public EntityManager cem;
+	//@Autowired @Qualifier("coreEntityManagerFactory") public EntityManager cem;
 	@Transactional(value="systemTransactionManager", propagation = Propagation.REQUIRED)
 	public int createProperty(String ptype, String pname, String pvalue) {
 		Optional<SystemUser> su = getSystemUser();
@@ -158,12 +160,12 @@ public class SystemUserService {
 		return retval;
 	}
 
-	public void refreshOpenDatabases() {
+	public void refreshSystemDatabase() {
 		sem.clear();
-		for (Object key: selector.listOpenDatabases()) {
+		/*for (Object key: selector.listOpenDatabases()) {
 			selector.changeDatabase((String)key);
 			cem.clear();
-		}
+		}*/
 	}
 	
 	

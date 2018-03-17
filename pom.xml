@@ -812,6 +812,7 @@
     <module>discoursedb-io-mturk</module>
     <module>discoursedb-io-courseraUPenn</module>
     <module>discoursedb-io-ddbjson</module>
+    <module>user-management</module>
   </modules>
 	<ciManagement>
 		<system>Jenkins</system>

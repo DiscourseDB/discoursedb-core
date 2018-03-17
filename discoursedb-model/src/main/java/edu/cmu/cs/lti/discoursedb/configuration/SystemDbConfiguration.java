@@ -132,11 +132,11 @@ public class SystemDbConfiguration {
 		return factory;
 	}
 	
-	@Bean(name="systemDiscoursedbTransactionManager")
+	/*@Bean(name="systemDiscoursedbTransactionManager")
 	public JpaTransactionManager systemDiscoursedbTransactionManager(
 			@Qualifier("systemEntityManagerFactory") final EntityManagerFactory factory) {
 		return new JpaTransactionManager(factory);
-	}
+	}*/
 	
 	
 
