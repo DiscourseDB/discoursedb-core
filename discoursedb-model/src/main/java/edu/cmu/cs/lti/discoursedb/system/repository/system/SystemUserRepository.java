@@ -33,6 +33,7 @@ import org.springframework.data.repository.query.Param;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
 
 
 public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
@@ -64,4 +65,16 @@ public interface SystemUserRepository extends BaseRepository<SystemUser,Long>{
 			+ "(:prop_type, :prop_name, :prop_value, :system_user_id)", nativeQuery=true)
 	int createProperty(@Param("prop_type") String prop_type, @Param("prop_name") String prop_name, 
 			@Param("prop_value") String prop_value, @Param("system_user_id") long system_user_id );
+	
+	@Query("select rt from SystemUserRight rt where rt.systemUser=:user and rt.databaseName=:dbname")
+	List<SystemUserRight> checkRight(@Param("user") SystemUser user, @Param("dbname") String dbname);
+	
+	@Modifying
+	@Query(value="insert into system_user_right (database_name, fk_system_user) VALUES "
+			+ "(:dbname, :system_user_id)", nativeQuery=true)
+	int grantAccess(@Param("dbname") String dbname, @Param("system_user_id") long system_user_id );
+	
+	@Modifying
+	@Query(value="delete from system_user_right where database_name=:dbname and fk_system_user=:system_user_id", nativeQuery=true)
+	int revokeAccess(@Param("dbname") String dbname, @Param("system_user_id") long system_user_id );
 }

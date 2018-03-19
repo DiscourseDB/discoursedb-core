@@ -44,6 +44,7 @@ import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -82,6 +83,8 @@ public class SystemUserService {
 			return createSystemUser(email,name,username);
 		}
 	}
+	
+	
 	
 	
 	public SystemUser createSystemUser(String email, String name, String username) {
@@ -166,6 +169,69 @@ public class SystemUserService {
 			selector.changeDatabase((String)key);
 			cem.clear();
 		}*/
+	}
+
+	public boolean registerDatabase(String dbname) {
+		Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
+		if (!sd.isPresent()) {
+			SystemDatabase newsd = new SystemDatabase();
+			newsd.setName(dbname);
+			sysDbRepo.save(newsd);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean setDatabasePublic(String dbname, int isPublic) {
+		Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
+		if (sd.isPresent()) {
+			sd.get().setIsPublic(isPublic);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean unregisterDatabase(String dbname) {
+		Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
+		if (!sd.isPresent()) {
+			return false;
+		} else {
+			sysDbRepo.delete(sd.get());
+			return true;
+		}
+	}
+
+	public boolean deleteUser(String email) {
+		Optional<SystemUser> su = sysUserRepo.findOneByEmail(email);
+		if (!su.isPresent()) {
+			return false;
+		} else {
+			sysUserRepo.delete(su.get());
+			return true;
+		}
+	}
+
+	
+	public boolean grantDatabaseRight(SystemUser su, String dbname) {
+		if (sysUserRepo.checkRight(su, dbname).size() == 0) {
+			sysUserRepo.grantAccess(dbname, su.getId());
+			return true;
+		}
+		return false;
+	}
+
+	public Optional<SystemUser> findUserByEmail(String email) {
+		return sysUserRepo.findOneByEmail(email);
+	}
+
+	public boolean revokeDatabaseRight(SystemUser su, String dbname) {
+		if (sysUserRepo.checkRight(su, dbname).size() > 0) {
+			sysUserRepo.revokeAccess(dbname, su.getId());
+			return true;
+		}
+		return false;
 	}
 	
 	
