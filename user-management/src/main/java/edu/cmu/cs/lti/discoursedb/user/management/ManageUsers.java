@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
 import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 
 /**
@@ -70,12 +71,24 @@ public class ManageUsers implements CommandLineRunner {
 			System.out.println("Username \tEmail \tReal name");
 			for (SystemUser su: sysUserSvc.getSystemUsers()) {
 				System.out.println(su.getUsername() + "\t" + su.getEmail() + "\t" + su.getRealname());
-				
+				System.out.println("     Can access:");
+				for(SystemUserRight sur: su.getRights()) {
+					System.out.println("        " + sur.getDatabaseName());
+				}
 			}
 		}
 		if (args[0].equals("list") && args[1].equals("databases")) {
 			for (SystemDatabase db: sysUserSvc.getSystemDatabases()) {
 				System.out.println(db.getName());
+			}
+		}
+		if (args[0].equals("password") && args.length==3) {
+			try {
+				Optional<SystemUser> su = sysUserSvc.findUserByEmail(args[1]);
+				
+				su.get().setPasswordHash(passwordEncoder().encode(args[2]));
+			} catch (Exception e) {
+				System.out.println("Error: " + e.getMessage());
 			}
 		}
 		if (args[0].equals("add") && args.length == 4) {
