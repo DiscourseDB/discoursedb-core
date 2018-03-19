@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (C)  2015 - 2016  Carnegie Mellon University
- * Author: Oliver Ferschke
+ * Copyright (C)  2018  Carnegie Mellon University
+ * Author: Chris Bogart
  *
  * This file is part of DiscourseDB.
  *

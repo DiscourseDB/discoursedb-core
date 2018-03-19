@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright (C)  2015 - 2016  Carnegie Mellon University
- * Author: Oliver Ferschke
+ * Copyright (C)  2018  Carnegie Mellon University
+ * Author: Chris Bogart
  *
  * This file is part of DiscourseDB.
  *
@@ -23,8 +23,6 @@ package edu.cmu.cs.lti.discoursedb.user.management;
 
 
 import java.util.Optional;
-import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +34,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 
-import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
-import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
-import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
 import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 
 /**
