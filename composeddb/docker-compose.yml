@@ -43,7 +43,5 @@ services:
     volumes:
      - brat_data:/bratdata
      - brat_config:/bratcfg
-    ports:
-     - "8001:8001"    # For testing only; remove me!
     expose:
      - "8001"
