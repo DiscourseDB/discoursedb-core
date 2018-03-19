@@ -323,7 +323,7 @@ public class BrowsingRestController {
 	@ResponseBody
 	void refresh(HttpServletRequest httpServletRequest, HttpSession session) {
 		securityUtils.authenticate(httpServletRequest,  session);
-		systemUserService.refreshOpenDatabases();
+		systemUserService.refreshSystemDatabase();
 				
 		return;
 	}

@@ -44,6 +44,7 @@ import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
+import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserRight;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -56,7 +57,7 @@ public class SystemUserService {
 
 	private final @NonNull SystemUserRepository sysUserRepo;
 	private final @NonNull SystemDatabaseRepository sysDbRepo;
-	private final @NonNull DatabaseSelector selector;
+	//private final @NonNull DatabaseSelector selector;
 	
 	public Optional<SystemUser> getSystemUser(String systemUserName) {
 		Assert.hasText(systemUserName, "System user name must not be empty");
@@ -84,6 +85,8 @@ public class SystemUserService {
 	}
 	
 	
+	
+	
 	public SystemUser createSystemUser(String email, String name, String username) {
 		SystemUser newu = new SystemUser();
 		newu.setEmail(email);
@@ -91,7 +94,9 @@ public class SystemUserService {
 		newu.setUsername(email);
 		return sysUserRepo.save(newu);
 	}
-
+	public List<SystemUser> getSystemUsers() {
+		return sysUserRepo.findAll();
+	}
 	public Set<SystemDatabase> getSystemDatabases() {
 		return sysDbRepo.findAll();
 	}
@@ -148,7 +153,7 @@ public class SystemUserService {
 		return getProperty(newPname, newPtype);
 	}
 	@Autowired @Qualifier("systemEntityManagerFactory") public EntityManager sem;
-	@Autowired @Qualifier("coreEntityManagerFactory") public EntityManager cem;
+	//@Autowired @Qualifier("coreEntityManagerFactory") public EntityManager cem;
 	@Transactional(value="systemTransactionManager", propagation = Propagation.REQUIRED)
 	public int createProperty(String ptype, String pname, String pvalue) {
 		Optional<SystemUser> su = getSystemUser();
@@ -158,12 +163,75 @@ public class SystemUserService {
 		return retval;
 	}
 
-	public void refreshOpenDatabases() {
+	public void refreshSystemDatabase() {
 		sem.clear();
-		for (Object key: selector.listOpenDatabases()) {
+		/*for (Object key: selector.listOpenDatabases()) {
 			selector.changeDatabase((String)key);
 			cem.clear();
+		}*/
+	}
+
+	public boolean registerDatabase(String dbname) {
+		Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
+		if (!sd.isPresent()) {
+			SystemDatabase newsd = new SystemDatabase();
+			newsd.setName(dbname);
+			sysDbRepo.save(newsd);
+			return true;
+		} else {
+			return false;
 		}
+	}
+	
+	public boolean setDatabasePublic(String dbname, int isPublic) {
+		Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
+		if (sd.isPresent()) {
+			sd.get().setIsPublic(isPublic);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean unregisterDatabase(String dbname) {
+		Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
+		if (!sd.isPresent()) {
+			return false;
+		} else {
+			sysDbRepo.delete(sd.get());
+			return true;
+		}
+	}
+
+	public boolean deleteUser(String email) {
+		Optional<SystemUser> su = sysUserRepo.findOneByEmail(email);
+		if (!su.isPresent()) {
+			return false;
+		} else {
+			sysUserRepo.delete(su.get());
+			return true;
+		}
+	}
+
+	
+	public boolean grantDatabaseRight(SystemUser su, String dbname) {
+		if (sysUserRepo.checkRight(su, dbname).size() == 0) {
+			sysUserRepo.grantAccess(dbname, su.getId());
+			return true;
+		}
+		return false;
+	}
+
+	public Optional<SystemUser> findUserByEmail(String email) {
+		return sysUserRepo.findOneByEmail(email);
+	}
+
+	public boolean revokeDatabaseRight(SystemUser su, String dbname) {
+		if (sysUserRepo.checkRight(su, dbname).size() > 0) {
+			sysUserRepo.revokeAccess(dbname, su.getId());
+			return true;
+		}
+		return false;
 	}
 	
 	

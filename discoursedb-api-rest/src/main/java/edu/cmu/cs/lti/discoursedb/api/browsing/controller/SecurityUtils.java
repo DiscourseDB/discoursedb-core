@@ -64,7 +64,7 @@ public class SecurityUtils {
 	public String currentUserEmail() {
 		return loggedInUser().getPrincipal().toString();
 	}
-	public  void authenticate(HttpServletRequest req,  HttpSession s) {
+	public  void authenticate(HttpServletRequest req,  HttpSession s)  throws BrowsingRestController.UnauthorizedDatabaseAccess {
 		
 		init();
 		if (!SystemUserAuthentication.securityEnabled) { return; }
@@ -123,6 +123,9 @@ public class SecurityUtils {
 			}
 		}
 		logger.info("AFTER AUTHENTICATE: " + SecurityContextHolder.getContext().toString());
+		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+			throw new BrowsingRestController.UnauthorizedDatabaseAccess();
+		}
         logger.info("Logging in2 with [{}]", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
  
 	}
