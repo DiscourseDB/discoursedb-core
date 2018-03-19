@@ -68,12 +68,11 @@ public class ManageUsers implements CommandLineRunner {
 		// revoke public <database>");
 		
 		if (args[0].equals("list") && args[1].equals("users")) {
-			System.out.println("Username \tEmail \tReal name");
 			for (SystemUser su: sysUserSvc.getSystemUsers()) {
-				System.out.println(su.getUsername() + "\t" + su.getEmail() + "\t" + su.getRealname());
-				System.out.println("     Can access:");
+				System.out.println("Email:" + su.getEmail() + "\t Full name:" + su.getRealname() + "\t Username:" + su.getUsername());
+				System.out.println("     Can access all public databases, plus:");
 				for(SystemUserRight sur: su.getRights()) {
-					System.out.println("        " + sur.getDatabaseName());
+					System.out.println("            " + sur.getDatabaseName());
 				}
 			}
 		}
