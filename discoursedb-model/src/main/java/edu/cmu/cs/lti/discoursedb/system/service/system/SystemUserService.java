@@ -21,6 +21,7 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.system.service.system;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,14 +30,20 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
+import com.mysql.jdbc.Connection;
 
 import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
@@ -84,8 +91,51 @@ public class SystemUserService {
 		}
 	}
 	
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+	    return new BCryptPasswordEncoder();
+	}
 	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+	public SystemUser findOrCreateSystemUser(String email, String name, String username, String password) {
+		Optional<SystemUser> su = getSystemUser(username);
+		if (su.isPresent()) {
+			su.get().setPasswordHash(passwordEncoder().encode(password));
+			sysUserRepo.save(su.get());
+			return su.get();
+		} else {
+			SystemUser su2 =createSystemUser(email,name,username);
+			su2.setPasswordHash(passwordEncoder().encode(password));
+			sysUserRepo.save(su2);
+			return su2;
+		}
+	}
 	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+	public void setPassword(SystemUser su, String password) {
+		su.setPasswordHash(passwordEncoder().encode(password));
+		sysUserRepo.save(su);
+	}
+	
+	public boolean checkIfDatabaseExists(String dbname) {
+		// Connection connection = <your java.sql.Connection>
+		Session session = sem.unwrap(Session.class);
+		boolean found =  session.doReturningWork(connection -> {
+			ResultSet resultSet = connection.getMetaData().getCatalogs();
+			boolean ifound = false;
+			while (resultSet.next() && ifound==false) {
+			  // Get the database name, which is at position 1
+			  String databaseName = resultSet.getString(1);
+			  if (databaseName.replaceAll("discoursedb_ext_","").equals(dbname.replaceAll("discoursedb_ext_", ""))) {
+				  ifound = true;
+			  }
+			}
+			resultSet.close();
+			return ifound;
+		});
+		
+		return found;
+	}
 	
 	public SystemUser createSystemUser(String email, String name, String username) {
 		SystemUser newu = new SystemUser();
@@ -172,10 +222,12 @@ public class SystemUserService {
 	}
 
 	public boolean registerDatabase(String dbname) {
+		
 		Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
 		if (!sd.isPresent()) {
 			SystemDatabase newsd = new SystemDatabase();
 			newsd.setName(dbname);
+			newsd.setIsPublic(0);
 			sysDbRepo.save(newsd);
 			return true;
 		} else {
@@ -216,8 +268,13 @@ public class SystemUserService {
 	
 	public boolean grantDatabaseRight(SystemUser su, String dbname) {
 		if (sysUserRepo.checkRight(su, dbname).size() == 0) {
-			sysUserRepo.grantAccess(dbname, su.getId());
-			return true;
+			Optional<SystemDatabase> sd = sysDbRepo.findOneByName(dbname);
+			if (sd.isPresent()) {
+				sysUserRepo.grantAccess(dbname, su.getId());
+				return true;
+			} else {
+				return false;
+			}
 		}
 		return false;
 	}

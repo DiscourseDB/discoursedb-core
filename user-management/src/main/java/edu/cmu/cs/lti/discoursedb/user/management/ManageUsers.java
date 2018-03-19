@@ -50,12 +50,10 @@ public class ManageUsers implements CommandLineRunner {
 	private static final Logger logger = LogManager.getLogger(ManageUsers.class);	
 
 	@Autowired private SystemUserService sysUserSvc;
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-	    return new BCryptPasswordEncoder();
-	}
+	
 	@Override
 	public void run(String... args) throws Exception {
+	
 		// list users
 		// list databases
 		// add <user-email> <real-user-name> <userid> <password>
@@ -84,23 +82,25 @@ public class ManageUsers implements CommandLineRunner {
 		if (args[0].equals("password") && args.length==3) {
 			try {
 				Optional<SystemUser> su = sysUserSvc.findUserByEmail(args[1]);
-				
-				su.get().setPasswordHash(passwordEncoder().encode(args[2]));
+				sysUserSvc.setPassword(su.get(), args[2]);
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			}
 		}
 		if (args[0].equals("add") && args.length == 4) {
 				try {
-					SystemUser su = sysUserSvc.findOrCreateSystemUser(args[1],args[2],args[3]);
-					su.setPasswordHash(passwordEncoder().encode(args[4]));
+					sysUserSvc.findOrCreateSystemUser(args[1],args[2],args[3], args[4]);
+					
+					//sysUserRepo.save(su);
 				} catch (Exception e) {
 					System.out.println("Error: " + e.getMessage());
 				}
 			
 		}
 		if (args[0].equals("register") && args.length == 2) {
-			if (sysUserSvc.registerDatabase(args[1])) { 
+			if (!sysUserSvc.checkIfDatabaseExists(args[1])) {
+				System.out.println("Database " + "discoursedb_ext_" + args[1].replaceAll("discoursedb_ext_", "") + " not found");
+			} else if (sysUserSvc.registerDatabase(args[1])) { 
 				System.out.println("Registered " + args[1]);
 			} else {
 				System.out.println(args[1] + " already registered");
@@ -126,7 +126,11 @@ public class ManageUsers implements CommandLineRunner {
 				if (sysUserSvc.grantDatabaseRight(su.get(), args[2])) {
 					System.out.println("Granted " + args[2] + " to " + args[1]);
 				} else {
-					System.out.println("Already granted " + args[2] + " to " + args[1]);
+					if (!sysUserSvc.checkIfDatabaseExists(args[2])) {
+						System.out.println( "Database " + args[2] + " not found");
+					} else {
+						System.out.println("Cannot grant " + args[2] + " to " + args[1]);
+					}
 				}
 				
 			} catch (Exception e) {

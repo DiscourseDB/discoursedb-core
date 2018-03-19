@@ -69,7 +69,7 @@ public class ManageUsersApplication {
 	 * @param args <DataSetName> </path/to/*-prod.mongo> </path/to/*-auth_user-prod-analytics.sql>(optional)
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length >= 2, "Commands allowed as arguments: \n\tlist users\n\tlist databases\n\tadd <user-email> <realname> <username> <password>\n\tpassword <user-email> <password>\n\tdelete <user-email>\n\tgrant <user-email> <database>\n\trevoke <user-email> <database>\n\tgrant public <database>\n\trevoke public <database>\n\n");
+		Assert.isTrue(args.length >= 2, "Commands allowed as arguments: \n\tlist users\n\tlist databases\n\tregister <database-name>\n\tunregister <database-name>\n\tadd <user-email> <realname> <username> <password>\n\tpassword <user-email> <password>\n\tdelete <user-email>\n\tgrant <user-email> <database>\n\trevoke <user-email> <database>\n\tgrant public <database>\n\trevoke public <database>\n\n");
         SpringApplication app = new SpringApplication(ManageUsersApplication.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.run(args);
