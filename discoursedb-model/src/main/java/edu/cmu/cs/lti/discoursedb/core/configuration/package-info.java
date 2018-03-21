@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (C)  2015 - 2016  Carnegie Mellon University
- * Authors: Oliver Ferschke and Chris Bogart
+ * Author: Oliver Ferschke
  *
  * This file is part of DiscourseDB.
  *
@@ -19,15 +19,12 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.configuration;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-@Configuration
-@EnableWebMvc
-@EnableSpringDataWebSupport
-@Import(BaseConfiguration.class)
-public class ApiConfig {}
+/**
+ * Provides all configuration classes - in particular the Spring JavaConfig 
+ * 
+ * @see <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-java">Java-based container configuration</a>
+ * 
+ * @author Oliver Ferschke
+ *
+ */
+package edu.cmu.cs.lti.discoursedb.core.configuration;

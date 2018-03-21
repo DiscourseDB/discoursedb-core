@@ -30,6 +30,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+
+import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
@@ -126,7 +128,7 @@ public class SecurityUtils {
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			throw new BrowsingRestController.UnauthorizedDatabaseAccess();
 		}
-        logger.info("Logging in2 with [{}]", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        logger.info("Logging in2 with [{}]", Utilities.getCurrentUser());
  
 	}
 	

@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
 
 import com.mysql.jdbc.Connection;
 
-import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
+import edu.cmu.cs.lti.discoursedb.core.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
@@ -72,6 +72,7 @@ public class SystemUserService {
 	}
 
 	public Optional<SystemUser> getSystemUser() {
+		
 		Authentication auth =  SecurityContextHolder.getContext().
 				getAuthentication();
 		if (auth != null && auth.getPrincipal() != null) {

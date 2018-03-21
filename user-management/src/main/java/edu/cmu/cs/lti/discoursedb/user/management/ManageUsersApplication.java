@@ -57,8 +57,8 @@ import org.springframework.boot.Banner;
 @ComponentScan(basePackages = {"edu.cmu.cs.lti.discoursedb.configuration","edu.cmu.cs.lti.discoursedb.system",
 		"edu.cmu.cs.lti.discoursedb.user.management"}, 
 		excludeFilters= @ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
-		value= {edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector.class,
-				edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration.class}
+		value= {edu.cmu.cs.lti.discoursedb.core.configuration.DatabaseSelector.class,
+				edu.cmu.cs.lti.discoursedb.core.configuration.BaseConfiguration.class}
 		))
 public class ManageUsersApplication {
 

@@ -1,6 +1,7 @@
-package edu.cmu.cs.lti.discoursedb.configuration;
+package edu.cmu.cs.lti.discoursedb.core.configuration;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,9 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
+import org.hibernate.engine.config.spi.ConfigurationService;
+import org.hibernate.service.spi.ServiceRegistryAwareService;
+import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,7 +25,8 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @Component
 @Primary
 @ConfigurationProperties(prefix="core.datasource")
-public class DatabaseSelector extends AbstractRoutingDataSource {
+public class DatabaseSelector extends AbstractRoutingDataSource  {
+	
 	@Autowired 
 	private Environment environment;
 
@@ -37,7 +42,7 @@ public class DatabaseSelector extends AbstractRoutingDataSource {
 	public void init() {
 		setTargetDataSources(myTargetDataSources);
 		setDataSourceLookup((dsname) -> (DataSource)myTargetDataSources.get(dsname));
-		String defaultdb = environment.getRequiredProperty("jdbc.database");
+		String defaultdb = environment.getProperty("jdbc.database", "dummy");
 		myTargetDataSources.put(defaultdb, getSpecificDataSource(defaultdb));
 		setDefaultTargetDataSource(defaultdb);
 		afterPropertiesSet();
@@ -58,7 +63,7 @@ public class DatabaseSelector extends AbstractRoutingDataSource {
 	@ConfigurationProperties(prefix="system.datasource")
 	private DataSource getSpecificDataSource(String dbname) {
 		try {
-			System.out.println("CONNECTING TO DB ---------------> " + dbname.replaceAll("discoursedb_ext", ""));
+			System.out.println("CONNECTING TO DB ---------------> " + dbname.replaceAll("discoursedb_ext_", ""));
 
 			ComboPooledDataSource ds = new ComboPooledDataSource();
 			ds.setDriverClass(environment.getRequiredProperty("jdbc.driverClassName"));
@@ -79,4 +84,6 @@ public class DatabaseSelector extends AbstractRoutingDataSource {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	
 }

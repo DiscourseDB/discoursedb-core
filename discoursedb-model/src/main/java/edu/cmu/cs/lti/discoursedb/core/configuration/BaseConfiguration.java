@@ -19,22 +19,15 @@
  * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
-package edu.cmu.cs.lti.discoursedb.configuration;
+package edu.cmu.cs.lti.discoursedb.core.configuration;
 
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
@@ -42,16 +35,11 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitManager;
-import org.springframework.orm.jpa.vendor.AbstractJpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * DiscourseDB base configuration class.
@@ -85,7 +73,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableJpaRepositories(basePackages = { "edu.cmu.cs.lti.discoursedb.core.repository" },
 					  entityManagerFactoryRef = "coreEntityManagerFactory",
 					  transactionManagerRef = "coreTransactionManager")
-public class BaseConfiguration {
+public class BaseConfiguration  {
 
 	@Autowired 
 	private Environment environment;
@@ -144,13 +132,9 @@ public class BaseConfiguration {
 
 
 
-	@Bean(name="coreTransactionManager")
-	@Primary
-	PlatformTransactionManager coreTransactionManager(
-			@Qualifier("coreEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
-		JpaTransactionManager transactionManager = new JpaTransactionManager();
-		transactionManager.setEntityManagerFactory(entityManagerFactory);
-		return transactionManager;
-	}
+	
+
+
+
 
 }

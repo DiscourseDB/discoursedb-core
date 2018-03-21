@@ -15,12 +15,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import edu.cmu.cs.lti.discoursedb.configuration.CoreAndSystemUser;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 
-public class SystemUserAuthentication extends UsernamePasswordAuthenticationToken {
+public class SystemUserAuthentication extends UsernamePasswordAuthenticationToken  {
 	
 	public SystemUserAuthentication(Object principal, Object credentials) {
 		super(principal, credentials);
@@ -102,6 +103,8 @@ public class SystemUserAuthentication extends UsernamePasswordAuthenticationToke
 	public boolean authoritiesContains(String roledescription) {
 		return authoritiesContains(roledescription, this);
 	}
+
+	
 	
 	
 	

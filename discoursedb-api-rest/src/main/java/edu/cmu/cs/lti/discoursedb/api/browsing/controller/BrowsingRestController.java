@@ -109,7 +109,7 @@ import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
 import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery;
 import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery.DdbQueryParseException;
-import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
+import edu.cmu.cs.lti.discoursedb.core.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;

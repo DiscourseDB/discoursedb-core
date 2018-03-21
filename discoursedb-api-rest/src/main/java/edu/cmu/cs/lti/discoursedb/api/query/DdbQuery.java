@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
+import edu.cmu.cs.lti.discoursedb.core.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;

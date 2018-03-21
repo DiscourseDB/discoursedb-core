@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.configuration;
+package edu.cmu.cs.lti.discoursedb.api.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;

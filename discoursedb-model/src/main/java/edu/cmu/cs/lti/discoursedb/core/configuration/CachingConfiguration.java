@@ -1,4 +1,4 @@
-package edu.cmu.cs.lti.discoursedb.configuration;
+package edu.cmu.cs.lti.discoursedb.core.configuration;
 
 import org.springframework.context.annotation.Configuration;
 

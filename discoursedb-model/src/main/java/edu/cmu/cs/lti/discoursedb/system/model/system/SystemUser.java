@@ -49,6 +49,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.cmu.cs.lti.discoursedb.configuration.CoreAndSystemUser;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedBE;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -66,7 +67,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "system_user")
-public class SystemUser extends TimedBE implements UserDetails {
+public class SystemUser extends TimedBE implements UserDetails, CoreAndSystemUser {
 
 	@Id
 	@Column(name = "id_system_user", nullable = false)
