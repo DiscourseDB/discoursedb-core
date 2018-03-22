@@ -105,12 +105,14 @@ public class GithubConverter implements CommandLineRunner {
 			return;
 		}
 		
-		String databaseName =args[1];
-		dbSelector.changeDatabase(databaseName);
+		//String databaseName =args[1];
+		//dbSelector.changeDatabase(databaseName);
 		String eventsFile = env.getProperty("gitdata.events","");
-		if (args.length > 2) {
-			eventsFile = args[2];
+		if (args.length > 1) {
+			eventsFile = args[1];
 		}
+		
+		System.out.println("*****************************Running with arguments " + String.join(",", args));
 		
 		/*
 		 * For each entry in the custom.properties file, import the relevant
