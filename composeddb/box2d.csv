@@ -1,0 +1,409 @@
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2017-02-13 07:09:22","Merge pull request #15 from Gama11/patch-1
+
+Readme syntax highlighting","642e6f300584951dbae4a4a4fe5760ee8c761210","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[{u'raw': u'#15', u'refstyle': u'#d', u'parts': [u'openfl', u'box2d', u'15', u'']}]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","Gama11","2017-02-12 14:37:13","Readme syntax highlighting","ad13d233923a5dfd268aacda4c1596aa4530b6da","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-09-28 19:52:05","Fix init B2Mat22 value (fix #11)","3a7942157f331ce83cf40229c484d124acd0fb67","","api.github.com,git_clone","[u'[""box2D/common/math/B2Mat22.hx""]']","False","[]","[{u'raw': u'#11', u'refstyle': u'#d', u'parts': [u'openfl', u'box2d', u'11', u'']}]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-07-25 02:33:13","Guard in-case Flash renderer is not present","08ec9c6126490a14a790014fbbb003d8cf6920c4","","api.github.com,git_clone","[u'[""box2D/dynamics/B2World.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-07-15 22:48:34","Fix B2DebugDraw if no Flash renderer present","92760fa07e9747ce8dac18cc850828d71e751a68","","api.github.com,git_clone","[u'[""box2D/dynamics/B2DebugDraw.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-12 19:39:51","Update to 1.2.3","e06f4f0a28f7483c4ca30629068c3fd92c38eb22","","api.github.com,git_clone","[u'[""haxelib.json""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-11 21:41:35","Update README.md","59a7e7eae685ad568df70f87dec66cb199760c65","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-11 16:44:13","Update README.md","32e66650fc0b50d013a51ad5257c64264c5ee1a0","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-11 06:54:10","Update README.md","d683dec8ad6649dff9298958923f011e9e4a500c","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-11 06:51:49","Add Box2D TestBed (thanks @justnajm)","e63478a5ffa932dea385c38a442162bb3f6ad639","","api.github.com,git_clone","[u'[""samples/TestBed/Source/TestRagdoll.hx"", ""samples/TestBed/Source/Input.hx"", ""samples/TestBed/Source/TestStack.hx"", ""samples/TestBed/Source/TestCrankGearsPulley.hx"", ""samples/TestBed/Assets/openfl.svg"", ""samples/TestBed/Source/TestCompound.hx"", ""samples/TestBed/Source/TestTheoJansen.hx"", ""samples/TestBed/Source/TestBuoyancy.hx"", ""samples/TestBed/project.xml"", "".gitignore"", ""samples/TestBed/Source/ContactListenerOneSidePlatform.hx"", ""samples/TestBed/Source/TestBreakable.hx"", ""samples/TestBed/Source/TestCCD.hx"", ""samples/TestBed/Source/TestBridge.hx"", ""include.xml"", ""samples/TestBed/Source/TestBuoyancy.hx~"", ""samples/TestBed/Source/Test.hx"", ""samples/TestBed/Source/TestRaycast.hx"", ""samples/TestBed/Source/Main.hx"", ""samples/TestBed/Source/Global.hx"", ""samples/TestBed/Source/TestOneSidedPlatform.hx"", ""samples/TestBed/Source/ContactListenerBreakable.hx"", ""samples/TestBed/TestBed.hxproj""]']","False","[]","[]","[u'@justnajm']","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-11 06:50:55","Initialize more numbers to guard against possible Neko errors","5d045900552b08afbc364fef3e2ef829f79f64b2","","api.github.com,git_clone","[u'[""box2D/collision/B2DistanceProxy.hx"", ""box2D/dynamics/B2Island.hx"", ""box2D/dynamics/B2TimeStep.hx"", ""box2D/dynamics/contacts/B2Contact.hx"", ""box2D/collision/B2SimplexCache.hx"", ""box2D/collision/shapes/B2PolygonShape.hx"", ""box2D/collision/B2SimplexVertex.hx"", ""box2D/dynamics/contacts/B2ContactConstraint.hx"", ""box2D/dynamics/controllers/B2Controller.hx"", ""box2D/dynamics/contacts/B2ContactSolver.hx"", ""box2D/collision/B2Simplex.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-10 23:28:02","Merge pull request #10 from justnajm/patch-1
+
+Updated B2BuoyancyController.hx, Merged demos","f59bebddce024599856d2ed6c8a6be1987fab23b","","api.github.com,git_clone","[u'[""box2D/dynamics/controllers/B2BuoyancyController.hx""]']","False","[]","[{u'raw': u'#10', u'refstyle': u'#d', u'parts': [u'openfl', u'box2d', u'10', u'']}]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","justnajm","2015-01-10 20:54:48","Update B2BuoyancyController.hx
+
+Have resolved semicolon errors on two lines 137 and 146, have added semicolons","6d923abf12eec291c94ddae56ca6cb8422259a94","","api.github.com,git_clone","[u'[""box2D/dynamics/controllers/B2BuoyancyController.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-10 20:52:18","Update README.md","a0d7c66f3585adc93fbfeb82d1d255d029fb446a","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-10 16:37:52","Switch B2ShapeType to an abstract enum","d35f8e7a77b454df2815c2b84713a357007fea83","","api.github.com,git_clone","[u'[""box2D/collision/shapes/B2ShapeType.hx"", ""box2D/dynamics/contacts/B2ContactFactory.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-10 16:37:32","Neko fix","7844a50f65c0b096b543c5d2f7f16701bf7780c2","","api.github.com,git_clone","[u'[""box2D/dynamics/contacts/B2ContactRegister.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-10 16:37:04","Fix loops in B2BuoyancyController","089aaa4ffc79300dd0ce4fa56ef49db9a83c8eb4","","api.github.com,git_clone","[u'[""box2D/dynamics/controllers/B2BuoyancyController.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 15:44:52","Update to 1.2.2","17596733c0e93fe4091f455c784049eb771101c7","","api.github.com,git_clone","[u'[""haxelib.json""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 15:41:32","Update README.md","a2f313ec58d383588d275bd20f93cf95eda05ab8","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 15:40:44","Update README.md","3c8f817754afc6d0bcb0c00675d7b3575c1c62fa","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 15:38:22","Update README.md","2f17531862892040fa4f5ce47916e149e2dbe1fc","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 15:37:57","Create README.md","c1da0e7c3b612052bf8658c155af8bb5eeae7d10","","api.github.com,git_clone","[u'[""README.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 15:28:12","Change B2Body type to an enum (B2BodyType)","af8e3da15ecbe1819531f6efe16bb97ac58f76a6","","api.github.com,git_clone","[u'[""box2D/dynamics/B2Island.hx"", ""box2D/dynamics/contacts/B2Contact.hx"", ""box2D/dynamics/B2World.hx"", ""box2D/dynamics/B2BodyType.hx"", ""box2D/dynamics/B2BodyDef.hx"", ""box2D/dynamics/B2Body.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 15:18:43","Use abstract enum","927364b44052525964b82e96a0c10ffbc7433e71","","api.github.com,git_clone","[u'[""box2D/dynamics/B2BodyType.hx"", ""box2D/dynamics/joints/B2JointType.hx"", ""box2D/dynamics/joints/B2LimitState.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-02 14:53:55","Create LICENSE.md","793c9e9d3dfff16fde0111b608eaae1dd5518a34","","api.github.com,git_clone","[u'[""LICENSE.md""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-01 17:03:15","Update to 1.2.1","12511a310a44db657f42aa1373149667c676f17b","","api.github.com,git_clone","[u'[""haxelib.json""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2015-01-01 17:02:42","Neko fixes","057debf6d7c4089453dc938d4f03e5679783ce36","","api.github.com,git_clone","[u'[""box2D/collision/B2Distance.hx"", ""box2D/collision/Features.hx"", ""box2D/dynamics/B2World.hx"", ""box2D/collision/B2ContactID.hx"", ""box2D/collision/B2DynamicTreeBroadPhase.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2014-04-14 18:39:17","Merge pull request #7 from marc-jones/patch-2
+
+Uncommented the guts of testOverlap function","18a7025b82b437eefa25542a3176a9b0cd4a8505","","api.github.com,git_clone","[u'[""box2D/collision/shapes/B2Shape.hx""]']","False","[]","[{u'raw': u'#7', u'refstyle': u'#d', u'parts': [u'openfl', u'box2d', u'7', u'']}]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","marc-jones","2014-03-11 17:41:39","Uncommented the guts of testOverlap function
+
+I was having troubles when it came to detecting collisions with sensors. Collisions were being called when the AABBs were overlapping instead of the fixtures themselves.","0f5de04698e5b5948ee34a48958a067556b90a0b","","api.github.com,git_clone","[u'[""box2D/collision/shapes/B2Shape.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2013-08-21 15:45:12","Merge pull request #2 from jarnik/master
+
+prevent endless loop","4c09eb8a2a9ac1ba36c4cb36b7e9994c3f58f58e","","api.github.com,git_clone","[u'[""box2D/dynamics/B2Body.hx""]']","False","[]","[{u'raw': u'#2', u'refstyle': u'#d', u'parts': [u'openfl', u'box2d', u'2', u'']}]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jarnik","2013-08-20 14:09:40","prevent endless loop","8c10f80dd22bfef4863173b1e21284a7d598a96f","","api.github.com,git_clone","[u'[""box2D/dynamics/B2Body.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2013-07-22 19:37:56","Neko fix","34ed8af7ca330836746654635c48ce8f801ccd5e","","api.github.com,git_clone","[u'[""box2D/common/B2Settings.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2013-05-08 19:29:15","Added missing enums (B2Joint.e_polygonType to B2JointType.POLYGON_TYPE, etc) and update for haxelib 2","eea533ebe2f7af3aac6b4b057e56b2b31a4f4737","","api.github.com,git_clone","[u'[""box2D/dynamics/contacts/B2PolyAndEdgeContact.hx"", ""box2D/dynamics/joints/B2DistanceJointDef.hx"", ""box2D/collision/shapes/B2Shape.hx"", ""box2D/dynamics/joints/B2PrismaticJoint.hx"", ""box2D/dynamics/B2Fixture.hx"", ""box2D/dynamics/joints/B2LineJoint.hx"", ""box2D/dynamics/B2World.hx"", ""box2D/dynamics/contacts/B2PositionSolverManifold.hx"", ""box2D/dynamics/contacts/B2PolygonContact.hx"", ""box2D/dynamics/contacts/B2ContactConstraint.hx"", ""haxelib.xml"", ""box2D/dynamics/joints/B2RevoluteJoint.hx"", ""box2D/dynamics/joints/B2PulleyJointDef.hx"", ""box2D/dynamics/joints/B2JointType.hx"", ""box2D/collision/B2DistanceProxy.hx"", ""box2D/dynamics/joints/B2PrismaticJointDef.hx"", ""box2D/dynamics/joints/B2GearJoint.hx"", ""box2D/dynamics/joints/B2FrictionJointDef.hx"", ""box2D/collision/shapes/B2EdgeShape.hx"", ""box2D/collision/B2SeparationFunctionType.hx"", ""box2D/dynamics/contacts/B2PolyAndCircleContact.hx"", ""box2D/dynamics/contacts/B2EdgeAndCircleContact.hx"", ""box2D/dynamics/joints/B2MouseJointDef.hx"", ""box2D/collision/shapes/B2CircleShape.hx"", ""haxelib.json"", ""box2D/dynamics/joints/B2LineJointDef.hx"", ""box2D/common/B2Color.hx"", ""box2D/collision/B2Manifold.hx"", ""box2D/dynamics/contacts/B2ContactFactory.hx"", ""box2D/collision/B2ManifoldType.hx"", ""box2D/collision/B2WorldManifold.hx"", ""box2D/dynamics/joints/B2RevoluteJointDef.hx"", ""box2D/dynamics/joints/B2PulleyJoint.hx"", ""box2D/collision/B2Collision.hx"", ""box2D/collision/Features.hx"", ""box2D/dynamics/joints/B2LimitState.hx"", ""box2D/dynamics/joints/B2WeldJointDef.hx"", ""box2D/common/math/B2Math.hx"", ""box2D/dynamics/joints/B2JointDef.hx"", ""box2D/dynamics/joints/B2Joint.hx"", ""box2D/dynamics/contacts/B2CircleContact.hx"", ""box2D/collision/shapes/B2PolygonShape.hx"", ""box2D/dynamics/joints/B2GearJointDef.hx"", ""box2D/collision/B2SeparationFunction.hx"", ""box2D/collision/shapes/B2ShapeType.hx"", ""box2D/dynamics/B2Body.hx"", ""box2D/collision/B2ContactID.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2012-08-20 20:05:06","Always returning 'true' from testOverlap seems to greatly improve performance without negative effects","486853c2fabc6cb07fa078dbb0907810fd6ea117","","api.github.com,git_clone","[u'[""box2D/collision/shapes/B2Shape.hx"", ""haxelib.xml""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2012-01-21 18:07:45","Update for haxelib","4bbd73cade5921764fa99ffce88a8537b22859a8","","api.github.com,git_clone","[u'[""haxelib.xml""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2012-01-21 18:06:11","Static initialization patch","1cb892b7d7ba08f0ab4d5c8fa9ed5bd94fd05b9b","","api.github.com,git_clone","[u'[""box2D/dynamics/contacts/B2ContactSolver.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2012-01-18 20:27:43","Improved B2Math.MIN_VALUE and B2Math.MAX_VALUE for Javascript, and fixed a small ""if"" statement","346c554902afe9d36d0d0b7a452ca9ac42ca29e5","","api.github.com,git_clone","[u'[""box2D/common/math/B2Math.hx"", ""box2D/dynamics/controllers/B2BuoyancyController.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2012-01-17 23:13:40","Fixed license","5c9a06886fbdcd542bc37ed6634d748712245243","","api.github.com,git_clone","[u'[""haxelib.xml""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_messages","","openfl","box2d","jgranick","2012-01-17 21:48:06","Initial commit","d958215b4e5812eb8dc0997d09d602722ac3ef54","","api.github.com,git_clone","[u'[""box2D/dynamics/B2ContactListener.hx"", ""box2D/collision/B2Distance.hx"", ""box2D/dynamics/joints/B2DistanceJointDef.hx"", ""box2D/dynamics/joints/B2RevoluteJoint.hx"", ""box2D/dynamics/B2FilterData.hx"", ""box2D/collision/B2TOIInput.hx"", ""box2D/dynamics/B2DebugDraw.hx"", ""box2D/collision/b2PairManager.as"", ""box2D/dynamics/joints/B2GearJoint.hx"", ""box2D/collision/shapes/B2EdgeShape.hx"", ""box2D/dynamics/controllers/B2GravityController.hx"", ""box2D/dynamics/joints/B2MouseJoint.hx"", ""box2D/common/math/B2Vec2.hx"", ""box2D/collision/b2Proxy.as"", ""box2D/dynamics/contacts/B2ContactConstraintPoint.hx"", ""box2D/common/B2Color.hx"", ""box2D/dynamics/contacts/b2NullContact.as"", ""box2D/collision/Features.hx"", ""box2D/dynamics/joints/B2RevoluteJointDef.hx"", ""box2D/collision/B2Collision.hx"", ""box2D/dynamics/B2FixtureDef.hx"", ""box2D/dynamics/joints/B2WeldJointDef.hx"", ""box2D/dynamics/controllers/B2ControllerEdge.hx"", ""box2D/dynamics/contacts/B2CircleContact.hx"", ""box2D/dynamics/controllers/B2Controller.hx"", ""box2D/dynamics/B2Body.hx"", ""box2D/collision/shapes/B2Shape.hx"", ""box2D/dynamics/B2Fixture.hx"", ""box2D/dynamics/B2World.hx"", ""box2D/dynamics/controllers/B2ConstantForceController.hx"", ""box2D/collision/b2Bound.as"", ""box2D/dynamics/contacts/B2ContactConstraint.hx"", ""haxelib.xml"", ""box2D/dynamics/B2ContactImpulse.hx"", ""box2D/dynamics/B2TimeStep.hx"", ""box2D/dynamics/joints/B2FrictionJointDef.hx"", ""box2D/collision/B2ContactPoint.hx"", ""box2D/dynamics/joints/B2DistanceJoint.hx"", ""box2D/collision/shapes/B2CircleShape.hx"", ""box2D/dynamics/contacts/B2ContactSolver.hx"", ""box2D/collision/B2DistanceOutput.hx"", ""box2D/dynamics/controllers/B2BuoyancyController.hx"", ""box2D/collision/B2DistanceInput.hx"", ""box2D/common/math/B2Mat33.hx"", ""box2D/common/b2internal.as"", ""box2D/common/math/B2Mat22.hx"", ""box2D/collision/B2Manifold.hx"", ""box2D/dynamics/contacts/B2ContactFactory.hx"", ""box2D/dynamics/joints/B2JointEdge.hx"", ""box2D/collision/B2WorldManifold.hx"", ""box2D/common/math/B2Vec3.hx"", ""box2D/dynamics/joints/B2PrismaticJointDef.hx"", ""box2D/dynamics/joints/B2WeldJoint.hx"", ""box2D/dynamics/B2ContactFilter.hx"", ""box2D/collision/b2Point.as"", ""box2D/collision/b2Segment.as"", ""box2D/collision/B2DynamicTreeBroadPhase.hx"", ""box2D/collision/b2Pair.as"", ""box2D/dynamics/contacts/B2PolyAndEdgeContact.hx"", ""box2D/collision/b2BroadPhase.as"", ""box2D/collision/B2AABB.hx"", ""box2D/collision/B2RayCastInput.hx"", ""box2D/dynamics/joints/B2LineJoint.hx"", ""box2D/dynamics/contacts/B2PositionSolverManifold.hx"", ""box2D/dynamics/contacts/B2PolygonContact.hx"", ""box2D/dynamics/joints/B2PulleyJointDef.hx"", ""box2D/dynamics/joints/B2MouseJointDef.hx"", ""box2D/dynamics/contacts/b2ContactResult.as"", ""box2D/collision/B2DistanceProxy.hx"", ""box2D/dynamics/B2DestructionListener.hx"", ""box2D/collision/ClipVertex.hx"", ""box2D/dynamics/contacts/B2PolyAndCircleContact.hx"", ""box2D/dynamics/contacts/B2EdgeAndCircleContact.hx"", ""box2D/collision/B2OBB.hx"", ""box2D/dynamics/contacts/B2ContactRegister.hx"", ""box2D/dynamics/controllers/B2TensorDampingController.hx"", ""box2D/common/math/B2Sweep.hx"", ""box2D/common/math/B2Math.hx"", ""box2D/dynamics/joints/B2Joint.hx"", ""box2D/collision/B2ManifoldPoint.hx"", ""box2D/dynamics/joints/B2FrictionJoint.hx"", ""box2D/collision/B2TimeOfImpact.hx"", ""box2D/collision/B2DynamicTreeNode.hx"", ""box2D/dynamics/B2BodyDef.hx"", ""box2D/collision/B2SeparationFunction.hx"", ""box2D/dynamics/contacts/B2ContactEdge.hx"", ""box2D/collision/shapes/b2EdgeChainDef.as"", ""box2D/collision/B2RayCastOutput.hx"", ""box2D/collision/B2DynamicTreePair.hx"", ""box2D/dynamics/B2Island.hx"", ""box2D/dynamics/controllers/B2ConstantAccelController.hx"", ""box2D/dynamics/joints/B2LineJointDef.hx"", ""box2D/collision/IBroadPhase.hx"", ""box2D/collision/B2SimplexVertex.hx"", ""box2D/collision/B2DynamicTree.hx"", ""box2D/dynamics/joints/B2Jacobian.hx"", ""box2D/dynamics/contacts/B2Contact.hx"", ""box2D/dynamics/joints/B2PrismaticJoint.hx"", ""box2D/dynamics/joints/B2PulleyJoint.hx"", ""box2D/collision/b2BoundValues.as"", ""box2D/dynamics/B2ContactManager.hx"", ""box2D/collision/B2SimplexCache.hx"", ""box2D/dynamics/joints/B2JointDef.hx"", ""box2D/collision/shapes/B2PolygonShape.hx"", ""box2D/dynamics/joints/B2GearJointDef.hx"", ""box2D/collision/shapes/B2MassData.hx"", ""box2D/collision/B2Simplex.hx"", ""box2D/common/math/B2Transform.hx"", ""box2D/collision/B2ContactID.hx"", ""box2D/common/B2Settings.hx""]']","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_comments","","openfl","box2d","T1mL3arn","2015-01-13 03:52:22","On `lib.haxe.org` still 1.2.2. Upgrading on ""lib.haxe.org"" is an automatic process?
+","e06f4f0a28f7483c4ca30629068c3fd92c38eb22","(None, None, None)","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"commit_comments","","openfl","box2d","jgranick","2015-01-13 04:11:12","Sorry, I forgot to push the release. It's up now :smile:
+","e06f4f0a28f7483c4ca30629068c3fd92c38eb22","(None, None, None)","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","10","openfl","box2d","justnajm","2015-01-10 21:39:31","Have resolved semicolon errors on two lines 137 and 146, have added semicolons.
+
+Have merged the demos transformed into haxe openfl box2d
+","start issue","Updated B2BuoyancyController.hx, Merged demos","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","10","openfl","box2d","jgranick","2015-01-10 23:28:02","","closed issue","Updated B2BuoyancyController.hx, Merged demos","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_title","10","openfl","box2d","justnajm","2015-01-10 21:39:31","Have resolved semicolon errors on two lines 137 and 146, have added semicolons.
+
+Have merged the demos transformed into haxe openfl box2d
+","6d923abf12eec291c94ddae56ca6cb8422259a94","Updated B2BuoyancyController.hx, Merged demos","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_merged","10","openfl","box2d","jgranick","2015-01-10 23:28:02","Updated B2BuoyancyController.hx, Merged demos","0ee59fd891a486fd00402eead2260b3b71359970","Pull request merge from justnajm/box2d:patch-1 to openfl/box2d:master","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","10","openfl","box2d","justnajm","2015-01-10 23:52:13","Demos folder didn't merged, my fork url https://github.com/justnajm/box2d
+It has a ""Demos"" folder
+","","","api.github.com","","False","[u'https://github.com/justnajm/box2d']","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","10","openfl","box2d","jgranick","2015-01-11 06:54:52","Added, thanks :smile: 
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","10","openfl","box2d","justnajm","2015-01-11 09:03:50","Thanks :), I would love to do more
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","10","openfl","box2d","justnajm","2015-01-10 20:54:48","Update B2BuoyancyController.hx
+
+Have resolved semicolon errors on two lines 137 and 146, have added semicolons","6d923abf12eec291c94ddae56ca6cb8422259a94","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","11","openfl","box2d","boblucas","2015-09-28 08:45:39","```
+class B2Mat22
+{
+    public function new ()
+    {
+        col1 = new B2Vec2(0, 1.0);
+        col2 = new B2Vec2(0, 1.0);
+    }
+}
+```
+
+This would initialize the matrix in a way that when used as a transform results in a width of 0, which is hardly ever useful. I'd except it to be initialized as such:
+
+```
+class B2Mat22
+{
+    public function new ()
+    {
+        col1 = new B2Vec2(1.0, 0);
+        col2 = new B2Vec2(0, 1.0);
+    }
+}
+```
+","start issue","Default value of B2Mat22 is probably wrong","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","11","openfl","box2d","jgranick","2015-09-28 19:52:05","","closed issue","Default value of B2Mat22 is probably wrong","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","11","openfl","box2d","jgranick","2015-09-28 19:52:22","Thanks, good catch! :shipit: 
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","12","openfl","box2d","Rezmason","2015-11-20 16:24:50","Converted TestBed sample to a lime project.
+
+The library is no longer dependent on the Flash API; its debug draw implementation has been abstracted, with Flash and Cairo implementations.
+
+Also included is CairoGLStack, a class that associates a Cairo image surface with a GL screen quad.
+
+Tested on Flash and mac targets.
+","start issue","Extend debug drawing support to non-Flash targets, make TestBed project compile under lime","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_title","12","openfl","box2d","Rezmason","2015-11-20 16:24:50","Converted TestBed sample to a lime project.
+
+The library is no longer dependent on the Flash API; its debug draw implementation has been abstracted, with Flash and Cairo implementations.
+
+Also included is CairoGLStack, a class that associates a Cairo image surface with a GL screen quad.
+
+Tested on Flash and mac targets.
+","91e3d3d36d6ff933b00bd4c65272bb34d47babca","Extend debug drawing support to non-Flash targets, make TestBed project compile under lime","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","12","openfl","box2d","Rezmason","2015-11-18 04:54:10","TestBed project now compiles under lime.","894122b9470d6196520c52fd151ed81aa297aa4e","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","12","openfl","box2d","Rezmason","2015-11-19 09:54:47","Abstracted B2DebugDraw to IDebugDraw; B2FlashDebugDraw is its Flash-targeting implementation.","dbc28ac3e971e8719e5f270e1baf1b5d46219c1c","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","12","openfl","box2d","Rezmason","2015-11-19 09:54:53","Native lime apps can use the B2CairoDebugDraw and the CairoGLStack to get the same sort of graphics outside of Flash.","29257a67fb036b811cff38a3cb8872a955cd82f4","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","12","openfl","box2d","Rezmason","2015-11-19 15:49:10","Aha, B2CairoDebugDraw ought to be using Cairo::fillPreserve.","351c37954dd26a9c65a814c20f9f0cbc5287702b","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","12","openfl","box2d","Rezmason","2015-11-19 15:49:29","Passing time delta into tests.","49b5747537ea1d0c7cac4512e2132b15f44e0d63","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","12","openfl","box2d","Rezmason","2015-11-20 15:17:28","Little bit of cleanup.","65edff8a12eb18cf27c734805087787438db8e58","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","12","openfl","box2d","Rezmason","2015-11-20 15:29:22","Drawing supplemental graphics again for buoyancy test and raycast test.","91e3d3d36d6ff933b00bd4c65272bb34d47babca","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","13","openfl","box2d","DanielUranga","2016-01-27 00:24:27","I've ported a benchmark that compares this version of Box2d to a native ""linc"" c++ one: https://github.com/DanielUranga/haxe_box2d_benchmarks I think this can be highly interesting to measure hxcpp performance vs native.
+
+The problem is that the Haxe version crash due to this:
+https://github.com/openfl/box2d/blob/master/box2D/dynamics/B2Body.hx#L77
+
+Any chance we could fix it?
+","start issue","Needed fix for benchmark","api.github.com","","False","[u'https://github.com/DanielUranga/haxe_box2d_benchmarks', u'https://github.com/openfl/box2d/blob/master/box2D/dynamics/B2Body.hx#L77']","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","13","openfl","box2d","jgranick","2016-01-28 20:22:41","Can we compare to Box2DFlash and see if this is in the original code or not? Are you sure that's the cause of the crash?
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","13","openfl","box2d","DanielUranga","2016-01-28 22:51:50","This is the stacktrace:
+
+```
+Called from ? line 1
+Called from MainBox2dHaxe.hx line 26
+Called from box2D/dynamics/B2Body.hx line 169
+Called from box2D/dynamics/B2Body.hx line 132
+Called from box2D/dynamics/B2Fixture.hx line 320
+Uncaught exception - Invalid field access : computeAABB
+```
+
+It calls `m_shape.computeAABB(m_aabb, xf);` on B2Fixture line 320, but m_shape is null.
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","14","openfl","box2d","fritzvd","2016-03-09 21:26:47","I tried several ways of changing the mass of an object.
+
+`fixtureddef.density`
+`body.setMassData`
+
+I'd like to have a custom mass.
+Alas, to no avail. Am I missing something, or is it not working correctly?
+","start issue","Mass / density changes, doesn't change the way gravity interacts with a body","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","15","openfl","box2d","Gama11","2017-02-12 14:37:19","","start issue","Readme syntax highlighting","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","15","openfl","box2d","jgranick","2017-02-13 07:09:23","","closed issue","Readme syntax highlighting","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_title","15","openfl","box2d","Gama11","2017-02-12 14:37:19","","ad13d233923a5dfd268aacda4c1596aa4530b6da","Readme syntax highlighting","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_merged","15","openfl","box2d","jgranick","2017-02-13 07:09:23","Readme syntax highlighting","642e6f300584951dbae4a4a4fe5760ee8c761210","Pull request merge from Gama11/box2d:patch-1 to openfl/box2d:master","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","15","openfl","box2d","Gama11","2017-02-12 14:37:13","Readme syntax highlighting","ad13d233923a5dfd268aacda4c1596aa4530b6da","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","1","openfl","box2d","crayfellow","2013-03-04 01:23:05","...ave not been rewritten so this requires --no-pattern-matching in order to build and function properly.
+","start issue","haxe 3 syntax (except for rewriting switches)","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","1","openfl","box2d","jgranick","2013-08-21 15:44:50","","closed issue","haxe 3 syntax (except for rewriting switches)","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_title","1","openfl","box2d","crayfellow","2013-03-04 01:23:05","...ave not been rewritten so this requires --no-pattern-matching in order to build and function properly.
+","669571d5bbf22f61130c4b67b7a75d045645540b","haxe 3 syntax (except for rewriting switches)","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","1","openfl","box2d","crayfellow","2013-03-04 01:20:51","haxe3 support. sorry, not intended to be backward compatible. switches have not been rewritten so this requires --no-pattern-matching in order to build and function properly.","669571d5bbf22f61130c4b67b7a75d045645540b","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","2","openfl","box2d","jarnik","2013-08-20 14:14:13","A minor fix in order not to end up in an endless loop in some cases.
+","start issue","prevent endless loop","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","2","openfl","box2d","jgranick","2013-08-21 15:45:12","","closed issue","prevent endless loop","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_title","2","openfl","box2d","jarnik","2013-08-20 14:14:13","A minor fix in order not to end up in an endless loop in some cases.
+","8c10f80dd22bfef4863173b1e21284a7d598a96f","prevent endless loop","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_merged","2","openfl","box2d","jgranick","2013-08-21 15:45:12","prevent endless loop","30118e2d4050961e37dcc27e11449aa92359ccd0","Pull request merge from jarnik/box2d:master to openfl/box2d:master","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","2","openfl","box2d","jarnik","2013-08-20 14:09:40","prevent endless loop","8c10f80dd22bfef4863173b1e21284a7d598a96f","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","3","openfl","box2d","0prototype","2013-08-30 09:24:46","","start issue","Fix init value for Neko","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","3","openfl","box2d","0prototype","2013-10-02 14:31:04","","closed issue","Fix init value for Neko","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_title","3","openfl","box2d","0prototype","2013-08-30 09:24:46","","a2ab964a427f788e85c13ad1d6f74b8bf61e1b91","Fix init value for Neko","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","3","openfl","box2d","0prototype","2013-08-30 09:22:21","Fix init value for Neko","a2ab964a427f788e85c13ad1d6f74b8bf61e1b91","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","4","openfl","box2d","alagatar","2013-09-01 13:04:09","HI,
+Current version of box2d-haxelib 1.2.0 has too low performance on mobile platfroms.
+","start issue","Too low performance on mobile platform","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","4","openfl","box2d","alagatar","2013-12-24 14:56:55","","closed issue","Too low performance on mobile platform","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","5","openfl","box2d","drkibitz","2013-10-12 08:50:28","Using the openfl-sample SimpleBox2D https://github.com/openfl/openfl-samples/issues/8.
+This is the result from test with Haxe 3.0.1 and Neko 2.0.0 on a Mac 64.
+
+``` shell
+$ openfl test neko
+Called from box2D/common/B2Settings.hx line 72
+Uncaught exception - Invalid operation (*)
+```
+","start issue","Compilation fails on neko","api.github.com","","False","[u'https://github.com/openfl/openfl-samples/issues/8.']","[{u'raw': u'https://github.com/openfl/openfl-samples/issues/8', u'refstyle': u'url', u'parts': [u'openfl', u'openfl-samples', u'8', u'']}]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","5","openfl","box2d","jgranick","2015-09-28 19:54:15","","closed issue","Compilation fails on neko","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","5","openfl","box2d","drkibitz","2013-10-12 09:09:48","@jgranick Ok, I did a little digging, but first I have a question. How are you maintaining this library? Is it a manual port or is it transpiled? I'm asking because making specific changes will make it much harder to maintain if it is the latter :/
+
+So my findings are, that first compilation error is just an order of definitions issue. Line 72 just doesn't know about the constant it is using yet.
+
+ After fixing this, there are numerous runtime errors, that I have seemed to boil down to one simple thing. This library is expecting `null` to be coerced to `0` in quite a few operations involving mainly bitmasks and increments from what I can see.
+
+I just kept stomping them and making sure a `0` was defined where these operations failed with `null`.
+
+With that the openfl sample works on neko.
+
+Your thoughts?
+","","","api.github.com","","False","[]","[]","[u'@jgranick']","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","5","openfl","box2d","drkibitz","2013-10-13 08:24:30","Since I'm new to the party, I'm not sure if this is a recent change in Neko, or in Haxe targeting Neko. But it does seem like a weird change :/
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","5","openfl","box2d","jgranick","2014-01-21 03:28:23","This was a manual conversion, so all (or any) Neko fixes would be greatly appreciated!
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","5","openfl","box2d","jgranick","2015-09-28 19:54:15","Box2D works on Neko in my tests, but if you have any more problems, please report them. Thank you! :wink:
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","6","openfl","box2d","s-ol","2014-02-11 21:14:19","Using ApplyForce() once generates a neverending force, when it should actually only ""pull"" once.
+
+Both functions do not react to any changes in the length of the force/impulse vector, which is really odd.
+","start issue","B2Body.ApplyForce and .ApplyImpulse don't behave as expected","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","6","openfl","box2d","jgranick","2015-09-28 19:55:26","","closed issue","B2Body.ApplyForce and .ApplyImpulse don't behave as expected","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","6","openfl","box2d","jgranick","2015-09-28 19:55:26","I believe this is resolved. If not, please (anyone) feel free to post a small sample that shows the problem. Thanks!
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","7","openfl","box2d","marc-jones","2014-03-11 17:41:54","I was having troubles when it came to detecting collisions with sensors. Collisions were being called when the AABBs were overlapping instead of the fixtures themselves.
+","start issue","Uncommented the guts of testOverlap function","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","7","openfl","box2d","jgranick","2014-04-14 18:39:17","","closed issue","Uncommented the guts of testOverlap function","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_title","7","openfl","box2d","marc-jones","2014-03-11 17:41:54","I was having troubles when it came to detecting collisions with sensors. Collisions were being called when the AABBs were overlapping instead of the fixtures themselves.
+","0f5de04698e5b5948ee34a48958a067556b90a0b","Uncommented the guts of testOverlap function","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_merged","7","openfl","box2d","jgranick","2014-04-14 18:39:17","Uncommented the guts of testOverlap function","a6c91ec9fea22e0539c71e53292851c50e04d006","Pull request merge from marc-jones/box2d:patch-2 to openfl/box2d:master","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"pull_request_commit","7","openfl","box2d","marc-jones","2014-03-11 17:41:39","Uncommented the guts of testOverlap function
+
+I was having troubles when it came to detecting collisions with sensors. Collisions were being called when the AABBs were overlapping instead of the fixtures themselves.","0f5de04698e5b5948ee34a48958a067556b90a0b","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","8","openfl","box2d","Angeloss","2014-04-02 05:02:51","When I use the method with a dynamic body the game crash on all platforms.
+Flash player said this:
+
+Error: Error #1502: A script has executed for longer than the default timeout period of 15 seconds.
+    at box2D.dynamics::B2Body/resetMassData()[C:\HaxeToolkit\haxe\lib\box2d/1,2,0/box2D/dynamics/B2Body.hx:721]
+    at box2D.dynamics::B2Body/setFixedRotation()[C:\HaxeToolkit\haxe\lib\box2d/1,2,0/box2D/dynamics/B2Body.hx:1004]
+","start issue","body.setFixedRotation cause error.","api.github.com","","False","[]","[{u'raw': u'#1502', u'refstyle': u'#d', u'parts': [u'openfl', u'box2d', u'1502', u'']}]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","8","openfl","box2d","jgranick","2015-09-28 19:59:07","","closed issue","body.setFixedRotation cause error.","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","8","openfl","box2d","jgranick","2015-09-28 19:59:07","It looks like this was fixed, but if anyone has an issue like this in Box2D, please report, thanks! :smile:
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_title","9","openfl","box2d","justnajm","2015-01-09 14:52:27","Hi,
+
+I was trying box2d buoyancy example as3 in openfl but unable to find any alternate method for this ""circDef.b2internal::m_p.Set(30 / m_physScale, 0 / m_physScale);"".
+
+bodyDef.position.set(300/ m_physScale, 300 / m_physScale);
+            body = m_world.createBody(bodyDef);
+            circDef = new B2CircleShape(7 / m_physScale);
+            fd = new B2FixtureDef();
+            fd.shape = circDef;
+            fd.density =2;
+//          circDef.computeMass(30 / m_physScale, 0 / m_physScale);
+//          circDef.B2internal:m_p.set(30 / m_physScale, 0 / m_physScale);
+            body.createFixture(fd);
+//          circDef.B2internal::m_p.set(-30 / m_physScale, 0 / m_physScale);
+            body.createFixture(fd);
+//          circDef.B2internal::m_p.set(0 / m_physScale, 30 / m_physScale);
+            body.createFixture(fd);
+//          circDef.B2internal::m_p.set(0 / m_physScale, -30 / m_physScale);
+                body.createFixture(fd);
+
+By commenting the b2internal call I am able to run example but water is not interacting with bodies at all.
+","start issue","B2internal::m_p.set() what alternate ?","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_closed","9","openfl","box2d","jgranick","2015-01-10 06:54:42","","closed issue","B2internal::m_p.set() what alternate ?","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","9","openfl","box2d","jgranick","2015-01-09 17:14:15","Eventually I am going to probably hide all the internal stuff. It's bad for parallels between the C++ and porting over. I just took a look, you're supposed to use `circDef.setLocalPosition ()` instead of accessing `m_p` directly. Give it a try and let me know if that works for you
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","9","openfl","box2d","justnajm","2015-01-10 11:08:29","Great it works :)
+
+Another problem within the same example, the last few line are:
+
+```
+for(body in m_bodies){
+    m_controller.addBody(body);
+}           
+m_world.addController(m_controller);
+```
+
+last line hangs the example and do not show anything in flash player/browser(crashes). What I believe it may be due to the fix I did yesterday in haxe/lib/box2d/1,2,0/box2D/dynamics/controllers/B2BuoyancyController.hx
+
+Without the fix it was throwing following error, ""on line 95: Unexpected character ;""
+
+```
+/usr/lib/haxe/lib/box2d/1,2,0/box2D/dynamics/controllers/B2BuoyancyController.hx:95: characters 39-40 : Unexpected ;
+/usr/lib/haxe/lib/box2d/1,2,0/box2D/dynamics/controllers/B2BuoyancyController.hx:95: characters 39-40 : Unexpected ;
+```
+
+I used, while on that line instead of ""for loop"":
+
+```
+while(i.nextBody)
+```
+
+Then the same error moved to line 109
+
+I used, while on it:
+
+```
+while(fixture.getNext())
+```
+
+Then it moved to 137 and 146, there were semi-colons missing. So i added them...
+I think i didn't fix it the right way :(
+","","","api.github.com","","False","[]","[]","[]","[u'unspecified']"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","9","openfl","box2d","jgranick","2015-01-10 16:40:25","I just committed a round of fixes to fix Neko support, to improve the performance of the B2ShapeType enum as well as resolving the un-ported for() loops in B2BuoyancyController :smile:
+","","","api.github.com","","False","[]","[]","[]","[]"
+"rectype","issueid","project_owner","project_name","actor","time","text","action","title","provenance","paths","plus_1","urls","issues","userref","code"
+"issue_comment","9","openfl","box2d","justnajm","2015-01-10 21:41:43","Thanks, it works like charm. Just had 2 semi-colon errors, fixed.
+","","","api.github.com","","False","[]","[]","[]","[]"
