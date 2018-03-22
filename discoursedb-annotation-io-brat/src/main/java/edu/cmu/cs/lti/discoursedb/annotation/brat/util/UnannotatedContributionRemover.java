@@ -30,7 +30,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.core.configuration.BaseConfiguration;
 
 /**
  * 

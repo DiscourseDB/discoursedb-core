@@ -42,7 +42,7 @@ import org.springframework.util.Assert;
  */
 
 @SpringBootApplication
-@ComponentScan(basePackages={"edu.cmu.cs.lti.discoursedb.configuration",
+@ComponentScan(basePackages={"edu.cmu.cs.lti.discoursedb.configuration","edu.cmu.cs.lti.discoursedb.core",
 		"edu.cmu.cs.lti.discoursedb.io.mturk"})
 public class MturkConverterApplication {
 	
