@@ -42,7 +42,8 @@ import edu.cmu.cs.lti.discoursedb.core.configuration.DatabaseSelector;
 public class GithubConverterApplication {
 	
 	public static void main(String[] args) {
-		
-        SpringApplication.run(GithubConverterApplication.class, args);       
+		SpringApplication sa = new SpringApplication(GithubConverterApplication.class);
+		//sa.setAddCommandLineProperties(true);
+        sa.run(args);       
 	}
 }
