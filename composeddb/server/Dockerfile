@@ -10,12 +10,12 @@ WORKDIR /usr/src/discoursedb
 RUN mvn install
 RUN mvn dependency:copy-dependencies
 WORKDIR /usr/src/discoursedb/discoursedb-api-rest
+RUN mvn install
 COPY custom.properties.docker target/classes/custom.properties
 COPY custom.properties.user.management ../user-management/target/classes/custom.properties
 COPY localhost_keystore.p12 /usr/src/discoursedb/discoursedb-api-rest/src/main/resources/localhost_keystore.p12
 COPY wait-for .
 RUN chmod 777 wait-for
-RUN mvn install
 RUN mkdir /bratdata /lightdata
 
 RUN groupadd -r bratuser
