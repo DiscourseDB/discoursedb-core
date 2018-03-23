@@ -74,12 +74,12 @@ public class ManageUsers implements CommandLineRunner {
 				}
 			}
 		}
-		if (args[0].equals("list") && args[1].equals("databases")) {
+		else if (args[0].equals("list") && args[1].equals("databases")) {
 			for (SystemDatabase db: sysUserSvc.getSystemDatabases()) {
 				System.out.println(db.getName());
 			}
 		}
-		if (args[0].equals("password") && args.length==3) {
+		else if (args[0].equals("password") && args.length==3) {
 			try {
 				Optional<SystemUser> su = sysUserSvc.findUserByEmail(args[1]);
 				sysUserSvc.setPassword(su.get(), args[2]);
@@ -87,17 +87,23 @@ public class ManageUsers implements CommandLineRunner {
 				System.out.println("Error: " + e.getMessage());
 			}
 		}
-		if (args[0].equals("add") && args.length == 4) {
+		else if (args[0].equals("add") && args.length == 5) {
 				try {
-					sysUserSvc.findOrCreateSystemUser(args[1],args[2],args[3], args[4]);
+					sysUserSvc.findOrCreateSystemUserByEmail(args[1],args[2],args[3], args[4]);
 					
-					//sysUserRepo.save(su);
 				} catch (Exception e) {
 					System.out.println("Error: " + e.getMessage());
 				}
 			
 		}
-		if (args[0].equals("register") && args.length == 2) {
+		else if (args[0].equals("delete") && args.length == 2) {
+			if (sysUserSvc.deleteUserByEmail(args[1])) {
+				System.out.println("Deleted " + args[1]);
+			} else {
+				System.out.println(args[1] + " not found");
+			}
+		}
+		else if (args[0].equals("register") && args.length == 2) {
 			if (!sysUserSvc.checkIfDatabaseExists(args[1])) {
 				System.out.println("Database " + "discoursedb_ext_" + args[1].replaceAll("discoursedb_ext_", "") + " not found");
 			} else if (sysUserSvc.registerDatabase(args[1])) { 
@@ -106,21 +112,15 @@ public class ManageUsers implements CommandLineRunner {
 				System.out.println(args[1] + " already registered");
 			}
 		}
-		if (args[0].equals("unregister") && args.length == 2) {
+		else if (args[0].equals("unregister") && args.length == 2) {
 			if (sysUserSvc.unregisterDatabase(args[1])) { 
 				System.out.println("Unregistered " + args[1]);
 			} else {
 				System.out.println(args[1] + " not found");
 			}
 		}
-		if (args[0].equals("delete") && args.length == 2) {
-			if (sysUserSvc.deleteUser(args[1])) {
-				System.out.println("Deleted " + args[1]);
-			} else {
-				System.out.println(args[1] + " not found");
-			}
-		}
-		if (args[0].equals("grant") && !args[1].equals("public") && args.length == 3) {
+		
+		else if (args[0].equals("grant") && !args[1].equals("public") && args.length == 3) {
 			try {
 				Optional<SystemUser> su = sysUserSvc.findUserByEmail(args[1]);
 				if (sysUserSvc.grantDatabaseRight(su.get(), args[2])) {
@@ -137,7 +137,7 @@ public class ManageUsers implements CommandLineRunner {
 				System.out.println("Error: " + e.getMessage());
 			}
 		}
-		if (args[0].equals("grant") && args[1].equals("public") && args.length == 3) {
+		else if (args[0].equals("grant") && args[1].equals("public") && args.length == 3) {
 			try {
 				if (sysUserSvc.setDatabasePublic(args[2], 1)) {
 					System.out.println(args[2] + " made public");
@@ -148,7 +148,7 @@ public class ManageUsers implements CommandLineRunner {
 				System.out.println("Error: " + e.getMessage());
 			}
 		}
-		if (args[0].equals("revoke") && !args[1].equals("public") && args.length == 3) {
+		else if (args[0].equals("revoke") && !args[1].equals("public") && args.length == 3) {
 			try {
 				Optional<SystemUser> su = sysUserSvc.findUserByEmail(args[1]);
 				if (sysUserSvc.revokeDatabaseRight(su.get(), args[2])) {
@@ -161,7 +161,7 @@ public class ManageUsers implements CommandLineRunner {
 				System.out.println("Error: " + e.getMessage());
 			}
 		}
-		if (args[0].equals("revoke") && args[1].equals("public") && args.length == 3) {
+		else if (args[0].equals("revoke") && args[1].equals("public") && args.length == 3) {
 			try {
 				if (sysUserSvc.setDatabasePublic(args[2], 0)) {
 					System.out.println(args[2] + " made private");
@@ -171,6 +171,8 @@ public class ManageUsers implements CommandLineRunner {
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			}
+		} else {
+			System.out.println("Error: Did not recognize command " + String.join(" ",  args));
 		}
 	
 	}
