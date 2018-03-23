@@ -1,5 +1,13 @@
 docker cp box2d.csv composeddb_server_1:/tmp/box2d.csv
-docker exec composeddb_server_1 "sh" "-c" "cd /usr/src/discoursedb/; java -cp  discoursedb-io-github-0.8-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.github.converter.GithubConverterApplication --jdbc.database=box2d box2d /tmp/box2d.csv"
+#cat > /tmp/custom.properties <<HEREDOC
+#jdbc.host=db
+#jdbc.port=3306
+#jdbc.username=root
+#jdbc.password=smoot
+#jdbc.database=box2d
+#HEREDOC
+#docker cp /tmp/custom.properties composeddb_server_1:/usr/src/discoursedb/discoursedb-io-github/src/main/resources/custom.properties
+docker exec composeddb_server_1 "sh" "-c" "cd /usr/src/discoursedb/discoursedb-io-github/; java -cp  discoursedb-io-github-0.8-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.github.converter.GithubConverterApplication box2d /tmp/box2d.csv --jdbc.host=db --jdbc.username=root --jdbc.password=smoot --jdbc.database=box2d"
 bash manage register box2d
 bash manage grant public box2d
 # To do: add user

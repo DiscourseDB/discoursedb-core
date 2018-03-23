@@ -12,6 +12,10 @@ Instructions for setting up a DiscourseDB server
      * Run mkcerts
           This makes key and cert files for two of the images (server and browser) so
           that your discoursedb instance can use https security
+     * Edit db password
+          The password "smoot" is in docker-compose.yml and in a few files in
+          server/custom.properties.*  For better security, change this to something
+          else for your installation.
      * docker-compose build --no-cache
           Builds several docker images, which are mini virtual machines that will
           communicate with each other to run your discoursedb server
@@ -23,7 +27,7 @@ Instructions for setting up a DiscourseDB server
      * bash import
           Imports a sample database for you and gives permission
      * bash manage add <email> '<real name>' <username> <password>
-          Set up a user for yourself, filling in the brackets as appropraite.
+          Set up a user for yourself, filling in the brackets as appropriate.
      * visit https://localhost/discoursedb/index.html in your browser, and log in
 
      
@@ -73,10 +77,10 @@ To get a command line into one of the docker containers:
 To access the database from *inside* one of the containers:
    docker exec -it composeddb_browser_1 bash
    apt-get install mysql-client
-   mysql --host=composeddb_db_1 --port=3306 -uroot -proot
+   mysql --host=composeddb_db_1 --port=3306 -uroot -psmoot
 
 To access the database from *outside* the containers:
-   mysql --host=localhost -P 8083 --protocol=tcp -uroot -proot
+   mysql --host=localhost -P 8083 --protocol=tcp -uroot -psmoot
 
 To browse discoursedb:
    visit https://localhost:8082/discoursedb/index.html in your browser
