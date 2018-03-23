@@ -79,6 +79,7 @@ public class SystemUser extends TimedBE implements UserDetails, CoreAndSystemUse
 
 	private String username;
 
+	@Column(unique=true)
 	private String email;
 	
 	@Column(name = "password_hash")

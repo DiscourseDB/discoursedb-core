@@ -89,13 +89,19 @@ public class ManageUsers implements CommandLineRunner {
 		}
 		else if (args[0].equals("add") && args.length == 5) {
 				try {
-					sysUserSvc.findOrCreateSystemUser(args[1],args[2],args[3], args[4]);
+					sysUserSvc.findOrCreateSystemUserByEmail(args[1],args[2],args[3], args[4]);
 					
-					//sysUserRepo.save(su);
 				} catch (Exception e) {
 					System.out.println("Error: " + e.getMessage());
 				}
 			
+		}
+		else if (args[0].equals("delete") && args.length == 2) {
+			if (sysUserSvc.deleteUserByEmail(args[1])) {
+				System.out.println("Deleted " + args[1]);
+			} else {
+				System.out.println(args[1] + " not found");
+			}
 		}
 		else if (args[0].equals("register") && args.length == 2) {
 			if (!sysUserSvc.checkIfDatabaseExists(args[1])) {
@@ -113,13 +119,7 @@ public class ManageUsers implements CommandLineRunner {
 				System.out.println(args[1] + " not found");
 			}
 		}
-		else if (args[0].equals("delete") && args.length == 2) {
-			if (sysUserSvc.deleteUser(args[1])) {
-				System.out.println("Deleted " + args[1]);
-			} else {
-				System.out.println(args[1] + " not found");
-			}
-		}
+		
 		else if (args[0].equals("grant") && !args[1].equals("public") && args.length == 3) {
 			try {
 				Optional<SystemUser> su = sysUserSvc.findUserByEmail(args[1]);

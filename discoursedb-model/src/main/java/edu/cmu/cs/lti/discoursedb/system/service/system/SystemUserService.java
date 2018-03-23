@@ -98,8 +98,23 @@ public class SystemUserService {
 	}
 	
 	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
-	public SystemUser findOrCreateSystemUser(String email, String name, String username, String password) {
+	public SystemUser findOrCreateSystemUserByUsername(String email, String name, String username, String password) {
 		Optional<SystemUser> su = getSystemUser(username);
+		if (su.isPresent()) {
+			su.get().setPasswordHash(passwordEncoder().encode(password));
+			sysUserRepo.save(su.get());
+			return su.get();
+		} else {
+			SystemUser su2 =createSystemUser(email,name,username);
+			su2.setPasswordHash(passwordEncoder().encode(password));
+			sysUserRepo.save(su2);
+			return su2;
+		}
+	}
+	
+	@Transactional(propagation= Propagation.REQUIRED, readOnly=false)
+	public SystemUser findOrCreateSystemUserByEmail(String email, String name, String username, String password) {
+		Optional<SystemUser> su = findUserByEmail(email);
 		if (su.isPresent()) {
 			su.get().setPasswordHash(passwordEncoder().encode(password));
 			sysUserRepo.save(su.get());
@@ -256,7 +271,7 @@ public class SystemUserService {
 		}
 	}
 
-	public boolean deleteUser(String email) {
+	public boolean deleteUserByEmail(String email) {
 		Optional<SystemUser> su = sysUserRepo.findOneByEmail(email);
 		if (!su.isPresent()) {
 			return false;
