@@ -9,7 +9,7 @@ Instructions for setting up a DiscourseDB server
           details aren't very important if you're just running this for internal use.
           If you want to do proper https security, you'll need to apply for a certificate
           from your institution.  Instructions about that to come....
-     * Run mkcerts
+     * Run "bash mkcerts"
           This makes key and cert files for two of the images (server and browser) so
           that your discoursedb instance can use https security
      * Edit db password
@@ -26,9 +26,18 @@ Instructions for setting up a DiscourseDB server
           port (e.g. 8443)
      * bash import
           Imports a sample database for you and gives permission
-     * bash manage add <email> '<real name>' <username> <password>
-          Set up a user for yourself, filling in the brackets as appropriate.
+     * bash manage add <email> <realname> <username> <password>
+          Set up a user for yourself, filling in the brackets as appropriate.  Don't use
+          spaces in the names; so if your name is Diogenes Laertius, use
+          Diogenes_Laertius.  The username and realname are just useful metadata;
+          what matters is the email and password, which you'll use to log in
      * visit https://localhost/discoursedb/index.html in your browser, and log in
+          with the credentials you've just created. 
+       WARNING: the first time you do this, you'll get a security warning, and you'll
+          need to let your browser know this made-up certificate you generated
+          (with bash mkcerts) is OK.  that's different in different browsers.  After
+          the first time, it should remember.  Eventually you'll want to apply for
+          a certificate officially through your institution. 
 
      
 Some useful commands:
