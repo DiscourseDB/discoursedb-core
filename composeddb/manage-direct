@@ -6,6 +6,9 @@
 #  bash manage-direct help
 #   ...etc.
 #
+# Make sure you set up the custom.properties file in user-management/target/classes;
+# a template file for it is in the server directory
+#
 
 echo "$*"
 cd ../user-management
