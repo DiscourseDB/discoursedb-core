@@ -798,7 +798,7 @@
 		<module>discoursedb-api-rest</module>
 		<module>discoursedb-io-wikipedia</module>
 		<module>discoursedb-io-coursera</module>
-		<module>discoursedb-io-piazza</module>
+		
 		<module>discoursedb-annotation</module>
 		<module>discoursedb-io-classroomsalon</module>
 		<module>discoursedb-io-habworlds</module>
