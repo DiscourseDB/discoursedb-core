@@ -91,8 +91,6 @@ public class GithubConverter implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-		Utilities.becomeSuperUser();
-		
 		if (args.length < 2) {
 			System.out.println("Command line arguments required: -Djdbc.database=<database-name> <dataset-name> <events-file>");
 			return;

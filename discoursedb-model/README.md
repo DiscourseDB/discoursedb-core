@@ -1,15 +1,31 @@
-# DiscourseDB Core Model
-This project contains the core object model for DiscourseDB which both defines the database schema and constitutes as an access layer to the the database. discoursedb-model is based on the [Spring Framework](http://projects.spring.io/spring-framework/) and [Spring Data JPA](http://projects.spring.io/spring-data-jpa/) with [Hibernate ORM](http://hibernate.org/orm/) as its JPA Provider. Query abstraction is provided by [QueryDSL-JPA](http://www.querydsl.com/).
+# DiscourseDB Core and System Models
+This project contains the core and system object models for DiscourseDB which define two database schemas and constitute as an access layer to the the database. discoursedb-model is based on the [Spring Framework](http://projects.spring.io/spring-framework/) and [Spring Data JPA](http://projects.spring.io/spring-data-jpa/) with [Hibernate ORM](http://hibernate.org/orm/) as its JPA Provider. Query abstraction is provided by [QueryDSL-JPA](http://www.querydsl.com/).
 
 The JavaDoc of the latest build can be found [here](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/)
 
 ## Requirements and Setup
 All DiscourseDB projects require Java 8+ and Maven 3. The discoursedb-model module contains the base configuration of DiscourseDB. Information about configuration and setup can be found in the [wiki](https://github.com/DiscourseDB/discoursedb-core/wiki/General-Info-and-Setup).
 
-## DiscourseDB Model Architecture Overview
+## DiscourseDB System Model Architecture Overview
+
+### Description of main entities
+
+#### SystemUser
+This table represents users of the data, not people participating in the discourse.  The email address is the uniquely identifying data item here; other fields are present as potentially useful metadata. If the optional passwordHash field is present then users can log in by specifying username and password.  Password is encrpyted
+with bcrypt.  The server is also capable of accepting Google OpenID authentication using the email address field (if it is a registered google ID).  There is another facility for accepting preauthorized requests from a gateway like Learnsphere; this also uses email to identify users.
+
+#### SystemDatabase
+A SystemDatabase is a record representing a database that a user may be granted access to, which must comport with the ``core model'' schema described below.  If
+the is_public field is set to 1, then any registered user can have access.
+
+#### SystemUserRight
+Grant a SystemUser the right to see and annotate a SystemDatabase
+
+
+## DiscourseDB Core Model Architecture Overview
 
 ### Description of Main Entities 
-Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-model/raw/master/informal_model_description.pdf) and to the entity class descriptions in the [Javadoc](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/).
+Please also refer to [this informal overview of the main entities](https://github.com/DiscourseDB/discoursedb-core/blob/master/discoursedb-model/informal_model_description.pdf) and to the entity class descriptions in the [Javadoc](http://moon.lti.cs.cmu.edu:8080/job/DiscourseDB/edu.cmu.cs.lti$discoursedb-model/javadoc/).
 
 #### Discourse
 A Discourse represents the broad context of interactions that might come from multiple datasets. For example, a Discourse could represent an installment of an online course. All interactions in the context of this course - independent from the source dataset - will be associated with this Discourse instance. Another installment of the same course would be represented by a new Discourse instance.

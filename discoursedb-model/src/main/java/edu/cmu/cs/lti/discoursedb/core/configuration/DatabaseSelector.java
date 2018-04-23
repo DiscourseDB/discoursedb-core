@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
+import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
+
 @Component
 @Primary
 @ConfigurationProperties(prefix="core.datasource")
@@ -46,6 +48,9 @@ public class DatabaseSelector extends AbstractRoutingDataSource  {
 		myTargetDataSources.put(defaultdb, getSpecificDataSource(defaultdb));
 		setDefaultTargetDataSource(defaultdb);
 		afterPropertiesSet();
+		if (environment.getProperty("discoursedb.force.authentication", "false").equals("false")) {
+			Utilities.becomeSuperUser();
+		}
 	}
 	
 	public Set<Object> listOpenDatabases() { return myTargetDataSources.keySet(); }
