@@ -51,7 +51,7 @@ public class BratImport implements CommandLineRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length == 1, "USAGE: BratThreadImport <inputFolder>");
+		Assert.isTrue(args.length == 1, "USAGE: BratThreadImport <inputFolder> --jdbc.database=<database>");
 		SpringApplication.run(BratImport.class, args);
 	}
 

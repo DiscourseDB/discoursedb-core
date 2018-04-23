@@ -51,7 +51,7 @@ public class UnannotatedContributionRemover implements CommandLineRunner {
 	 * @param args
 	 */
 	public static void main(String... args) {
-		Assert.isTrue(args.length > 0, "USAGE: BratThreadImport <list of discourse names>");
+		Assert.isTrue(args.length > 0, "USAGE: BratThreadImport <list of discourse names> --jdbc.database=<database name>");
 		SpringApplication.run(UnannotatedContributionRemover.class, args);
 	}
 

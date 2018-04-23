@@ -66,7 +66,7 @@ public class BratExport implements CommandLineRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: BratDiscourseExport <DiscourseName> <outputFolder> <Split on which DiscoursePart type (default: THREAD)>");
+		Assert.isTrue(args.length >=2 && args.length<=3, "USAGE: BratDiscourseExport <DiscourseName> <outputFolder> <Split on which DiscoursePart type (default: THREAD)> --jdbc.database=<database name>");
 		SpringApplication.run(BratExport.class, args);
 	}
 

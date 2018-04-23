@@ -56,7 +56,7 @@ public class BratConfigExport implements CommandLineRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length >=1 && args.length <=2, "USAGE: BratConfigExport (<DiscourseName>) <outputFolder>");
+		Assert.isTrue(args.length >=1 && args.length <=2, "USAGE: BratConfigExport (<DiscourseName>) <outputFolder> --jdbc.database=<database name>");
 		SpringApplication.run(BratConfigExport.class, args);
 	}
 
