@@ -30,7 +30,9 @@ services:
      - "3306"    # Let other containers see 3306
 
   server:
-    build: server
+    build: 
+       context: ../
+       dockerfile: composeddb/server/Dockerfile
     volumes:
      - brat_data:/bratdata
     depends_on:

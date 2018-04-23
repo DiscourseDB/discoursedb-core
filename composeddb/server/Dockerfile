@@ -4,17 +4,18 @@ FROM openjdk:8
 RUN apt-get update
 RUN apt-get install -y maven netcat
 
-RUN git clone -b dockerized https://github.com/discoursedb/discoursedb-core.git /usr/src/discoursedb
+#RUN git clone -b dockerized https://github.com/discoursedb/discoursedb-core.git /usr/src/discoursedb
 WORKDIR /usr/src/discoursedb
+COPY . ./
 
 RUN mvn install
 RUN mvn dependency:copy-dependencies
 WORKDIR /usr/src/discoursedb/discoursedb-api-rest
 RUN mvn install
-COPY custom.properties.docker target/classes/custom.properties
-COPY custom.properties.user.management ../user-management/target/classes/custom.properties
-COPY localhost_keystore.p12 /usr/src/discoursedb/discoursedb-api-rest/src/main/resources/localhost_keystore.p12
-COPY wait-for .
+COPY composeddb/server/custom.properties.docker target/classes/custom.properties
+COPY composeddb/server/custom.properties.user.management ../user-management/target/classes/custom.properties
+COPY composeddb/server/localhost_keystore.p12 /usr/src/discoursedb/discoursedb-api-rest/src/main/resources/localhost_keystore.p12
+COPY composeddb/server/wait-for .
 RUN chmod 777 wait-for
 RUN mkdir /bratdata /lightdata
 
