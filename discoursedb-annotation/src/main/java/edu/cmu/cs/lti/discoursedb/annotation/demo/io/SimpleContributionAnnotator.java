@@ -81,12 +81,12 @@ public class SimpleContributionAnnotator implements CommandLineRunner {
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
+                
 		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);
 		if(!existingDiscourse.isPresent()){
 			logger.warn("Discourse with name "+discourseName+" does not exist.");
 			return;
 		}		
-
 		for(Contribution curContrib: contribService.findAllByDiscourse(existingDiscourse.get())){
 			Content curContent = curContrib.getCurrentRevision();
 			

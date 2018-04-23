@@ -84,7 +84,7 @@ public class ContributionBinaryLabelImporter implements CommandLineRunner {
 	@Transactional
 	public void run(String... args) throws Exception {
 		String inputFileName=args[0];
-		
+ 
 		boolean csv = inputFileName.toLowerCase().endsWith("csv")?true:false;		
 		List<BinaryLabeledContributionInterchange> input = csv?fromCsv(inputFileName):fromJson(inputFileName); 
 	
