@@ -38,6 +38,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
@@ -50,6 +51,8 @@ import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
+import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 import lombok.NonNull;
 
 @SpringBootApplication
@@ -67,9 +70,7 @@ public class CsvImportApplication  implements CommandLineRunner {
 		 *     DataSetName      the name of the dataset
 		 *     csvfile           the path of a csv file
 		 */
-		String discourseName = "";
-		String datasetName = "";
-		String dbName = "";
+		
 		String csvFileName = "";
 	
 		@Autowired DiscoursePartService discoursePartService;
@@ -82,18 +83,16 @@ public class CsvImportApplication  implements CommandLineRunner {
 		@Autowired @Qualifier("coreEntityManagerFactory") private EntityManager entityManager;
 		
 		public static void main(String[] args) {		
-			Assert.isTrue(args.length==4,"Usage: CsvImporter <csvfile> <DiscourseName> <DatabaseName> <DataSetName>");
+			Assert.isTrue(args.length==2,"Usage: CsvImporter <csvfile> --jdbc.database=<databasename> ");
 			SpringApplication.run(CsvImportApplication.class, args);		
 		}
 
 		public void run(String... args) throws Exception {
-			Assert.isTrue(args.length==4,"Usage: CsvImporter <csvfile> <DiscourseName> <DatabaseName> <DataSetName>");
+			Assert.isTrue(args.length==2,"Usage: CsvImporter <csvfile> --jdbc.database=<databasename>");
 
 			
 			this.csvFileName = args[0];
-			this.discourseName = args[1];
-			this.dbName = args[2];
-			this.datasetName = args[3];
+			
 			log.info("Starting conversion of " + this.csvFileName);
 			
 			convert();		
@@ -154,7 +153,7 @@ public class CsvImportApplication  implements CommandLineRunner {
 			Session session = entityManager.unwrap(Session.class);
 			return (T) session.get(clazz, id);
 		}
-		private static SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy");
+		//private static SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy");
 		
 		
 		HashMap<String,Long> dpCache = new HashMap<String,Long>();
@@ -183,53 +182,108 @@ public class CsvImportApplication  implements CommandLineRunner {
 			public String toString() { return index() + " type" + m_dptype + " dstype " + m_dstype + " dataset " + m_dataset; }
 		}
 		
+		private DiscoursePart createOrGetDiscoursePartLeaf(String path, Discourse discourse) {
+			String dpparts[] = path.split("/");
+			DiscoursePart discoursePart = null;
+			for (String dppart: dpparts) {
+				DiscoursePart tempDiscoursePart = 
+						discoursePartService.createOrGetTypedDiscoursePart(discourse, dppart, DiscoursePartTypes.FOLDER);
+				if (discoursePart != null) {
+					discoursePartService.createDiscoursePartRelation(
+							discoursePart, tempDiscoursePart, DiscoursePartRelationTypes.SUBPART);
+				} 
+				discoursePart = tempDiscoursePart;
+			}
+			return discoursePart;
+		}
+		
+		/*HashMap<String,Long> dpCache = new HashMap<String,Long>();
+		DiscoursePart getDiscoursePartPath(Discourse discourse, String path) {
+			
+			if (dpCache.containsKey(dsinf.index())) {
+				return getProxy(dpCache.get(dsinf.index()), DiscoursePart.class);
+			} else {
+				DiscoursePart dp = discoursepartService.createOrGetDiscoursePartByDataSource(
+						discourse, dsinf.m_id, dsinf.m_descriptor, dsinf.m_dstype, dsinf.m_dataset, dsinf.m_dptype);
+				dpCache.put(dsinf.index(), dp.getId());
+				return dp;
+			}
+		}*/
+		
+		HashMap<String,Long> contCache = new HashMap<String,Long>();
+		Contribution getContribution(String id) {
+			
+			if (dpCache.containsKey(id)) {
+				return getProxy(dpCache.get(id), DiscoursePart.class);
+			} 
+			/*else {
+				Contribution dp = contribution.createOrGetDiscoursePartByDataSource(
+						discourse, dsinf.m_id, dsinf.m_descriptor, dsinf.m_dstype, dsinf.m_dataset, dsinf.m_dptype);
+				dpCache.put(dsinf.index(), dp.getId());
+				return dp;
+			}*/
+			else { return null; }
+		}
 		
 		private void convert() throws ParseException, IOException {
-			dbSelector.changeDatabase(this.dbName);
-
-			Discourse curDiscourse = discourseService.createOrGetDiscourse(this.discourseName);
-			
-			DataSourceTypes dstype = DataSourceTypes.EDX;
-			DataSourceInfo dsi = new DataSourceInfo(this.csvFileName+"#file","0",this.datasetName,dstype,  
-					DiscoursePartTypes.CHATROOM);
-			DiscoursePart only_dp = discoursePartService.createOrGetDiscoursePartByDataSource(
-					curDiscourse, dsi.m_id, dsi.m_descriptor, dsi.m_dstype, dsi.m_dataset, dsi.m_dptype);
-			only_dp.setName(new File(this.csvFileName).getName().replaceAll("\\.csv", ""));
-			
-			// Will need this if we later have a dp hierarchy
-			//discoursepartService.createDiscoursePartRelation(parent, course_mod_dp, DiscoursePartRelationTypes.SUBPART);
-			
 			for (Map<String,String> row : csvIteratorExistingHeaders(
 					this.csvFileName, '\\')) {
-				// Fields are:  id, username, Date, post, replyto		
+				
+				Discourse curDiscourse = discourseService.createOrGetDiscourse(row.get("discourse"));
+				
+				if (row.get("dataset_file") == "") {
+					row.put("dataset_file", new File(this.csvFileName).getName().replaceAll("\\.csv", ""));
+				}
+				
+				
+				// TODO: delete me; probably not needed
+				//DataSourceInfo dsi = new DataSourceInfo(row.get("dataset_file")+"#"+row.get("datset_id_col")+ "#discourse",
+				//		row.get("id"),row.get("dataset_name"),DataSourceTypes.OTHER,  
+				//DiscoursePartTypes.FOLDER);
+				
+				DiscoursePart dp = createOrGetDiscoursePartLeaf(row.get("forum"), curDiscourse);
+			
+				// Fields were:  id, username, Date, post, replyto		
 				
 				//TODO: change fields to:
 				// id,username,when,title,post,replyto,forum,dataset_name,dataset_file,dataset_id_col,dataset_id_value,discourse
 				
 				User u = userService.createOrGetUser(curDiscourse,  row.get("username"));
 				dataSourceService.addSource(u, new DataSourceInstance(
-						this.csvFileName+"#username",row.get("username"), dstype, this.datasetName));
+						row.get("dataset_file")+"#"+row.get("datset_id_col") + "#username",
+						row.get("id"), DataSourceTypes.OTHER, row.get("dataset_name")));
 				
 				
 				Content curContent = contentService.createContent();
 				curContent.setText(row.get("post"));
-				curContent.setTitle("");
+				curContent.setTitle(row.get("title"));
 				curContent.setAuthor(u);
-				curContent.setStartTime(sdf.parse(row.get("Date")));
+			
+				curContent.setStartTime(javax.xml.bind.DatatypeConverter.parseDateTime(row.get("when")).getTime());
 				log.info(row.get("id") + " -- " + row.get("username") + " ---> " + row.get("post"));
 				dataSourceService.addSource(curContent, new DataSourceInstance(
-						this.csvFileName+"#post#contribution", row.get("id"),
-						dstype, this.datasetName));
+						row.get("dataset_file")+"#"+row.get("datset_id_col")+ "#contribution", row.get("id"),
+						DataSourceTypes.OTHER, row.get("dataset_name")));
 				
 				log.trace("Create Contribution entity");
-				Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.TWEET);
+				Contribution curContribution = contributionService.createTypedContribution(ContributionTypes.POST);
 				curContribution.setCurrentRevision(curContent);
 				curContribution.setFirstRevision(curContent);
-				curContribution.setStartTime(sdf.parse(row.get("Date")));
+				curContribution.setStartTime(javax.xml.bind.DatatypeConverter.parseDateTime(row.get("when")).getTime());
 				dataSourceService.addSource(curContribution, new DataSourceInstance(
-						this.csvFileName+"#post", row.get("id"),
-						dstype, this.datasetName));
-				discoursepartService.addContributionToDiscoursePart(curContribution, only_dp);
+						row.get("dataset_file")+"#"+row.get("datset_id_col")+ "#post", row.get("id"),
+						DataSourceTypes.OTHER, row.get("dataset_name")));
+				discoursepartService.addContributionToDiscoursePart(curContribution, dp);
+				
+				contCache.put(row.get("id"), curContribution.getId());
+				
+				if (row.get("replyto") != "") {
+					Contribution prior = getContribution(row.get("replyto"));
+					if (prior != null) {
+						contributionService.createDiscourseRelation(prior, 
+							curContribution, DiscourseRelationTypes.REPLY);
+					}
+				}
 			}
 			
 			
