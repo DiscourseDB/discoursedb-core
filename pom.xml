@@ -794,6 +794,7 @@
 		<module>discoursedb-io-tags</module>
 		<module>discoursedb-io-prosolo</module>
 		<module>discoursedb-io-github</module>
+		<module>discoursedb-io-csv</module>
 		<module>discoursedb-model</module>
 		<module>discoursedb-api-rest</module>
 		<module>discoursedb-io-wikipedia</module>
