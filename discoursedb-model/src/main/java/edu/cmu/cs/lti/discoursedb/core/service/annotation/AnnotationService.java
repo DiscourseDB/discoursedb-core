@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
 
 import edu.cmu.cs.lti.discoursedb.configuration.CoreAndSystemUser;
 import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
+import edu.cmu.cs.lti.discoursedb.core.configuration.PublicDummyUser;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
@@ -302,7 +303,7 @@ public class AnnotationService {
 	
 	public boolean myAnnoToWrite(CoreAndSystemUser me, AnnotationInstance anno) {
 		Assert.notNull(anno, "Cannot write null annotation");
-		if (me == null) return true;
+		if (me == null || me.getClass() == PublicDummyUser.class) return true;
 		if (anno.getAnnotatorEmail() != null && me.getEmail().equals(anno.getAnnotatorEmail())) return true;
 		return false;
 	}
