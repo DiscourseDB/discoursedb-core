@@ -220,8 +220,8 @@ public class CsvImportApplication  implements CommandLineRunner {
 		HashMap<String,Long> contCache = new HashMap<String,Long>();
 		Contribution getContribution(String id) {
 			
-			if (dpCache.containsKey(id)) {
-				return getProxy(dpCache.get(id), DiscoursePart.class);
+			if (contCache.containsKey(id)) {
+				return getProxy(contCache.get(id), Contribution.class);
 			} 
 			/*else {
 				Contribution dp = contribution.createOrGetDiscoursePartByDataSource(
@@ -239,6 +239,7 @@ public class CsvImportApplication  implements CommandLineRunner {
 			Calendar when = Calendar.getInstance();
 			when.setTime(new Date());
 			Utilities.becomeSuperUser();
+			String lastforum = "";
 			for (Map<String,String> row : csvIteratorExistingHeaders(
 					this.csvFileName, '\\')) {
 				rownum += 1;
@@ -249,10 +250,7 @@ public class CsvImportApplication  implements CommandLineRunner {
 				if (!row.containsKey("id")) {
 					row.put("id", "row_" + Integer.toString(rownum));
 				}
-				if (!row.containsKey("replyto")) {
-					row.put("replyto", previous_row_id);
-				}
-				previous_row_id = row.get("id");
+				
 
 				if (!row.containsKey("dataset_file") || row.get("dataset_file").equals("")) {
 					row.put("dataset_file", new File(this.csvFileName).getName().replaceAll("\\.csv", ""));
@@ -272,6 +270,16 @@ public class CsvImportApplication  implements CommandLineRunner {
 				if (!row.containsKey("forum")) {
 					row.put("forum", row.get("dataset_file"));
 				}
+				if (!row.containsKey("replyto")) {
+					if (row.get("forum").equals(lastforum)) { 
+						row.put("replyto", previous_row_id);
+					} else {
+						row.put("replyto", "");
+					}
+				}
+				previous_row_id = row.get("id");
+				lastforum = row.get("forum");
+				
 				if (!row.containsKey("discourse")) {
 					row.put("discourse", row.get("dataset_file"));
 				}
@@ -331,32 +339,33 @@ public class CsvImportApplication  implements CommandLineRunner {
 					for (String colname: row.keySet()) {
 						if (colname.startsWith("annotation_")) {
 							annos.add(colname.substring(11));
-							System.out.println(colname + ": " + "annotation_" + colname.substring(11) + ": " + row.get(colname));
 						}
 					}
 					System.out.println(annos);
 				}
 				
+				/* Multiple one-feature annotations */
 				if (annos.size() > 0) {
-					AnnotationInstance newAnno = null;
-					if (row.containsKey("annotationOwnerEmail")) {
-	  					newAnno = annoService.createTypedAnnotation("Annotations");
-	  					newAnno.setAnnotatorEmail(row.get("annotationOwnerEmail"));
-					} else {
-					    newAnno = annoService.createUnownedTypedAnnotation("Annotations");
-					}
-					annoService.addAnnotation(curContribution, newAnno);
-					annoService.saveAnnotationInstance(newAnno);
 					for (String anno: annos) {
-						System.out.println("Considering feature " + anno + ": " + row.get("annotation_" + anno));
 						if (row.get("annotation_" + anno) != null && !row.get("annotation_" + anno).equals("")) {
-							Feature f =  annoService.createTypedFeature(
-									 row.get("annotation_" + anno), anno);
+							AnnotationInstance newAnno = null;
+							if (row.containsKey("annotationOwnerEmail")) {
+			  					newAnno = annoService.createTypedAnnotation(anno);
+			  					newAnno.setAnnotatorEmail(row.get("annotationOwnerEmail"));
+							} else {
+							    newAnno = annoService.createUnownedTypedAnnotation(anno);
+							}
+							annoService.addAnnotation(curContribution, newAnno);
+							annoService.saveAnnotationInstance(newAnno);
+						
+							Feature f = annoService.createFeature(row.get("annotation_" + anno));
 							annoService.saveFeature(f);
 							annoService.addFeature(newAnno, f);				
 						}
 					}
 				}
+				
+				
 				
 				contributionService.save(curContribution); 
 				contCache.put(row.get("id"), curContribution.getId());
@@ -364,8 +373,8 @@ public class CsvImportApplication  implements CommandLineRunner {
 				if (row.get("replyto") != "") {
 					Contribution prior = getContribution(row.get("replyto"));
 					if (prior != null) {
-						contributionService.createDiscourseRelation(prior, 
-							curContribution, DiscourseRelationTypes.REPLY);
+						contributionService.createDiscourseRelation(curContribution, prior, 
+							 DiscourseRelationTypes.REPLY);
 					}
 				}
 			}
