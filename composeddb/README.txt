@@ -52,15 +52,15 @@ Add a researcher to access discoursedb (email, real name, arbitrary username, pa
    (This is just an example -- use a real email and name, and invent a username and password)
    add plato@academy.athens.gr "Plato Aristocles" plato kruptos123
 
-Add a discourseDB database called crito_dialogue  (just an example: you'll need your own data here):
+Add a discourseDB database called crito:   (there's a script in this directory that does this, but this is how it works)
    docker exec composeddb_server_1 "sh" "-c" "mkdir /tmp/data/"
-   docker cp crito_dialogue.txt composeddb_server_1:/tmp/data/
+   docker cp crito.csv composeddb_server_1:/tmp/data/
    docker exec composeddb_server_1 "sh" "-c" "cd /usr/src/discoursedb/discoursedb-io-simplecsv; java -cp <importer jarfile>:target/classes:target/dependency/* <importer's main class> --jdbc.database=xyz <other arguments -- see importer code>"
-   bash manage register crito_dialogue
-   bash manage grant plato@academy.athens.gr crito_dialogue 
+   bash manage register crito
+   bash manage grant plato@academy.athens.gr crito
 
-Make crito_dialogue database readable by anyone (continuing from example above!):
-   bash manage grant public crito_dialogue
+Make crito database readable by anyone (continuing from example above!):
+   bash manage grant public crito
 
 Show discourseDB users
    bash manage list users

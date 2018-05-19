@@ -9,4 +9,4 @@
 
 echo "$*"
 cd ../user-management
-java -cp target/user-management-0.8-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.user.management.ManageUsersApplication $*
+java -cp target/user-management-0.9-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.user.management.ManageUsersApplication $*
