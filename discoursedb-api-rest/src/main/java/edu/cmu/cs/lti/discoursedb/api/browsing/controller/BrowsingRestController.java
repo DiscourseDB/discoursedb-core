@@ -643,7 +643,7 @@ public class BrowsingRestController {
 	}
 	
 	
-	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/csv;charset=UTF-8")
 	@ResponseBody
 	String downloadQueryCsv(
 			HttpServletResponse response,
@@ -703,7 +703,7 @@ public class BrowsingRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/csv;charset=UTF-8")
 	@ResponseBody
 	String downloadLightsideQuery(
 			HttpServletResponse response,
