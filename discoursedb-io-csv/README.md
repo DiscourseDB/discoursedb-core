@@ -12,14 +12,15 @@ from this file; if you need some field or DB entity to be created,
 submit an issue requesting it (or a PR implementing it!) and we'll
 add it.
 
-CSV format: uses the default settings of Python 2.7's csv module:
+# CSV format 
+uses the default settings of Python 2.7's csv module:
 Use unix-style line endings, separate fields by commas, and enclose
 fields in double-quote characters (") if the field contains double-quote,
 comma, carriage return, or linefeed.  Double quotes characters inside
 a field are escaped by doubling them (He says he's a "doctor" => 
 "He says he's a ""doctor""")
 
-# Fields:
+## Fields:
 <dl>
 <dt>id
 <dd>A unique identifier for the text comment.  It can be any string,
@@ -95,4 +96,22 @@ that are meant to be part of the raw data, as opposed to researcher-owned
 annotations that are an analytical interpretation of the data)
 </dd>
 
+# Running the import
 
+Set up the custom.properties file with jdbc.host, jdbc.username, jdbc.password, jdbc.system_database fields.
+Then run CsvImportApplication with the csv file path as the first argument., then --jdbc.database=<DB NAME> 
+
+```
+java -cp discoursedb-io-csv-0.9-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication <CSV FILE PATH> --jdbc.database=<DB NAME>
+```
+
+java -cp discoursedb-io-csv-0.9-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication /tmp/tmp.csv --jdbc.host=db --jdbc.username=root --jdbc.password=smoot --jdbc.database=$2.
+
+To make this database visible to users, use the user-management project to either make it visible to the public, or to grant access to particular users.
+
+```
+cd ../user-management
+bash manage register <DB NAME>
+bash manage grant public <DB NAME>
+bash maange grant researcher@college.edu <DB NAME>
+```
