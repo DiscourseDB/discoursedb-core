@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Table;
@@ -697,6 +698,56 @@ public class BrowsingRestController {
 				}
 				output.append("\n");
 			}
+			return output.toString();
+		} catch (Exception e) {
+			return "ERROR:" + e.getMessage();
+		}
+	}
+	
+	@RequestMapping(value = "/action/downloadQueryCsvExpandible/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/csv;charset=UTF-8")
+	@ResponseBody
+	String downloadQueryCsvExpandable(
+			HttpServletResponse response,
+			@RequestParam("query") String query,
+			   HttpServletRequest hsr, HttpSession session) 
+					throws IOException {
+		
+		securityUtils.authenticate(hsr, session);
+		response.setContentType("application/csv; charset=utf-8");
+		response.setHeader( "Content-Disposition", "attachment");
+		
+		
+		try {
+			logger.info("Got query for csv: " + query );
+		    
+			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+			
+
+			Stream<List<String>> csv1 = q.retrieveAllContributions().getContent().stream().map(
+					(Contribution cntr) -> q.fillInColumns(cntr, annoService));
+					
+			StringBuilder output = new StringBuilder();
+			List<String> headers = q.getColumns();
+
+			output.append(String.join(",",  headers));   output.append("\n");
+			
+			csv1.forEach( csv -> {
+				String comma = "";
+				for (String c : csv) {
+					
+					String item =  "";
+					try {
+						item = c.replaceAll("\"", "\"\"");
+						item = item.replaceAll("^\\[(.*)\\]$", "$1");
+					} catch (Exception e) {
+						item = "";
+					}
+					
+					output.append(comma + "\"" + item + "\"");
+					comma = ",";
+				}
+				output.append("\n");
+			});
 			return output.toString();
 		} catch (Exception e) {
 			return "ERROR:" + e.getMessage();
