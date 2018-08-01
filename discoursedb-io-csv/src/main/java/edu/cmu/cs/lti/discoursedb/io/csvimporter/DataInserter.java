@@ -20,6 +20,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
+import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSourceInfo;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
  class DataInserter {
@@ -98,7 +99,9 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 		//TODO: Make robust to different line endings
 	
 		
-		DiscoursePart dp = this.csvImportApplication.createOrGetDiscoursePartLeaf(row.get("forum"), curDiscourse, row.get("forum_types"));
+		DiscoursePart dp = this.csvImportApplication.createOrGetDiscoursePartLeaf(row.get("forum"), curDiscourse, row.get("forum_types"),
+				new DataSourceInstance(row.get("forum"), row.get("dataset_file")+"#"+row.get("datset_forum_col") + "#path",
+				 DataSourceTypes.OTHER, row.get("dataset_name")));
 	
 		
 		// id,username,when,title,post,replyto,forum,dataset_name,dataset_file,dataset_id_col,dataset_id_value,discourse

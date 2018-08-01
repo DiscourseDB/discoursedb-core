@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -40,6 +41,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
+import edu.cmu.cs.lti.discoursedb.core.model.system.DataSourceInstance;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContentService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
@@ -182,15 +184,26 @@ public class CsvImportApplication  implements CommandLineRunner {
 			public String toString() { return index() + " type" + m_dptype + " dstype " + m_dstype + " dataset " + m_dataset; }
 		}
 		
-		DiscoursePart createOrGetDiscoursePartLeaf(String path, Discourse discourse, String dptypes) {
+		
+		
+		// Given a discourse part specified as a path down the tree from the discourse level,
+		// return the discourse part, creating it if necessary.  Discourse parts are specified by
+		// name, and dptypes are optionally given.   Use the full path (so far) for each nested
+		// discourse part -- this ensures that if you have  CS515/Assign1  and MATH101/Assign1, that
+		// Assign1 will be the title of each course's discourse part, but they won't be the same identity in the database.
+		DiscoursePart createOrGetDiscoursePartLeaf(String path, Discourse discourse, String dptypes, DataSourceInstance dsi) {
 			String dpparts[] = path.split("/");
 			DiscoursePart discoursePart = null;
 			String dptypeparts[] = dptypes.split("/");
 			for (int part = 0; part < dpparts.length; part++) {
-				String dppart = dpparts[part];
+				String dppartpath = String.join("/",Arrays.copyOfRange(dpparts, 0, part+1));
 				String dptype = (dptypeparts.length > part)?dptypeparts[part]:dptypeparts[dptypeparts.length-1];
 				DiscoursePart tempDiscoursePart = 
-						discoursePartService.createOrGetTypedDiscoursePart(discourse, dppart, DiscoursePartTypes.valueOf(dptype));
+						discoursePartService.createOrGetDiscoursePartByDataSource(discourse, 
+								dppartpath, dsi.getEntitySourceDescriptor(), dsi.getSourceType(), dsi.getDatasetName(),
+								DiscoursePartTypes.valueOf(dptype));
+						
+				tempDiscoursePart.setName(dpparts[part]);
 				if (discoursePart != null) {
 					discoursePartService.createDiscoursePartRelation(
 							discoursePart, tempDiscoursePart, DiscoursePartRelationTypes.SUBPART);
@@ -198,7 +211,9 @@ public class CsvImportApplication  implements CommandLineRunner {
 				discoursePart = tempDiscoursePart;
 			}
 			return discoursePart;
-		}
+		}		
+		
+		
 		
 		/*HashMap<String,Long> dpCache = new HashMap<String,Long>();
 		DiscoursePart getDiscoursePartPath(Discourse discourse, String path) {
