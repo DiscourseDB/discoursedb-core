@@ -15,16 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/> 
- * or write to the Free Software Foundation, Inc., 51 Franklin Street, 
+ * along with DiscourseDB.  If not, see <http://www.gnu.org/licenses/>
+ * or write to the Free Software Foundation, Inc., 51 Franklin Street,
  * Fifth Floor, Boston, MA 02110-1301  USA
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.type;
 
 /**
  * Defines the types of data sources supported by DiscourseDB.
- * This is used in the DataSourceInstance entities in addition to the entity source ids and concrete dataset names. 
- * 
+ * This is used in the DataSourceInstance entities in addition to the entity source ids and concrete dataset names.
+ *
  * @author Oliver Ferschke
  */
 public enum DataSourceTypes {
@@ -41,7 +41,7 @@ public enum DataSourceTypes {
 	 */
 	PROSOLO_BLOG,
 	/**
-	 * A TAGS dataset 
+	 * A TAGS dataset
 	 */
 	TAGS,
 	/**
@@ -81,8 +81,11 @@ public enum DataSourceTypes {
 	 */
 	SALON,
 	/*
+	* A Spirit dataset
+	*/
+	SPIRIT,
+	/*
 	 * An "Other" unidentified dataset
 	 */
 	OTHER
-
 }
