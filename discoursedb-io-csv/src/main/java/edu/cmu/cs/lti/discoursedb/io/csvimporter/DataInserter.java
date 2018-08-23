@@ -100,7 +100,7 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 	
 		
 		DiscoursePart dp = this.csvImportApplication.createOrGetDiscoursePartLeaf(row.get("forum"), curDiscourse, row.get("forum_types"),
-				new DataSourceInstance(row.get("forum"), row.get("dataset_file")+"#"+row.get("datset_forum_col") + "#path",
+				new DataSourceInstance(row.get("forum"), row.get("dataset_file")+"#"+row.get("dataset_forum_col") + "#path",
 				 DataSourceTypes.OTHER, row.get("dataset_name")));
 	
 		
@@ -110,8 +110,8 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 		u.setEmail(row.get("user_email"));
 
 		this.csvImportApplication.dataSourceService.addSource(u, new DataSourceInstance(
-				row.get("dataset_file")+"#"+row.get("datset_id_col") + "#username",
-				row.get("id"), DataSourceTypes.OTHER, row.get("dataset_name")));
+				row.get("id"), row.get("dataset_file")+"#"+row.get("dataset_id_col") + "#username",
+				DataSourceTypes.OTHER, row.get("dataset_name")));
 		
 		Content curContent = this.csvImportApplication.contentService.createContent();
 		curContent.setText(row.get("post"));
@@ -121,7 +121,7 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 		curContent.setStartTime(this.csvImportApplication.when.getTime());
 		CsvImportApplication.log.info(row.get("id") + " -- " + row.get("username") + " ---> " + row.get("post"));
 		this.csvImportApplication.dataSourceService.addSource(curContent, new DataSourceInstance(
-				row.get("dataset_file")+"#"+row.get("datset_id_col")+ "#contribution", row.get("id"),
+				row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#contribution", 
 				DataSourceTypes.OTHER, row.get("dataset_name")));
 		
 		CsvImportApplication.log.trace("Create Contribution entity");
@@ -130,7 +130,7 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 		curContribution.setFirstRevision(curContent);
 		curContribution.setStartTime(this.csvImportApplication.when.getTime());
 		this.csvImportApplication.dataSourceService.addSource(curContribution, new DataSourceInstance(
-				row.get("dataset_file")+"#"+row.get("datset_id_col")+ "#post", row.get("id"),
+				 row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#post",
 				DataSourceTypes.OTHER, row.get("dataset_name")));
 		this.csvImportApplication.discoursepartService.addContributionToDiscoursePart(curContribution, dp);
 		
