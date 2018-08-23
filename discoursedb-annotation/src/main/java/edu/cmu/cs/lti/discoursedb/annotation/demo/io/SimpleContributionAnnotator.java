@@ -35,7 +35,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.core.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
@@ -81,12 +81,12 @@ public class SimpleContributionAnnotator implements CommandLineRunner {
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
+                
 		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);
 		if(!existingDiscourse.isPresent()){
 			logger.warn("Discourse with name "+discourseName+" does not exist.");
 			return;
 		}		
-
 		for(Contribution curContrib: contribService.findAllByDiscourse(existingDiscourse.get())){
 			Content curContent = curContrib.getCurrentRevision();
 			

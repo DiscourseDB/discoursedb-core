@@ -1,0 +1,4 @@
+openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf
+cp key.pem cert.pem browser
+openssl pkcs12 -name tomcat -password pass:asdfjkl -export -in cert.pem -inkey key.pem > server/localhost_keystore.p12
+

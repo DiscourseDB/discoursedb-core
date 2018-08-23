@@ -1,0 +1,49 @@
+version: '3'
+volumes:
+  mysql_data:
+  brat_data:
+  brat_config:
+ 
+services:
+  browser:
+    build: browser 
+    depends_on:
+     - server
+     - brat
+    ports:
+     - "127.0.0.1:443:443"
+     - "127.0.0.1:80:80"
+
+  db:
+    image: "mysql"
+    hostname: medical-mysql    
+    command: mysqld --user=root --verbose
+    volumes:    
+     - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: smoot
+      MYSQL_USER: "local"
+      MYSQL_PASSWORD: "local"
+    ports:
+     - "127.0.0.1:8083:3306"  # let outside world see 8083
+    expose:
+     - "3306"    # Let other containers see 3306
+
+  server:
+    build: 
+       context: ../
+       dockerfile: composeddb/server/Dockerfile
+    volumes:
+     - brat_data:/bratdata
+    depends_on:
+     - db
+    expose:
+     - "5280"
+
+  brat:
+    build: brat
+    volumes:
+     - brat_data:/bratdata
+     - brat_config:/bratcfg
+    expose:
+     - "8001"

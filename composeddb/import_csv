@@ -1,0 +1,4 @@
+docker cp "$1" composeddb_server_1:/tmp/tmp.csv
+docker exec composeddb_server_1 "sh" "-c" "cd /usr/src/discoursedb/discoursedb-io-csv/; java -cp discoursedb-io-csv-0.9-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication /tmp/tmp.csv --jdbc.host=db --jdbc.username=root --jdbc.password=smoot --jdbc.database=$2"
+bash manage register $2
+bash manage grant public $2

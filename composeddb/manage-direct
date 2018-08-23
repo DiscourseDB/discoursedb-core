@@ -1,0 +1,12 @@
+#
+# Use this script to manage users and databases
+#
+#  bash manage-direct list users
+#  bash manage-direct list databases 
+#  bash manage-direct help
+#   ...etc.
+#
+
+echo "$*"
+cd ../user-management
+java -cp target/user-management-0.9-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.user.management.ManageUsersApplication $*

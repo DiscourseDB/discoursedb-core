@@ -8,3 +8,7 @@ For detailed information including license details, visit the <a href="http://tw
 
 # Changes in this fork
 Added support for MongoDB extended JSON in parser.
+
+# Disabled
+The build command for this is currently commented out in discoursedb-core/pom.xml
+because it is not compiling.  TODO: fix

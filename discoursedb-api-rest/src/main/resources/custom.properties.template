@@ -2,13 +2,20 @@
 #
 #  Database can be called anything
 #  System database should have a fixed name
-#  We assume all mysql databases are prefixed with discoursedb_ext
+#  We assume all mysql databases are prefixed with discoursedb_ext.
+#  You can include that prefix or not; the code will normalize it
 #
 jdbc.host=localhost
 jdbc.database=discoursedb_ext_anything
 jdbc.system_database=discoursedb_ext_system
 jdbc.username=local
 jdbc.password=local
+
+
+# Important!  Should be true for DiscourseDB's server; false for data importers.
+#  Default is false, if it is not present
+discoursedb.force.authentication=true
+
 
 lightside.data_directory=/Users/bogart-MBP-isri/lightside/data
 brat.data_directory=/Users/bogart-MBP-isri/brat-v1.3_Crunchy_Frog/data

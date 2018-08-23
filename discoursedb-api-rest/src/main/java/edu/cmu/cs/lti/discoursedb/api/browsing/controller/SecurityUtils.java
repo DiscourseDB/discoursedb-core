@@ -17,16 +17,21 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+
+import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemDatabase;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemDatabaseRepository;
@@ -61,7 +66,7 @@ public class SecurityUtils {
 	public String currentUserEmail() {
 		return loggedInUser().getPrincipal().toString();
 	}
-	public  void authenticate(HttpServletRequest req,  HttpSession s) {
+	public  void authenticate(HttpServletRequest req,  HttpSession s)  throws BrowsingRestController.UnauthorizedDatabaseAccess {
 		
 		init();
 		if (!SystemUserAuthentication.securityEnabled) { return; }
@@ -73,6 +78,7 @@ public class SecurityUtils {
 		// In any case, then, create an authentication dealie, and stick it in the securitycontextholder
 		// Look up a list of discourses that this person is allowed to access, and associate that as "authorities"
 		logger.info("Got a request...");
+		logger.info(req.getHeader("Authorization"));
 		logger.info("Session attributes: " + String.join(",",Collections.list(s.getAttributeNames())) + ";" + s.getAttribute("email"));
 		if (s.getAttribute("email") != null && s.getAttribute("email") != "") {
 			return;
@@ -82,7 +88,7 @@ public class SecurityUtils {
 			String[] userAndPass = getBasicAuthentication(req);
 			if (userAndPass != null) {
 				logger.info("     -> accepting user by proxy: " + userAndPass[0]);
-				setupUser(userAndPass[0], userAndPass[1]);
+				setupUserIgnoringPassword(userAndPass[0], userAndPass[1]);
 			} else {
 				logger.info("   Trusted user proxy, but no basic authentication received");
 				throw new BrowsingRestController.UnauthorizedDatabaseAccess();
@@ -101,20 +107,50 @@ public class SecurityUtils {
 					logger.info("Postexisting user info was " + String.join(",",Collections.list(s.getAttributeNames())) + ";" + s.getAttribute("email"));
 				} else {
 					logger.info("Not google sign in");
-					throw new BrowsingRestController.UnauthorizedDatabaseAccess();
+					String [] userAndPass = getBasicAuthentication(req);
+					if (userAndPass == null) {
+						logger.info("Not basic sign in");
+						throw new BrowsingRestController.UnauthorizedDatabaseAccess();
+					} else {
+						logger.info("Detected basic sign in");
+						Authentication a = setupUserCheckingPassword(userAndPass[0], userAndPass[1]);
+						if (a != null) {
+							s.setAttribute("email", userAndPass[0]);
+						}
+					}
 				}
 			} else {
-				logger.info("Recalling session; restoring user " + s.getAttribute("email").toString());
-				setupUser(s.getAttribute("email").toString(),"");
+					logger.info("Recalling session; restoring user " + s.getAttribute("email").toString());
+					setupUserIgnoringPassword(s.getAttribute("email").toString(),"");
 			}
 		}
 		logger.info("AFTER AUTHENTICATE: " + SecurityContextHolder.getContext().toString());
-        logger.info("Logging in2 with [{}]", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+			throw new BrowsingRestController.UnauthorizedDatabaseAccess();
+		}
+        logger.info("Logging in2 with [{}]", Utilities.getCurrentUser());
  
 	}
 	
-	public void setupUser(String email, String password) {
-		Authentication auth = getUser(email);
+	public void abandonSession(HttpSession s) {
+		s.invalidate();
+	}
+	public Authentication setupUserCheckingPassword(String email, String password) {
+		Authentication auth = getUserByEmailCheckingPassword(email, password);
+		if (auth != null) {
+	        SecurityContextHolder.clearContext();
+	        SecurityContextHolder.getContext().setAuthentication(auth);
+	        logger.info("Logging in with [{}]", auth.getPrincipal());
+	        return auth;
+		} else {
+			SecurityContextHolder.clearContext();
+			logger.info("basic authorization failed");
+			return null;
+		}
+	}
+	
+	public void setupUserIgnoringPassword(String email, String password) {
+		Authentication auth = getUserByEmail(email);
 		if (auth != null) {
 	        SecurityContextHolder.clearContext();
 	        SecurityContextHolder.getContext().setAuthentication(auth);
@@ -140,9 +176,53 @@ public class SecurityUtils {
 		return SystemUserAuthentication.authoritiesContains("TRUSTED_USER_AGENT", SecurityContextHolder.getContext().getAuthentication());
 	}
 	
+	@Autowired PasswordEncoder passwordEncoder;
 	
+	public SystemUserAuthentication getUserByEmailCheckingPassword(String email, String password) {
+		
+		Optional<SystemUser> su = email != null?sysUserRepo.findOneByEmail(email):Optional.empty();
+		
+		if (su.isPresent()) {
+			logger.info("Checking hashed password for " +email + "which hashed is " + su.get().getPasswordHash());
+			if (passwordEncoder.matches(password, su.get().getPasswordHash())) {
+				logger.info("Hashed password matches!");
+				SystemUserAuthentication authentication = new SystemUserAuthentication(
+						su.get(), password,
+		                su.get().getAuthorities(),getAllowedDatabases(su.get().getAuthorities()));
+					
+				return authentication;
+			} else {
+				logger.info("Hashed password does not match :-(");
+				return null;
+			}
+		} else {
+			logger.info("NO user called " + email + " found to look up in basic authentication");
+			return null;
+		}
+		// TODO Auto-generated constructor stub
+	}
 	
-	public SystemUserAuthentication getUser(String email) {
+public SystemUserAuthentication getUserByUsername(String username) {
+		
+		Optional<SystemUser> su = username != null?sysUserRepo.findOneByUsername(username):Optional.empty();
+		
+		if (su.isPresent()) {
+			logger.info("Getting info about " +username + " WITHOUT a password");
+			
+				SystemUserAuthentication authentication = new SystemUserAuthentication(
+						su.get(), "",
+		                su.get().getAuthorities(),getAllowedDatabases(su.get().getAuthorities()));
+					
+				return authentication;
+			
+		} else {
+			logger.info("NO user called " + username + " found");
+			return null;
+		}
+		// TODO Auto-generated constructor stub
+	}
+	
+	public SystemUserAuthentication getUserByEmail(String email) {
 		
 		Optional<SystemUser> su = email != null?sysUserRepo.findOneByEmail(email):Optional.empty();
 		

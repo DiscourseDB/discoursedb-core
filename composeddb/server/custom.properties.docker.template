@@ -1,0 +1,58 @@
+
+    jdbc.host=db
+    jdbc.port=3306
+    jdbc.database=discoursedb_ext_default
+    jdbc.system_database=discoursedb_ext_system
+    jdbc.password=<FILL ME IN>
+    jdbc.username=<FILL ME IN>
+
+
+log4j.rootLogger=TRACE
+lightside.data_directory=/usr/src/lightside/data/
+brat.data_directory=/usr/src/brat-v1.3_Crunchy_Frog/data/
+brat.ui_base=http://127.0.0.1:8001
+server.port=5280
+management.port=5281
+log4j.category.org.springframework=ALL
+logging.level.org.springframework.web=ALL
+logging.level.org.hibernate=ALL
+log4j.logger.org.springframework=ALL
+log4j.logger.org.hibernate=ALL
+google.client_secret=<FILL ME IN>
+google.client_id=<FILL ME IN>
+google.registered.url=http://127.0.0.1:5280
+spring.data.rest.defaultPageSize = 100
+
+# https://stackoverflow.com/questions/28330716/how-to-disable-the-default-exposure-of-spring-data-rest-repositories
+spring.data.rest.detection-strategy=annotated
+
+# https://dzone.com/articles/disable-spring-boot-production
+endpoints.autoconfig.enabled=false
+endpoints.beans.enabled=false
+endpoints.configprops.enabled=false
+endpoints.dump.enabled=false
+endpoints.env.enabled=false
+endpoints.health.enabled=false
+endpoints.info.enabled=false
+endpoints.metrics.enabled=false
+endpoints.mappings.enabled=false
+endpoints.shutdown.enabled=false
+endpoints.trace.enabled=false
+endpoints.profile.enabled=false
+
+#Run this on server:
+# keytool -genkey -alias tomcat -keyalg RSA -storepass changeit1 -keypass changeit2 -dname 'CN=DiscourseDB'
+
+security.require-ssl=true
+https.enabled=true
+server.ssl.key-store=src/main/resources/localhost_keystore.p12
+server.ssl.key-store-type=PKCS12
+server.ssl.key-store-password=<FILL ME IN>
+server.ssl.key-password=<FILL ME IN>
+security.headers.hsts=none
+
+server.ssl.key-alias=tomcat
+server.ssl.enabled=true
+security.user.name=Admin
+security.user.password=admin
+server.ssl.client-auth=want
