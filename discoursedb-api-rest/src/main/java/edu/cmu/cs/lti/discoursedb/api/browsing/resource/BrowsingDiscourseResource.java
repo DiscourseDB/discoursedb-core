@@ -30,7 +30,9 @@ import org.springframework.hateoas.ResourceSupport;
 
 import edu.cmu.cs.lti.discoursedb.api.browsing.controller.BrowsingRestController;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
+import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartRelation;
 import edu.cmu.cs.lti.discoursedb.core.repository.macro.DiscoursePartRepository;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 
 public class BrowsingDiscourseResource extends ResourceSupport {
 	
@@ -43,7 +45,7 @@ public class BrowsingDiscourseResource extends ResourceSupport {
 		this.d = d;
 		this.name = d.getName();
 		this.discourseId = d.getId();
-		List<Object[]> counts = dpr.countsByTypeAndDiscourseNative(d.getId()); 
+		List<Object[]> counts = dpr.countsByTypeAndDiscourseWithoutParent(d.getId(), "SUBPART"); 
 		this.countsByType = new HashMap<>();
 		counts.forEach(c  -> {
 			String typename = c[0].toString();

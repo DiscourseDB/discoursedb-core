@@ -35,6 +35,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
 import edu.cmu.cs.lti.discoursedb.core.model.user.User;
 import edu.cmu.cs.lti.discoursedb.core.repository.BaseRepository;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 
 public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Long>{
     
@@ -59,6 +60,14 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ " where d.id=:discourseId "
 			+ " and dp.type=:discoursePartType")
 	Page<DiscoursePart> findAllByDiscourseAndType(@Param("discoursePartType") String discoursePartType, @Param("discourseId") Long discourseId, Pageable pageable);
+
+	@Query("select dp from DiscourseToDiscoursePart dpd left join dpd.discourse d "
+			+ " left join dpd.discoursePart dp "
+			+ " left join dp.targetOfDiscoursePartRelations dpr on dpr.type = :relationType"
+			+ " where d.id=:discourseId "
+			+ " and dp.type=:discoursePartType and dpr is null")
+	Page<DiscoursePart> findAllByDiscourseAndTypeWithoutParent(@Param("discoursePartType") String discoursePartType, @Param("discourseId") Long discourseId, 
+			@Param("relationType") String relationType, Pageable pageable);
 
 	@Query("select dp from DiscourseToDiscoursePart dpd left join dpd.discourse d "
 			+ " left join dpd.discoursePart dp "
@@ -102,6 +111,12 @@ public interface DiscoursePartRepository extends BaseRepository<DiscoursePart,Lo
 			+ " left join discourse_part dp on dpd.fk_discourse_part = dp.id_discourse_part "
 			+ " where d.id_discourse=:discourseId group by dp.type", nativeQuery=true)
 	List<Object[]> countsByTypeAndDiscourseNative(@Param("discourseId") Long discourseId);
+
+	@Query(value= "select dp.type, count(*) from discourse_has_discourse_part dpd left join discourse d on dpd.fk_discourse = d.id_discourse "
+			+ " left join discourse_part dp on dpd.fk_discourse_part = dp.id_discourse_part "
+			+ " left join discourse_part_relation dpr on dpr.type = :relationType and dp.id_discourse_part = dpr.fk_target"
+			+ " where d.id_discourse=:discourseId and dpr.fk_target is null group by dp.type", nativeQuery=true)
+	List<Object[]> countsByTypeAndDiscourseWithoutParent(@Param("discourseId") Long discourseId, @Param("relationType") String relationType);
 
 	/*@Query("select dp1 from User u "
 			+ "left join Content conte on conte.user=u "

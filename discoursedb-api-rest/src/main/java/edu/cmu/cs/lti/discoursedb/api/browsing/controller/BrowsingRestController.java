@@ -129,6 +129,7 @@ import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
+import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUserProperty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -356,6 +357,7 @@ public class BrowsingRestController {
 		
 	}
 	
+	// should only list discourseparts of a given type that do NOT have parents
 	@RequestMapping(value = {"/database/{databaseName}/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
 			"/discourses/{discourseId}/discoursePartTypes"} , method = RequestMethod.GET)
 	@ResponseBody
@@ -372,7 +374,7 @@ public class BrowsingRestController {
 		
 		Page<BrowsingDiscoursePartResource> repoResources = null;
 		
-		if (!discoursePartType.isPresent()) {
+		if (!discoursePartType.isPresent()) {  //  never happens with current browser (Sept 2018)
 			repoResources = 
 					discoursePartRepository.findAllByDiscourse(discourseId, p)
 					.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
@@ -381,7 +383,7 @@ public class BrowsingRestController {
 					              return bdpr; });
 		} else {
 			repoResources = 
-				discoursePartRepository.findAllByDiscourseAndType(discoursePartType.get(), discourseId, p)
+				discoursePartRepository.findAllByDiscourseAndTypeWithoutParent(discoursePartType.get(), discourseId, "SUBPART", p)
 				.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
 				.map(bdpr -> {bdpr.filterAnnotations(annoType); 
 				              bdpr.fillInUserInteractions(discoursePartInteractionRepository, annoService);
@@ -396,9 +398,7 @@ public class BrowsingRestController {
 			    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/subDiscourseParts/" + dpId, dpname));
 			     });
 			}  
-			//Link check = makeLink1Arg("/browsing/action/exportLightside","chk:Export to Lightside: no annotations", "parentDpId", Long.toString(bcr._getDpId()));
-	    	//Link check2 = makeLink2Arg("/browsing/action/exportLightside","chk:Export to Lightside: with annotations", "withAnnotations", "true", "parentDpId", Long.toString(bcr._getDpId()));
-			Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+		Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 	    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
 	    	bcr.add(check);	
 	    	bcr.add(check2);
