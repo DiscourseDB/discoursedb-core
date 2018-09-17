@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>edu.cmu.cs.lti</groupId>
 		<artifactId>discoursedb-core</artifactId>
-		<version>0.8-SNAPSHOT</version>
+		<version>0.9-SNAPSHOT</version>
 	</parent>
 	<artifactId>discoursedb-io-classroomsalon</artifactId>
 	<name>Classroom Salon Converters</name>

@@ -48,7 +48,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
 import edu.cmu.cs.lti.discoursedb.annotation.demo.model.BinaryLabeledContributionInterchange;
-import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
+import edu.cmu.cs.lti.discoursedb.core.configuration.BaseConfiguration;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
@@ -84,7 +85,7 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 	 * @param args 
 	 */
 	public static void main(String[] args) {
-		Assert.isTrue(args.length==2,"USAGE: SimpleJSONContentAnnotationExporter <DiscourseName> <outputFile> <csv>(optional)");
+		Assert.isTrue(args.length==2,"USAGE: SimpleJSONContentAnnotationExporter <DiscourseName> <outputFile> <csv>(optional) --jdbc.database=<Database Name>");
         SpringApplication.run(ContributionBinaryLabelExporter.class, args);       
 	}
 	
@@ -94,7 +95,7 @@ public class ContributionBinaryLabelExporter implements CommandLineRunner {
 		String discourseName = args[0];
 		String outputFileName=args[1];
 		boolean csv = outputFileName.toLowerCase().endsWith("csv")?true:false;
-
+		
 		List<BinaryLabeledContributionInterchange> output = new ArrayList<>();		
 		Optional<Discourse> existingDiscourse = discourseService.findOne(discourseName);		
 		

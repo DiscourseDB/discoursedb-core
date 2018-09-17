@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Table;
@@ -109,7 +110,7 @@ import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingStatsResource;
 import edu.cmu.cs.lti.discoursedb.api.browsing.resource.BrowsingUserResource;
 import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery;
 import edu.cmu.cs.lti.discoursedb.api.query.DdbQuery.DdbQueryParseException;
-import edu.cmu.cs.lti.discoursedb.configuration.DatabaseSelector;
+import edu.cmu.cs.lti.discoursedb.core.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Discourse;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
@@ -213,6 +214,19 @@ public class BrowsingRestController {
 	}
 	
 	
+	@RequestMapping(value="/logout", method=RequestMethod.GET)
+	@ResponseBody
+	void logout(HttpServletRequest httpServletRequest, HttpSession session) {
+		securityUtils.abandonSession(session);
+	}
+	
+	@RequestMapping(value="/whoAmI", method=RequestMethod.GET)
+	@ResponseBody
+	String whoAmI(HttpServletRequest httpServletRequest, HttpSession session) {
+		SystemUserAuthentication user = securityUtils.loggedInUser();
+		return user.getName();
+	}
+	
 	@RequestMapping(value="/database/{databaseName}/stats", method=RequestMethod.GET)
 	@ResponseBody
 	Resources<BrowsingStatsResource> stats(
@@ -244,7 +258,10 @@ public class BrowsingRestController {
 	Map<String, List<String>> userAccess(HttpServletRequest httpServletRequest, HttpSession session
 			,@RequestParam(value= "userid", defaultValue = "") String userid) {
 		
-		SystemUserAuthentication userInQuestion = securityUtils.getUser(userid);
+		SystemUserAuthentication userInQuestion = 
+				userid.contains("@")
+				        ?securityUtils.getUserByEmail(userid)
+						:securityUtils.getUserByUsername(userid);
 		HashMap<String,List<String>> hm = new HashMap<String,List<String>>();
 		
 		List<String> dbs = userInQuestion.getAllowedDatabases();
@@ -307,7 +324,7 @@ public class BrowsingRestController {
 	@ResponseBody
 	void refresh(HttpServletRequest httpServletRequest, HttpSession session) {
 		securityUtils.authenticate(httpServletRequest,  session);
-		systemUserService.refreshOpenDatabases();
+		systemUserService.refreshSystemDatabase();
 				
 		return;
 	}
@@ -627,7 +644,7 @@ public class BrowsingRestController {
 	}
 	
 	
-	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/csv;charset=UTF-8")
 	@ResponseBody
 	String downloadQueryCsv(
 			HttpServletResponse response,
@@ -687,7 +704,57 @@ public class BrowsingRestController {
 		}
 	}
 	
-	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	@RequestMapping(value = "/action/downloadQueryCsvExpandible/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/csv;charset=UTF-8")
+	@ResponseBody
+	String downloadQueryCsvExpandable(
+			HttpServletResponse response,
+			@RequestParam("query") String query,
+			   HttpServletRequest hsr, HttpSession session) 
+					throws IOException {
+		
+		securityUtils.authenticate(hsr, session);
+		response.setContentType("application/csv; charset=utf-8");
+		response.setHeader( "Content-Disposition", "attachment");
+		
+		
+		try {
+			logger.info("Got query for csv: " + query );
+		    
+			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+			
+
+			Stream<List<String>> csv1 = q.retrieveAllContributions().getContent().stream().map(
+					(Contribution cntr) -> q.fillInColumns(cntr, annoService));
+					
+			StringBuilder output = new StringBuilder();
+			List<String> headers = q.getColumns();
+
+			output.append(String.join(",",  headers));   output.append("\n");
+			
+			csv1.forEach( csv -> {
+				String comma = "";
+				for (String c : csv) {
+					
+					String item =  "";
+					try {
+						item = c.replaceAll("\"", "\"\"");
+						item = item.replaceAll("^\\[(.*)\\]$", "$1");
+					} catch (Exception e) {
+						item = "";
+					}
+					
+					output.append(comma + "\"" + item + "\"");
+					comma = ",";
+				}
+				output.append("\n");
+			});
+			return output.toString();
+		} catch (Exception e) {
+			return "ERROR:" + e.getMessage();
+		}
+	}
+	
+	@RequestMapping(value = "/action/downloadLightsideQuery/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/csv;charset=UTF-8")
 	@ResponseBody
 	String downloadLightsideQuery(
 			HttpServletResponse response,
@@ -703,16 +770,18 @@ public class BrowsingRestController {
 		response.setContentType("application/csv; charset=utf-8");
 		response.setHeader( "Content-Disposition", "attachment");
 		String lsDataDirectory = lsDataDirectory();
-		File lsOutputFileName = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
+		File lsOutputFile = new File(lsDataDirectory , sanitize(exportFilename) + ".csv");
 		if (withAnnotations.equals("true")) {
-			lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+			//lightsideService.exportAnnotations(q.getDiscourseParts(), lsOutputFileName);
+			lightsideService.exportAnnotationsFromContributions(lsOutputFile, q.retrieveAllContributions());
 		} else {
-			lightsideService.exportDataForAnnotation(lsOutputFileName.toString(), 
+			lightsideService.exportDataForAnnotation(lsOutputFile.toString(), 
 					q.retrieveAllContributions(), false);
 		}
-		return FileUtils.readFileToString(lsOutputFileName);
+		return FileUtils.readFileToString(lsOutputFile);
 	}
 	
+	/*
 	@Deprecated
 	@RequestMapping(value = "/action/database/{databaseName}/downloadLightside/{exportFilename}.csv", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	@ResponseBody
@@ -820,7 +889,7 @@ public class BrowsingRestController {
 		//} else {
 			return lightsideExports(databaseName, hsr, session);
 		//}
-	}	
+	}	*/
 	
 	@RequestMapping(value = "/action/database/{databaseName}/deleteBrat", method=RequestMethod.GET)
 	@ResponseBody

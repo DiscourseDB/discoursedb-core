@@ -1,0 +1,23 @@
+#
+# Use this script to manage users and databases
+#
+#  First set up target/classes/custom.properties with appropriate jdbc.host, jdbc.username, jdbc.password, jdbc.system_database
+#  Then invoke like so:
+#
+#  bash manage list users
+#  bash manage list databases 
+#  bash manage help
+#  bash list users
+#  bash list databases
+#  bash register <database-name>
+#  bash unregister <database-name>
+#  bash add <user-email> <realname> <username> <password>
+#  bash password <user-email> <password>
+#  bash delete <user-email>
+#  bash grant <user-email> <database>
+#  bash revoke <user-email> <database>
+#  bash grant public <database>
+#  bash revoke public <database>
+#
+
+java -cp target/user-management-0.9-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.user.management.ManageUsersApplication $*

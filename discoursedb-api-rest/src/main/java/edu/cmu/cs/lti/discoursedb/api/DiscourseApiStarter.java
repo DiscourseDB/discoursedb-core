@@ -38,9 +38,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratExport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.io.BratImport;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.sandbox.TestDiscourseGenerator;
 import edu.cmu.cs.lti.discoursedb.annotation.brat.util.UnannotatedContributionRemover;
-import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideDataExport;
-import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideDataImport;
-import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideTrainingDataExport;
+
 
 /**
  * A SpringBootApplication that launches a server that hosts the API.
@@ -63,7 +61,7 @@ import edu.cmu.cs.lti.discoursedb.annotation.lightside.io.LightSideTrainingDataE
 		  @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
 				  value = { UnannotatedContributionRemover.class, 
 						  TestDiscourseGenerator.class, BratConfigExport.class, BratExport.class, BratImport.class,
-						  LightSideDataExport.class, LightSideDataImport.class, LightSideTrainingDataExport.class }) })
+						  }) })
 public class DiscourseApiStarter {
 
 	public static void main(String[] args) {

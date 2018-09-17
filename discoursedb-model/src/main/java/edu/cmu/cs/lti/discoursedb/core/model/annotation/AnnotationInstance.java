@@ -40,6 +40,7 @@ import javax.persistence.Transient;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.hateoas.Identifiable;
 
+import edu.cmu.cs.lti.discoursedb.configuration.CoreAndSystemUser;
 import edu.cmu.cs.lti.discoursedb.core.model.TypedSourcedBE;
 import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import lombok.AccessLevel;
@@ -95,8 +96,9 @@ public class AnnotationInstance extends TypedSourcedBE implements Identifiable<L
 	
 	@Transient
 	public String getEmail() { return annotatorEmail; }
+	
 	@Transient
-	public void setAnnotator(SystemUser anno) { annotatorEmail = (anno != null)?anno.getEmail():null; }
+	public void setAnnotator(CoreAndSystemUser anno) { annotatorEmail = (anno != null)?anno.getEmail():null; }
 	
 	@OneToMany(fetch=FetchType.LAZY,cascade={CascadeType.REMOVE},mappedBy="annotation")
 	@Description("A set of features that represent the payload of this annotation.")

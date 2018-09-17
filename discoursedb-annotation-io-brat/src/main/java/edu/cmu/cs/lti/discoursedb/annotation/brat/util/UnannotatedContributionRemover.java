@@ -30,7 +30,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import edu.cmu.cs.lti.discoursedb.configuration.BaseConfiguration;
+import edu.cmu.cs.lti.discoursedb.core.configuration.BaseConfiguration;
 
 /**
  * 
@@ -51,7 +51,7 @@ public class UnannotatedContributionRemover implements CommandLineRunner {
 	 * @param args
 	 */
 	public static void main(String... args) {
-		Assert.isTrue(args.length > 0, "USAGE: BratThreadImport <list of discourse names>");
+		Assert.isTrue(args.length > 0, "USAGE: BratThreadImport <list of discourse names> --jdbc.database=<database name>");
 		SpringApplication.run(UnannotatedContributionRemover.class, args);
 	}
 

@@ -1,0 +1,14 @@
+[ req ]
+prompt = no
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]
+C = US
+ST = Pennsylvania
+L = Pittsburgh
+O = CMU
+OU = ISR
+CN = browser
+emailAddress = cbogart@cs.cmu.edu
+
+

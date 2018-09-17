@@ -46,6 +46,8 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
+import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
+import edu.cmu.cs.lti.discoursedb.core.configuration.DatabaseSelector;
 import edu.cmu.cs.lti.discoursedb.core.service.system.DataSourceService;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartInteractionTypes;
 import edu.cmu.cs.lti.discoursedb.github.model.GitHubCommitCommentEvent;
@@ -84,12 +86,13 @@ public class GithubConverter implements CommandLineRunner {
 	@Autowired private DataSourceService dataSourceService;
 	@Autowired private GithubConverterService converterService;
 	@Autowired private Environment env;
-	
+	@Autowired private DatabaseSelector dbSelector;
+	 
 	@Override
 	public void run(String... args) throws Exception {
 
-		if (args.length < 1) {
-			logger.warn("Command line argument required: a unique name for this dataset");
+		if (args.length < 2) {
+			System.out.println("Command line arguments required: -Djdbc.database=<database-name> <dataset-name> <events-file>");
 			return;
 		}
 		
@@ -99,6 +102,15 @@ public class GithubConverter implements CommandLineRunner {
 			logger.warn("Dataset "+dataSetName+" has already been imported into DiscourseDB. Terminating...");			
 			return;
 		}
+		
+		//String databaseName =args[1];
+		//dbSelector.changeDatabase(databaseName);
+		String eventsFile = env.getProperty("gitdata.events","");
+		if (args.length > 1) {
+			eventsFile = args[1];
+		}
+		
+		System.out.println("*****************************Running with arguments " + String.join(",", args));
 		
 		/*
 		 * For each entry in the custom.properties file, import the relevant
@@ -126,8 +138,8 @@ public class GithubConverter implements CommandLineRunner {
 		}
 		
 		// Unified events file, combining issues and commits
-		if (env.containsProperty("gitdata.events")) {
-			final Path dataSetPath = Paths.get(env.getRequiredProperty("gitdata.events"));
+		if (eventsFile.length() > 0) {
+			final Path dataSetPath = Paths.get(eventsFile);
 			File dataSetFile = dataSetPath.toFile();
 			if (!dataSetFile.exists() ||  !dataSetFile.canRead()) {
 				logger.error("Provided location (" + dataSetFile.getAbsolutePath() + ") is a file and not a directory.");

@@ -28,12 +28,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import edu.cmu.cs.lti.discoursedb.configuration.CoreAndSystemUser;
+import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
+import edu.cmu.cs.lti.discoursedb.core.configuration.PublicDummyUser;
 import edu.cmu.cs.lti.discoursedb.core.model.TimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.TypedTimedAnnotatableBE;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationEntityProxy;
@@ -43,15 +45,11 @@ import edu.cmu.cs.lti.discoursedb.core.model.annotation.Feature;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Content;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.Contribution;
 import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePart;
-import edu.cmu.cs.lti.discoursedb.system.model.system.SystemUser;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationEntityProxyRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationInstanceRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.AnnotationRelationRepository;
 import edu.cmu.cs.lti.discoursedb.core.repository.annotation.FeatureRepository;
-import edu.cmu.cs.lti.discoursedb.system.repository.system.SystemUserRepository;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
-import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
-import edu.cmu.cs.lti.discoursedb.core.service.user.UserService;
 import edu.cmu.cs.lti.discoursedb.core.type.AnnotationRelationTypes;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +67,6 @@ public class AnnotationService {
 	private final @NonNull ContributionService contribService;
 	private final @NonNull FeatureRepository featureRepo;
 	private final @NonNull AnnotationRelationRepository annoRelRepo;
-	private final @NonNull SystemUserService userSvc;
 	
 	/**
 	 * Retrieves all annotations for the given entity.
@@ -84,7 +81,7 @@ public class AnnotationService {
 	public <T extends TimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName()  + " user " + userSvc.getSystemUser());
+		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName()  + " user " + Utilities.getCurrentUser());
 		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
 //		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
@@ -102,7 +99,7 @@ public class AnnotationService {
 	public <T extends TypedTimedAnnotatableBE> Set<AnnotationInstance> findAnnotations(T entity) {
 		Assert.notNull(entity,"Entity cannot be null. Provide an annotated entity.");		
 		AnnotationEntityProxy annos = entity.getAnnotations();
-		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName() + " for user " + userSvc.getSystemUser());
+		System.out.println("Finding annotations for entity " + entity.getClass().getSimpleName() + " for user " + Utilities.getCurrentUser());
 		return annos==null?new HashSet<AnnotationInstance>():annoRepo.findAllMyAnnotations(annos);
 //		return annos==null?new HashSet<AnnotationInstance>():annos.getAnnotations();
 	}
@@ -122,8 +119,8 @@ public class AnnotationService {
 	public AnnotationInstance createTypedAnnotation(String type){
 		Assert.hasText(type,"Type cannot be empty. Provide an annotation type or create untyped AnnotationInstance.");
 		
-		SystemUser sysUser = userSvc.getSystemUser().orElse(null);
-				
+		CoreAndSystemUser sysUser = Utilities.getCurrentUser();
+		
 		AnnotationInstance annotation = new AnnotationInstance();
 		annotation.setType(type);
 		annotation.setAnnotator(sysUser);
@@ -291,22 +288,22 @@ public class AnnotationService {
 	}
 
 	public boolean myAnnoToRead(AnnotationInstance anno) {
-		return myAnnoToRead( userSvc.getSystemUser().orElse(null), anno);
+		return myAnnoToRead( Utilities.getCurrentUser(), anno);
 	}
 	
-	public boolean myAnnoToRead(SystemUser me, AnnotationInstance anno) {
+	public boolean myAnnoToRead(CoreAndSystemUser me, AnnotationInstance anno) {
 		if (me == null) return true;
 		if (anno.getAnnotatorEmail() == null || me.getEmail().equals(anno.getAnnotatorEmail())) return true;
 		return false;
 	}
 
 	public boolean myAnnoToWrite(AnnotationInstance anno) {
-		return myAnnoToWrite( userSvc.getSystemUser().orElse(null), anno);
+		return myAnnoToWrite( Utilities.getCurrentUser(), anno);
 	}
 	
-	public boolean myAnnoToWrite(SystemUser me, AnnotationInstance anno) {
+	public boolean myAnnoToWrite(CoreAndSystemUser me, AnnotationInstance anno) {
 		Assert.notNull(anno, "Cannot write null annotation");
-		if (me == null) return true;
+		if (me == null || me.getClass() == PublicDummyUser.class) return true;
 		if (anno.getAnnotatorEmail() != null && me.getEmail().equals(anno.getAnnotatorEmail())) return true;
 		return false;
 	}
@@ -321,7 +318,7 @@ public class AnnotationService {
 		Assert.notNull(annotations, "Annotation iterable cannot be null.");
 
 		List<Feature> featuresToDelete = new ArrayList<>();
-		SystemUser sysUser = userSvc.getSystemUser().orElse(null);
+		CoreAndSystemUser sysUser = Utilities.getCurrentUser();
 		for(AnnotationInstance anno:annotations){
 			if (myAnnoToWrite(sysUser, anno)) {
 				Set<Feature> features = anno.getFeatures();
