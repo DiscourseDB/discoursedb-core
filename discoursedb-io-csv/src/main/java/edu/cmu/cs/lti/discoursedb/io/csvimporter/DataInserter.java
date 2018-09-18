@@ -1,12 +1,18 @@
 package edu.cmu.cs.lti.discoursedb.io.csvimporter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
 import edu.cmu.cs.lti.discoursedb.core.model.annotation.AnnotationInstance;
@@ -82,6 +88,9 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 		if (!row.containsKey("discourse")) {
 			row.put("discourse", row.get("dataset_file"));
 		}
+		if (!row.containsKey("contribution_type")) {
+			row.put("contribution_type","POST");
+		}
 		if (!row.containsKey("title")) {
 			row.put("title", "");
 		}
@@ -125,12 +134,12 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 				DataSourceTypes.OTHER, row.get("dataset_name")));
 		
 		CsvImportApplication.log.trace("Create Contribution entity");
-		Contribution curContribution = this.csvImportApplication.contributionService.createTypedContribution(ContributionTypes.POST);
+		Contribution curContribution = this.csvImportApplication.contributionService.createTypedContribution(ContributionTypes.valueOf(row.get("contribution_type")));
 		curContribution.setCurrentRevision(curContent);
 		curContribution.setFirstRevision(curContent);
 		curContribution.setStartTime(this.csvImportApplication.when.getTime());
 		this.csvImportApplication.dataSourceService.addSource(curContribution, new DataSourceInstance(
-				 row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#post",
+				 row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#" + row.get("contribution_type"),
 				DataSourceTypes.OTHER, row.get("dataset_name")));
 		this.csvImportApplication.discoursepartService.addContributionToDiscoursePart(curContribution, dp);
 		
@@ -158,9 +167,18 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 					this.csvImportApplication.annoService.addAnnotation(curContribution, newAnno);
 					this.csvImportApplication.annoService.saveAnnotationInstance(newAnno);
 				
-					Feature f = this.csvImportApplication.annoService.createFeature(row.get("annotation_" + anno));
-					this.csvImportApplication.annoService.saveFeature(f);
-					this.csvImportApplication.annoService.addFeature(newAnno, f);				
+					if (row.get("annotation_" + anno).startsWith("[")) {
+						ArrayNode parts = parse(row.get("annotation_" + anno));
+						for (JsonNode part: parts) {
+							Feature f = this.csvImportApplication.annoService.createFeature(part.asText());
+							this.csvImportApplication.annoService.saveFeature(f);
+							this.csvImportApplication.annoService.addFeature(newAnno, f);									
+						}
+					} else {
+						Feature f = this.csvImportApplication.annoService.createFeature(row.get("annotation_" + anno));
+						this.csvImportApplication.annoService.saveFeature(f);
+						this.csvImportApplication.annoService.addFeature(newAnno, f);		
+					}
 				}
 			}
 		}
@@ -179,5 +197,15 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 		}
 	}
 	
+	ArrayNode parse(String json) {
+		try {
+			ArrayNode node = new ObjectMapper().readValue(new JsonFactory().createParser(json), ArrayNode.class);
+			return node;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
 }
