@@ -109,8 +109,8 @@ public class ContributionService {
 	}
 
 	public Contribution getOneRelatedContribution(Contribution c) {
-		if (c.getTargetOfDiscourseRelations().size() > 0) {
-			return c.getTargetOfDiscourseRelations().iterator().next().getSource();
+		if (c.getSourceOfDiscourseRelations().size() > 0) {
+			return c.getSourceOfDiscourseRelations().iterator().next().getTarget();
 		} else { 
 			return null;
 		}
