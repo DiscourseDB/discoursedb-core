@@ -165,18 +165,22 @@ public class BratService {
 		Set<Long> ddbFeatureIds = new HashSet<>();
 		//extract annotations on Contributions
 		for(AnnotationInstance anno:annoService.findContributionAnnotationsByDiscoursePart(dp)){
-			ddbAnnotationIds.add(anno.getId());
-			anno.setAnnotator(sysUser);;
-			if(anno.getFeatures()!=null){
-				ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
+			if (anno.getEmail() != null && anno.getEmail().length() > 0) {	
+				ddbAnnotationIds.add(anno.getId());
+				anno.setAnnotator(sysUser);;
+				if(anno.getFeatures()!=null){
+					ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
+				}
 			}
 		}
 		//extract annotations on Content entities
 		for(AnnotationInstance anno:annoService.findCurrentRevisionAnnotationsByDiscoursePart(dp)){
-			ddbAnnotationIds.add(anno.getId());
-			anno.setAnnotator(sysUser);
-			if(anno.getFeatures()!=null){
-				ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
+			if (anno.getEmail() != null && anno.getEmail().length() > 0) {	
+				ddbAnnotationIds.add(anno.getId());
+				anno.setAnnotator(sysUser);
+				if(anno.getFeatures()!=null){
+					ddbFeatureIds.addAll(anno.getFeatures().stream().map(f->f.getId()).collect(Collectors.toList()));
+				}
 			}
 		}
 		log.info(ddbAnnotationIds.size()+" annotations within current thread available in DiscoursDB.");
@@ -420,11 +424,15 @@ public class BratService {
 								
 			//annotations on content
 			for (AnnotationInstance anno : annoService.findAnnotations(curRevision)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, sep, text, curRevision, bratIdGenerator));					
+				if (anno.getEmail() != null && anno.getEmail().length() > 0) {
+					bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, sep, text, curRevision, bratIdGenerator));					
+				}
 			}
 			//annotations on contributions
 			for (AnnotationInstance anno : annoService.findAnnotations(contrib)) {
-				bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, sep, text, contrib, bratIdGenerator));					
+				if (anno.getEmail() != null && anno.getEmail().length() > 0) {
+					bratAnnotations.addAll(convertAnnotationToBrat(anno, spanOffset, sep, text, contrib, bratIdGenerator));
+				}
 			}
 
 			//keep track of offsets
