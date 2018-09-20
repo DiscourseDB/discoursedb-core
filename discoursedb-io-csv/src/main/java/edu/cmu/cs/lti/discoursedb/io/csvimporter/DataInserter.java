@@ -100,7 +100,9 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 			this.csvImportApplication.when.setTime(javax.xml.bind.DatatypeConverter.parseDateTime(row.get("when")).getTime());
 		}
 		
-		Discourse curDiscourse = this.csvImportApplication.discourseService.createOrGetDiscourse(row.get("discourse"));
+		
+		Discourse curDiscourse = this.csvImportApplication.getDiscourse(row.get("discourse"));
+				//this.csvImportApplication.discourseService.createOrGetDiscourse(row.get("discourse"));
 		
 		//TODO: use transactions wisely to make efficient for very large input datasets
 		//TODO: add optional DataSourceType, DiscoursePartType, DiscourseRelationType, ContributionType
@@ -117,10 +119,13 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 		
 		User u = this.csvImportApplication.userService.createOrGetUser(curDiscourse, row.get("username"));
 		u.setEmail(row.get("user_email"));
-
-		this.csvImportApplication.dataSourceService.addSource(u, new DataSourceInstance(
+		
+		if (u.getDataSourceAggregate() == null) {
+			this.csvImportApplication.dataSourceService.addSource(u, new DataSourceInstance(
 				row.get("id"), row.get("dataset_file")+"#"+row.get("dataset_id_col") + "#username",
 				DataSourceTypes.OTHER, row.get("dataset_name")));
+			
+		}
 		
 		Content curContent = this.csvImportApplication.contentService.createContent();
 		curContent.setText(row.get("post"));

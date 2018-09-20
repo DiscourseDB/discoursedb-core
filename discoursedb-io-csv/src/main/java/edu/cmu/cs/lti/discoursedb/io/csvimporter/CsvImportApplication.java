@@ -170,6 +170,18 @@ public class CsvImportApplication  implements CommandLineRunner {
 				return dp;
 			}
 		}
+
+		HashMap<String,Long> dCache = new HashMap<String,Long>();
+		Discourse getDiscourse(String name) {
+			if (dpCache.containsKey(name)) {
+				return getProxy(dCache.get(name), Discourse.class);
+			} else {
+				Discourse d = discourseService.createOrGetDiscourse(name);
+				dCache.put(name, d.getId());
+				return d;
+			}
+		}
+
 		
 		public static class DataSourceInfo {
 			DataSourceInfo(String descriptor, String id, String dataset, DataSourceTypes dstype, DiscoursePartTypes dptype) {
@@ -198,11 +210,13 @@ public class CsvImportApplication  implements CommandLineRunner {
 			for (int part = 0; part < dpparts.length; part++) {
 				String dppartpath = String.join("/",Arrays.copyOfRange(dpparts, 0, part+1));
 				String dptype = (dptypeparts.length > part)?dptypeparts[part]:dptypeparts[dptypeparts.length-1];
-				DiscoursePart tempDiscoursePart = 
-						discoursePartService.createOrGetDiscoursePartByDataSource(discourse, 
+				DataSourceInfo dsif = new DataSourceInfo(dsi.getEntitySourceDescriptor(),dppartpath,dsi.getDatasetName(), dsi.getSourceType(), DiscoursePartTypes.valueOf(dptype));
+				
+				DiscoursePart tempDiscoursePart = getDiscoursePart(discourse, dsif);
+/*						discoursePartService.createOrGetDiscoursePartByDataSource(discourse, 
 								dppartpath, dsi.getEntitySourceDescriptor(), dsi.getSourceType(), dsi.getDatasetName(),
 								DiscoursePartTypes.valueOf(dptype));
-						
+*/						
 				tempDiscoursePart.setName(dpparts[part]);
 				if (discoursePart != null) {
 					discoursePartService.createDiscoursePartRelation(
