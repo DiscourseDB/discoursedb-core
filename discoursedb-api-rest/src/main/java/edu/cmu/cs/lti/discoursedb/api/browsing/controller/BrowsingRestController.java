@@ -916,6 +916,25 @@ public class BrowsingRestController {
 		return environment.getRequiredProperty("lightside.data_directory") + "/" + sysUserSvc.getSystemUser().get().getEmail();
 	}
 
+	/*@RequestMapping(value = "/action/database/{databaseName}/exportQueryToBrat", method=RequestMethod.GET)
+	@ResponseBody
+	PagedResources<Resource<BrowsingBratExportResource>> exportBratQuery(
+			@PathVariable("databaseName") String databaseName,
+			@RequestParam(value= "exportDirectory") String exportDirectory,
+			@RequestParam("query") String query, HttpServletRequest hsr, HttpSession session
+			) throws IOException {
+		registerDb(hsr,session, databaseName);
+
+		Assert.hasText(exportDirectory, "No exportDirectory name specified");
+		
+		DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+		
+		Set<DiscoursePart> dps = q.getDiscourseParts();
+		delete bratDataDirectory() + "/" + sanitize(exportDirectory());
+		for(DiscoursePart dp:dps) {
+			exportBratActionItem(databaseName, exportDirectory, dp.getId());
+		}
+	}*/
 	
 	@RequestMapping(value = "/action/database/{databaseName}/exportBratItem", method=RequestMethod.GET)
 	@ResponseBody
@@ -1278,7 +1297,7 @@ public class BrowsingRestController {
 
 		
 		int page = (startposn/size);
-		PageRequest p = new PageRequest(page,size, new Sort("startTime"));
+		PageRequest p = new PageRequest(page,size, new Sort("startTime").and(new Sort("id")));
 		
 		try {
 			logger.info("Got query " + query +"    page=" + Integer.toString(page) + "  size=" + Integer.toString(size));
