@@ -286,7 +286,7 @@ public class CsvImportApplication  implements CommandLineRunner {
 		private void convert() throws ParseException, IOException {
 			when.setTime(new Date());
 			for (Map<String,String> row : csvIteratorExistingHeaders(
-					this.csvFileName, '\\')) {
+					this.csvFileName)) { //, '\\')) {
 				rownum += 1;
 				System.out.println("ROW" + rownum);
 				di.insertData(row, this.csvFileName); 
