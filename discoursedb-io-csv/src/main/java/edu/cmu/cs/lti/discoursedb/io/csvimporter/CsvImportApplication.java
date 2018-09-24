@@ -54,6 +54,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartRelationTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscoursePartTypes;
 import edu.cmu.cs.lti.discoursedb.system.service.system.SystemUserService;
 import lombok.NonNull;
+import java.util.zip.CRC32;
 
 @SpringBootApplication
 
@@ -143,6 +144,19 @@ public class CsvImportApplication  implements CommandLineRunner {
 	        }
 	        return () -> sortable.iterator();
 		}
+		
+		public String limit(String identifier, int maxlen) {
+			if (identifier.length() > maxlen) {
+				checker.reset();
+				byte b[] = identifier.getBytes();
+				checker.update(b);
+				String replacement = identifier.substring(0, maxlen-20) + "#" + String.valueOf(checker.getValue());
+				assert replacement.length() <= maxlen;
+				return replacement;
+			} else {
+				return identifier;
+			}
+		}
 
 		public static
 		<T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
@@ -196,7 +210,7 @@ public class CsvImportApplication  implements CommandLineRunner {
 			public String toString() { return index() + " type" + m_dptype + " dstype " + m_dstype + " dataset " + m_dataset; }
 		}
 		
-		
+		CRC32 checker = new java.util.zip.CRC32();
 		
 		// Given a discourse part specified as a path down the tree from the discourse level,
 		// return the discourse part, creating it if necessary.  Discourse parts are specified by
@@ -209,9 +223,13 @@ public class CsvImportApplication  implements CommandLineRunner {
 			String dptypeparts[] = dptypes.split("/");
 			for (int part = 0; part < dpparts.length; part++) {
 				String dppartpath = String.join("/",Arrays.copyOfRange(dpparts, 0, part+1));
+				
+				dppartpath = limit(dppartpath, 95);
+				
+				
 				String dptype = (dptypeparts.length > part)?dptypeparts[part]:dptypeparts[dptypeparts.length-1];
 				DataSourceInfo dsif = new DataSourceInfo(dsi.getEntitySourceDescriptor(),dppartpath,dsi.getDatasetName(), dsi.getSourceType(), DiscoursePartTypes.valueOf(dptype));
-				
+				System.out.println("LEN " + String.valueOf(dppartpath.length()) + " -- " + dppartpath);
 				DiscoursePart tempDiscoursePart = getDiscoursePart(discourse, dsif);
 /*						discoursePartService.createOrGetDiscoursePartByDataSource(discourse, 
 								dppartpath, dsi.getEntitySourceDescriptor(), dsi.getSourceType(), dsi.getDatasetName(),
