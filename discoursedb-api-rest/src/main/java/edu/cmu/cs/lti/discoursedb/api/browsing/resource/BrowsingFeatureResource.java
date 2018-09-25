@@ -54,6 +54,10 @@ public class BrowsingFeatureResource extends ResourceSupport {
 	
 	@Override
 	public String toString() {
-		return type + "=" + value;
+		if (type == null) {
+			return value;
+		} else {
+			return type + "=" + value;
+		}
 	}
 }
