@@ -44,6 +44,7 @@ import edu.cmu.cs.lti.discoursedb.core.model.macro.DiscoursePartContribution;
 import edu.cmu.cs.lti.discoursedb.core.model.user.ContributionInteraction;
 import edu.cmu.cs.lti.discoursedb.core.service.annotation.AnnotationService;
 import edu.cmu.cs.lti.discoursedb.core.service.macro.ContributionService;
+import edu.cmu.cs.lti.discoursedb.core.service.macro.DiscoursePartService;
 
 public class BrowsingContributionResource extends ResourceSupport {
 	private Long id;
@@ -62,7 +63,7 @@ public class BrowsingContributionResource extends ResourceSupport {
 	//@Autowired ContributionService contributionService;
 	private static final Logger logger = LogManager.getLogger(BrowsingContributionResource.class);
 
-	public BrowsingContributionResource(Contribution c, AnnotationService annoService) {
+	public BrowsingContributionResource(Contribution c, AnnotationService annoService, DiscoursePartService dps) {
 	
 		type = c.getType();
 		id = c.getId();
@@ -104,7 +105,7 @@ public class BrowsingContributionResource extends ResourceSupport {
 		}
    	    discourseParts = new HashMap<Long,String>();
    	    for (DiscoursePartContribution dpc : c.getContributionPartOfDiscourseParts()) {
-   	    	discourseParts.put(dpc.getDiscoursePart().getId(), dpc.getDiscoursePart().getName());
+   	    		discourseParts.put(dpc.getDiscoursePart().getId(), dps.fullyQualifiedName(dpc.getDiscoursePart()));
    	    }
    	    
 	}

@@ -342,6 +342,73 @@ public class DiscoursePartService {
 			all.add(descendent);
 			return findAncestorClosure(all, rel);
 		}
+		
+		/**
+		 * Find ancestor sequence of a discoursepart
+		 * 
+		 * If a discoursepart has multiple parents of the given relationtype, just return the first.
+		 * 
+		 * @param descendent the descendent
+		 * @param relation the discoursePartRelationType by which to find ancestors
+		 * @return a list of ancestor discourseparts, starting with root, ending with descendent.
+		 * 
+		 */
+		@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+		public List<DiscoursePart> findAncestorChain(DiscoursePart descendent, Optional<DiscoursePartRelationTypes> rel) {
+			
+			List<DiscoursePart> all = new ArrayList<DiscoursePart>();
+			all.add(descendent);
+			do {
+				DiscoursePart parent = findOneAncestor(descendent, rel);
+				if (parent != null) {
+					all.add(0, parent);
+				}
+				descendent = parent;
+			}
+			while(descendent != null);
+			return all;
+		}
+		
+		/*
+		 * Find a discourse part name and all its ancestors, following the SUBPART tree up to the root.
+		 * This assumes that SUBPART forms a forest and that no discoursepart is SUBPART of two other dp's.
+		 * If that assumption is not met, it chooses an arbitrary parent.  Concatenate them together with "/"
+		 * 
+		 * It does check for cycles so it doesn't infinite loop.
+		 * 
+		 * @param dp the leaf discourse part
+		 * @returns all the ancestors' names separated by "/"
+		 */
+		public String fullyQualifiedName(DiscoursePart dp) {
+			String fqn = "";
+			String comma = "";
+			for (DiscoursePart anc: findAncestorChain(dp, Optional.of(DiscoursePartRelationTypes.SUBPART))) {
+				fqn += comma + anc.getName();
+				comma = "/";
+			}
+			return fqn;	
+		}
+		
+		/**
+		 * Adds all ancestors to a set of DiscourseParts
+		 * 
+		 * @param descendents the set of discourseParts to close
+		 * @param rel The relation type
+		 * @return all DiscourseParts that are in the set or or ancestors of them
+		 */
+		@Transactional(propagation= Propagation.REQUIRED, readOnly=true)
+		public DiscoursePart findOneAncestor(DiscoursePart descendent, Optional<DiscoursePartRelationTypes> rel) {
+			
+			for (DiscoursePartRelation dpr: descendent.getTargetOfDiscoursePartRelations()) {
+				if (!rel.isPresent() || dpr.getType().equals(rel.get().toString())) {
+					return dpr.getSource();
+				}
+			}
+		
+			return null;
+		}
+		
+		
 	
 		/**
 		 * Adds all contributions recursively under a discourse part
@@ -403,7 +470,7 @@ public class DiscoursePartService {
 			DiscoursePart dp = unchecked.remove(0);
 			
 			for (DiscoursePartRelation dpr: dp.getTargetOfDiscoursePartRelations()) {
-				if (!rel.isPresent() || dpr.getType() == rel.get().toString()) {
+				if (!rel.isPresent() || dpr.getType().equals(rel.get().toString())) {
 					if (!all.contains(dpr.getSource())) {
 						all.add(dpr.getSource());
 						unchecked.add(dpr.getSource());
@@ -446,7 +513,7 @@ public class DiscoursePartService {
 			DiscoursePart dp = unchecked.remove(0);
 			
 			for (DiscoursePartRelation dpr: dp.getSourceOfDiscoursePartRelations()) {
-				if (!rel.isPresent() || dpr.getType() == rel.get().toString()) {
+				if (!rel.isPresent() || dpr.getType().equals(rel.get().toString())) {
 					if (!all.contains(dpr.getTarget())) {
 						all.add(dpr.getTarget());
 						unchecked.add(dpr.getTarget());

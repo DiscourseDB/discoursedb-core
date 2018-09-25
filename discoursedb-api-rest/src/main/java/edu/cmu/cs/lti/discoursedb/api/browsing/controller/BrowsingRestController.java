@@ -663,7 +663,7 @@ public class BrowsingRestController {
 			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
 			
 			Page<BrowsingContributionResource> lbcr =  
-					q.retrieveAllContributions().map(c -> new BrowsingContributionResource(c,annoService));
+					q.retrieveAllContributions().map(c -> new BrowsingContributionResource(c,annoService,discoursePartService));
 			
 			
 			StringBuilder output = new StringBuilder();
@@ -1199,7 +1199,7 @@ public class BrowsingRestController {
 			Page<BrowsingContributionResource> lbcr = 
 					discoursePartContributionRepository.findByDiscoursePartSorted(parent.get(), p)
 					.map(dpc -> dpc.getContribution())
-					.map( c -> new BrowsingContributionResource(c,annoService));
+					.map( c -> new BrowsingContributionResource(c,annoService,discoursePartService));
 			lbcr.forEach(bcr -> {if (bcr.getDiscourseParts().size() > 1) { bcr._getDiscourseParts().forEach(
 					     (dpId2, dpName2) -> {
 					        if (dpId2 != dpId) { bcr.add(
@@ -1304,7 +1304,7 @@ public class BrowsingRestController {
 		    
 			DdbQuery q = new DdbQuery(selector, discoursePartService, query);
 			Page<BrowsingContributionResource> lbcr =  
-					q.retrieveAllContributions(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService));
+					q.retrieveAllContributions(Optional.empty(), p).map(c -> new BrowsingContributionResource(c,annoService,discoursePartService));
 
 						
 				

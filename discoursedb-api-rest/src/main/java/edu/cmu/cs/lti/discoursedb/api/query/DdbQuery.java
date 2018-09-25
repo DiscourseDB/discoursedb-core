@@ -240,7 +240,7 @@ public class DdbQuery {
 
 	   	    List<String> myDiscourseParts = new ArrayList<String>();
 	   	    for (DiscoursePartContribution dpc : c.getContributionPartOfDiscourseParts()) {
-	   	    		myDiscourseParts.add(dpc.getDiscoursePart().getName());
+	   	    		myDiscourseParts.add(discoursePartService.fullyQualifiedName(dpc.getDiscoursePart()));
 	   	    }
 	   	    return String.join(",", myDiscourseParts);   // TODO: escape these
 		default: 
@@ -259,4 +259,5 @@ public class DdbQuery {
    	    
 		return output;
 	}
+
 }
