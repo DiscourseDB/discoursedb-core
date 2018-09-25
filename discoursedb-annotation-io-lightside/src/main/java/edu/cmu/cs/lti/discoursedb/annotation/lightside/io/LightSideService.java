@@ -206,8 +206,12 @@ public class LightSideService {
 		//convert each annotation into a FeatureValuePair
 		for(AnnotationInstance anno:annotations){
 			if(anno.getFeatures()!=null&&!anno.getFeatures().isEmpty()){
-				Assert.isTrue(anno.getFeatures().size()==1, "Annotations with more than one feature are not supported.");
-				pairs.put(anno.getType().toLowerCase(), anno.getFeatures().iterator().next().getValue());					
+				if (anno.getFeatures().size() == 1) {
+					pairs.put(anno.getType().toLowerCase(), anno.getFeatures().iterator().next().getValue());
+				}
+				else {
+					pairs.put(anno.getType().toLowerCase(), "(" + anno.getFeatures().iterator().next().getValue() + " and " + String.valueOf(anno.getFeatures().size()-1) + " others)" );
+				}
 			}else{
 				//if there is no feature, we treat the annotation as a binary label (set to true)
 				pairs.put(anno.getType().toLowerCase(), LABEL_ASSIGNED_VAL);					
