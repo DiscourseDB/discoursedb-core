@@ -1,0 +1,18 @@
+
+# Split up a CSV file (the first argument) into 
+#  files small enough to import quickly into discoursedb,
+#  then import each of them
+#
+
+# https://stackoverflow.com/questions/59895/get-the-source-directory-of-a-bash-script-from-within-the-script-itself
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+csv=`pwd`/$1
+cd $DIR
+rm -rf splitup_tmp
+mkdir splitup_tmp
+python splitcsv.py --bigcsv $csv --prefix splitup_tmp/split
+for smaller in splitup_tmp/*
+do
+    echo $smaller
+    java -cp target/oneThreadedForumCsv-0.9-SNAPSHOT.jar:target/classes:target/dependency/* edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication $smaller posts --jdbc.database=$2
+done
