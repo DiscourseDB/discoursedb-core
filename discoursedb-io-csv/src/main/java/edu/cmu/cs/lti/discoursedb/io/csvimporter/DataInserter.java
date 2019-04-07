@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import edu.cmu.cs.lti.discoursedb.core.type.ContributionTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DataSourceTypes;
 import edu.cmu.cs.lti.discoursedb.core.type.DiscourseRelationTypes;
 import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSourceInfo;
+import edu.cmu.cs.lti.discoursedb.io.csvimporter.AnnotationDescription;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
  class DataInserter {
@@ -188,6 +191,41 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.CsvImportApplication.DataSource
 			}
 		}
 		
+		if (row.containsKey("jsonAnnotations")) {
+		  try {
+          List<AnnotationDescription> myObjects = Arrays.asList(
+            new ObjectMapper().readValue(row.get("jsonAnnotations"), AnnotationDescription[].class));
+          for (AnnotationDescription annot: myObjects) {
+            AnnotationInstance newAnno = null;
+            if (row.containsKey("annotationOwnerEmail")) {
+  			  newAnno = this.csvImportApplication.annoService.createTypedAnnotation(annot.name);
+  			  newAnno.setAnnotatorEmail(row.get("annotationOwnerEmail"));
+			} else {
+			  newAnno = this.csvImportApplication.annoService.createUnownedTypedAnnotation(annot.name);
+			}
+			this.csvImportApplication.annoService.addAnnotation(curContribution, newAnno);
+			this.csvImportApplication.annoService.saveAnnotationInstance(newAnno);
+			
+			for (String feat: annot.features) {
+				Feature f = this.csvImportApplication.annoService.createFeature(feat);
+				this.csvImportApplication.annoService.saveFeature(f);
+				this.csvImportApplication.annoService.addFeature(newAnno, f);									
+			}
+			if (annot.features.size() == 0) {
+				Feature f = this.csvImportApplication.annoService.createFeature(annot.name);
+				this.csvImportApplication.annoService.saveFeature(f);
+				this.csvImportApplication.annoService.addFeature(newAnno, f);		
+			}
+            if (annot.offsets.size() == 2) {
+                newAnno.setBeginOffset(annot.offsets.get(0));
+                newAnno.setEndOffset(annot.offsets.get(1));
+            }
+          }
+      } catch (IOException e) {
+         e.printStackTrace();   
+      }
+
+        }
 		
 		
 		this.csvImportApplication.contributionService.save(curContribution); 
