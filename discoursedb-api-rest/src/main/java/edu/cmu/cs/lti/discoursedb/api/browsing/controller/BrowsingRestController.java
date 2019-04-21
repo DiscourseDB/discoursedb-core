@@ -643,6 +643,25 @@ public class BrowsingRestController {
 		return lightsideExports(databaseName, hsr, session);
 	}
 	
+	@RequestMapping(value = "/action/getQueryJson", method=RequestMethod.GET)
+	@ResponseBody
+	Page<BrowsingContributionResource> downloadQueryJson(
+			HttpServletResponse response,
+			@RequestParam("query") String query,
+			   HttpServletRequest hsr, HttpSession session) 
+					throws IOException, DdbQueryParseException {
+		
+		securityUtils.authenticate(hsr, session);
+				
+		logger.info("Got query for json: " + query );
+	    
+		DdbQuery q = new DdbQuery(selector, discoursePartService, query);
+		
+		Page<BrowsingContributionResource> lbcr =  
+				q.retrieveAllContributions().map(c -> new BrowsingContributionResource(c,annoService,discoursePartService));
+		
+		return lbcr;
+	}
 	
 	@RequestMapping(value = "/action/downloadQueryCsv/discoursedb_data.csv", method=RequestMethod.GET, produces = "text/csv;charset=UTF-8")
 	@ResponseBody
