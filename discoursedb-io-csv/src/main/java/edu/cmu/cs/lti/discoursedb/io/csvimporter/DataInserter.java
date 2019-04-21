@@ -198,10 +198,10 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.AnnotationDescription;
           for (AnnotationDescription annot: myObjects) {
             AnnotationInstance newAnno = null;
             if (row.containsKey("annotationOwnerEmail")) {
-  			  newAnno = this.csvImportApplication.annoService.createTypedAnnotation(annot.name);
+  			  newAnno = this.csvImportApplication.annoService.createTypedAnnotation(annot.annotation);
   			  newAnno.setAnnotatorEmail(row.get("annotationOwnerEmail"));
 			} else {
-			  newAnno = this.csvImportApplication.annoService.createUnownedTypedAnnotation(annot.name);
+			  newAnno = this.csvImportApplication.annoService.createUnownedTypedAnnotation(annot.annotation);
 			}
 			this.csvImportApplication.annoService.addAnnotation(curContribution, newAnno);
 			this.csvImportApplication.annoService.saveAnnotationInstance(newAnno);
@@ -212,7 +212,7 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.AnnotationDescription;
 				this.csvImportApplication.annoService.addFeature(newAnno, f);									
 			}
 			if (annot.features.size() == 0) {
-				Feature f = this.csvImportApplication.annoService.createFeature(annot.name);
+				Feature f = this.csvImportApplication.annoService.createFeature(annot.annotation);
 				this.csvImportApplication.annoService.saveFeature(f);
 				this.csvImportApplication.annoService.addFeature(newAnno, f);		
 			}

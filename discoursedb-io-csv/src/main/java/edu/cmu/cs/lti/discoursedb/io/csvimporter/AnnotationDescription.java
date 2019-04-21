@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 @Data
 class AnnotationDescription {
-  String name;
+  String annotation;
   ArrayList<String> features;
   ArrayList<Integer> offsets;
 }
