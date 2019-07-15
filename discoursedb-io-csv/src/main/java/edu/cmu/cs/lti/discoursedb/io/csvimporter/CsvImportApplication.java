@@ -261,18 +261,20 @@ public class CsvImportApplication  implements CommandLineRunner {
 		}*/
 		
 		HashMap<String,Long> contCache = new HashMap<String,Long>();
-		Contribution getContribution(String id) {
+		Contribution getContribution(String id, String ds_id, String ds_descriptor, DataSourceTypes ds_type, String ds_dataset) {
 			
 			if (contCache.containsKey(id)) {
 				return getProxy(contCache.get(id), Contribution.class);
 			} 
-			/*else {
-				Contribution dp = contribution.createOrGetDiscoursePartByDataSource(
-						discourse, dsinf.m_id, dsinf.m_descriptor, dsinf.m_dstype, dsinf.m_dataset, dsinf.m_dptype);
-				dpCache.put(dsinf.index(), dp.getId());
-				return dp;
-			}*/
-			else { return null; }
+			else {
+				Contribution cc = contributionService.createOrGetByDataSource(
+                                                ds_id, ds_descriptor, ds_type, ds_dataset);
+                                if (cc.getType() == null) { 
+                                    cc.setType("POST");
+                                }
+				contCache.put(ds_id +"@" + ds_descriptor, cc.getId());
+				return cc;
+			}
 		}
 		
 		int rownum = -1;

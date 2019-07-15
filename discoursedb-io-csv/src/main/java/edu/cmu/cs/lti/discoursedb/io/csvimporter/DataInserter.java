@@ -138,7 +138,7 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.AnnotationDescription;
 		curContent.setStartTime(this.csvImportApplication.when.getTime());
 		CsvImportApplication.log.info(row.get("id") + " -- " + row.get("username") + " ---> " + row.get("post"));
 		this.csvImportApplication.dataSourceService.addSource(curContent, new DataSourceInstance(
-				row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#contribution", 
+				row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#content", 
 				DataSourceTypes.OTHER, row.get("dataset_name")));
 		
 		CsvImportApplication.log.trace("Create Contribution entity");
@@ -147,7 +147,7 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.AnnotationDescription;
 		curContribution.setFirstRevision(curContent);
 		curContribution.setStartTime(this.csvImportApplication.when.getTime());
 		this.csvImportApplication.dataSourceService.addSource(curContribution, new DataSourceInstance(
-				 row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#" + row.get("contribution_type"),
+				 row.get("id"),row.get("dataset_file")+"#"+row.get("dataset_id_col")+ "#contribution",
 				DataSourceTypes.OTHER, row.get("dataset_name")));
 		this.csvImportApplication.discoursepartService.addContributionToDiscoursePart(curContribution, dp);
 		
@@ -232,7 +232,9 @@ import edu.cmu.cs.lti.discoursedb.io.csvimporter.AnnotationDescription;
 		this.csvImportApplication.contCache.put(row.get("id"), curContribution.getId());
 		
 		if (row.get("replyto") != "") {
-			Contribution prior = this.csvImportApplication.getContribution(row.get("replyto"));
+			Contribution prior = this.csvImportApplication.getContribution(row.get("replyto"), 
+                                 row.get("replyto"), row.get("dataset_file")+"#"+row.get("dataset_id_col") + "#contribution",
+                                DataSourceTypes.OTHER, row.get("dataset_name"));
 			if (prior != null) {
 				this.csvImportApplication.contributionService.createDiscourseRelation(curContribution, prior, 
 					 DiscourseRelationTypes.REPLY);
