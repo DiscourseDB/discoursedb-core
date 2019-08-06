@@ -15,13 +15,13 @@ services:
      - "127.0.0.1:80:80"
 
   db:
-    image: "mysql"
+    image: "mysql:5.7.27"
     hostname: medical-mysql    
     command: mysqld --user=root --verbose
     volumes:    
      - mysql_data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: smoot
+      MYSQL_ROOT_PASSWORD: smootly
       MYSQL_USER: "local"
       MYSQL_PASSWORD: "local"
     ports:
