@@ -196,11 +196,6 @@
 			</dependency>
 			<dependency>
 				<groupId>edu.cmu.cs.lti</groupId>
-				<artifactId>discoursedb-annotation-io-brat</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>edu.cmu.cs.lti</groupId>
 				<artifactId>discoursedb-ext-twitter4j</artifactId>
 				<version>${project.version}</version>
 			</dependency>			
