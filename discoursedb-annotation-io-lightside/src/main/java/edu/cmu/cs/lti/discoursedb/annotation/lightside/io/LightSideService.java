@@ -415,18 +415,23 @@ public class LightSideService {
 				  String field = row[i];				  
 				  if(i==headerId.get(ID_COL)){
 					  curContrib=contribService.findOne(Long.parseLong(field)).orElseThrow(()->new EntityNotFoundException("Cannot find annotated entity in database."));					  
-				  }else if(i==headerId.get(JSON_COL)){
-					  annoService.addAnnotationsFromJson(field, curContrib);
 				  }
-			  }			  
-			  //wipe old annotations  
-			  //TODO we might not want to delete ALL annotations
-			  delete(annoService.findAnnotations(curContrib));
-			  
-			  //add new annotations to the contribution it belongs to 
-			  for(AnnotationInstance newAnno:curAnnos){
-				  annoService.addAnnotation(curContrib, newAnno);
 			  }
+			  
+			  if (curContrib != null) {
+				  //wipe old annotations  
+				  //TODO we might not want to delete ALL annotations
+				  delete(annoService.findAnnotations(curContrib));
+				  
+				  
+				  for(int i=0;i<row.length;i++){
+					  String field = row[i];
+					  if(i==headerId.get(JSON_COL)){
+						  annoService.addAnnotationsFromJson(field, curContrib);
+					  }
+				  }			  
+			  }
+			  
 			}					
 		}catch(IOException e){
 			log.error("Error reading and parsing data from csv");					

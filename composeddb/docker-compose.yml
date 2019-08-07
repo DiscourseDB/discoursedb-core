@@ -15,7 +15,7 @@ services:
      - "127.0.0.1:80:80"
 
   db:
-    image: "mysql"
+    image: "mysql:5.7.27"
     hostname: medical-mysql    
     command: mysqld --user=root --verbose
     volumes:    
