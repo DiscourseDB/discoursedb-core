@@ -81,6 +81,7 @@ public class LightSideService {
 	private static final String TEXT_COL = "text";
 	private static final String ID_COL = "id";
 	private static final String LIGHTSIDE_PREDICTION_COL_SUFFIX = "_predicted";
+	private static final String JSON_COL = "jsonAnnotations";
 
 	
 	/**
@@ -385,6 +386,59 @@ public class LightSideService {
 			log.error("Error reading and parsing data from csv");					
 		}
 	}
+	
+	/**
+	 * Imports a file of Json annotations and contribution ids, and apply them
+	 * 
+	 * @param inputFilePath path to the file that should be imported
+	 */
+	public void importJsonAnnotatedData(String inputFilePath){		
+		CsvMapper mapper = new CsvMapper();
+		mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+		File csvFile = new File(inputFilePath);
+		try{
+			MappingIterator<String[]> it = mapper.readerFor(String[].class).readValues(csvFile);			
+			
+			//process header
+			String[] header = it.next();
+			Map<String, Integer> headerId = new HashMap<>();
+			for(int i=0;i<header.length;i++){
+				headerId.put(header[i], i);
+			}
+
+			//process data
+			while (it.hasNext()) {
+			  String[] row = it.next();
+			  Contribution curContrib = null;
+			  List<AnnotationInstance> curAnnos = new ArrayList<>();
+			  for(int i=0;i<row.length;i++){
+				  String field = row[i];				  
+				  if(i==headerId.get(ID_COL)){
+					  curContrib=contribService.findOne(Long.parseLong(field)).orElseThrow(()->new EntityNotFoundException("Cannot find annotated entity in database."));					  
+				  }
+			  }
+			  
+			  if (curContrib != null) {
+				  //wipe old annotations  
+				  //TODO we might not want to delete ALL annotations
+				  delete(annoService.findAnnotations(curContrib));
+				  
+				  
+				  for(int i=0;i<row.length;i++){
+					  String field = row[i];
+					  if(i==headerId.get(JSON_COL)){
+						  annoService.addAnnotationsFromJson(field, curContrib);
+					  }
+				  }			  
+			  }
+			  
+			}					
+		}catch(IOException e){
+			log.error("Error reading and parsing data from csv");					
+		}
+	}
+	
+	
 	
 	@Transactional(propagation= Propagation.REQUIRES_NEW, readOnly=false)
 	private void delete(Iterable<AnnotationInstance> annos){

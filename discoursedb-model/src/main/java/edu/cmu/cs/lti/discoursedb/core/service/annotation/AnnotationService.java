@@ -21,7 +21,9 @@
  *******************************************************************************/
 package edu.cmu.cs.lti.discoursedb.core.service.annotation;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +34,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cmu.cs.lti.discoursedb.configuration.CoreAndSystemUser;
 import edu.cmu.cs.lti.discoursedb.configuration.Utilities;
@@ -506,5 +512,76 @@ public class AnnotationService {
 					return annoRelRepo.save(newRelation);
 					}
 				);
+	}
+	
+	
+	
+	/**
+	 * Add a set of annotations with features based on a JSON record
+	 *
+	 * Format:
+	 * [
+	 *  {"annotation": "FT", "features": ["TopicTwoName"], "offsets": [0, 136]}, 
+	 *  {"annotation": "FT", "features": ["TopicTwoName"], "offsets": [138, 225]},
+     *  {"annotation": "FT", "features": ["TopicTwoName"], "offsets": [227, 369]}, 
+     *  {"annotation": "FT", "features": ["TopicTwoName"], "offsets": [371, 473]}, 
+     *  {"annotation": "StorySchema", "features": ["PersonalStories"], "offsets": [0, 496]}
+     * ]
+     * 
+	 * The first parameter is a string containing JSON in the above format.  It should be
+	 * a list of maps.  Each map gives the annotation name, a list of features to add to it,
+	 * and the character offsets over which it applies.
+	 * 
+	 * @param annotationsDescription  The JSON text
+	 * @param curContribution         The contribution being annotated
+	 * @param annotationOwner         The discoursedb user who should own the annotations
+	 * 
+	 * 
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException *
+	 * 
+	 */
+	
+	public void addAnnotationsFromJson(String annotationsDescription, 
+			Contribution curContribution, String annotationOwner) throws 
+			JsonParseException, JsonMappingException, IOException {
+	
+	    List<AnnotationDescription> myObjects = Arrays.asList(
+	        new ObjectMapper()
+	            .readValue(annotationsDescription, AnnotationDescription[].class));
+	    for (AnnotationDescription annot : myObjects) {
+	        AnnotationInstance newAnno = null;
+	        if (annotationOwner != null) {
+	            newAnno = createTypedAnnotation(annot.annotation);
+	            newAnno.setAnnotatorEmail(annotationOwner);
+	        } else {
+	            newAnno = createUnownedTypedAnnotation(annot.annotation);
+	        }
+	        addAnnotation(curContribution, newAnno);
+	        saveAnnotationInstance(newAnno);
+	
+	        for (String feat : annot.features) {
+	            Feature f = createFeature(feat);
+	            saveFeature(f);
+	            addFeature(newAnno, f);
+	        }
+	        if (annot.features.size() == 0) {
+	            Feature f = createFeature(annot.annotation);
+	            saveFeature(f);
+	            addFeature(newAnno, f);
+	        }
+	        if (annot.offsets.size() == 2) {
+	            newAnno.setBeginOffset(annot.offsets.get(0));
+	            newAnno.setEndOffset(annot.offsets.get(1));
+	        }
+	    }
+	}
+	
+	/** If no user is specified, use currently logged in user **/
+	public void addAnnotationsFromJson(String annotationsDescription, 
+			Contribution curContribution) throws 
+			JsonParseException, JsonMappingException, IOException {
+		addAnnotationsFromJson(annotationsDescription, curContribution, Utilities.getCurrentUser().getEmail());
 	}
 }

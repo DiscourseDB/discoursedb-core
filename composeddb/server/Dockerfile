@@ -13,6 +13,7 @@ RUN mvn install
 RUN mvn dependency:copy-dependencies
 WORKDIR /usr/src/discoursedb/discoursedb-api-rest
 COPY composeddb/server/custom.properties.user.management ../custom.properties.temp
+COPY composeddb/server/custom.properties.user.management ../user-management/target/classes/custom.properties
 RUN find .. -name custom.properties -exec cp ../custom.properties.temp {} \;
 RUN mvn install
 RUN mvn dependency:copy-dependencies

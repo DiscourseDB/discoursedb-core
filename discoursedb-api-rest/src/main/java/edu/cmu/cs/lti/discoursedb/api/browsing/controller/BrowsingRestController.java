@@ -642,6 +642,32 @@ public class BrowsingRestController {
 		}
 		return lightsideExports(databaseName, hsr, session);
 	}
+
+
+	@RequestMapping(value = "/action/database/{databaseName}/uploadJsonAnnotations", headers="content-type=multipart/*", method=RequestMethod.POST)
+	@ResponseBody
+	String uploadJsonAnnotations(
+		@RequestParam("file_annotatedFileForUpload") MultipartFile file_annotatedFileForUpload,
+		@PathVariable("databaseName") String databaseName,
+		HttpServletRequest hsr, HttpSession session) throws IOException {
+			registerDb(hsr,session, databaseName);
+			String lsDataDirectory = lsDataDirectory();
+			logger.info("Someone uploaded something!");
+			if (!file_annotatedFileForUpload.isEmpty()) {
+				try {
+					logger.info("Not even empty!");
+					File tempUpload = File.createTempFile("temp-file-name", ".csv");
+					BufferedOutputStream stream = new BufferedOutputStream(
+						new FileOutputStream(tempUpload));
+					FileCopyUtils.copy(file_annotatedFileForUpload.getInputStream(), stream);
+					stream.close();
+					lightsideService.importJsonAnnotatedData(tempUpload.toString());
+				} catch (Exception e) {
+					logger.error("Error importing to lightside: " + e);
+				}
+			}
+		return "OK";
+	}
 	
 	@RequestMapping(value = "/action/getQueryJson", method=RequestMethod.GET)
 	@ResponseBody
