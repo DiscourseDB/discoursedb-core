@@ -357,59 +357,53 @@ public class BrowsingRestController {
 		
 	}
 	
-	// should only list discourseparts of a given type that do NOT have parents
-	@RequestMapping(value = {"/database/{databaseName}/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
-			"/discourses/{discourseId}/discoursePartTypes"} , method = RequestMethod.GET)
-	@ResponseBody
-	PagedResources<Resource<BrowsingDiscoursePartResource>> discoursePartsByTypeAndDiscourse(
-														   @RequestParam(value= "page", defaultValue = "0") int page, 
-														   @RequestParam(value= "size", defaultValue="20") int size,
-														   @PathVariable("databaseName") String databaseName,
-														   @PathVariable("discourseId") Long discourseId,
-														   @PathVariable("discoursePartType") Optional<String> discoursePartType,
-														   @RequestParam(value="annoType", defaultValue="*") String annoType,
-														   HttpServletRequest hsr, HttpSession session) {
-		registerDb(hsr, session, databaseName);
-		PageRequest p = new PageRequest(page,size);
-		
-		Page<BrowsingDiscoursePartResource> repoResources = null;
-		
-		if (!discoursePartType.isPresent()) {  //  never happens with current browser (Sept 2018)
+		// should only list discourseparts of a given type that do NOT have parents
+		@RequestMapping(value = {"/database/{databaseName}/discourses/{discourseId}/discoursePartTypes/{discoursePartType}",
+				"/discourses/{discourseId}/discoursePartTypes"} , method = RequestMethod.GET)
+		@ResponseBody
+		PagedResources<Resource<BrowsingDiscoursePartResource>> discoursePartsByTypeAndDiscourse(
+															   @RequestParam(value= "page", defaultValue = "0") int page, 
+															   @RequestParam(value= "size", defaultValue="20") int size,
+															   @PathVariable("databaseName") String databaseName,
+															   @PathVariable("discourseId") Long discourseId,
+															   @PathVariable("discoursePartType") Optional<String> discoursePartType,
+															   @RequestParam(value="annoType", defaultValue="*") String annoType,
+															   HttpServletRequest hsr, HttpSession session) {
+			registerDb(hsr, session, databaseName);
+			PageRequest p = new PageRequest(page,size);
+			
+			Page<BrowsingDiscoursePartResource> repoResources = null;
+			
+			System.out.println("Are we sure we're here?");
 			repoResources = 
-					discoursePartRepository.findAllByDiscourse(discourseId, p)
-					.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
-					.map(bdpr -> {bdpr.filterAnnotations(annoType); 
-					              bdpr.fillInUserInteractions(discoursePartInteractionRepository, annoService);
-					              return bdpr; });
-		} else {
-			repoResources = 
-				discoursePartRepository.findAllByDiscourseAndTypeWithoutParent(discoursePartType.get(), discourseId, "SUBPART", p)
-				.map(dp -> new BrowsingDiscoursePartResource(dp, annoService))
-				.map(bdpr -> {bdpr.filterAnnotations(annoType); 
-				              bdpr.fillInUserInteractions(discoursePartInteractionRepository, annoService);
-				              return bdpr; });
+					discoursePartRepository.findAllByDiscourseAndTypeWithoutParent(discoursePartType.get(), discourseId, "SUBPART", p)
+					.map(dp -> new BrowsingDiscoursePartResource(dp, annoService));
+			System.out.println("Got " + repoResources.getSize() + " records");
+			
+			repoResources.forEach(bcr -> {
+				if (bcr.getContainingDiscourseParts().size() > 1) { 
+					bcr._getContainingDiscourseParts().forEach(
+				     (dpId, dpname) -> {
+				    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscourseParts/" + dpId, "users in " + dpname));
+				    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/subDiscourseParts/" + dpId, dpname));
+				     });
+				}  
+				Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+		    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
+		    	bcr.add(check);	
+		    	bcr.add(check2);
+		    	Link check3 = makeBratExportNameLink("/browsing/action/database/" + databaseName + "/exportBratItem","chk:Export to BRAT", bcr.getName(),  Long.toString(bcr._getDpId()));
+		    	bcr.add(check3);
+	 		});
+			System.out.println("Retained " + repoResources.getSize() + " records");
+			
+			PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
+
+			return response;
 		}
 		
-		repoResources.forEach(bcr -> {
-			if (bcr.getContainingDiscourseParts().size() > 1) { 
-				bcr._getContainingDiscourseParts().forEach(
-			     (dpId, dpname) -> {
-			    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/usersInDiscourseParts/" + dpId, "users in " + dpname));
-			    	 bcr.add(makeLink("/browsing/database/" + databaseName + "/subDiscourseParts/" + dpId, dpname));
-			     });
-			}  
-		Link check = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",false,"chk:Export to Lightside, no annotations", bcr.getName(), Long.toString(bcr._getDpId()));
-	    	Link check2 = makeLightsideExportNameLink("/browsing/action/database/" + databaseName + "/exportLightside",true,"chk:Export to Lightside, with annotations", bcr.getName(), Long.toString(bcr._getDpId()));
-	    	bcr.add(check);	
-	    	bcr.add(check2);
-	    	Link check3 = makeBratExportNameLink("/browsing/action/database/" + databaseName + "/exportBratItem","chk:Export to BRAT", bcr.getName(),  Long.toString(bcr._getDpId()));
-	    	bcr.add(check3);
- 		});
-		
-		PagedResources<Resource<BrowsingDiscoursePartResource>> response = praDiscoursePartAssembler.toResource(repoResources);
-
-		return response;
-	}
+  
+	
 	
 	
 	//@Secured("ROLE_ADMIN")

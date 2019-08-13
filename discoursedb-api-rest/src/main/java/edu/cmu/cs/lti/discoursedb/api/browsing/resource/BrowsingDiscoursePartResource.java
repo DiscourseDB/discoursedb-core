@@ -79,7 +79,10 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 			this.setAnnotations(annos);
 		}
 		
-		this.setContributionCount(dp.getDiscoursePartContributions().stream().collect(Collectors.summingLong(f -> 1L)));
+		this.setContributionCount(1); 
+				// Should not be "1" but instead:
+				//       dp.getDiscoursePartContributions().stream().collect(Collectors.summingLong(f -> 1L)));
+				// however this is ridiculously slow for a large dataset.
 		this.setSubDiscoursePartCount(dp.getSourceOfDiscoursePartRelations().stream().collect(Collectors.summingLong(f -> 1L)));
 		try {
 			// Quick and dirty -- if we're in two discourses, just pick the first one
@@ -104,10 +107,12 @@ public class BrowsingDiscoursePartResource extends ResourceSupport {
 			this.add(BrowsingRestController.makeLink("/browsing/dpContributions/" + dp.getId() + "/", this.getContributionCount() + " contribution(s)"));
 		}
 		
-   	    containingDiscourseParts = new HashMap<Long,String>();
+		System.out.println("ERR 7");
+		containingDiscourseParts = new HashMap<Long,String>();
    	    for (DiscoursePartRelation dpr : dp.getTargetOfDiscoursePartRelations()) {
    	    	containingDiscourseParts.put(dpr.getSource().getId(), dpr.getSource().getName());
    	    }
+		System.out.println("DONE");
 	}
 	
 	public void fillInUserInteractions(DiscoursePartInteractionRepository dpr, AnnotationService annoService) {
