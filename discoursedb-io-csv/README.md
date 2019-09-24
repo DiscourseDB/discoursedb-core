@@ -94,7 +94,24 @@ everyone will be able to read it, and no one will be able to change it.
 (This is useful for annotations
 that are meant to be part of the raw data, as opposed to researcher-owned
 annotations that are an analytical interpretation of the data)
-</dd>
+<dt>jsonAnnotations
+<dd>An alternate format for importing annotations all at once: this field
+is a JSON string (with double-quotes properly escaped for inclusion in CSV).
+The JSON content should be
+a list of maps.  Each map gives the annotation name, a list of features to add to it,
+and the character offsets over which it applies.  For example the following
+would tag various ranges of a contribution with four different foreground topics (FT)
+with various feature names, and label the whole contribution with a StorySchema
+feature named PersonalStories.
+  
+    [
+      {"annotation": "FT", "features": ["PersonalStory"], "offsets": [0, 136]}, 
+      {"annotation": "FT", "features": ["PersonalStory"], "offsets": [138, 225]},
+      {"annotation": "FT", "features": ["HelpRequests"], "offsets": [227, 369]}, 
+      {"annotation": "FT", "features": ["FactsAndData"], "offsets": [371, 473]}, 
+      {"annotation": "StorySchema", "features": ["PersonalStories"], "offsets": [0, 496]}
+    ]
+</dl>
 
 # Running the import
 
